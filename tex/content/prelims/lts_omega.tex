@@ -1,0 +1,108 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{\texorpdfstring{$\omega$}{Omega}-regular languages}%
+\label{LTS:OmegaAutomata}%
+
+We consider variants of finite-state automata that define $\omega$-languages.
+Obviously, the acceptance condition of ending in a final state needs to be replaced.
+Simply requiring that a final state occurs would limit us to so-called reachability conditions and the associated \emph{safety properties} of programs.
+Reachability conditions are not expressive enough to model so-called \emph{liveness properties}~\cite{GradelTW02} like fair scheduling.
+
+\paragraph{Büchi automata}
+
+The easiest way of making an NFA accept an $\omega$-language is to require that final states occur repeatedly.
+On the syntactic level, \emph{nondeterministic Büchi automata (NBAs)} are defined just like NFAs.
+Their semantics, however, is defined in terms of infinite words.
+A run on an infinite \nb{word $w \in \Sigma^\omega$} from state $q \in Q$ is an infinite sequence of states and transitions
+\[
+    q = q_0 \tow{w_1} q_1 \tow{w_2} \cdots
+    \ .
+\]
+A run of $A$ on $w$ is \emph{accepting} if it starts in the initial state $\qinit$ and in its sequence of states, final states from $\QF$ occur infinitely often.
+As $\QF$ is a finite set, this is equivalent to requiring that some state from $\QF$ occurs infinitely often.
+The language $\olang{A}$ of an NBA $A$ is the set of all infinite words on which $A$ has an accepting run.
+Note that we use the notation $\olang{A}$ to distinguish the language of $A$ seen as Büchi automaton from $\lang{A}$, the language of finite words of $A$ seen as NFA.\@
+This should not be confused with the omega-iteration of a language.
+
+An $\omega$-language $\calL \subseteq \Sigma^\omega$ is called \emph{$\omega$-regular} if it is the language of an NBA $A$.
+The class of $\omega$-regular languages enjoys many of the effective closure properties that also hold for regular languages of finite words:
+They are closed under union, intersection, and complementation.
+Furthermore, the following characterization is well-known~\cite{Thomas90}:
+A language $\calL \subseteq \Sigma^\omega$ is $\omega$-regular if and only if it can be written as
+\[
+    \calL = \bigcup_{i \in \oneto{n}} U_i.\paren{V_i}^\omega
+\]
+where $n \in \N$, and for each $i \in \oneto{n}$, $U_i,V_i \subseteq \Sigma^*$ are regular languages of finite words.
+
+While $\omega$-regular languages are closed under complement, the proof of this fact is much more involved than in the case of NFAs.
+Recall that in the case of finite words, one uses that an NFA can be determinized and DFAs are easy to complement.
+The same does not work for Büchi automata:
+There are languages of NBAs that do not occur as languages of DBAs (deterministic Büchi automata).
+The language ${(a \cup b)}^* b^\omega$ of words that contain only finitely many $a$s is one such example.
+\cref{Figure:AutomataForFinManyAsNBA} depicts an NBA accepting that language.
+It nondeterministically guesses the occurrence of the last $a$.
+
+\begin{figure}[t]
+    {\centering\subcaptionbox{An NBA.\label{Figure:AutomataForFinManyAsNBA}}[0.45\textwidth][c]{
+        \input{tikz/automaton_fin_many_a_nba.tikz}}
+    }
+    {\centering\subcaptionbox{A DPA.\label{Figure:AutomataForFinManyAsDPA}}[0.45\textwidth][c]{
+        \input{tikz/automaton_fin_many_a_dpa.tikz}}
+    }
+    \caption{Automata accepting the language ${(a \cup b)}^* b^\omega$.}%
+    \label{Figure:AutomataForFinManyAs}%
+\end{figure}
+
+\paragraph{Parity automata}
+
+To solve the above problem, one possibility is to consider an automaton model with a more involved acceptance condition.
+There are several choices, including the Rabin~\cite{Rabin68}, Streett~\cite{Streett81}, Muller~\cite{Muller63}, and parity~\cite{Mostowski84} acceptance conditions.
+We only consider the parity acceptance condition throughout this thesis as it is widely used in theory and tools.
+
+The idea is to allow the nesting of Büchi and co-Büchi conditions.
+The latter allow the specification of states that should not be visited infinitely often.
+We partition the states $Q = Q_1 \dotcup Q_2 \dotcup \ldots \dotcup Q_m$ into several sets, where (1)~there is a total order on these sets and (2)~each set is marked either as final or as non-final.
+A run is accepting if the maximal set $Q_i$ (\wrt the total order) such that a state from $Q_i$ occurs infinitely often in the run is final.
+
+We follow the usual convention to formalize the partition by a \emph{priority assignment}
+\(
+    \Omega \colon Q \to \N
+\)
+on the states.
+Each set $Q_i$ is defined as the set of states that have priority $i$, $Q_i = \Set{ q \in Q}{ \Omega(q) = i}$.
+The total order is as indicated by the priority, where we fix the convention that higher priorities are dominating.
+We consider even priorities as final and odd priorities as non-final.
+
+Altogether, a \emph{(nondeterministic) parity automaton (NPA)} is a tuple
+$A = (Q, \Sigma, \delta, \qinit, \Omega)$, where all components but $\Omega$ are as for NFAs and NBAs and $\Omega \colon Q \to \N$ is a priority assignment as introduced above.
+A run of an NPA $A$ on an infinite word $w$ is accepting if it starts with the initial \nb{state $\qinit$} and the largest priority occurring infinitely often in the run is even.
+The notion of language is again the set of all infinite words that have an accepting run.
+
+As $Q$ is finite, so is the image of $\Omega$, and we may speak of the \emph{largest priority} that is used by a parity automaton.
+Similarly, each infinite run has a largest priority that occurs infinitely often.
+% It is clear that we
+% It is also clear that anything that can be expressed with a parity automaton can already be expressed with a parity automaton using priorities only up to $\card{Q} + 2$.
+Büchi automata can be seen as special parity automata that only use two priorities, $1$ for non-final \nb{and $2$ for} final states.
+
+\begin{remark*}
+    For finite-state systems, choosing larger priorities to be dominating and even priorities to be final is arbitrary, and in parts of the literature, other conventions are used.
+\end{remark*}
+
+In contrast to Büchi automata, parity automata are determinizable.
+\emph{Deterministic parity automata (DPAs)} are defined as expected by requiring the transition relation to be deterministic.
+For any NPA, there is a language-equivalent DPA.\@
+However, there is a potential exponential blowup in the number of states that is even worse than in the case of finite-state automata on finite words.
+
+\begin{theorem}[(\citea{Safra88})]
+    For any NPA $A$ with $\card{Q}$ states, there is a language-equivalent DPA with $2^{\bigO{\card{Q} \cdot \log \card{Q}}}$ states.
+    The construction is optimal.
+\end{theorem}
+
+\cref{Figure:AutomataForFinManyAsDPA} depicts a deterministic parity automaton (where the names of the states indicate the priorities) that accepts the language ${(a \cup b)}^* b^\omega$ for which no deterministic Büchi automaton exists.
+
+Both NPAs and DPAs can be used to obtain an alternative but equivalent definition of the $\omega$-regular languages:
+A language is $\omega$-regular iff it occurs as the language of an NBA/NPA/DPA.\@
+To convert an NBA into an NPA is trivial, determinizability is Safra's result, and to convert a DPA to an NBA, we let the NBA guess the highest-occurring priority at the beginning and verify its guess later.
+
+\end{document}

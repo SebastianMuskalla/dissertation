@@ -1,0 +1,124 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Related work}%
+\label{Section:CFGamesRelWork}%
+
+We discuss the relation of our approach to context-free games to other works from the literature.
+
+\paragraph{\Walus~reduction}
+
+To the best of the author's knowledge, the first to not only consider context-free games but also to solve them was \Walu~in~\cite{Walukiewicz01}.
+In an earlier work~\cite{Walukiewicz02}, he had discovered the relationship between the model-checking problem for the modal $\mu$-calculus and parity games.
+The modal $\mu$-calculus is a logic that features operators for least and greatest fixed points.
+A $\mu$-calculus formula can describe the winning region of a parity game and vice versa.
+With this motivation in mind, he translated the model checking problem for modal $\mu$-calculus formulas on the computation tree of a pushdown automaton into solving a parity game on the computation tree of a modified pushdown automaton.
+The tree is turned into a game arena by a partition of the control states into the ones owned by each of the players.
+Similarly, the configurations inherit their priorities from the control states, for which one obtains a priority assignment from the nesting structure of the $\mu$-calculus formula.
+
+To solve this type of game, \Walu~has designed a reduction that outputs an equivalent parity game on a finite arena, \ie a parity game with the same winner.
+The idea behind the reduction is to not store the full stack content of the pushdown, but only the top-of-stack.
+Whenever a push operation, say $\pushop a$ should be executed, the finite-state game uses a guess-and-verify mechanism, aided by the fact that we have two adversarial players.
+Firstly, one of the players is allowed to choose a prediction, a set of tuples of control state and priority.
+Intuitively, an entry $(q,i)$ in the prediction set represents a play of the game in which $a$ gets pushed, remains on the stack for some time, and then gets popped again while reaching state $q$.
+The priority $i$ is the largest priority that occurred while symbol $a$ was on the stack.
+Secondly, the other player decides whether to trust or to verify the prediction.
+If she trusts the prediction, she picks one entry $(q,i)$ from the prediction set, and the play continues with control state $q$ and the current top-of-stack remains as before -- we assume that the infix of the play in which the letter $a$ was on the stack has been skipped.
+If she wants to verify the prediction, the push operation is actually executed and the top-of-stack is replaced by $a$.
+When a pop operation, $\popop a$, occurs, the play ends and the player who picked the prediction wins depending on whether the control state that has been reached and the maximum priority that has been visited are contained \nb{in the prediction}.
+
+Assume that we have a winning strategy for the context-free game.
+By picking the correct predictions -- namely the ones actually describing the plays that can occur according to our winning strategy -- we obtain a winning strategy for the game on the finite arena.
+Similarly, a winning strategy for the finite game yields a strategy for the context-free one.
+To be precise, it yields a strategy that can be implemented by a synchronized pushdown automaton as in \cref{Section:CFGamesStrategies}.
+To be able to apply the strategy for the finite game, the synchronized pushdowns tracks for each stack level also the prediction set that has been chosen for the corresponding push operation.
+
+\Walu~has considered parity games, but the construction can be easily adapted to transform a context-free game with a reachability winning condition defined on the control states of the pushdown automaton into a finite reachability game.
+In both cases, the construction introduces an exponential blowup, since we need to add the prediction sets to the state space, which is essentially a powerset construction.
+To be able to apply \Walus~construction to context-free inclusion games, one has to determinize the automaton for the target language as described in \cref{Chapter:Games}.
+This introduces another exponential blowup, which is to be expected: \Walu~has shown $\EXPTIME$-completeness for his type of games, while we have shown \nb{$2\EXPTIME$-completeness}.
+
+In her Master's thesis, Elisabeth Neumann~\cite{Neumann17} has conducted an in-depth comparison of \Walus~approach and ours.
+Assume that we do not use the standard powerset construction to determinize the automaton, but rather we use a construction based on the transition monoid, as explained in \cref{Section:TransitionMonoid}.
+If one transform a given game grammar to a game pushdown, takes the product with this determinized automaton, applies \Walus~reduction to obtain a finite-state reachability game, one can then solve this game with the well-known attractor construction.
+From the attractor (\resp its approximants that occur during its computations), one can read off the formulas that are the least solution to the interpreted system of equations in our approach (\resp their approximants).
+Note that, however, the fact that \Walus~approach can be conducted using the determinization based on the transition monoid does not mean that it actually uses the advantages that the transition monoid provides, \eg the fact that the behavior of a word in arbitrary contexts is represented by its box.
+
+If one compares \Walus~approach applied to $\omega$-context-free games to our approach that we will present in \cref{Section:CFGamesOmega}, one sees that both approaches ultimately require solving a finite-state parity game.
+The key difference is that in Walukiewicz game, the players can pick an arbitrary prediction set.
+Finding out which prediction sets are not valid candidates has to be done when the parity game is solved and the winning strategy is computed.
+In our approach, we use the fixed-point iteration to precompute information about finite subplays.
+This yields formulas -- which we can see as a collection of prediction sets --, and the players are only allowed to choose among these.
+This should be a more efficient implementation.
+
+\Walus~reduction is inspired by the game semantics for the $\mu$-calculus, see \eg \cite{BradfieldW18}:
+Here, instead of computing a least or greatest fixed point, one of the player guesses it.
+This guess is enforced to be correct by giving the other player the chance to verify the guess.
+This trick has proven to be very versatile.
+\Walus~reduction has been extended to higher-order pushdown automata by~\citea{CachatW07} and to multi-pushdown automata with certain restrictions by~\citea{Seth09}.
+
+\paragraph{Cachat's saturation algorithm}
+
+In~\cite{Cachat02}, Cachat has considered a different type of context-free games.
+Like in \Walus~case, the game arena is the computation tree of a pushdown automaton with a partition of the control states.
+However, the winning condition is reaching a configuration that is in a regular target set.
+To specify such a regular set of configurations of some pushdown $P$, one uses so-called $P$-AFAs.
+A $P$-AFA is an alternating automaton whose input alphabet is the set of stack symbols and whose set of states contains the set of states of $P$.
+A configuration of the pushdown with state $q$ and stack content $w$ is accepted by a $P$-AFA if the automaton accepts the word $w$ from the control state $q$.
+Cachat presents a saturation technique that turns a $P$-AFA for the target set into a $P$-AFA for its attractor, the winning region of the reachability game, by iteratively adding transitions.
+The fact that he is considering alternating automata makes it easy to implement the attractor construction for solving reachability games on the level of automata.
+
+Cachat also presents an extension of his construction to Büchi games.
+The constructions for both reachability and Büchi games are very much inspired by the seminal paper by~\cite{BouajjaniEM97} on the verification of pushdown automata.
+Cachat's contribution is extending these constructions from verification problems to games.
+The main modification consists of using $P$-AFAs instead of $P$-NFAs, which are defined similarly but do not feature alternation.
+
+Similar to the case of \Walus~reduction, Cachat's algorithm can be applied to use context-free inclusion games.
+This also requires determinizing the automaton for the target language.
+Elisabeth Neumann has also considered Cachat's algorithm in her Master's thesis~\cite{Neumann17} and shown that if one uses the determinization based on the transition monoid, one obtains a correspondence between the structure of the $P$-AFA representing the winning region and the formulas forming the least solution in our approach.
+
+\paragraph{\citeauthor{MuschollSS06}:~Active context-free games}
+
+\citea{MuschollSS06} have considered so-called active context-free games.
+Like in our definition of context-free games, the game arena for these games are induced by context-free grammars and they have regular target languages.
+However, these target languages are languages over the set of both terminals and nonterminals.
+Compared to our context-free games, active context-free games proceed differently.
+In each round of a play, one of the players selects a nonterminal in the current sentential form, then the other player picks a production rule to replace that nonterminal.
+The winning condition is obtaining a sentential form in the target language.
+In its most general form, this type of game is undecidable.
+However, Muscholl et al.~show that it is decidable with a left-to-right restriction:
+In this case, once the player selecting the nonterminals has picked some nonterminal, she is not allowed to pick nonterminals to the left of it during the rest of the play.
+With this restriction in place, the game becomes very similar to the context-free inclusion games that we consider.
+In fact, the paper~\cite{MuschollSS06} contains a proof showing that one can incorporate features like symmetric rule choice, \ie letting each of the players pick the production rules for a certain set of nonterminals like in our type of game.
+It is not too difficult to transform a context-free regular inclusion game into an active context-free game with the left-to-right restriction and vice versa.
+
+The key difference between the considerations in the paper~\cite{MuschollSS06} and our study is that \citeauthor{MuschollSS06} were mainly concerned with the decidability and computational complexity of active context-free games and their various restrictions.
+To obtain the upper bounds, they simply reduce their games to the games considered by Cachat.
+This results in an algorithm that has the optimal asymptotic time complexity, but likely would be inefficient in practice.
+In contrast to this, we are interested in an approach that in addition to achieving optimal time complexity is also practical.
+
+The proof that we have provide for the $2\EXPTIME$-hardness of context-free inclusion games in \cref{Section:CFGamesComplexity} is based on the proof of the $2\EXPTIME$-hardness of active context-free games in \cite{MuschollSS06}, which in turn is based on \Walus~proof of $\EXPTIME$-hardness in~\cite{Walukiewicz01}.
+
+Active context-free games have been later extended to the case of a visibly context-free specification of the game arena~\cite{SchusterS15}, which is a restriction, and a visibly context-free target language, which is a generalization.
+More recently, \citea{CoesterSS19} have studied active context-free games with imperfect information.
+
+
+\paragraph{\citeauthor{KupfermanV00}:~Two-way tree automata}
+
+\citea{KupfermanV00} actually do not consider games on context-free games.
+Rather, they consider the $\mu$-calculus model checking problem for context-free trees (computation trees of pushdown automata), which by \Walus~findings is equivalent to solving a parity game.
+They provide a reduction from this model checking problem to checking the emptiness of a two-way alternating parity tree automaton.
+As in Cachat's work, alternation provides a way to incorporate the game aspect.
+A two-way automaton is an automaton that can move up and down in the tree.
+This is used to handle pops: A pop operation of the pushdown can be simulated by a two-way automaton by simply walking up the tree to the configuration before the letter has been pushed.
+This reduction is then combined with an earlier result of~\citea{Vardi98} that shows how a two-way alternating parity tree automaton can be transformed into an equivalent regular (one-way) alternating parity tree automaton.
+The emptiness problem for this automaton can be solved by a variation of the construction that has been used to prove Rabin's tree theorem (which we have briefly described in \cref{Chapter:Games}).
+
+\paragraph{Serre: Regular winning regions of context-free games}
+
+\citea{Serre03}~has conducted a more general study of the winning regions of context-free games.
+He has shown that if the winning condition of an ($\omega$-)context-free game is ($\omega$-)regular, then so is its winning region.
+Our findings certainly confirm his result:
+As detailed in \cref{Section:CFGamesStrategies}, for each of the players, we can construct a deterministic finite automaton representing her winning region, proving that it is regular.
+
+\end{document}

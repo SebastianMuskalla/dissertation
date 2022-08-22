@@ -1,0 +1,87 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Results}%
+\label{Section:PNResults}%
+
+% We conclude this introductory chapter by briefly summarizing the results that we will prove in the rest of this part.
+The goal of this part of this thesis is to study the computability and size of representations of the upward and downward closures of Petri net coverability languages.
+We recall the result for coverability languages from~\cite{HabermehlMW10} and provide a lower bound that matches the non-primitive recursive complexity of the algorithm.
+We extend the result by studying various restrictions of the problem that yield lower complexities, providing matching upper and lower bounds in each case.
+Furthermore, we study upward closures which have not been considered in~\cite{HabermehlMW10}.
+Because the class of coverability languages is not closed under complement, we cannot simply use the computability of the downward closures to deduce the computability of the upward closures.
+It turns out that the upward closures are computable, and the complexity of doing so is much lower than in the case of downward closures.
+
+Let us briefly comment on the structure of this part of the thesis and summarize the results that will be proven in each of the chapters.
+\cref{Chapter:UC} considers the upward closures of Petri net coverability languages.
+We first consider $\PNUC$, the problem of computing an NFA representing the upward closure.
+We prove in \cref{Theorem:PNUCGeneral} that this problem can be solved in doubly exponential time, which is optimal.
+This bad complexity leads us to considering three restricted versions of the problem:
+If we restrict the input to be a BPP net, we obtain the problem $\BPPUC$ which can be solved in singly exponential time which is again optimal, see \cref{Theorem:BPPUCGeneral}.
+Instead of computing the upward closure, we then check whether the language of a given SRE is contained in it.
+This problem, $\SREUC$, is $\EXPSPACE$-complete as proven in \cref{Theorem:PNSREUC}.
+Combining both restriction leads to the problem $\SREBPPUC$ which is $\NPTIME$-complete, \cref{Theorem:BPPSREUC}.
+In the corresponding sections of \cref{Chapter:UC}, we provide more motivation for considering each of these restrictions.
+
+In \cref{Chapter:DC}, we conduct a similar study for the downward closures of Petri net languages.
+The computability of the downward closure in the general case, problem $\PNDC$, was already settled in~\cite{HabermehlMW10}.
+We briefly recall the procedure that results in an NFA of potentially non-primitive recursive size and complement it by a matching lower bound, showing that the construction is optimal, \cref{Theorem:PNDCGeneral}.
+We again consider the two restrictions and their combination in the following sections, which yields the following results:
+Problem $\BPPDC$ can be solved in exponential time, which is optimal (\cref{Theorem:BPPUCGeneral}); problem $\SREDC$ is $\EXPSPACE$-complete~(\cref{Theorem:PNSREDC}), and $\SREBPPDC$ is $\NPTIME$-complete (\cref{Theorem:SREBPPDC}).
+While these complexities match the corresponding problems for the upward closure, the proofs are vastly different.
+
+In both \cref{Chapter:UC} and \cref{Chapter:DC}, we will also consider the computational \resp state complexity of the various problems for Petri nets encoded in unary.
+For all problems, we obtain the same complexity class as in the case of the usual binary encoding.
+This means that the difficulty in computing the languages closures comes from the concurrent nature of Petri nets, and not from their capability of encoding exponential transition multiplicities using polynomial space.
+
+We conclude this part of the thesis by studying whether the upward \resp downward closure of a Petri net coverability language -- representations of which we can compute as demonstrated in the Chapters~\ref{Chapter:UC} and~\ref{Chapter:DC} -- are equal to the language itself.
+It turns out that this problem is decidable, as we will show in the form of \cref{Theorem:PNCOVUCDCDecidable}.
+The proof of this theorem uses another new decidability result that is of independent interest.
+We show that the regular containment problem $\PNCOVREGCONT$ of checking whether a given regular language is contained in the coverability language of a given Petri net is decidable, \cref{Theorem:PNCOVRegularContainment}.
+
+The table in \cref{Figure:ClosureResults} summarizes the results that we will present in detail in the rest of this part of the thesis.
+
+\let\oldarraystretch\arraystretch%
+\def\arraystretch{1.5}%
+
+\begin{figure}
+    \centering%
+    \begin{tabular}{p{11em}!{\vrule width 0.1em}p{12em}|p{11em}}
+        & Petri nets & BPP nets
+        \\
+        \noalign{\hrule height 0.1em}
+        %
+        $\PNUC$ / $\BPPUC$ & Doubly exponential \newline (\cref{Theorem:PNUCGeneral}) & Exponential \newline (\cref{Theorem:BPPUCGeneral}) \\
+        \hline
+        $\SREUC$ / $\SREBPPUC$ & $\EXPSPACE$-complete \newline (\cref{Theorem:PNSREUC}) & $\NPTIME$-complete \newline (\cref{Theorem:BPPSREUC}) \\
+        \hline
+        $\PNDC$ / $\BPPDC$ & Non-primitive recursive \newline (\cref{Theorem:PNDCGeneral},\cite{HabermehlMW10}) & Exponential \newline (\cref{Theorem:BPPUCGeneral}) \\
+        \hline
+        $\SREDC$ / $\SREBPPDC$ & $\EXPSPACE$-complete \newline (\cref{Theorem:PNSREDC}) & $\NPTIME$-complete \newline (\cref{Theorem:SREBPPDC})  \\
+        \hline%
+        $\PNCOVUC$, \newline $\PNCOVDC$
+        &
+            \multicolumn{2}{p{20em}}
+            {
+                Decidable
+                \newline
+                (\cref{Theorem:PNCOVUCDCDecidable})
+            }
+        \\
+        \hline
+        $\PNCOVREGCONT$
+        &
+            \multicolumn{2}{p{20em}}
+            {
+                Decidable
+                \newline
+                (\cref{Theorem:PNCOVRegularContainment})
+            }
+    \end{tabular}%
+    \caption{A summary of our results regarding the upward and downward closures of Petri net coverability languages.}%
+    \label{Figure:ClosureResults}%
+\end{figure}
+
+\def\arraystretch\oldarraystretch%
+
+\end{document}

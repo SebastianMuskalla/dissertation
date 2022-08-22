@@ -1,0 +1,11 @@
+\begin{tikzpicture}[->,>=latex,node distance=1em,semithick]
+
+\node (a) at (0,0) {$\bullet$};
+\node (b) at (1,0) {$\bullet$};
+
+\node at (0.5,-0.4) {};
+
+\node [left of=a] {$a$};
+\node [right of=b] {$b$};
+
+\end{tikzpicture}

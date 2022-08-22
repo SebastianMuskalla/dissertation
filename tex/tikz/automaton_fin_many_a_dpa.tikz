@@ -1,0 +1,13 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[initial,state,transform shape, initial text={}] (A) {$1$};
+\node[state, transform shape] (B) [right of=A] {$0$};
+
+\path
+    (A) edge [bend left = 15] node [above]  {$b$} (B)
+    (B) edge [bend left = 15] node [below] {$a$} (A)
+    (A) edge [loop above] node [above] {$a$} (A)
+    (B) edge [loop above] node [above] {$b$} (B)
+;
+
+\end{tikzpicture}

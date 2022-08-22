@@ -1,0 +1,440 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Results on WSTS expressiveness}%
+\label{Section:WSTSExpressiveness}%
+
+With the notion of $\omega^2$ introduced, we can state our results on WSTS expressiveness.
+In the following, we identify a type of WSTS with the class of languages of such WSTSes.
+For example, when we write \enquote{$\text{deterministic WSTS} =  \text{finitely branching WSTS}$}, we mean that each language of a deterministic WSTS is also the language of a finitely branching WSTS and vice versa.
+We do not claim that every finitely branching WSTS is deterministic.
+
+To be able state the result, we will also need the following notation.
+The \emph{reverse} of a word $a_1 \ldots a_k$ is defined as expected, $\rev{a_1 \ldots a_k} = a_k \ldots a_1$.
+We extend the notion to languages, $\rev{\calL} = \Set{ \rev{w} }{ w  \in \calL}$.
+Two LTSes $M,M'$ with $\lang{M} = \rev{\lang{M'}}$ are called \emph{reversely
+equivalent}.
+We will use the symbol $\revsubseteq$ between languages classes to express that for every language $\calL$ language in the class on the left-hand side of the symbol, the class on the right-hand side contains $\rev{\calL}$.
+
+The following theorem summarizes our results on the relations among various classes of languages defined by WSTSes and their restrictions.
+
+\begin{theorem}%
+\label{Theorem:WSTSExpressiveness}
+    The following relations hold among the WSTS language classes:
+    \begin{align*}
+        \text{$\omega^2$-WSTS} \ & \subseteq  \text{deterministic WSTS}
+        =  \text{finitely branching WSTS} \, \subseteq \, \text{WSTS}
+        \ ,
+        \\
+        \text{$\omega^2$-DWSTS} \ &\subseteq  \text{deterministic DWSTS}
+        \subseteq  \text{finitely branching DWSTS} \, = \, \text{DWSTS}
+        \ ,
+        \\
+        \text{$\omega^2$-WSTS} \ & \revsubseteq \, \text{deterministic DWSTS}
+        \ ,
+        \\
+        \text{$\omega^2$-DWSTS} \ & \revsubseteq \,  \text{deterministic WSTS}
+        \ .
+    \end{align*}
+\end{theorem}
+
+In words, $\omega^2$-(D)WSTSes determinize and reversely determinize; finitely branching WSTSes determinize too, and unrestricted DWSTSes are equivalent to finitely branching DWSTSes.
+
+The inclusions
+\begin{itemize}
+    \item
+        $\text{deterministic WSTS} \subseteq  \text{finitely branching WSTS} \subseteq \text{WSTS}$, and
+    \item
+        $\text{deterministic DWSTS} \subseteq  \text{finitely branching DWSTS} \subseteq \text{DWSTS}$
+\end{itemize}
+follow directly from the definitions.
+We state and prove each of the other inclusions as a separate lemma:
+\begin{itemize}
+    \item
+        $\text{$\omega^2$-WSTS} \subseteq  \text{deterministic WSTS}$
+        is \cref{Lemma:Expressiveness1},
+    \item
+        $\text{finitely branching WSTS} \subseteq  \text{deterministic WSTS}$
+        is \cref{Lemma:Expressiveness2},
+    \item
+        $\text{$\omega^2$-DWSTS} \subseteq  \text{deterministic DWSTS}$
+        is \cref{Lemma:Expressiveness3},
+    \item
+        $\text{DWSTS} \subseteq \text{finitely branching DWSTS}$
+        is \cref{Lemma:Expressiveness4},
+    \item
+        $\text{$\omega^2$-WSTS} \revsubseteq \text{deterministic DWSTS}$
+        is \cref{Lemma:Expressiveness5}, and
+    \item
+        $\text{$\omega^2$-DWSTS} \revsubseteq \text{deterministic WSTS}$
+        is \cref{Lemma:Expressiveness6}.
+\end{itemize}
+
+At the end of this chapter, we will comment on whether the inclusions are strict.
+
+\paragraph{Internal downward closure}
+
+Before proving the results that constitute \cref{Theorem:WSTSExpressiveness}, we introduce a normal form for \nb{WSTSes} that will simplify some proofs.
+We say that a WSTS $\wsts$ is \emph{internally downward closed} if the following two conditions are met.
+(1) The set of initial configuration is downward closed.
+(2) If $c \tow{a} d$ for some configurations $c,d$, then there is also a transition $c \tow{a} d'$ for all $d' \in \dc{d}$.
+The latter condition can be rephrased by requiring $\post{}{a}{c}$ to be downward closed.
+
+If a WSTS $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is not downward closed, we may replace it by its \emph{internal downward closure} $\idc{\wsts} = (\configs,\leq,T',\dc{\configs_\init},\configs_\final)$ where the transitions are defined by
+\[
+    T' = \Set{ c \tow{a} d' }{ \exists d \colon d' \leq d \text{ and } c \tow{a} d \text{ in } T}
+    \ .
+\]
+As the name suggest, the internal downward closure is internally downward closed.
+It is easy to check that the internal downward closure indeed is a WSTS.\@
+The operation preserves the language of the WSTS, \ie we always have $\lang{\wsts} = \lang{\idc{\wsts}}$.
+The inclusion $\lang{\wsts} \subseteq \lang{\idc{\wsts}}$ is implied by $\configs_\init \subseteq \dc{\configs_\init}$ and $T \subseteq T'$, the other one follows from the following lemma.
+
+\begin{lemma}%
+\label{Lemma:WSTSExtendedCompatibility}%
+    Let $w \in \Sigma^*$.
+    If $c \leq c'$ and $c \tow{w} d$ in $\idc{\wsts}$, then $c' \tow{w} d'$ in $\wsts$ for some configuration $d'$ with $d \leq d'$.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on $w$.
+    The base case is $w = \varepsilon$, and the statement is trivial since we have $c = d$ and may pick $d' = c'$.
+    For the induction step, consider $w.a$ with $c \tow{w} d \tow{a} e$ in $\idc{\wsts}$, and let $c \leq c'$.
+    By induction, there is some $d'$ with $d \leq d'$ such that $c' \tow{w} d'$ in $\wsts$.
+    Since we have $d \tow{a} e$ in $\idc{\wsts}$, there is some $e'$ with $e \leq e'$ such that $d \tow{a} e'$ in $\wsts$.
+    We use $d \leq d'$ and the upward compatibility of WSTS to obtain that there is some $e''$ with $e' \leq e''$ (and hence $e \leq e''$) so that $d' \tow{a} e''$.
+    Altogether, we obtain $c' \tow{w} d' \tow{a} e''$ with $e \leq e''$ as desired.
+\end{proof}
+
+Using the lemma, we can now prove $\lang{\idc{\wsts}} \subseteq \lang{\wsts}$.
+Assume that $c \tow{w} d$ is an accepting run of $\idc{\wsts}$, which means $c \in \dc{\configs_\init}$ and $d \in \configs_\final$.
+By definition, there is some $c' \in \configs_\init$ with $c \leq c'$.
+Applying the lemma yields a run $c' \tow{w} d'$ of $\wsts$ with $d \leq d'$.
+Since the final configurations are upward closed, we obtain $d' \in \configs_\final$, which completes the proof.
+
+\begin{remark*}
+    We have used the term \emph{internal downward closure} to express that we apply the downward closure to the internal behavior of the system, \ie the configurations and transitions, while preserving the language.
+    This has nothing to the with the construction introduced in \cref{Section:PNRelwork} that takes \eg a Petri net and yields one whose language is the downward closure.
+\end{remark*}
+
+\begin{example}
+    Consider a labeled Petri net instance $(N,\Minit,\Mfinal)$ and the WSTS $\wsts = (\N^P,\leq,T_N,\Minit,\uc{\Mfinal})$ that corresponds to the coverability language of that net.
+    This WSTS is not internally downward closed in general; constructing the internal downward closure results in the WSTS $\idc{\wsts} = (\N^P,\leq,T_N',\dc{\Minit},\uc{\Mfinal})$
+    where
+    \[
+        T_N' = \Set{ M \tow{a} M'}{ M \fire{t} M'' \text{ for some $t,M''$ with $\lambda(t) = a$ and $M'' \geq M'$}}
+        \ .
+    \]
+    In the original system, the goal was to cover $\Mfinal$, or phrased differently, to reach $\Mfinal$ by dropping some superfluous tokens at the end of the computation.
+    In $\idc{\wsts}$, tokens can also be dropped at the beginning of the computation (by starting from a marking in $\dc{\Minit}$ that is not $\Minit$) and after each transition.
+    The monotonicity of the transition relation of Petri nets ensures that any computation that drops tokens early can be simulated by one in which all tokens are dropped at the end.
+\end{example}
+
+The internal downward closure preserves the underlying order of the original WSTS, and hence also the property of being $\omega^2$.
+In general, it does not preserve the properties of being deterministic or finitely branching.
+
+We can define a similar notion for downward-compatible WSTSes.
+We call a DWSTS \emph{internally upward closed} if its set of initial configurations and $\post{}{a}{c}$ are upward closed for all symbols $a$ and all configurations $c$.
+For a given DWSTS $\dwsts$, we may enforce these properties by constructing its \emph{internal upward closure} $\iuc{\dwsts}$, a DWSTS that has $\uc{\configs_\init}$ as its set of initial configurations and in which the $a$-successors of a configuration $c$ are $\uc{\post{\dwsts}{a}{c}}$.
+The languages of the two DWSTS coincide, $\lang{\dwsts} = \lang{\iuc{\dwsts}}$.
+The proof from the case of WSTS carries over:
+To see that this is true, note that the proof of \cref{Lemma:WSTSExtendedCompatibility} has not used the WQO property, so a dualized version holds for DWSTSes.
+
+\paragraph{Proof of \cref{Theorem:WSTSExpressiveness}}
+
+We now have all preliminaries at hand to state and show a sequence of lemmas that prove the non-trivial inclusions stated in \cref{Theorem:WSTSExpressiveness}.
+
+We start with the inclusion of the class of languages of $\omega^2$-WSTSes and $\omega^2$-DWSTSes in the class of languages of deterministic WSTSes and DWSTSes, respectively.
+In both cases, we use a powerset construction to determinize the given WSTS.\@
+The given (D)WSTS being $\omega^2$ ensures that the result is well-quasi-ordered.
+
+\begin{lemma}%
+\label{Lemma:Expressiveness1}%
+    Every $\omega^2$-WSTS is language equivalent to a deterministic WSTS.\@
+\end{lemma}
+
+\begin{proof}
+    Let $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ be a WSTS.\@
+    We may assume that $\wsts$ is internally downward-closed, since taking the internal downward closure does not change the order and hence preserves the property of being $\omega^2$.
+
+    We construct a deterministic WSTS $\wstsprime = (\pwrsetdown{\configs},\subseteq,T',\set{\configs_\init},\configs_\final')$ by what essentially is a powerset construction.
+    Note that $(\pwrsetdown{\configs},\subseteq)$ is a WQO since we assumed $(\configs,\leq)$ to be $\omega^2$.
+    The final configurations in the new WSTS are sets of configurations of the original WSTS that contain a final configuration,
+    \[
+        \configs_\final' = \Set{ C \in \pwrsetdown{\configs}}{ C \cap \configs_\final \neq \emptyset}
+        \ ,
+    \]
+    and the deterministic transition relation is defined by the post operation,
+    \[
+        C \tow{a} \post{\wsts}{a}{C}
+        \ .
+    \]
+    Note that $\wstsprime$ is well-defined, \ie $\set{\configs_\init} \in \pwrsetdown{\configs}$ and $\post{\wstsprime}{a}{C} \in \pwrsetdown{\configs}$ for all $C \in \pwrsetdown{\configs}$, because we assumed $\wsts$ to be internally downward closed.
+
+    WSTS $\wstsprime$ is deterministic by definition.
+    To see that it indeed accepts the same language, one can prove that for each word $w \in \Sigma^*$, we have $\reach{\wstsprime}{w} = \set{ \reach{\wsts}{w}}$.
+    The base case as well as the inductive step follow directly from the definition of $\wstsprime$.
+\end{proof}
+
+\begin{lemma}%
+\label{Lemma:Expressiveness3}%
+    Every $\omega^2$-DWSTS is language equivalent to a deterministic DWSTS.\@
+\end{lemma}
+
+\begin{proof}
+    The proof is very similar to the proof of \cref{Lemma:Expressiveness1}.
+    Let $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ be the given DWSTS, and assume that it is internally upward closed. Otherwise, replace it by its internal upward closure.
+    We construct $\dwsts' = (\pwrsetup{\configs},\supseteq,T',\set{\configs_\init},\configs_\final')$ with $C \tow{a} \post{\wsts}{a}{C}$ for all $C \in \pwrsetup{\configs}$, and $C \in \configs_\final'$ if $C \cap \configs_\final \neq \emptyset$.
+    To see that $(\pwrsetup{\configs},\supseteq)$ is a WQO (and hence $\dwsts'$ is a DWSTS), note that $(\pwrsetup{\configs},\subseteq)$ and $(\pwrsetdown{\configs},\subseteq)$ are isomorphic, as witnessed by the order-preserving bijective function defined by $C \mapsto \configs \setminus C$.
+    Hence, $(\pwrsetup{\configs},\supseteq)$ is a WQO since we assume $(\configs,\leq)$ to be~$\omega^2$.
+    To see that the language is preserved, $\lang{\dwsts} = \lang{\dwsts'}$, one shows $\reach{\dwsts'}{w} = \set{ \reach{\dwsts}{w}}$ by induction.
+\end{proof}
+
+We continue with the inclusion of the class of languages of finitely branching WSTS in the class of deterministic WSTS, which proves that the two classes are equal.
+
+\begin{lemma}%
+\label{Lemma:Expressiveness2}%
+    Every finitely branching WSTS is language equivalent to a deterministic WSTS.\@
+\end{lemma}
+
+In principle, the proof is a version of the proof of \cref{Lemma:Expressiveness1} that uses the finitely represented downward closed subsets $(\pwrsetdownfin{\configs},\subseteq)$ instead of $(\pwrsetdown{\configs},\subseteq)$.
+The assumption that the given WSTS is finitely branching guarantees that considering these subsets is sufficient.
+
+However, there is a technical difficulty that we have to overcome.
+In the proof of \cref{Lemma:Expressiveness1}, we have assumed the given WSTS to be internally downward closed, a property that can easily be enforced by applying the internal downward closure.
+However, the internal downward closure of a finitely branching WSTS may not be finitely branching.
+Hence, we will have to essentially incorporate a proof similar to the one of \cref{Lemma:WSTSExtendedCompatibility} here.
+
+
+\begin{proof}
+    Let $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ be the given finitely branching WSTS.\@
+    We construct a deterministic WSTS $\wstsprime = (\pwrsetdownfin{\configs},\subseteq,T',\set{ \dc{\configs_\init}},\configs_\final')$ that has the finitely represented downward-closed subsets of $\configs$ as configurations.
+    Since $\configs_\init$ is finite by assumption, $\dc{\configs_\init}$ is such a set.
+    A set $C \in \pwrsetdownfin{\configs}$ is in $\configs_\final'$ if it contains a final configuration of the original WSTS, $C \cap \configs_\final \neq \emptyset$.
+    The transition relation is defined by applying the post-operation and then taking the downward closure,
+    \[
+        C \tow{a} \dc{ \post{\wsts}{a}{C}  }
+        \ .
+    \]
+    If $C = \dc{\set{c_1, \ldots, c_k}}$, and for each $c_i$, we have that $c_{i1}, \ldots, c_{im_i}$ are the finitely many configurations such that $c_i \tow{a} c_{ij}$ in $\wsts$, then we have $\dc{ \post{\wsts}{a}{C}  } = \dc{ \set{ c_{11}, \ldots, c_{1m_1}, \ldots, c_{k1}, \ldots c_{km_k }}}$ using that $\wsts$ is finitely branching and upward-compatible.
+    Hence, $\wstsprime$ is a well-defined transition system.
+    Checking upward-compatibility and that $\wstsprime$ is deterministic is straightforward.
+    %
+    Since $(\pwrsetdownfin{\configs},\subseteq)$ is always a WQO if $(\configs,\subseteq)$ is, see \cref{Lemma:WSTSPwrsetdownfin}, we conclude that $\wstsprime$ is a WSTS.\@
+
+    It remains to show that $\wsts$ and $\wstsprime$ are language equivalent.
+    We first show the following claim by induction:
+    For each $w \in \Sigma^*$, we have
+    \[
+        \reach{\wstsprime}{w} = \set{ \reach{\idc{\wsts}}{w} }
+        \ ,
+    \]
+    where $\idc{\wsts}$ is the internal downward closure of $\wsts$.
+
+    The base case is by definition, since $\reach{\wstsprime}{\eps} = \set{ \dc{\configs_\init}} =  \reach{\idc{\wsts}}{\eps}$.
+    For the inductive step, consider a word $w.a$.
+    We have
+    \begin{align*}
+        \reach{\wstsprime}{w.a}
+        &=
+        \post{\wstsprime}{a}{\reach{\wstsprime}{w}}
+        \\
+        &=
+        \post{\wstsprime}{a}{\set{\reach{\idc{\wsts}}{w}}}
+        \\
+        &=
+        \set{ \dc{ \post{\wsts}{a}{\reach{\idc{\wsts}}{w}} } }
+        \ ,
+    \end{align*}
+    where we use the definition of $\text{reach}$, the induction hypothesis, and the definition of the transition relation of $\wstsprime$.
+    To complete the proof of the claim, we have to show
+    \[
+        \dc{ \post{\wsts}{a}{\reach{\idc{\wsts}}{w}} }
+        =
+        \reach{\idc{\wsts}}{w.a}
+        \ .
+    \]
+    Assume that $d \in \dc{ \post{\wsts}{a}{\reach{\idc{\wsts}}{w}} }$, \ie $d \leq d'$ for some $d \in \post{\wsts}{a}{\reach{\idc{\wsts}}{w}}$.
+    This in turn means that there is some $c' \in \reach{\idc{\wsts}}{w}$ with $c' \tow{a} d'$ in $\wsts$.
+    Hence, we have $c \tow{a} d$ in $\idc{\wsts}$ by the definition of being internally downward closed.
+    We conclude $d \in \post{\idc{\wsts}}{a}{\reach{\idc{\wsts}}{w}} = \reach{\idc{\wsts}}{w.a}$ as required.
+
+    For the other direction, let $d \in \reach{\idc{\wsts}}{w.a}$, \ie there is some $c \in \reach{\idc{\wsts}}{w}$ with $c \tow{a} d$ in $\idc{\wsts}$.
+    By the definition of $\idc{\wsts}$, there is some $d'$ with $d \leq d'$ such that $c \tow{a} d'$ in $\wsts$.
+    We conclude $c \in \post{\wsts}{a}{\reach{\idc{\wsts}}{w}}$, which implies the desired statement (since the downward closure of any set contains that set).
+
+    With the claim established, we get that $\lang{\wstsprime} = \lang{\idc{\wsts}}$.
+    The latter language is equal to $\lang{\wsts}$.
+\end{proof}
+
+Let us now show that every DWSTS language is also the language of a finitely branching DWSTS.\@
+The idea is to represent the set of configurations that can be reached along a certain word in the original DWSTS by the finitely many minimal configurations from that set.
+Since it is not our goal to determinize, we do not need to introduce a powerset construction.
+
+One might wonder why we do not use the finitely represented upward-closed sets, similar to $\pwrsetdownfin{\configs}$ in \cref{Lemma:Expressiveness2}.
+By Property~(\ref{Property:WQOFiniteBasis}) from \cref{Lemma:WQOProperties}, every upward-closed set can be finitely represented.
+However, the upward-closed sets are not well-quasi-ordered by reverse inclusion (which is the order that we would need to consider) unless we require the underlying order to be $\omega^2$.
+
+\begin{lemma}%
+\label{Lemma:Expressiveness4}%
+    Every DWSTS is language equivalent to a finitely branching DWSTS.\@
+\end{lemma}
+
+\begin{proof}
+    Let $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ be a given DWSTS.\@
+    We assume \wolog that it is internally upward closed.
+    % Otherwise, we replace it by $\iuc{\dwsts}$.
+    We construct $\dwsts' = (\configs,\leq,T',\min \configs_\init,\configs_\final)$ where the order, the set of configurations, and the set of final configurations are unchanged.
+    The initial configurations of the new DWSTS are a set of minimal initial configurations of the old one.
+    The transition relation $T'$ is defined by
+    \[
+        \post{\dwsts'}{a}{c} = \min \post{\dwsts}{a}{c}
+        \ .
+    \]
+    Indeed, $\dwsts'$ is finitely branching since $\min C$ is finite for any upward-closed set $\uc{C} \subseteq \configs$ of configurations, Property~(\ref{Property:WQOFiniteBasis}) of \cref{Lemma:WQOProperties},
+    and $\configs_\init$ and $\post{\dwsts}{a}{c}$ are upward closed by the assumption that $\dwsts$ is internally upward closed.
+
+    To show $\lang{\dwsts} = \lang{\dwsts'}$, we first prove the following for all words $w \in \Sigma^*$ using \nb{induction}:
+    \[
+        \uc{\reach{\dwsts'}{w}} = \reach{\dwsts}{w}
+        \ .
+    \]
+    % In the proof, we will need the fact that in an internally upward-closed DWSTS, the set of initial configurations, the set $\post{}{a}{c}$ for all $a$ and $c$, and hence also the set $\reach{}{w}$ for all words $w$ is upward closed.
+    In the base case, we have $\uc{\reach{\dwsts'}{\eps}} = \uc{\paren{\min \configs_\init}} = \configs_\init = \reach{\dwsts}{\eps}$.
+    The inductive step is
+    \begin{align*}
+        \uc{\reach{\dwsts'}{w.a}}
+        &= \uc{\post{\dwsts'}{a}{\reach{\dwsts'}{w}}}
+        \\
+        &= \uc{ \min \post{\dwsts}{a}{\reach{\dwsts'}{w}}}
+        \\
+        &= \uc{ \min \post{\dwsts}{a}{ \uc{ \reach{\dwsts}{w} } }}
+        \ ,
+    \end{align*}
+    using the definition of $\text{reach}$, the definition of the transition relation of $\dwsts'$, and the induction hypothesis.
+
+    We observe that in an internally upward-closed DWSTS, we have $\post{}{a}{Y} = \post{}{a}{\uc{Y}}$ for any set $Y$.
+    One direction is immediate; to see $\post{}{a}{\uc{Y}} \subseteq \post{}{a}{Y}$, we first deduce $\post{}{a}{\uc{Y}} \subseteq \uc{\post{}{a}{Y}}$ using downward compatibility, and then use that $\uc{\post{}{a}{Y}} = \post{}{a}{Y}$ since the DWSTS is assumed to be internally upward closed.
+
+    Applying this equality, we obtain
+    \begin{align*}
+        \uc{\reach{\dwsts'}{w.a}}
+        &= \uc{ \min \post{\dwsts}{a}{ \uc{ \reach{\dwsts}{w} } }}
+        \\
+        &= \uc{ \min \post{\dwsts}{a}{ \reach{\dwsts}{w} } }
+        \\
+        &= \uc{ \min \reach{\dwsts}{w.a} }
+        = \reach{\dwsts}{w.a}
+    \end{align*}
+    as desired.
+
+    Finally, we conclude $\lang{\dwsts} = \lang{\dwsts'}$:
+    A word $w$ is in $\lang{\dwsts'}$ if and only if $\reach{\dwsts'}{w}$ contains a final configuration.
+    Because the set of final configurations of a DWSTS is downward closed, this is the case iff
+    $\uc{\reach{\dwsts'}{w}} = \reach{\dwsts}{w}$ contains a final configuration.
+    The latter condition is equivalent to $w \in \lang{\dwsts}$.
+\end{proof}
+
+% By using similar powerset constructions, we can show the following two results.
+
+It remains to prove that $\omega^2$-WSTSes can be reversely determinized to DWSTSes and vice versa.
+The construction simulates the system in the reverse direction to convert from WSTSes to DWSTSes and combines this with a powerset construction to determinize.
+
+\begin{lemma}%
+\label{Lemma:Expressiveness5}%
+    Every $\omega^2$-WSTS is reversely equivalent to a deterministic DWSTS.\@
+\end{lemma}
+
+\begin{proof}
+    Let $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ be the given $\omega^2$-WSTS.\@
+    We construct a DWSTS that simulates $\wsts$ reversely on upward-closed subsets.
+    We define $\dwsts = (\pwrsetup{\configs},\supseteq,T',\set{\configs_\final}, \configs_\final')$, where the configurations of $\dwsts$ are upward-closed sets of configurations of $\wsts$, ordered by reverse inclusion.
+    The unique initial configuration is the set of final configurations of $\wsts$.
+    A configuration of $\dwsts$ is final if it contains an initial configuration of $\wsts$: $C \in \pwrsetup{\configs}$ is in $\configs_\final'$ if $C \cap \configs_\init \neq \emptyset$.
+    It remains to define the (deterministic) transition relation $T'$:
+    We have
+    \[
+        C \tow{a} \pre{\wsts}{a}{C}
+        \ .
+    \]
+    Note that if $C$ is final, then so is any larger set $C'$ with $C' \subseteq C$.
+    By upward compatibility, $\pre{\wsts}{a}{C}$ is necessarily upward closed if $C$ is upward closed.
+    We verify that $\dwsts'$ satisfies downward compatibility:
+    If $C'$ is larger than $C$, meaning $C' \subseteq C$, then we have $\pre{\wsts}{a}{C'} \subseteq \pre{\wsts}{a}{C}$ as required.
+    The order $(\pwrsetup{\configs},\supseteq)$ is a WQO since it is isomorphic to $(\pwrsetdown{\configs},\subseteq)$ and we assume that $(\configs,\leq)$ is $\omega^2$, as in the proof of \cref{Lemma:Expressiveness3}.
+    Hence, $\dwsts$ is indeed a well-defined DWSTS.\@
+
+    To conclude the proof, we need to show that $\lang{\wsts} = \rev{\lang{\dwsts}}$.
+    We prove that for each $w \in \Sigma^*$, the following holds:
+    \[
+        \reach{\dwsts}{w} = \set{\reachrev{\wsts}{\rev{w}}}
+        \ .
+    \]
+    We proceed by induction on $w$.
+    In the base case, we have
+    \[
+        \reach{\dwsts}{\eps}
+        = \set{ \configs_\final }
+        = \set{\reachrev{\wsts}{{\eps}}}
+        = \set{\reachrev{\wsts}{{\rev{\eps}}}}
+        \ .
+    \]
+    For the induction step, consider $w.a$.
+    We have
+    \begin{align*}
+        \reach{\dwsts}{w.a}
+        &= \post{\dwsts}{a}{\reach{\dwsts}{w}}
+        \\
+        &= \post{\dwsts}{a}{ \set{\reachrev{\wsts}{\rev{w}}} }
+        \\
+        &= \pre{\wsts}{a}{ \set{\reachrev{\wsts}{\rev{w}}}  }
+        \\
+        &= \set{ \reachrev{\wsts}{a.\rev{w}}}
+        \\
+        &= \set{ \reachrev{\wsts}{\rev{w.a}} }
+    \end{align*}
+    by using induction, the definition of $T'$, and the fact that $\rev{w.a} = a.\rev{w}$.
+
+    Using the proven equality, we can establish the following sequence of equivalences for any word $w \in \Sigma^*$:
+    \begin{align*}
+        w\in \lang{\dwsts}
+        & \textiff
+        \reach{\dwsts}{w} \in \configs_\final'
+        \\
+        & \textiff
+        \reachrev{\wsts}{\rev{w}} \in \configs_\final'
+        \\
+        & \textiff
+        \reachrev{\wsts}{\rev{w}} \cap \configs_\init \neq \emptyset
+        \\
+        & \textiff \rev{w} \in \lang{\wsts}
+        \ .
+    \end{align*}
+\end{proof}
+
+\begin{lemma}%
+\label{Lemma:Expressiveness6}%
+    Every $\omega^2$-DWSTS is reversely equivalent to a deterministic WSTS.\@
+\end{lemma}
+
+\begin{proof}
+    The proof is the dual of the proof of \cref{Lemma:Expressiveness5}.
+    Given the DWSTS $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$, we construct the WSTS $\wsts = (\pwrsetdown{\configs},\subseteq,T',\set{\configs_\final},\configs_\final')$ with $C \in \configs_\final'$ if $C \cap \configs_\init \neq \emptyset$ and $T'$ is defined by $C \tow{a} \pre{\wsts}{a}{C}$.
+
+    The proofs that show that $\wsts$ is a well-defined WSTS and that $\lang{\wsts} = \rev{\lang{\dwsts}}$ are as in \cref{Lemma:Expressiveness5}.
+\end{proof}
+
+With all lemmas stated and proven, the proof of \cref{Theorem:WSTSExpressiveness} is completed.
+
+The question of whether the inclusions among language classes are strict is left open.
+In particular, we do not know whether there is a WSTS language that cannot be generated by a finitely branching (or, equivalently, deterministic) WSTS.\@
+We know that if such a language exists, it can only be generated by infinitely branching WSTSes whose underlying order is not $\omega^2$.
+We were unable to construct counterexamples to show that the inclusions are strict, as well as unable to extend the constructions to show that some of the inclusions are in fact equalities.
+It is imaginable that the differences \eg between $\omega^2$-WQOs and non-$\omega^2$-WQOs cannot be exhibited using languages of WSTSes consisting of finite words, and hence the corresponding classes are equal.
+
+However, these open problems are largely of theoretical nature.
+It has been observed that almost all WQOs that occur in practice are BQOs, which implies that they are $\omega^2$.
+In fact, the paper~\cite{Finkel16} states that finite graphs ordered by the graph minor relation are the only WQO of practical interest that is not known to be a BQO.\@
+This means that for all (D)WSTSes that occur in practice, we can apply the results on $\omega^2$-(D)WSTSes from \cref{Theorem:WSTSExpressiveness} to determinize or reversely determinize these systems.
+
+\end{document}

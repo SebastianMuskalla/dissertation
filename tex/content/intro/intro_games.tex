@@ -1,0 +1,263 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Games}%
+\label{Section:IntroGames}%
+
+The last part of this thesis is concerned with games.
+In this section, we start by giving a brief introduction.
+We then present three examples for games that are useful in theoretical computer science.
+We discuss the resulted presented in this thesis that allow us to solve such games.
+
+\paragraph{Games with perfect information}
+
+A \emph{game} is a system in which several independent entities influence the behavior.
+The system constitutes a game arena, the entities are called players, and an execution of the system is referred to as a play.
+As the name suggests, what is colloquially referred to as a game can be seen as a game according to this definition.
+This applies to team sports like soccer, board games like chess, and video games of all kinds.
+The interest in games in science mostly comes from their applications that are less obvious.
+In mathematics, there is interest in properties like the determinacy of games, and the most-famous result in this area, the Borel determinacy theorem~\cite{Martin75}, has applications in set theory.
+In economics, games are used to model capitalist systems, with the players representing the participants in a free market~\cite{LaCasseR94}.
+
+We will focus on explaining why games are studied in the context of theoretical computer science.
+In both this explanation and the rest of this thesis, we will focus on \emph{games with perfect information}.
+In these games, the players know the rules of the game (including the game arena, \ie the system the game is played on) and whenever they have to make a decision, they are aware of the history, the sequence of decisions that have been made by themselves and the other players up to this point.
+Perfect information also means that the players make their choices one after another instead of concurrently.
+We consider games with a winning condition, a special type of zero-sum games~\cite{Raghavan94}.
+This means the set of maximal plays, the plays that cannot be extended anymore, is partitioned into those that satisfy the condition and those that do not.
+There is a coalition of players that tries to influence the play so that it satisfies the winning condition, while the rest of the players, the opposition, works against that goal.
+In a perfect-information game, it is sufficient to consider two players with exactly one of them trying to satisfy the winning condition.
+
+\paragraph{Strategies, parity tree automata, and game semantics}
+
+We give three examples of perfect-information games that are important in computer science.
+We start by considering systems with multiple types of nondeterminism.
+At the beginning of this chapter, we have already mentioned that many system models feature nondeterminism.
+This nondeterminism is typically not a genuine part of the system at hand, but it has been introduced to simplify behavior that should not or cannot be modelled explicitly.
+If just one type of nondeterminism is present, we usually assume that the nondeterminism works in our favor, or that all of it works against us.
+A reachability problem for a nondeterministic system can be phrased as \enquote{Can the nondeterminism be resolved in a way that leads to reaching the target?}, seeing the nondeterminism as angelic.
+The complement problem of unreachability can be formulated as \enquote{Can the target be avoided, no matter how nondeterminism is resolved?}, using the opposite concept of demonic nondeterminism.
+However, a system may have multiple types of nondeterminism with some of them being angelic, \ie working in favor of a property we are trying to establish, while others are demonic and work against it.
+In such a case, it is natural to see the system as a game with the various types of nondeterminism \nb{being the players}.
+
+We consider the acceptance problem of parity tree automata~\cite{Zielonka98} as an example.
+A tree is an object whose branches represent various executions of a system.
+The branching behavior can be seen as one type of nondeterminism.
+The automaton provides a second type of nondeterminism that works in the opposite way.
+% We proceed to explain the model in more detail.
+To be precise, a parity tree automaton accepts an infinite binary tree if there is a run of the automaton so that a so-called \emph{parity condition} is satisfied for all branches of the tree.
+The nondeterminism coming from the branching of the tree is demonic in the context of the acceptance problem, because to achieve acceptance, the run needs to satisfy the parity condition on every single branch of the tree.
+The nondeterministic automaton itself provides a second type of nondeterminism that is angelic, because the existence of one valid run is sufficient to prove acceptance.
+Given an infinite tree and an automaton, the question of whether the tree is accepted can be seen as a game~\cite{Zielonka98}.
+One of the players represents the branching in the tree; her job is to pick a branch of the tree.
+The other player represents the automaton and picks a run.
+The two players alternate in making their choices, resulting in a branch of the tree and a run of the automaton on that branch.
+The goal of the player representing the automaton is to pick a run so that it satisfies the parity condition.
+
+To be able to continue our explanation, we need to make clear what it means to solve a game.
+We ask whether one of the players has a systematic way of playing that guarantees that any resulting play will satisfy (\resp not satisfy) the winning condition, no matter which choices the other player makes.
+A systematic way of playing is called a strategy, and if it achieves the aforementioned objective, it is called a winning strategy.
+A player is the winner of a game if she has a winning strategy, and solving a game means computing which player wins.\footnote{%
+It is easy to see that it is impossible for both players to have a winning strategy for a given game: If both players follow their strategy, the result is a unique play that either satisfies the winning condition or it does not -- at most one of the two strategies is a winning strategy.
+    However, it is not at all clear that at least one player has a winning strategy.
+    We call games with the property that exactly one player has a winning strategy \emph{determined}.
+    For now, it shall suffice to say that all games that we consider in the following have been proven to be determined.
+}
+
+In the game we described above, the player representing the automaton wins the game if and only if the tree is accepted by the automaton, and her winning strategy corresponds to a run of the automaton that satisfies the parity condition on all branches.
+This has three consequences:
+Firstly, assuming we are given a finite description of a tree, we can decide whether the three is accepted by a parity tree automaton by solving a game.
+Secondly, the game can be modified so that instead of checking whether a given tree is accepted, it checks whether there is a tree that is accepted, thus solving the language-emptiness problem for parity tree automata.
+Finally, one can use games in order to prove Rabin's tree theorem~\cite{Rabin68,Zielonka98}, a deep and important result in automata theory showing that the languages of parity tree automata are closed under complementation.
+To this end, one constructs an automaton that accepts the complement of the language of a given parity tree automaton by checking that the player representing the automaton does not have a \nb{winning strategy} in the game corresponding to a given tree.
+
+Our second example is \emph{game semantics}~\cite{LorenzenL78}.
+In many verification problems, the specification is given as a formula in a certain type of logic.
+For some of these types of logic, it is instructive to see the logical formulas themselves as games.
+For example, the modal $\mu$-calculus~\cite{BradfieldW18} features fixed-point operators.
+These operators can be used together with a subformula to assign to a variable the greatest or least set of system states that satisfy the subformula.
+When checking whether a system satisfies a specification expressed in the modal $\mu$-calculus, these fixed points have to be computed.
+Instead of using a deterministic up-front computation of the sets, game semantics provides an elegant alternative.
+One can construct a game that features a guess-and-check mechanism.
+Whenever a fixed-point quantifier is encountered, one of the players suggests the value of the set.
+Then the other player can either verify the suggestion, or she can use the suggested value.
+This mechanism is designed so that the player suggesting the sets loses the game if she makes an incorrect suggestion.
+Hence, computing her winning strategy means implicitly computing the values for the fixed points.
+
+Game semantics for $\mu$-calculus on finite structures can be extended to show deep results for automata-theoretic games as we will consider them in this thesis.
+For example, \Walus~reduction~\cite{Walukiewicz01} is a famous result that was developed in the context of showing the satisfiability of $\mu$-calculus formulas on pushdown systems.
+It proves that games on infinite game arenas defined by pushdown automata can be reduced to games on finite arenas with an exponential blowup.
+We will come back to this result in \cref{Section:CFGamesRelWork}.
+
+\paragraph{Synthesis}
+
+Our final example is the area of synthesis.
+We have argued that the verification of programs is an important subject.
+It seems canonical to ask whether instead of verifying a given program that has been written by humans, one can let a computer generate a correct program from the given specification.
+This idea is known under the name of \emph{(program) synthesis}~\cite{Church63,MannaW80}.
+If one could implement it in practice, not only would it allow for the automatic generation of programs with very little time investments by humans, but it would also solve the problem of verification.
+If the synthesis tool is correct, \ie given a specification, it always returns a program that indeed satisfies the specification, the programs that it produces can be assumed to be correct and no effort has to be put into verifying them.
+
+For certain types of systems, like Boolean circuits, synthesis tools have been developed with moderate success~\cite{Syntcomp}.
+Unfortunately, the synthesis of complex programs suffers from various problems.
+One conceptual problem is that synthesis does not save as much human time investment as it may seem.
+The effort is simply shifted from writing the program to writing the formal specification.
+Each aspect of the desired system has to be specified extensively to ensure that the resulting program has the expected behavior.
+If a mistake has been made when writing the specification, the resulting flaw of the program may be hard to identify.
+Another fundamental problem of synthesis is the computational complexity of synthesis problems.
+Firstly, many of these problems are in high complexity classes, \eg synthesizing a program from a specification may take time doubly exponential in the size of the specification and the program may be just as large~\cite{MuschollSS06}.
+Secondly, unlike for other problems where the worst-case behavior rarely occurs in practice, synthesis problems are known to actually show this terrible complexity on practical examples~\cite{Vardi18}.
+
+We try to circumvent both problems by considering \emph{syntax-guided synthesis}~\cite{AlurBDF0JKMMRSSSSTU15,Padhi21}.
+In addition to a specification, a syntax-guided synthesis problem also consists of a \emph{program template}, which is essentially a program with missing parts, \eg it may be a collection of modules that need to be connected appropriately.
+The goal is to fill in the missing parts of the program template such that the resulting program satisfies the specification.
+The hope is that this version of the synthesis problem is simpler to handle.
+The synthesis tool having less freedom because it only has to generate code at specified locations in the program means that there is a better chance of obtaining a manageable running time.
+The fact that a large part of the desired  program is given in the form of the program template means that we are not as heavily reliant on providing a detailed specification for all aspects of the program as in the version of the synthesis problem that takes no program template.
+Note that the synthesis task will only succeed if it is in fact possible to instantiate the program template so that the resulting program satisfies the specification.
+This means that conceptually, the synthesis task includes the verification of the given program template.
+
+\paragraph{Synthesis as a game}
+
+In the following, we model a synthesis problem as a game.
+The game has two players, one for the environment and one for the program synthesizer.
+In the parts of the program template that are fully specified, the environment is in control.
+This means for any nondeterministic choice in that part of the program, the player representing the environment resolves it.
+We have argued earlier how such nondeterministic choices may be introduced to model dependencies on external resources or as the result of applying an abstraction.
+When the program arrives at a part of the template that should be filled in by the synthesis tool, the other player is in control.
+A play is won by the player representing the program synthesis if and only if it satisfies the specification.
+In that case, her winning strategy corresponds to the solution to the \nb{synthesis problem.}
+
+In order to make this explanation more precise, we will give a more concrete example.
+We focus on a simple case of program templates in which the task is to synthesize conditional expressions.
+This means our template may contain conditionals that are of the form \nb{\mono{if (???) then \{ ... \} else \{ ... \}}.}
+The goal is to replace \mono{???} so that the resulting program satisfies the specification.
+We present context-free games as a model for this synthesis task.
+In a context-free game, the game arena is potentially infinite, but it is given by a finite description in the form of a context-free system.
+We have already briefly mentioned pushdown automata as one example for context-free systems.
+Here, it will be easier to consider context-free grammars, an equivalent model.
+In the derivation of a word using a context-free grammar, nonterminals are replaced using production rules until we obtain a word that only contains non-replaceable terminal symbols.
+As mentioned before, context-free grammars are sufficient to model the control-flow of recursive programs.
+This will make it easy to translate the given program template into a context-free game.
+
+As in the other two sections, we prefer to take a language-theoretic approach.
+This means that our specification is given in the form of a language,
+and the plays of the game produce words that may or may not be in that language.
+The language defines the winning condition:
+The goal of the environment player is obtaining a play, \ie an execution of the program, that corresponds to a word not in that language.
+The goal of the synthesis player representing the environment is the opposite, she wants to enforce that if the play of the game produces a word, then that word is contained in the language.
+Here, we consider regular languages of finite words, represented by finite automata, as target languages.
+Note that by choosing a larger class of languages, \eg context-free languages, the problem would become undecidable.
+
+Assume in the program template, some procedure \mono{p()} is specified by the source code \nb{\mono{if (x) then \{ f(); \} else \{ g(); \}}.}
+Note that in this case, the conditional expression is explicitly given and no synthesis has to be performed.
+In the context-free grammar, we would introduce nonterminal symbols for every program location, \eg for \mono{p()}, \mono{f()}, and \mono{g()}.
+% Nonterminal symbols are symbols that can be replaced using the rules of the grammar.
+In the concrete example, we would translate the program code into the two rules $\mono{p()} \to \text{read(\mono{x}, \true)}.\mono{f()}$ and $\mono{p()} \to \text{read(\mono{x}, false)}.\mono{g()}$.
+Note that $\text{read(\mono{x}, \true)}$ and $\text{read(\mono{x}, \false)}$ are terminal symbols, symbols that cannot be replaced, that signal that the current value of variable \mono{x} should be $\true$ \resp $\false$.
+Finally, we give ownership of $\mono{p()}$ to the environment player.
+This means that when the nonterminal $\mono{g()}$ has to be replaced during a play of the game, this player can choose whether to apply the first or the second rule, replacing $\mono{p()}$ with the right-hand side of the chosen rule.
+This is an example for a concept that we have mentioned earlier:
+We have replaced a deterministic choice in the program by nondeterministic branching.
+On the one hand, this allows us to simply model the control flow of the program in the context-free grammar without having to keep track of the data values.
+On the other hand, it means that we need to somehow enforce that the environment player cannot simply create an invalid execution by picking the wrong branch, \eg by picking the rule $\mono{p()} \to \text{read(\mono{x}, \false)}.\mono{g()}$ when the current value of \mono{x} is actually $\true$.
+
+Here, the language-theoretic approach comes in handy.
+Recall that our specification is given as a target language of valid executions.
+In order to solve the above problem, we can assume that the executions that are impossible to occur in reality because they violate the consistency of data values are added to the target language.
+Technically, this means we construct a finite automaton that uses two states to keep track of whether the value of \mono{x} is $\true$ or $\false$.
+The automaton accepts an execution if it contains an invalid data access, \eg if we have an occurrence of $\text{read(\mono{x}, \false)}$ even though in the current state, the value of \mono{x} is $\true$.
+The original specification can be extended by joining the corresponding automata.
+Let us consider again the choice that the environment player has to make in the game when replacing nonterminal $\mono{p()}$ in a play.
+If she deliberately picks the wrong rule, \ie the rule that does not correspond to the current value of variable \mono{x}, the automaton will definitely accept any finite word that is produced by the play.
+Hence, such a word is in the target language and the environment player loses the play.
+Hence, her only chance to win will be to pick the rule that corresponds to the current \nb{value of \mono{x}}.
+
+Note that the above concept only works for variables that can only take a small range of values, \eg a Boolean variable as in our example.
+For a data value that is \eg a 32-bit integer, the automaton we need to keep track of all possible values would have $2^{32}$ states.
+In such a case, it would be better to initially not keep track of the data value at all.
+We can then use an iterative process like the CEGAR-loop~\cite{ClarkeGJLV00,HeizmannHP10} to make sure that if the synthesis algorithm comes up with a program, that program is indeed correct with respect to handling \nb{this data value}.
+
+We have extensively discussed the environment and the corresponding player.
+Note that in contrast to the other two main topics of this thesis, this time, the behavior of the environment is explicitly specified in our model.
+The difference here is that we are able to react to it.
+Let us now consider the player representing the program synthesis.
+When discussing her behavior in the game, we will also see how certificates come into play.
+
+Assume that the source code for \mono{p()} is \nb{\mono{if (???) then \{ f(); \} else \{ g(); \}}.}
+Note that this time, the conditional expression is not given; it should be filled in by the synthesis algorithm.
+We model this by giving ownership of $\mono{p()}$ to the synthesis player and by having the rules $\mono{p()} \to \mono{f()}$ and $\mono{p()} \to \mono{g()}$.
+This means whenever in a play \nb{nonterminal $\mono{p()}$} has to be replaced, the synthesis player can choose freely between replacing it by \mono{f()} or replacing it \nb{by \mono{g()}}.
+Correspondingly, in an execution of the system, whenever procedure $\mono{p()}$ is called, the synthesis tool can decide whether to go to the if-branch and call procedure $\mono{f()}$ or whether to go to the else branch and call procedure $\mono{g()}$.
+The absence of any kind of conditional expression in the rules that we have designed to model the source code of \mono{p()} may be surprising.
+We will come back to this aspect soon.
+
+After translating a program template and a specification into a context-free game with a regular target language, one can solve that game.
+The synthesis problem can be solved if and only if the synthesis player wins the game.
+However, this information is insufficient:
+In order to actually solve the synthesis task, we need to come up with an instantiation of the program template.
+To this end, we consider a winning strategy for the synthesis player.
+This strategy is a description of how she has to behave in order to ensure that she wins the game.
+The strategy also acts as a certificate for the fact that she is the winner.
+Verifying that a given strategy is winning is usually much simpler than computing a winning strategy.
+For example, for context-free games with membership in a regular target language as the winning condition, a given strategy can be used to transform the context-free game into a normal context-free grammar.
+Checking that the strategy is winning amounts to checking that the resulting grammar produces a language that is a subset of the regular target language.
+Hence, we also say that the winning condition of the game is regular inclusion and call this type of game an inclusion game.
+
+Let us come back to the instantiation of the template, \ie synthesizing the conditional expression in the source code for $\mono{p()}$.
+Note that the goal here is not to make a static choice between the if- and the else-branch, which would amount to either putting $\true$ or $\false$ as the conditional.
+Instead, every time procedure $\mono{p()}$ is encountered, the synthesis player can decide which branch to pick.
+This means that a winning strategy for her will pick one of the two rules depending on the history of the play, \ie what has happened so far in the execution of the system.
+For context-free games, one can prove that if a winning strategy exists, then there is one that can be implemented by a so-called strategy automaton.
+If we have this automaton available at runtime, we can query its state to decide which rule to pick.
+
+In order to implement this, we have to compute a strategy automaton that represents a winning strategy for the synthesis player.
+Afterwards, the program template is modified to keep track of the state of the strategy automaton.
+Assume the automaton has states from the set $\set{1, \ldots, n}$.
+The program is modified by introducing corresponding Boolean variables $\mono{a}_1, \ldots, \mono{a}_n$ so that during runtime, $\mono{a}_i$ is $\true$ if and only if the strategy automaton is currently in state $\mono{a}_i$.
+When we encounter procedure $\mono{p()}$, the strategy will tell us whether to use the if- or the else-branch.
+Correspondingly, there is a list of states $i_1, i_2, \ldots, i_k \in \set{1, \ldots, n}$ of that automaton in which the if-branch should be taken, while the else branch should be taken in all other states.
+The conditional expression that we need to synthesize is $\mono{a}_{i_1} \mono{ or } \mono{a}_{i_2} \mono{ or } \ldots \mono{ or } \mono{a}_{i_k}$, and hence the completed source-code for procedure \mono{p()} is \nb{\mono{if ($\mono{a}_{i_1} \mono{ or } \mono{a}_{i_2} \mono{ or } \ldots \mono{ or } \mono{a}_{i_k}$) then \{ f(); \} else \{ g(); \}}.}
+Note that even if the program template contains multiple conditional expressions that should be synthesized, one strategy automaton is sufficient to represent the solution to the synthesis problem.
+But for each conditional expression that has to be generated, the states of the automaton that correspond to taking the if-branch may differ.
+
+In summary, we have translated a program template and a specification into a context-free inclusion game.
+One player represents the environment.
+Whenever the program template contains a conditional with a given conditional expression, she is allowed to resolve nondeterministically which branch to pick, but the winning condition of the game will force her to respect the actual data values of the variables.
+The other player represents the synthesis task.
+By solving the game, we check whether it is possible to complete the synthesis task or whether any instantiation of the template will result in a program that violates the specification.
+If the synthesis player wins the game, synthesis is possible.
+We compute a winning strategy for that player as a certificate for the fact that she wins.
+This winning strategy can be represented in the form of a strategy automaton which in turn allows us to actually complete the synthesis task.
+
+\paragraph{Outlook}
+
+Our main goal in \cref{Part:Games}.~of this thesis will be finding a procedure efficiently solving context-free inclusion games.
+Before we do so, we explain \emph{effective denotational semantics}~\cite{Aehlig07,Summers77,SalvatiW15}, the approach that we will take to solve context-free inclusion games and several other problems in that part of the thesis.
+This technique is based on translating a verification problem into a system of equations and then computing its least solution, from which the answer to the verification problem can be read off.
+We show how this method can be applied to the regular inclusion problem for context-free grammars as demonstrated by \citea{HolikM15} and we extend that work to the case of languages of infinite words.
+
+Then, we use the same approach in a more complex setting by considering context-free games with membership in a regular language of finite words as the winning condition.
+With the help of a novel composition operator, these games can be translated into a system of equations.
+Their least solutions do not only provide the winner of the game, they can also be used to construct strategy automata for the winning strategies as certificates.
+We compare our method to existing methods from the literature that could be adapted to solve this type of game, including \Walus~aforementioned reduction~\cite{Walukiewicz01}.
+Additionally, we consider two extensions of our method.
+The first one consists of having a regular language of infinite words as the target language, which is useful to model reactive systems with non-terminating executions.
+
+The second extension is considering game arenas described by higher-order recursion schemes, a generalization of context-free grammars.
+Solving these games using effective denotational semantics requires a major amount of work, but leads to several interesting by-products.
+We will establish both a template model for interpreting systems of equations defined by higher-order recursion schemes and a framework that can be used to transfer properties of the least solution with respect to one model to the least solution with respect to another mode.
+The template model mechanism and the framework then enable us to solve games defined by higher-order recursion schemes.
+
+% \enlargethispage*{\baselineskip}
+
+Finally, we will study the frontier of the decidability of games.
+Synthesis problems based on program templates can be seen as a generalization of verification.
+Indeed, if the given program template actually is a complete program, then synthesis simply amounts to verifying that program.
+Correspondingly, solving a game is more involved than solving \eg a reachability problem for a nondeterministic system.
+Hence, for any model that is Turing-complete, solving the associated type of games is certainly just as undecidable as verification is.
+However, there are models like Petri nets for which reachability problems can be solved, but it turns out that the corresponding games are undecidable, \ie we cannot compute their winner in general.
+We will use valence systems over graph monoids, a model of automata that generalizes many well-known models including both Petri nets and pushdown automata, to give a complete classification of the models for which games are decidable.
+We show that among all automata models that can be represented as a valence system over graph monoids, reachability games can essentially be only solved in the aforementioned case of context-free games.
+
+\end{document}

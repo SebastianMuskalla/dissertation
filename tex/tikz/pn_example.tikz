@@ -1,0 +1,32 @@
+\begin{tikzpicture}[->,>=latex,node distance=10em,semithick]
+
+\node[place] (P) [minimum size=3em] {};
+
+\node[transition] (SPAWN) [left of=P, node distance=6em, inner sep=0.25em] {$t_{\text{spawn}}$}
+    edge [post] (P);
+
+\node[place] (CS) [minimum size=3em,right of=P] {};
+
+\node[place] (FREE) [minimum size=3em,below of=CS,tokens=1, node distance=6em] {};
+
+\node[place] (TAKEN) [minimum size=3em,right of=FREE, node distance=7em] {};
+
+\node[transition] (ENTER) [right of=P, node distance=6em, inner sep=0.25em] {$t_{\text{enter}}$}
+    edge [pre] (P)
+    edge [post] (CS)
+    edge [pre] (FREE)
+    edge [post] (TAKEN)
+;
+
+\node[transition] (LEAVE) [right of=CS, node distance=7em, inner sep=0.25em] {$t_{\text{leave \& die}}$}
+    edge [pre] (CS)
+    edge [pre] (TAKEN)
+    edge [post] (FREE)
+;
+
+\node [above of=P, node distance=2em] {$p$};
+\node [above of=CS, node distance=2em] {$p_{\text{cs}}$};
+\node [left of=FREE, node distance=3em] {$\ell_{\text{free}}$};
+\node [right of=TAKEN, node distance=3em] {$\ell_{\text{held}}$};
+
+\end{tikzpicture}

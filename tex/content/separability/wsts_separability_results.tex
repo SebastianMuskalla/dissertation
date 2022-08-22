@@ -1,0 +1,114 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{The results and their consequences}%
+\label{Section:SeparabilityAndConsequences}%
+
+The main result regarding upward-compatible WSTSes that we will prove in this chapter is the following.
+
+\begin{theorem}%
+\label{Theorem:WSTSSeparability}%
+    Two disjoint WSTS languages, at least one of them the language of a deterministic WSTS, are regularly separable.
+\end{theorem}
+
+In \cref{Separability:Results}, we have promised proving that under mild assumptions, any two disjoint WSTS languages are regularly separable.
+Requiring one of the two WSTSes to be deterministic seems to be an assumption that is quite restricting.
+However, we may use the expressiveness result from \cref{Chapter:WSTSExpressiveness} to see that it is in fact enough to require one of the two WSTS to be finitely branching or $\omega^2$.
+In particular, recall that virtually all WSTSes that are of practical interest satisfy the $\omega^2$-condition.
+Hence, the following generalization of the result applies to almost all WSTSes.
+
+\begin{corollary}
+    Two disjoint WSTS languages, at least one of them the language of a finitely branching WSTS or of an $\omega^2$-WSTS, are regularly separable.
+\end{corollary}
+
+Once we have proven \cref{Theorem:WSTSSeparability}, the corollary follows immediately using \cref{Theorem:WSTSExpressiveness}.
+
+One should emphasize that we simply require both languages to be WSTS languages.
+We do not require them to come from the same class of WSTSes.
+For example, one could be the language of a Petri net, the other could be the language of a lossy channel system.
+
+It is also noteworthy that our result means that regular separability as a decision problem is essentially equivalent to intersection-emptiness.
+Luckily, intersection-emptiness can be decided under mild-assumption.
+To be precise, it has been shown that the coverability problem for unlabeled WSTSes, the problem of checking whether a final configuration is reachable from an initial one, is decidable under mild assumptions~\cite{AbdullaJ1993,GeeraertsRV06}.
+In the world of labeled WSTSes, this corresponds to checking language-emptiness.
+Checking intersection-emptiness amounts to checking language-emptiness for the product system.
+Luckily, if both given WSTSes satisfy the requirements for the decidability of coverability, then so does the product system, meaning we can decide intersection-emptiness.
+
+Our result is constructive for most WSTSes.
+We will construct a finite automaton whose language is the required regular separator from the so-called ideal decomposition of an invariant.
+Such a set is effectively computable in many cases, as demonstrated \eg in~\cite{Finkel16,LazicS15}.
+
+Furthermore, our result has some interesting language-theoretic consequences.
+In \cref{Sectiopn:SeparabilityRelatedWork}, we have mentioned that separability is related to the regularity problem.
+The following corollary to our result makes this relationship precise.
+
+\begin{corollary}%
+\label{Corollary:WSTSNecessarilyRegular}%
+    If a language is a deterministic WSTS language and its complement is a WSTS language (or vice versa), then both are necessarily regular.
+\end{corollary}
+
+\begin{proof}
+    Assume that $\lang{\wsts}$ is the language of a finitely branching WSTS~$W$, and its complement $\overline{\lang{\wsts}} = \lang{\wstsprime}$ is the language of a WSTS.\@
+    These languages are disjoint, so by \cref{Theorem:WSTSSeparability}, there is a regular separator $\calR$.
+    From $\lang{\wsts} \subseteq \calR$ and $\overline{\lang{\wsts}} \cap \calR = \emptyset$, we conclude $\calR = \lang{\wsts}$.
+    Hence, $\lang{\wsts}$ is regular and so is its complement.
+\end{proof}
+
+Again, we may apply \cref{Theorem:WSTSExpressiveness} to obtain the following generalization.
+
+\begin{corollary}
+    \label{Corollary:WSTSNecessarilyRegular2}%
+    If a language is the language of a WSTS that is finitely branching or $\omega^2$, and its complement is a WSTS language, then both are necessarily regular.
+\end{corollary}
+
+It has been shown before that Petri net coverability languages have this property~\cite{MukundKRS98,MukundKRS98b}.
+A more pointed phrasing of our result is the following weaker statement.
+
+\begin{corollary}%
+\label{Corollary:WSTSSeparabilityClosedness}%
+    No subclass of the finitely branching or $\omega^2$-WSTS languages beyond $\REG$ is closed under \nb{complement}.
+\end{corollary}
+
+\begin{proof}
+    Towards a contradiction, assume $\calF$ is such a class.
+    Take any non-regular language $\calL$ from $\calF$.
+    By assumption, $\overline{\calL}$ is also in $\calF$.
+    Both are finitely branching (or $\omega^2$) WSTS languages, so \cref{Corollary:WSTSNecessarilyRegular2} yields that $\calL$ is regular, a contradiction.
+\end{proof}
+
+\paragraph{Results for DWSTS}
+
+We will show similar results for downward-compatible WSTSes.
+
+\begin{theorem}%
+\label{Theorem:DWSTSSeparability}%
+    Two disjoint DWSTS languages, at least one of them the language of a deterministic DWSTS, are regularly separable.
+\end{theorem}
+
+With \cref{Theorem:WSTSExpressiveness}, we can generalize the result and require one of the DWSTSes to be $\omega^2$ instead of requiring it to be deterministic.
+Unlike in the case of upward-compatible WSTSes, it does not seem to be sufficient to require one of the two DWSTSes to be finitely branching.
+
+\begin{corollary}
+    Two disjoint DWSTS languages, at least one of them the language of a deterministic DWSTS or an $\omega^2$-DWSTS, are regularly separable.
+\end{corollary}
+
+We also obtain corollaries that are similar to the \cref{Corollary:WSTSSeparabilityClosedness,,Corollary:WSTSNecessarilyRegular,,Corollary:WSTSNecessarilyRegular2}.
+The proofs of these corollaries are as in the case of (upward-compatible) WSTSes.
+
+\begin{corollary}
+    \begin{thmenumerate}[a)]
+        \item If a language is the language of a DWSTS that is deterministic or $\omega^2$ and its complement is a DWSTS language (or vice versa), then both are necessarily regular.
+        \item
+        No subclass of the deterministic or $\omega^2$-DWSTS languages beyond $\REG$ is closed under \nb{complement}.
+    \end{thmenumerate}
+\end{corollary}
+
+We leave the question of whether the assumptions that we make are necessary unanswered.
+It would be desirable to prove that any two disjoint WSTS languages are regularly separable, without requiring one of the two generating WSTSes to be $\omega^2$ or finitely branching.
+This problem is closely related to the unknown strictness of the inclusions in our result on WSTS expressiveness, \cref{Theorem:WSTSExpressiveness}, on which we have commented at the end of \cref{Section:WSTSExpressiveness}.
+If one could extend \cref{Theorem:WSTSExpressiveness}, \eg by showing that any WSTS language is the language of a finitely branching WSTS, this also immediately extends our result on regular separability.
+If it turns out that the inclusions among WSTS language classes are strict, whether the results on regular separability can be extended remains an open problem.
+Although, one would hope that the proof of strictness allows us to gain new insights.
+Let us emphasize that virtually all WSTSes of practical interest are known to be $\omega^2$, meaning that our results can be applied.
+
+\end{document}

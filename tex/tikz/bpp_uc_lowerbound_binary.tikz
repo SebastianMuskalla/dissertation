@@ -1,0 +1,12 @@
+\begin{tikzpicture}[->,>=latex,node distance=5em,semithick]
+
+\node[place] (P) [minimum size=3em] {};
+
+\node [transition,square] (A) [below of=P,inner sep=0.25em] {$t$}
+    edge [post] (P)
+;
+
+\node [left of=P, node distance=2.5em] {$p$};
+\node [left of=A, node distance=1.5em] {$a$};
+
+\end{tikzpicture}

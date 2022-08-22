@@ -1,0 +1,19 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node (origin) [coordinate] at (0,0) {};
+\node (rect) at (3,0) [minimum width=6em,minimum height=5em, anchor=west,draw] {};
+\node (yes) [coordinate] at (6,0.75) {};
+\node (no) [coordinate] at (6,-0.75) {};
+\path [->,]
+    (origin) edge (rect.west)
+    (rect.east) edge (yes)
+    (rect.east) edge (no)
+;
+
+\node at (0,0.4) [anchor=west] {Program $P$};
+\node at (0,-0.4) [anchor=west]  {Specification $S$};
+\node [right of=yes, node distance=0em, anchor=west] {yes, $P \models S$ ($P$ satisfies $S$)};
+\node [right of=no, node distance=0em, anchor=west] {no,  $P \not\models S$ ($P$ does not satisfy $S$)};
+\node at (rect) {Verifier};
+
+\end{tikzpicture}

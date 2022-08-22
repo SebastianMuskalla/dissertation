@@ -1,0 +1,22 @@
+\begin{tikzpicture}[->,>=latex,semithick]
+
+\node (Q) {$(q,q')$};
+\node [below of=Q, node distance=1em] {$\in Q$};
+
+\node (C) [right of=Q, node distance=15em] {$(c,c') \in \wsts_\times$};
+
+\node (P) [above of=C, node distance=6em] {$(p,p') \in Q$};
+
+\node [above of=C, node distance=3em, rotate=90] {$\leq_\times$};
+
+\path [->,dashed]
+    (Q) edge node [above] {$a$} node [below] {in $\wsts_\times$}
+    (C)
+;
+
+\path [->]
+    (Q) edge [bend left] node [above,xshift=-0.5em] {$a$} node [below,xshift=0.5em] {in $A$}
+    (P)
+;
+
+\end{tikzpicture}

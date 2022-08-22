@@ -1,0 +1,213 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Context-free grammars}%
+\label{Section:CFG}%
+
+We define context-free grammars, one of the simplest types of rewriting systems.
+The material is standard and can be found \eg in~\cite{Kozen97}.
+In addition to the usual definition of the languages they generate, we present a version that is based on prefix growth.
+
+A \emph{context-free grammar (CFG)} over $\Sigma$ is a tuple $G = (N,P,S)$ where
+$N$ is the set of \emph{nonterminal symbols},
+$S \in N$ is the initial symbol, and
+$P \subseteq N \times {(N \cup \Sigma)}^*$ is a finite set of \emph{production rules}.
+In this context, one calls the alphabet $\Sigma$ the set of non-rewritable \emph{terminal symbols}.
+Instead of $(X,\beta) \in P$, we commonly write $X \to_G \beta$, and we omit the subscript $G$ whenever it is clear from the context.
+
+The semantics of a context-free grammar is a transition system whose configurations are \emph{sentential forms} from $\sententials = {(N \cup T)}^*$, words consisting of both terminals and nonterminals.
+The transitions are given by the \emph{derivation relation}, the rewriting of sentential forms conforming to the production rules.
+We have
+\[
+    \beta.X.\gamma \derive \beta.\eta.\gamma
+    \quad \textiff \quad
+    \exists \text{ production rule } X \to \eta \text{ in } P
+    \ .
+\]
+A sequence of derivation steps is called a \emph{derivation process}.
+The language of the grammar is the set of terminal words that can be obtained by a derivation process from the initial symbol,
+\[
+    \lang{G} = \Set{ w \in \Sigma^* }{ S \derive^* w}
+    \ .
+\]
+
+\begin{example}%
+\label{Example:CFGAnBn}%
+    The non-regular language $\Set{a^n b^n}{n \in \N}$ is the language of the CFG $(\set{S},\set{ S \to \eps, S \to aSb},S)$.
+\end{example}
+
+We additionally introduce a variant of $\derive$ called the \emph{left-derivation relation $\leftderive$}, which only allows us to replace the leftmost nonterminal.
+Formally, it is defined by
+\[
+    w.X.\beta \leftderive w.\eta.\beta
+    \quad \textiff \quad
+    \exists \text{ production rule } X \to \eta
+\]
+where $w \in \Sigma^*$ is a word over the terminals.
+
+It is well-known that exclusively considering left-derivation processes does not restrict the language of a grammar,
+\[
+    \lang{G} = \Set{ w \in \Sigma^* }{ S \leftderive^* w}
+    \ .
+\]
+Indeed, derivation steps that work on different nonterminals are independent;
+they can be reordered so that the leftmost nonterminal is always rewritten first.
+
+With this knowledge at hand, we can present an LTS induced by a context-free grammar that generates terminal words step-by-step (instead of producing the whole word in the final derivation step that eliminates the last nonterminal).
+This alternative way of defining context-free languages is arguably more complicated, but it can be generalized much easier to the case of infinite words, as we will see in the next section.
+We start with some preliminary observations:
+Each sentential form $\beta$ can be written as $\beta = w.\gamma$ where $w \in \Sigma^*$ is the largest prefix of $\beta$ exclusively containing terminals.
+Let us denote by $\tprefix{\beta}$ this terminal prefix.
+During a derivation process $S \leftderive^* v$, the prefix starts with being $\eps$, then keeps growing until it equals $v$.
+More precisely, we have that if $\beta \leftderive \beta'$, then $\tprefix{\beta}$ is a prefix of $\tprefix{\beta'}$:
+We have $\beta = \tprefix{\beta}.X.\gamma$, and $\beta' = \tprefix{\beta}.w'.\gamma'$ where $\tprefix{\beta'} = \tprefix{\beta}.w'$.
+We call this $w'$ the \emph{growth} of the terminal prefix for the derivation step $\beta \leftderive \beta'$.
+In some steps of a derivation process $S \leftderive^* v$, the growth may be the empty word $\eps$.
+Every letter of $v$ belongs to the growth of exactly one derivation step.
+
+This allows us to define the LTS $(\sententials,T,\set{S},\Sigma^*)$ over $\Sigma$ and conclude that its language coincides with $\lang{G}$:
+The configurations are sentential forms, $S$ is the only initial configurations, and the terminal words are final configurations.
+If $\beta \leftderive \beta'$ with prefix growth $w'$, then $T$ contains the transition $\beta \tow{w'} \beta'$.
+
+This view on context-free grammars allows us to see them as automata, similar to state based models.
+In a sentential form $w.X.\gamma$, the leftmost nonterminal $X$ plays the role of the control state, determining which transitions are applicable.
+The rest of the sentential form $\gamma$ can be seen as a memory value.
+% (Note that we have a)
+
+\begin{example}
+    Consider the grammar for $\Set{a^n b^n}{n \in \N}$ from \cref{Example:CFGAnBn}.
+    The (unique) derivation process for the word $a^n b^n$ induces the following sequence of labeled transitions:
+    \[
+        S \tow{a} aSb \tow{a} aaSbb \tow{a} \ldots \tow{a} a^n S b^n \tow{b^n} a^n b^n
+        \ .
+    \]
+    As we can see, we need transitions that are labeled by words strictly longer than one.
+\end{example}
+
+
+% The usual way, in which the whole word is generated in the final step obviously breaks in the case that there is no final step.
+% For the modified definition, it is not too hard to imagine an infinite word that occurs as the limit of the prefixes -- or as the (infinite) concatenation of the prefix growths.
+% When formally doing this, there are some pitfalls that one has to avoid.
+% We will do so in the next section.
+
+\paragraph{Closure properties}
+
+Straightforward constructions yield that the class of context-free languages contains the regular languages.
+The class is closed under union, concatenation, and Kleene star.
+In contrast to the regular languages, it is not closed under intersection and complementation, see \eg \cite{Kozen97}.
+
+\paragraph{Alternative models}
+
+Context-free languages can also be defined by so-called \emph{pushdown automata~(PDA)}, systems that in addition to the finite control have access to an unbounded LIFO (last in, first out) stack as storage.
+We briefly give the formal definition, starting with the case of an unlabeled \emph{pushdown system (PDS)}.
+Syntactically, a PDS with stack alphabet $\Lambda$ is a finite-state LTS over some set of control states $Q$ and transitions labeled by elements from the set $\Set{ \eps, \pushop A, \popop A}{A \in \Lambda}$.
+Such a PDS induces an infinite transition system with configurations of the shape $(q,m) \in Q \times \Lambda^*$, where $q$ is the control state and the memory value $m \in \Lambda^*$ is the stack content.
+We follow the convention that the left end of $m$ is the bottom of the stack.
+Consequently, the transitions of the finite LTS induce transitions on the semantic level as expected: $(q,m) \to (q',m)$ if $q \tow{\eps} q'$, $(q,m) \to (q',m.A)$ if $q \tow{\pushop A} q'$, and $(q,m.A) \to (q',m)$ if $q \tow{\popop A} q'$.
+Note that pop-transitions are blocking in the sense that $q \tow{\popop A} q'$ can only be executed if symbol $A$ is indeed the current top-of-stack.
+Computations of a PDS are defined as expected.
+There are multiple possibilities to define the notion of accepting computations.
+For example, one can equip PDSes with initial and final states, and consider all computations that lead from an initial state with empty stack to a final state with arbitrary stack content as accepting.
+
+Pushdown automata are pushdown systems in which the transitions are additionally labeled by letters from a finite (input) alphabet.
+These labels carry over from the finite syntax to the transitions on the semantic level.
+To show the correspondence between CFGs and PDAs, it is not hard to construct for a given grammar a PDA that simulates the left-derivation processes of the grammar, and, vice versa, a grammar that simulates the accepting computations of a PDA.\@
+
+\paragraph{Recursive programs}
+
+It is well-known folklore result that context-free grammars can be used to model recursive programs.
+This correspondence is twofold:
+Context-free grammars are sufficient to describe the control flow of a sequential program in classical programming languages (that do not feature higher-order recursion).
+If we consider recursive programs with the property that each level of the recursion only uses bounded storage, then context-free grammars are able to precisely model the program behavior.
+In the rest of this section, we want to make these two correspondences explicit.
+
+We have already given a part of the translation in \cref{Section:IntroGames} of the introduction.
+Here, we fill in the details.
+We consider a toy programming language for recursive programs.
+A \emph{program} is a set of procedures \mono{p()}, including a distinguished procedure \mono{main()}.
+Each \emph{procedure} is specified by its source code, a finite list of statements.
+Each \emph{statement} is either an atomic statement, \eg a variable assignment \mono{x = 5}, a procedure call \mono{f()}, or a conditional.
+A \emph{conditional} is of the shape \mono{if (cond) then}, consisting of a conditional expression \mono{cond}, followed by some finite number statements, followed by \mono{else}, followed by some finite number of statements, followed by \mono{end}.
+We assume that the conditionals are well-nested.
+We do neither formally specify the shape of atomic statements and conditional expressions, nor do we formally define an evaluation semantics.
+
+Formally defining the syntax of programs, \eg to ensure that conditionals are well-nested and to enable parsing, could be done using a context-free grammar.
+A modified version of that grammar can be used to model the control flow of programs, which we describe in the following.
+For each procedure \mono{p()} and each of the $n$ statements defining the source code of the procedure, we introduce a new nonterminal $\mono{p}_i$ where $i \in \oneto{n+1}$, including a special nonterminal $\mono{p}_{n+1}$ for the end of the procedure.
+The initial symbol is the nonterminal $\mono{main}_1$ associated to the first statement of the main procedure.
+The rules for a nonterminal $\mono{p}_{i}$ depend on the statement in the $\nth{i}$ line of the source code for \mono{p()}.
+If the statement is an atomic statement $\mono{a}$, we get the rule $\mono{p}_i \to \mono{a} \ \mono{p}_j$, using \mono{a} as a terminal symbol.
+If the statement is a procedure call \mono{f()}, the rule is $\mono{p}_i \to \mono{f}_1 \ \mono{p}_j$.
+In both of these rules, $j$ should be the index of the next line after $i$, which usually is $i+1$ unless $\mono{p}_i$ represents the last statement of the \mono{then} or \mono{else} block of a conditional.
+In that case, $j$ is the index of the first line after that conditional.
+Also note that if the body of the procedure ends after $\mono{p}_i$, then $j$ will be $n+1$ and $\mono{p}_j$ is the special nonterminal introduced for the end of the procedure.
+If the statement in the $\nth{i}$ line of $\mono{p()}$ is a conditional \mono{if (cond) then}, we get two rules $\mono{p}_i \to \text{assume}(\mono{cond}) \ \mono{p}_{i+1}$ and $\mono{p}_i \to \text{assume}(\mono{!cond}) \ \mono{p}_j$.
+Here, we have turned the conditional expression and its negation into terminal symbols $\text{assume}(\mono{cond})$ and $\text{assume}(\mono{!cond})$, respectively.
+Note that $i+1$ is the index of the first line of the \mono{then} block, and we define $j$ to be the first line of the \mono{else} block.
+For the special nonterminal $\mono{p}_{n+1}$, we introduce the rule $\mono{p}_{n+1} \to \eps$.
+
+We claim that the control flow of a program is represented by the words in the language of that grammar.
+To see this, note that the left-derivation processes of words in the language of that grammar correspond to the control flow according to a standard evaluation semantics (which we have not formally specified).
+Now we can use the fact that the language of the grammar equals the set of finite words that can be obtained using left-derivations.
+Note that we only model the control flow; we do not take the data values into account.
+For example, a conditional always yields two rules, one for each branch, even though in a deterministic program, the current memory value uniquely determines which branch will be taken.
+We simply print which branch we have used as a terminal symbol and leave it to an additional verification step to distinguish words in the language that correspond to valid executions that respects the data values from the words that do not represent valid executions.
+
+Additionally, we want to show that if the program uses only bounded storage at each level of the recursion, we can explicitly model the semantics using a context-free grammar.
+Consider some finite domain $\domain$ from which the data values used at each level of the recursion stem.
+We associate it to each atomic statement \mono{a} a function $F_{\mono{a}} \colon \domain \to \domain$ that specifies the transformation of the current storage that is applied by executing \mono{a}.
+Similarly, we associate to each conditional expression $\mono{cond}$ a predicate $P_{\mono{cond}} \colon \domain \to \B$ that specifies for which data values the expression evaluates to true.
+To enable communication among the different levels of the recursion, we redefine procedure to be of the shape \mono{x = f(y)}.
+Each procedure call works on an independent copy of the storage.
+The variables \mono{y} and \mono{x} allow us to transfer information into and out of that copy, respectively.
+Formally, we assume that there is a function $F_{\mono{f(y)}} \colon \domain \to \domain$ that transforms the storage used by the current procedure into the storage used by the procedure \mono{f} that we have called.
+Similarly, we have a function $F_{\mono{x = f(-)}} \colon \domain \to \domain$ that does the opposite.
+
+We modify the above grammar by having one copy $\mono{p}_{i}(d,d')$ of each nonterminal $\mono{p}_{i}$ for each pair of data values $d,d' \in \domain$.
+Intuitively, $\mono{p}_{i}(d,d')$ means that we are in the $\nth{i}$ line of procedure \mono{p}, the current storage is represented by the data value $d$ and we expect the procedure to terminate with data value $d'$.
+
+The rules are modified as follows:
+If the $\nth{i}$ line of $\mono{p}$ is an atomic statement $\mono{a}$, we get the rule $\mono{p}_{i}(d,d') \to \mono{a} \ \mono{p}_{j}(F_{\mono{a}}(d),d')$, where $j$ is the index of the next line as explained before, and $F_{\mono{a}}(d)$ is the result of applying the transformation that corresponds to executing \mono{a}.
+If the $\nth{i}$ line of $\mono{p}$ is \mono{if (cond) then}, then the rule associated to $\mono{p}_{i}(d,d')$ is either $\mono{p}_{i}(d,d') \to \text{assert}(\mono{cond}) \ \mono{p}_{i+1}(d,d')$ or $\mono{p}_{i}(d,d') \to \text{assert}(\mono{!cond}) \ \mono{p}_{j}(d,d')$, depending on whether $P_{\mono{cond}}(d)$ evaluates to true.
+Here, $i+1$ is the index of the first line of the \mono{then} block and $j$ is index of the first line of the \mono{else} block.
+The complicated part is modelling procedure \nb{calls \mono{x = f(y)}}.
+For each $\mono{p}_{i}(d,d')$, we get one rule for each data value $d''$.
+This rule is as follows:
+\[
+    \mono{p}_{i}(d,d')
+    \to
+    \mono{f}_{1}( F_{\mono{f(y)}}(d) ,d'')
+    \
+    \mono{p}_{j}( F_{\mono{x = f(-)}}(d'') , d')
+\]
+Intuitively, we guess the data value $d''$ representing the storage at the termination of \mono{f}.
+We apply the transformation $F_{\mono{f(y)}}$ to the current value to obtain the initial storage for \mono{f}, then go into procedure \mono{f} with the obligation to terminate with data value $d''$.
+The execution of procedure \mono{p} continues from the next line (the one with index $j$) with the data value that results from applying $F_{\mono{x = f(-)}}$ to $d''$.
+%
+In order to make sure that a procedure call actually fulfills its obligation, we change the rule for $\mono{p}_{n+1}(d,d')$ as follows.
+If $d = d'$, \ie the actual data value equals the expected one, there is a rule $\mono{p}_{n+1}(d,d') \to \eps$.
+Otherwise, we have no rule for this nonterminal.
+
+It remains to fix the initial symbol.
+We introduce a new nonterminal $S$ and use it as initial symbol.
+For each $d' \in \domain$, there is a rule $S \to \mono{main}_1 (d_\init,d')$.
+Intuitively, this means we start in the first line of the procedure \mono{main} with some fixed initial data value $d_\init$, but we guess which data value $d'$ we will reach upon termination.
+
+In contrast to the above grammar modeling the control flow of a program, our new grammar features deterministic conditionals.
+We only have one rule that either jumps to the then-branch or to the else-branch, depending on whether the conditional expression evaluates to true.
+Instead, we use nondeterminism to model procedure calls.
+We guess the data value that the procedure that we call will terminate with.
+Only the correct guess will actually contribute to words in the grammar.
+If we have guessed some value $d'$ but the procedure call terminates with data value $d \neq d'$, then there will be no rule for the nonterminal $\mono{p}_{n+1}(d,d')$.
+The corresponding derivation gets stuck and does not produce a finite word.
+In fact, we get that even though the grammar is nondeterministic, its language is a singleton consisting of a unique word corresponding to the unique execution of the deterministic program (assuming that this execution terminates).
+This property shows the desired statement: A context-free grammar can model a deterministic recursive program that uses a bounded amount of storage at each level of the recursion.
+
+Note that the size of the grammar is polynomial in the product of the total number of statements in the program and the size of $\domain$.
+For each line of code, we have at most ${\card{\domain}}^2$ many nonterminals and at most ${\card{\domain}}^3$ many rules.
+However, the size of $\domain$ can get rather large.
+If the program uses $k$ Boolean variables as storage, then $\domain \colon \oneto{k} \to \B$ is the space of variable assignments, which is of size $2^{k}$.
+The construction of the grammar is polynomial in the size of $\card{\domain}$, but exponential in $k$.
+Verifying Boolean programs is a $\PSPACE$-complete problem even in the absence of recursion~\cite{CookS99}, so we cannot expect to get a deterministic algorithm for it whose running time is better than exponential.
+
+\end{document}

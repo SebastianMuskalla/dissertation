@@ -1,0 +1,1196 @@
+%
+% general stuff
+%
+
+% package for \subfile
+\RequirePackage{subfiles}
+
+% load German in polyglossia for the German abstract
+\setotherlanguage{german}
+
+% fix bug with \underbrace in mathtools
+\let\normalunderbrace=\underbrace%
+\RequirePackage{mathtools}
+\let\underbrace=\normalunderbrace%
+
+% prevent latex from hyphenating these words
+\hyphenation{LTSes}
+\hyphenation{WSTSes}
+\hyphenation{DWSTSes}
+\hyphenation{WSTS}
+\hyphenation{DWSTS}
+
+% to avoid linebreaks
+\let\nb\mbox
+
+% custom page break
+\let\cheatpagebreak\pagebreak
+
+% an empty sheet (two pages)
+\newcommand{\emptysheet}%
+{%
+    \clearpage%
+    \cleardoublepage%
+    \newpage%
+    \thispagestyle{plain}%
+    \hfill%
+    \cleardoublepage%
+}
+
+% for iddots
+\RequirePackage{mathdots}
+
+% for custom labels that can be used with \ref
+\newcommand{\customlabel}[2]{%
+   \protected@write\@auxout{}{\string\newlabel{#1}{{#2}{\thepage}{#2}{#1}{}}}%
+   \hypertarget{#1}{#2}%
+}%
+
+% used filled square for QED to avoid confusion with the universal player
+\renewcommand\qedsymbol{$\largeblacksquare$}
+
+% hackfix for \vartheta
+\newfontface{\afontthathasapropervartheta}{Source Sans 3}
+\renewcommand{\vartheta}{\text{\afontthathasapropervartheta{ϑ}}}
+
+% don't use a skip in front of part and chapter
+\RedeclareSectionCommand[%
+    beforeskip=0em
+]{part}%
+\RedeclareSectionCommand[%
+    beforeskip=0em
+]{chapter}%
+
+
+%
+% todo macros
+%
+
+% \DeclareDocumentCommand{\todo}{ g }%
+% {%
+%     \IfNoValueTF{#1}%
+%     {%
+%         \textcolor{feuervogel}{TODO}%
+%     }%
+%     {%
+%         \textcolor{feuervogel}{{TODO}: #1}%
+%     }%
+% }%
+
+% \DeclareDocumentCommand{\litref}{ g }%
+% {%
+%     \IfNoValueTF{#1}%
+%     {%
+%         \textcolor{blue}{LITREF}%
+%     }%
+%     {%
+%         \textcolor{blue}{LITREF:~#1}%
+%     }%
+% }%
+
+% \newcommand{\forwardref}{\textcolor{feuervogel}{REF$\to$}}
+% \newcommand{\backwardref}{\textcolor{feuervogel}{REF$\from$}}
+
+
+%\=================================================
+
+%
+% title
+%
+
+
+% the official title
+\renewcommand{\maketitle}%
+{%
+\thispagestyle{empty}%
+\begin{center}%
+    \vspace*{4\baselineskip}%
+
+    {\LARGE{\textbf{\@title}}}%
+
+    % {\large\textit{\textbf{\@subtitle}}}%
+
+    \vspace*{2\baselineskip}%
+
+    %Von der\\%
+    Der\\%
+    Carl-Friedrich-Gauß-Fakultät\\%
+    der Technischen Universität Carolo-Wilhelmina zu Braunschweig%
+
+    \vspace*{2\baselineskip}%
+
+    zur Erlangungen des Grades eines\\%
+    \textbf{Doktors der Naturwissenschaften (Dr.~rer.~nat.)}%
+
+    \vspace*{2\baselineskip}%
+
+    % genehmigte Disseration
+    vorgelegte Dissertation%
+
+    \vspace*{2\baselineskip}%
+
+    von\\%
+    \textbf{\@author}\\%
+    geboren am 31.05.1991\\%
+    in Neunkirchen (Saar)%
+\end{center}%
+
+\vspace*{3\baselineskip}%
+
+\begin{tabularx}{\textwidth}{l@{\hspace*{3em}}lX}%
+    Eingereicht am: &  4. August 2022 &\\%
+    Disputation am: &  --------------- &\\%
+    1. Referent: & Prof. Dr. Roland Meyer &\\%
+    2. Referent: & doc. Mgr. Lukáš Holík, Ph.D. &\\%
+    3. Referent: & Dr. Georg Zetzsche &\\%
+\end{tabularx}%
+
+\vspace*{3\baselineskip}%
+
+\begin{center}
+    2022
+\end{center}
+
+\newpage%
+}%
+
+% custom title for web version
+\renewcommand{\maketitle}%
+{%
+\thispagestyle{empty}%
+\begin{center}%
+    \vspace*{4\baselineskip}%
+
+    {\LARGE{\textbf{\@title}}}%
+
+    % {\large\textit{\textbf{\@subtitle}}}%
+
+    \vspace*{1.5\baselineskip}%
+
+    {\Large\@author}%
+
+    \vspace*{15.5\baselineskip}%
+
+    \begin{minipage}{0.75\textwidth}
+        \begin{center}
+            \textbf{Note}
+        \end{center}
+
+        \vspace*{0.5\baselineskip}
+
+        This thesis has \textbf{not} been reviewed and approved by the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig.
+
+        \vspace*{1\baselineskip}
+
+        This version of the thesis is \textbf{not} identical to the one that has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig with the goal of obtaining a PhD (Dr.~rer.~nat.).
+    \end{minipage}
+
+    \vspace*{6\baselineskip}%
+
+    2022
+
+\end{center}%
+
+\newpage%
+}%
+
+%\=================================================
+
+%
+% TOC
+%
+
+% toggle for displaying the toc with default value true
+\newif\ifshowtoc%
+\showtoctrue%
+
+% Give part numbers a dot in the main TOC
+% e.g. V. Games instead of V Games
+\newcommand\dotme[1]{\mbox{#1.}}
+
+\RedeclareSectionCommand[%
+    tocentrynumberformat=\dotme,%
+]{part}%
+
+%
+% part TOCs
+%
+
+% Required to patch the part commands
+\RequirePackage{xpatch}
+
+% Required to open enough file streams at the same time
+% (one file stream is needed per sub TOC)
+\RequirePackage{scrwfile}
+
+% uses code from
+% https://tex.stackexchange.com/questions/358290/create-section-level-toc-in-a-koma-script-document-that-already-uses-minitoc
+
+% disable vertical centering of part titles
+\renewcommand*{\partheadstartvskip}{%
+    \vspace*{1em}%
+}%
+
+% disable vertical centering of part titles
+% add local TOC to part title page
+\renewcommand*{\partheadendvskip}%
+{%
+    \parttoc%
+    \newpage%
+}%
+
+\newcommand*{\parttoc}
+{%
+    \ifshowtoc%
+        \bigskip%
+        \@parttoc%
+    \fi%
+}%
+
+% switch whether part TOCs are used by the current part
+% if it is set to true, \addtocentrydefault will not only make entries to the main TOC file but also to the current part TOC file
+\newif\ifuseparttoc%
+
+\newcommand{\chapterpagenumberformat}[1]{{\normalfont#1}}
+
+\newcommand*{\@parttoc}%
+{%
+    % enable part TOCs for this part
+    \useparttoctrue%
+    % define the file extentions used for the part TOC of this file, e.g. maintexfilename.partV.toc
+    \edef\ext@parttoc{part\thepart.toc}%
+    % declare a new TOC file
+    \expandafter\DeclareNewTOC\expandafter{\ext@parttoc}%
+    % formatting commands for the part TOC
+    \setkomafont{chapterentry}{\usekomafont{disposition}}% set font for chapter TOC entries to bold
+    % don't show numbers in bold
+    \RedeclareSectionCommand[
+        tocpagenumberformat=\chapterpagenumberformat,
+        tocbeforeskip=1em,%     % decrease space before chapter entries
+        toclinefill=\hfill,%    % remove dots between chapter name and page number
+        tocindent=0em%          % do not indent chapter entries
+    ]{chapter}%
+    \RedeclareSectionCommand[%
+        tocindent=2em%          % do not indent chapter entries
+    ]{section}%
+    \renewcommand*{\@chapterlistsgap}{0\p@}% remove space after each chapter entry
+    % Heading of the part TOC
+    \section*{Contents}%
+    % finally show the part TOC without any heading
+    \expandafter\listoftoc\expandafter*\expandafter{\ext@parttoc}%
+}%
+
+% patch addtocentrydefault to add toc lines also to the current part TOC if ifuseparttoc is set to true
+\xapptocmd\addtocentrydefault%
+{%
+    \ifuseparttoc% if part toc entries should be generated
+        \expandafter\tocbasic@addxcontentsline\expandafter{\ext@parttoc}{#1}{#2}{#3}%
+    \fi%
+}{}{}%
+
+% switch off part toc entries (for the previous part) at the start of every new part
+\xpretocmd{\part}%
+{\useparttocfalse}%
+{\message{^^Jpatching part successful^^J}}%
+{\message{^^JWarning: patching part unsuccessful^^J}}%
+
+%
+% chapter TOCs
+%
+
+% documentation: see above
+
+\newif\ifusechaptertoc%
+
+\newcommand*{\chaptertoc}%
+{%
+    \ifshowtoc%
+        \@chaptertoc%
+    \fi%
+}%
+
+\newcommand*{\@chaptertoc}%
+{%
+    \usechaptertoctrue%
+    \edef\ext@chaptertoc{chapter\thechapter.toc}%
+    \expandafter\DeclareNewTOC\expandafter{\ext@chaptertoc}%
+    \RedeclareSectionCommand[%
+        tocindent=0em%          % do not indent entries
+    ]{section}%
+    \paragraph*{Contents}%
+    \expandafter\listoftoc\expandafter*\expandafter{\ext@chaptertoc}%
+    \bigskip\noindent%
+}%
+
+\xapptocmd\addtocentrydefault%
+{%
+    \ifusechaptertoc%
+        \expandafter\tocbasic@addxcontentsline\expandafter{\ext@chaptertoc}{#1}{#2}{#3}%
+    \fi%
+}{}{}%
+
+% for some reason patching \chapter directly fails, so we patch \scr@startchapter instead
+\xpretocmd{\scr@startchapter}%
+{\usechaptertocfalse}%
+{\message{^^Jpatching chapter successful^^J}}%
+{\message{^^JWarning: chapter unsuccessful^^J}}%
+
+% also patch part so that we don't get problems in the last chapter of each part
+\xpretocmd{\part}%
+{\usechaptertocfalse}%
+{\message{^^Jpatching part successful^^J}}%
+{\message{^^JWarning: patching part unsuccessful^^J}}%
+
+
+%\=================================================
+
+%
+% preliminaries
+%
+
+\newcommand{\arXiv}{\emph{arXiv}}
+
+% computational problems
+\newcommand{\SAT}{\mathsf{SAT}}
+\newcommand{\EPASAT}{\mathsf{EPA\text{-}SAT}}
+\newcommand{\PNREACH}{\mathsf{PNREACH}}
+\newcommand{\PNCOV}{\mathsf{PNCOV}}
+\newcommand{\EMPTYPNCOV}{\mathsf{PNCOV\text{-}EMPTY}}
+\newcommand{\WORDPNCOV}{\mathsf{PNCOV\text{-}WORD}}
+\newcommand{\WORDBPPCOV}{\mathsf{BPPCOV\text{-}WORD}}
+
+\newcommand{\PNUC}{\mathsf{PN\text{-}UC}}
+\newcommand{\PNDC}{\mathsf{PN\text{-}DC}}
+\newcommand{\BPPUC}{\mathsf{BPP\text{-}UC}}
+\newcommand{\BPPDC}{\mathsf{BPP\text{-}DC}}
+\newcommand{\SREUC}{\mathsf{PN\text{-}SREUC}}
+\newcommand{\SREDC}{\mathsf{PN\text{-}SREDC}}
+\newcommand{\SREBPPUC}{\mathsf{BPP\text{-}SREUC}}
+\newcommand{\SREBPPDC}{\mathsf{BPP\text{-}SREDC}}
+\newcommand{\PNCOVUC}{\mathsf{PN\text{-}BEINGUC}}
+\newcommand{\PNCOVDC}{\mathsf{PN\text{-}BEINGDC}}
+\newcommand{\PNCOVREGCONT}{\mathsf{PN\text{-}REGCONT}}
+\newcommand{\TRACECONT}{\mathsf{PN\text{-}TRACECONT}}
+\newcommand{\PNSU}{\mathsf{PNSU}}
+
+% language classes
+\newcommand{\REG}{{\mathsf{REG}}}
+\newcommand{\DCFL}{{\mathsf{DCFL}}}
+\newcommand{\CFL}{{\mathsf{CFL}}}
+\newcommand{\HORS}{{\mathsf{HORS}}}
+\newcommand{\VPL}{{\mathsf{VPL}}}
+\newcommand{\OCA}{{\mathsf{OCA}}}
+\newcommand{\OCN}{{\mathsf{OCN}}}
+\newcommand{\PNLREACH}{{\mathsf{PNReach}}}
+\newcommand{\PNLCOV}{{\mathsf{PNCov}}}
+\newcommand{\WSTS}{{\mathsf{WSTS}}}
+
+% math text
+\newcommand{\eps}{\varepsilon}
+\newcommand{\textiff}{{\text{ iff }}}
+\newcommand{\textif}{{\text{ if }}}
+\newcommand{\textand}{{\text{ and }}}
+\newcommand{\textor}{{\text{ or }}}
+
+\newcommand{\init}{{\text{init}}}
+\newcommand{\final}{{\text{final}}}
+\newcommand{\bad}{{\text{bad}}}
+\newcommand{\pump}{{\text{pump}}}
+
+% basic math
+% \newcommand{\abs}[1]{\card{#1}}
+\newcommand{\size}[1]{\card{#1}}
+\renewcommand{\fromto}[2]{\lft[#1,#2\rgt]}
+\newcommand{\norminf}[1]{\lft\lVert#1\rgt\rVert_\infty}
+\newcommand{\normone}[1]{\lft\lVert#1\rgt\rVert_1}
+\newcommand{\sizeunary}[1]{{\card{#1}}_{\text{unary}}}
+\newcommand{\funspace}[2]{#1\to#2}
+
+\newcommand{\itr}[2]{#1^{\paren{#2}}}
+\newcommand{\dtr}[2]{#1_{\paren{#2}}}
+
+% partial function
+\newcommand{\pto}{\to_p}
+
+% projection
+\newcommand{\proj}[2]{\pi_{#1}\paren{#2}}
+
+% Turing machines
+\newcommand{\all}{\forall}
+\newcommand{\ex}{\exists}
+
+% formulas
+\newcommand{\BF}{\text{BF}}
+\newcommand{\pBF}{\text{pBF}}
+\newcommand{\Sol}[1]{\text{Sol}\paren{#1}}
+
+\newcommand{\parcomp}{\mathrel{\|}}
+\newcommand{\shuffle}{\mathrel{\raisebox{\depth}{\rotatebox{270}{$\exists$}}}}
+\newcommand{\agtriple}[3]{\angled{#1}#2\angled{#3}}
+
+%
+% automata
+%
+
+\newcommand{\lts}{S}
+\newcommand{\configs}{\Gamma}
+\newcommand{\transitions}{T}
+
+\newcommand{\postT}{\text{post}}
+\DeclareDocumentCommand{\post}{ m m g }%
+{%
+    \IfNoValueTF{#3}%
+    {%
+       \postT\paren{#1, #2}%
+    }%
+    {%
+        \postT_{#1}\paren{#2, #3}%
+    }%
+}%
+
+\newcommand{\preT}{\text{pre}}
+\DeclareDocumentCommand{\pre}{ m m g }%
+{%
+    \IfNoValueTF{#3}%
+    {%
+       \preT\paren{#1, #2}%
+    }%
+    {%
+        \preT_{#1}\paren{#2, #3}%
+    }%
+}%
+
+\newcommand{\reachT}{\text{reach}}
+\DeclareDocumentCommand{\reach}{ g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       % no parameters given
+       \reachT%
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            % first parameter given
+            \reachT_{#1}%
+        }%
+        {%
+            % both parameters given
+            \reachT_{#1}\paren{#2}%
+        }%
+    }%
+}%
+\newcommand{\reachrevT}{\reachT^{-1}}
+\DeclareDocumentCommand{\reachrev}{ g g}%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \reachrevT%
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            \reachrevT_{#1}%
+        }%
+        {%
+            \reachrevT_{#1}\paren{#2}%
+        }%
+    }%
+}%
+
+% automata
+\newcommand{\NBA}{{\text{NBA}}}
+\newcommand{\DBA}{{\text{DBA}}}
+\newcommand{\NPA}{{\text{NPA}}}
+\newcommand{\DPA}{{\text{DPA}}}
+
+\newcommand{\qinit}{q_\init}
+\newcommand{\qfinal}{q_\final}
+\newcommand{\QF}{Q_\final}
+
+% transition monoid
+\newcommand{\equivclass}[1]{[#1]}
+
+\newcommand{\nfaequiv}[1]{\equiv_{#1}}
+\newcommand{\nfaequivclass}[2]{\equivclass{#2}_{#1}}
+\newcommand{\nfatransmonoid}[1]{\M_{#1}}
+
+\newcommand{\nbaequiv}[1]{\equiv_{#1}^\NBA}
+\newcommand{\nbaequivclass}[2]{\equivclass{#2}_{#1}^\NBA}
+\newcommand{\nbatransmonoid}[1]{\M_{#1}^\NBA}
+
+\newcommand{\npaequiv}[1]{\equiv_{#1}^\NPA}
+\newcommand{\npaequivclass}[2]{\equivclass{#2}_{#1}^\NPA}
+\newcommand{\npatransmonoid}[1]{\M_{#1}^\NPA}
+
+\newcommand{\id}{\text{id}}
+
+\DeclareDocumentCommand{\tbox}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \rho%
+    }%
+    {%
+        \rho_{#1}%
+    }%
+}%
+
+%
+% grammars
+%
+
+\newcommand{\leftderive}{\derive_\ell}
+
+\newcommand{\sententials}{\vartheta}
+
+\DeclareDocumentCommand{\tprefix}{ g }%
+{%
+    \text{prefix} \IfValueT{#1}{\paren{#1}}
+}%
+
+\newcommand{\SpinalGraph}{SG}
+
+% pushdowns
+\newcommand{\pushop}{\text{push}~}
+\newcommand{\popop}{\text{pop}~}
+
+% HORS
+\newcommand{\ground}{o}
+\newcommand{\kinds}{\Kappa}
+\newcommand{\horsarity}[1]{\text{arity}\paren{#1}}
+\newcommand{\horsorder}[1]{\text{order}\paren{#1}}
+
+\newcommand{\appl}{\ }
+\DeclareDocumentCommand{\horsterms}{ m g }%
+{%
+    \IfNoValueTF{#2}%
+    {%
+       \calT\paren{#1}%
+    }%
+    {%
+        \calT\paren{#1}_{#2}%
+    }%
+}%
+\newcommand{\contextplaceholder}{\bullet}
+\newcommand{\wordend}{\$}
+
+\newcommand{\oiderive}{\derive_{oi}}
+
+%
+% Petri nets
+%
+
+\renewcommand{\i}{\text{in}}
+\renewcommand{\o}{\text{out}}
+\newcommand{\e}{\text{e}}
+
+\newcommand{\languak}[2]{\calL_{\leq#1} \paren{{#2}}}
+\newcommand{\langoak}[2]{\calL_{>#1} \paren{{#2}}}
+
+\newcommand{\Minit}{M_\init}
+\newcommand{\Mfinal}{M_\final}
+
+% counter machines
+\newcommand{\incop}[1]{#1{\scriptstyle++}}
+\newcommand{\decop}[1]{#1{\scriptstyle--}}
+\newcommand{\zeroop}[1]{#1{\scriptstyle=0}}
+\newcommand{\nonzeroop}[1]{#1{\scriptstyle\neq0}}
+
+% Lipton
+\newcommand{\Ninc}{N_\textinc}
+\newcommand{\Ndec}{N_\textdec}
+\newcommand{\Minitinc}{M_{\init\textinc}}
+\newcommand{\Mfinaldec}{M_{\final\textdec}}
+\newcommand{\textinc}{{\text{inc}}}
+\newcommand{\textdec}{{\text{dec}}}
+\newcommand{\haltinc}{{\text{haltinc}}}
+\newcommand{\outinc}{{\text{outinc}}}
+\newcommand{\indec}{{\text{indec}}}
+
+\DeclareDocumentCommand{\Parikh}{ g }%
+{%
+    \IfNoValueTF{#1}
+    {%
+        \Psi%
+    }%
+    {%
+        \Psi\paren{#1}%
+    }%
+}%
+
+\newcommand{\commclosureT}{\text{commcl}}
+\DeclareDocumentCommand{\commclosure}{ g }%
+{%
+    \IfNoValueTF{#1}
+    {%
+        \commclosureT%
+    }%
+    {%
+        \commclosureT\paren{#1}
+    }%
+}%
+
+% WSTS
+\newcommand{\wsts}{W}
+\newcommand{\wstsprime}{W'}
+\newcommand{\dwsts}{M}
+
+\newcommand{\wstsN}{W_N}
+
+
+%\=================================================
+
+%
+% language closures
+%
+
+\newcommand{\sre}{\mathit{sre}}
+\newcommand{\product}{\mathit{p}}
+
+% Rackoff
+\newcommand{\firei}[1]{\fire{#1}_i}
+\newcommand{\fireipo}[1]{\fire{#1}_{i+1}}
+\newcommand{\Paths} {\text{Paths}}
+\newcommand{\Words} {\text{Words}}
+\newcommand{\Basis} {\text{Basis}}
+\newcommand{\SPath} {\text{SPath}}
+
+% Leroux counterexample
+\newcommand{\rprun}{p_\text{run}}
+\newcommand{\rptemp}{p_\text{temp}}
+\newcommand{\rpstop}{p_\text{stop}}
+\newcommand{\rta}{t_c}
+\newcommand{\rtb}{t_b}
+\newcommand{\rthelp}{t_a}
+
+% Ackernet
+\newcommand{\AckerNet}[1]{\text{AN}\paren{#1}}
+\newcommand{\pin} {\text{in}}
+\newcommand{\pout} {\text{out}}
+\newcommand{\pcopy} {\text{move}}
+\newcommand{\pstart} {\text{start}}
+\newcommand{\pstop} {\text{stop}}
+\newcommand{\pswap} {\text{swap}}
+\newcommand{\ptmp} {\text{temp}}
+\newcommand{\tcopy}{t_\text{move}}
+\newcommand{\tstart}{t_\text{start}}
+\newcommand{\tstop}{t_\text{stop}}
+\newcommand{\tswap}{t_\text{swap}}
+\newcommand{\trestart}{t_\text{restart}}
+\newcommand{\tin}{t_\text{in}}
+\newcommand{\ttmp}{t_\text{temp}}
+
+% Unfoldings
+\newcommand{\causal}{\trianglelefteq}
+\newcommand{\causalpredec}[1]{\dcwrt{#1}{\causal}}
+
+% Esparza
+\newcommand{\Traces}[1]{\calT\left(#1\right) }
+
+% Linearization
+\newcommand{\linof}[1]{\text{lin}\paren{#1}}
+
+% leq with bound
+\newcommand{\leqk}{\leq^k}
+\newcommand{\geqk}{\geq^k}
+
+
+%\=================================================
+
+%
+% separability
+%
+
+\newcommand{\pwrsetdown}[1]{\calP^{\downarrow}\paren{#1}}
+\newcommand{\pwrsetdownfin}[1]{\calP^{\downarrow\text{fin}}\paren{#1}}
+\newcommand{\pwrsetup}[1]{\calP^{\uparrow}\paren{#1}}
+
+\newcommand{\revsubseteq}{{\mathrel{\subseteq^{\text{rev}}}}}
+\newcommand{\rev}[1]{\text{rev}\paren{#1}}
+
+\newcommand{\idc}[1]{#1_{\scriptstyle{\triangledown}}}
+\newcommand{\iuc}[1]{#1_{\scriptstyle{\vartriangle}}}
+
+\newcommand{\prodwsts}{\wsts_\times}
+\newcommand{\prodconfigs}{{\configs_\times}}
+\newcommand{\prodT}{T_\times}
+\newcommand{\prodleq}{\leq_\times}
+
+%
+% ideal completion
+%
+
+\newcommand{\ideal}{\calI}
+
+\newcommand{\idealsT}{\text{ideals}}
+\newcommand{\idealcompletionT}{\text{compl}}
+\newcommand{\idealdecompT}{\text{decomp}}
+
+\newcommand{\ideals}[1]{\idealsT\paren{#1}}
+\newcommand{\idealcompletion}[1]{\idealcompletionT\paren{#1}}
+\DeclareDocumentCommand{\idealdecomp}{ g g}%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       % no parameters given
+       ERROR
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            % first parameter given
+            \idealdecompT\paren{#1}%
+        }%
+        {%
+            % both parameters given
+            \idealdecompT_{#1}\paren{#2}%
+        }%
+    }%
+}%
+
+
+%\=================================================
+
+%
+% games
+%
+
+\newcommand{\mycircle}
+{{\begin{tikzpicture}\draw [semithick] (0,0) circle (4pt);\end{tikzpicture}}}
+\newcommand{\mycirclesmall}
+{{\begin{tikzpicture}[scale=0.75]\draw [semithick] (0,0) circle (4pt);\end{tikzpicture}}}
+\newcommand{\mysquare}
+{{\begin{tikzpicture}\draw [semithick] (-3.5pt,-3.5pt) rectangle (3.5pt,3.5pt);\end{tikzpicture}}}
+\newcommand{\mysquaresmall}
+{{\begin{tikzpicture}[scale=0.75]\draw [semithick] (-3.5pt,-3.5pt) rectangle (3.5pt,3.5pt);\end{tikzpicture}}}
+\newcommand{\mystar}
+{{\begin{tikzpicture}\node[star, star points=5, star point ratio=2.25, draw, semithick, inner sep = 1.3pt] {};\end{tikzpicture}}}
+\newcommand{\mystarsmall}
+{{\begin{tikzpicture}[scale=0.75]\node[star, star points=5, star point ratio=2.25, draw, semithick, inner sep = 1.3pt] {};\end{tikzpicture}}}
+
+\newcommand{\explayer}{{\mathchoice{\mycircle}{\mycircle}{\mycirclesmall}{\mycirclesmall}}}
+\newcommand{\allplayer}{{\mathchoice{\mysquare}{\mysquare}{\mysquaresmall}{\mysquaresmall}}}
+\newcommand{\player}{{\mathchoice{\mystar}{\mystar}{\mystarsmall}{\mystarsmall}}}
+
+\newcommand{\opponent} {{\overline{\player}}}
+\newcommand{\players} {\set{\explayer, \allplayer}}
+
+\newcommand{\owner}{\text{owner}}
+\newcommand{\winningcond}{\text{win}}
+
+\newcommand{\last}{{\text{last}}}
+\newcommand{\strat}{s}
+
+\newcommand{\PDS}{{\text{PDS}}}
+\newcommand{\VS}{{\text{valence}}}
+\newcommand{\stratPDS}{s^\PDS}
+\newcommand{\stratVS}{s^\VS}
+
+\newcommand{\Plays}{\text{Plays}}
+\newcommand{\PlaysInf}{\Plays_{\text{inf}}}
+\newcommand{\PlaysMax}{\Plays_{\text{max}}}
+\newcommand{\PlaysMaxWinAllplayer}{\Plays_{\text{MaxWin}\allplayer}}
+\newcommand{\PlaysMaxWinExplayer}{\Plays_{\text{MaxWin}\explayer}}
+\newcommand{\PlaysExplayer}{\Plays_{\explayer}}
+\newcommand{\PlaysAllplayer}{\Plays_{\allplayer}}
+\newcommand{\PlaysPlayer}{\Plays_{\player}}
+\newcommand{\PlaysOpponent}{\Plays_{\opponent}}
+
+\newcommand{\lleq}{\implies}
+\renewcommand{\lequiv}{\iff}
+\newcommand{\comp}{\mathrel{.}}
+\newcommand{\relcomp}{\cdot}
+\newcommand{\supercomp}{\mathrel{;}}
+
+\newcommand{\Mrej}{M_{\text{rej}}}
+
+%
+% systems of equations
+%
+
+\newcommand{\vars}{\calV}
+\newcommand{\funs}{\text{Fun}}
+\newcommand{\term}{t}
+\newcommand{\terms}{\text{Terms}}
+
+\newcommand{\sof}{\calH}
+\newcommand{\model}{\calM}
+\newcommand{\interpretation}{\calI}
+
+\DeclareDocumentCommand{\domain}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \calD%
+    }%
+    {%
+        \calD_{#1}%
+    }%
+}%
+
+\DeclareDocumentCommand{\sem}{ g g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        % 0 params
+        \doublebracketed{-}
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            % 1 param
+            \doublebracketed{#1}
+        }%
+        {%
+            \IfNoValueTF{#3}%
+            {%
+                % 2 params
+                #1 \doublebracketed{#2}%
+            }%
+            {%
+                % 3 params%
+                #1 \doublebracketed{#2} #3%
+            }%
+        }%
+    }%
+}%
+
+\newcommand{\rhs}{\mathit{rhs}}
+
+\newcommand{\solT}{\text{sol}}
+
+\DeclareDocumentCommand{\sol}{ g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        \solT%
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            \solT\paren{#1}%
+        }%
+        {%
+            \solT^{#1}\paren{#2}%
+        }%
+    }%
+}%
+
+% use in the case that the first parameter is missing, but the second is present
+\newcommand{\soli}[1]{\solT^{#1}}
+\newcommand{\solci}[1]{\solT_{c}^{#1}}
+\newcommand{\solai}[1]{\solT_{a}^{#1}}
+
+%
+% context-free games
+%
+
+\newcommand{\CFLINREG} {\mathsf{CFL\text{-}REGINCLUSION}}
+\newcommand{\OCFLINOREG} {\omega\mathsf{CFL\text{-}\omega REGINCLUSION}}
+\newcommand{\poly}[1]{\text{poly}\paren{#1}}
+
+\newcommand{\cvar}[2]{\Lambda_{#1,#2}}
+
+\newcommand{\Parena}{P_{\text{arena}}}
+\newcommand{\Pallplayer}{P_\allplayer}
+\newcommand{\Pexplayer}{P_\explayer}
+\newcommand{\Pstratallplayer}{P_{s_\allplayer}}
+\newcommand{\Pstratexplayer}{P_{s_\explayer}}
+
+\newcommand{\sentform}{\alpha}
+
+\newcommand{\Walu}{Walukiewicz}
+\newcommand{\Walus}{Walukiewicz's}
+
+%
+% HORS games
+%
+
+% determinization
+\newcommand{\brancht}{\text{branch}}
+\newcommand{\branchopF}{\text{branch}_F}
+
+\newcommand{\textprepend}{\text{prepend}}
+
+\DeclareDocumentCommand{\prepend}{ m g }%
+{%
+    \IfNoValueTF{#2}%
+    {%
+       \textprepend_{#1}%
+    }%
+    {%
+        \textprepend_{#1} \paren{#2}%
+    }%
+}%
+
+\newcommand{\textpredec}{\text{predec}}
+
+\DeclareDocumentCommand{\predec}{ m g }%
+{%
+    \IfNoValueTF{#2}%
+    {%
+       \textpredec_{#1}%
+    }%
+    {%
+        \textpredec_{#1} \paren{#2}%
+    }%
+}%
+
+\newcommand{\val}{\nu}
+
+\newcommand{\judgmentground}{\varphi}
+\newcommand{\judgment}{\Phi}
+\newcommand{\gamesound}{\models}
+
+\DeclareDocumentCommand{\abs}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        \alpha%
+    }%
+    {%
+        \alpha\paren{#1}%
+    }%
+}%
+
+\newcommand{\PropertyBotton}{Property~\ref{Property:HORSPrecisionBottom}}
+
+\DeclareDocumentCommand{\semc}{ g g }
+{%
+    \IfNoValueTF{#1}%
+    {%
+        % 0 params
+        \modelc\doublebracketed{-}%
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            % 1 param
+            \modelc\doublebracketed{#1}%
+        }%
+        {%
+            \modelc\doublebracketed{#1} #2%
+        }%
+    }%
+}%
+
+\DeclareDocumentCommand{\sema}{ g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        % 0 params
+        \modela\doublebracketed{-}%
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            % 1 param
+            \modela\doublebracketed{#1}%
+        }%
+        {%
+            \modela\doublebracketed{#1} #2%
+        }%
+    }%
+}%
+
+\DeclareDocumentCommand{\solc}{ g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        \solT_c
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            \solT_c\paren{#1}%
+        }%
+        {%
+            \solT_c^{#1}\paren{#2}%
+        }%
+    }%%
+}
+
+\DeclareDocumentCommand{\sola}{ g g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+        \solT_a
+    }%
+    {%
+        \IfNoValueTF{#2}%
+        {%
+            \solT_a\paren{#1}%
+        }%
+        {%
+            \solT_a^{#1}\paren{#2}%
+        }%
+    }%
+}%
+
+\DeclareDocumentCommand{\domaint}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \calD_-%
+    }%
+    {%
+       \calD_{-, #1}%
+    }%
+}%
+\DeclareDocumentCommand{\domainc}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \calD_c%
+    }%
+    {%
+        \calD_{c, #1}%
+    }%
+}%
+\DeclareDocumentCommand{\domaina}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \calD_a%
+    }%
+    {%
+       \calD_{a, #1}%
+    }%
+}%
+\DeclareDocumentCommand{\botc}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \bot_c%
+    }%
+    {%
+       \bot_{c, #1}%
+    }%
+}%
+\DeclareDocumentCommand{\bota}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \bot_a%
+    }%
+    {%
+        \bot_{a, #1}%
+    }%
+}%
+\newcommand{\modelc}{\model_c}
+\newcommand{\modela}{\model_a}
+\newcommand{\modelt}{\model_-}
+
+\newcommand{\cto}{\to_{\sqcup}\!}
+
+\newcommand{\interpretationt}{{\interpretation_-}}
+
+\DeclareDocumentCommand{\interpretationc}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \interpretation_c%
+    }%
+    {%
+        \interpretation_c \paren{#1}%
+    }%
+}%
+
+\DeclareDocumentCommand{\interpretationa}{ g }%
+{%
+    \IfNoValueTF{#1}%
+    {%
+       \interpretation_a%
+    }%
+    {%
+        \interpretation_a \paren{#1}%
+    }%
+}%
+
+
+\newcommand{\rhsc}{\text{rhs}_c}
+\newcommand{\rhsa}{\text{rhs}_a}
+
+\newcommand{\xc}{x_c}
+\newcommand{\xa}{x_a}
+\newcommand{\fc}{f_c}
+\newcommand{\fa}{f_a}
+\newcommand{\xci}{x_{c,i}}
+\newcommand{\xai}{x_{a,i}}
+\newcommand{\fci}{f_{c,i}}
+\newcommand{\fai}{f_{a,i}}
+\newcommand{\vala}{\val_{a}}
+\newcommand{\valc}{\val_{c}}
+
+%
+% Valence Games
+%
+
+\newcommand{\monoid}{\M}
+
+\newcommand{\neutral}{\mathbb{1}_{\monoid}}
+
+\newcommand{\indep}{I}
+\newcommand{\indeprel}{\mathrel{\indep}}
+\newcommand{\notindeprel}{\mathrel{\neg\indep}}
+
+\newcommand{\ops}{\calO}
+
+\newcommand{\inc}[1]{{#1}^+}
+
+\newcommand{\dec}[1]{{#1}^-}
+
+\newcommand{\incdec}[1]{{#1}^\pm}
+
+\newcommand{\plusop}[1]{\mathmbox{+#1}}
+\newcommand{\minusop}[1]{\mathmbox{-#1}}
+
+\DeclareDocumentCommand{\graphmonoid}{ g } % optinal argument in curly braces
+{%
+    \IfNoValueTF{#1}%
+    { \M_{G} }%
+    { \M_{#1} }%
+}%
+
+\newcommand{\irreflexive}[1]{{#1}^{-}}
+
+\newcommand{\RuleCancel}{Rule~(\ref{Rule:Cancel})}
+\newcommand{\RuleSwap}{Rule~(\ref{Rule:Swap})}
+
+\newcommand{\CoverabilityGamesUndecidableVisualProofBasicSetup}%
+{%
+    \node (e1) at (0,0)  {$\bullet$};
+    \node (e2) at (0,-2) {$\bullet$};
+    \node (e3) at (0,-4) {$\bullet$};
+%
+    \node (s1) at (3,0)  {$\bullet$};
+    \node (s2) at (3,-2) {$\bullet$};
+    \node (s3) at (3,-4) {$\bullet$};
+%
+    \node (s4) at (6,0)  {$\bullet$};
+    \node (s5) at (6,-2) {$\bullet$};
+    \node (s6) at (6,-4) {$\bullet$};
+%
+    \node [left of=e1] {$e_1$};
+    \node [left of=e2] {$e_2$};
+    \node [left of=e3] {$e_3$};
+    \node [above right of=s1,xshift=+0.5em] {$s_1$};
+    \node [below right of=s2,yshift=-0.25em] {$s_2$};
+    \node [below right of=s3,xshift=+0.5em] {$s_3$};
+    \node [right of=s4] {$s_4$};
+    \node [right of=s5] {$s_5$};
+    \node [right of=s6] {$s_6$};
+%
+    \draw (s1.center) ++(+90:0.5em) circle  (0.5em);
+    \draw (s2.center) ++(+90:0.5em) circle  (0.5em);
+    \draw (s3.center) ++(-90:0.5em) circle  (0.5em);
+    \draw (s4.center) ++(+90:0.5em) circle  (0.5em);
+    \draw (s5.center) ++(+90:0.5em) circle  (0.5em);
+    \draw (s6.center) ++(-90:0.5em) circle  (0.5em);
+}%
+
+
+%\=================================================
+
+\endinput

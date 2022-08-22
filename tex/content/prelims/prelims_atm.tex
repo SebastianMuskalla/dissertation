@@ -1,0 +1,147 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{(Alternating) Turing machines}%
+\label{Section:ATMs}%
+
+We define alternating Turing machines as a general form of computational device and nondeterministic and deterministic Turing machines as special cases.
+The presentation loosely follows~\cite{Kozen06}.
+In contrast to the restricted models of computation that we will define later, a Turing machine~\cite{Turing36} is a computational device that has unrestricted access to an unbounded storage.
+Alternating Turing machines~\cite{ChandraKS81} additionally provide both universal and existential nondeterminism.
+
+% \begin{definition}
+    Formally, an \emph{alternating Turing machine (ATM)} is a tuple
+    \(
+        M = (Q_\all, Q_\ex, q_\final, q_\init, \Sigma, \delta)
+    \)
+    where
+    $Q = Q_\all \dotcup Q_\ex \dotcup \set{ q_\final}$ is a finite set of \emph{control states}, partitioned into the \emph{universal states} $Q_\all$, the \emph{existential states} $Q_\ex$, and the \emph{final state} $q_\final$.
+    The \emph{initial control state} is $q_\init \in Q$.
+    The alphabet $\Sigma$ is the \emph{input alphabet} of the machine.
+    Finally, $\delta \subseteq Q \times \Gamma \times Q \times \Gamma \times \set{L,R}$ is the \emph{transition relation}, where $\Gamma = \Sigma \dotcup \set{ \blank }$ is the \emph{tape alphabet} of the machine, consisting of the input alphabet and a special \emph{blank symbol} $\blank \not\in \Sigma$, and $\set{L,R}$ is the set of \emph{directions}.
+% \end{definition}
+%
+We write $(q,a) \to (p,b,d)$ instead of $(q,a,p,b,d) \in \delta$.
+
+A configuration of an ATM has the shape $(w,q,a.v) \in \Gamma^* \times Q \times \Gamma^+$, oftentimes written as $w \ q \ a.v$.
+It consists of a control state, a finite tape content, and the position of the read/write head on the tape.
+% We formalize this as a tuple $(w,q,a.v) \in \Gamma^* \times Q \times \Gamma^+$, usually simply written as $w \ q \ a.v$/
+% , where $w$ is the tape content to the left of the head, $q$ is the control state, and $a.v$ is the content to the right of the head (where the head points to the symbol $a$).
+To be precise, the tape content is infinite, but only finitely many cells are not filled with the blank symbol $\blank$; we assume that $\blank$ symbols have been exhaustively removed from both ends of the tape content, identifying $w \ q \ a.v$ with $\blank^\omega.w \ q \ a.v.\blank^\omega$.
+% This in particular means that $w \ q \ \eps$ means that the head is pointing to a blank symbol.
+
+The transition relation $\delta$ of an ATM induces a transition relation $T$ on configurations in the expected way:
+We have $w \ q \ a.v \to w' \ q' \ a'.v'$ if either $(q,a) \to (q',b,L)$ and $w = w'.a'$, $v' = b.v$ or $(q,a) \to (q',b,R)$ and $w' = w.b$, $v' = a'.v$.
+% This matches the intuition that a transition $(q,a) \to (q',b,d)$ reads control state $q$ and symbol $a$, replaces $a$ by $b$, moves the head in direction $d \in \set{L,R}$ and the control state changes to $q'$.
+
+The semantics of alternating Turing machines is defined in terms of trees.
+The unique \emph{computation tree} of an ATM $M$ for input $x \in \Sigma^*$ is a tree labeled by configurations, defined inductively as follows:
+(1) The root node is labeled by $\eps \ q_\init \ x$, and
+(2) if the tree has a node labeled by $w \ q \ v$ with $q \neq q_\final$, then for each configuration $w' \ q' \ v'$, with $w \ q \ v \to w' \ q' \ v'$, this node has exactly one child labeled with that configuration.
+
+Note that a computation tree may be infinite.
+Leaves of the tree are either labeled by configurations with control state $q_\final$, or by \emph{rejecting} configurations in which no transition is applicable.
+We say that ATM $M$ \emph{halts} on input $x$ if the computation tree for $x$ is finite.
+We say that ATM $M$ is a \emph{decider}, or \emph{total}, if it halts on all inputs.
+
+To define the language of an ATM $M$, it remains to introduce the acceptance condition.
+% We first define an acceptance condition on the nodes:
+A leaf of the computation tree is accepting if the control state (of the configuration labeling it) is $q_\final$.
+An inner node is accepting if its control state is from $Q_\ex$ and it has an accepting child, or if the control state is from $Q_\all$ and all its children are accepting.
+A computation tree is accepting if its root node is accepting.
+In this case, input $x$ is contained in the language $\lang{M} \subseteq \Sigma^*$.
+Phrased differently, the language $\lang{M}$ \emph{recognized} by ATM $M$ is the set of all words from $\Sigma^*$ for which the computation tree is accepting.
+An ATM that is a total \emph{decides} its language (or, more specifically, the membership problem for that language) in that one can construct the computation tree associated to an input in finite time and check whether it is accepting.
+
+\begin{remark*}
+    In the literature, \eg in~\cite{Kozen06}, leaves of the tree  are often considered to be accepting if they are labeled by a universal control state.
+    This is motivated by seeing these nodes as empty conjunctions, and it simplifies some constructions for ATMs.
+    As we do not need said constructions, we forgo defining such leaves as accepting, which saves us from some case distinctions.
+\end{remark*}
+
+\paragraph{Decision problems and word problems}
+
+Theoretical computer science is often concerned with studying decisions problems.
+These problems consist of a set of instances $\calI$ and a partition $\calI = \calI_{\text{yes}} \dotcup \calI_{\text{no}}$ into the yes-instances $\calI_{\text{yes}}$ and the no-instances $\calI_{\text{no}}$.
+Intuitively, the question is, given an instance $i \in \calI$ of such a problem, to determine whether it is a yes- or a no-instance.
+We often present decision problems in the following form.
+
+\begin{problem}
+    \problemtitle{Decision problem for $\calI = \calI_{\text{yes}} \dotcup \calI_{\text{no}}$}
+    \probleminput{Instance $i \in \calI$.}
+    \problemquestion{$i \in \calI_{\text{yes}}$?}
+\end{problem}
+
+When we talk about the \emph{decidability} of such a problem, we are asking whether a computer can solve it.
+In order to formalize this concept, one observes that for most decision problems of practical interest, it is possible to encode instances $i \in \calI$ as words over some suitable alphabet.
+This means the set of instances is the set $\Sigma^*$ of words over the alphabet, and the set of yes-instances as a language $\calL \subseteq \Sigma^*$.
+With this encoding, a decision problem can be seen as a \emph{word problem}, the problem of deciding whether a given word is in a language.
+
+\begin{problem}
+    \problemtitle{Word problem for $\calL \subseteq \Sigma^*$}
+    \probleminput{Word $w \in \Sigma^*$.}
+    \problemquestion{$w \in \calL$?}
+\end{problem}
+
+We call the word problem for a language $\calL$ \emph{decidable} if $\calL$ is the language of an ATM that is a decider.
+Intuitively, that ATM indeed decides the language.
+Given an input word, we can in finite time construct the computation tree of the ATM for the input and then read off whether it is accepting.
+If so, the input word is indeed a member of the language of the ATM.\@
+
+A general decision problem is called decidable if the word problem that results from choosing an appropriate encoding is decidable.
+In particular, we can formalize decision problems that expect ATMs as inputs as word problems and study their decidability.
+Encoding an ATM into \eg a binary or number representation is a process called Gödel numbering, named after a similar technique that was developed by Gödel for the proof of his incompleteness theorems.
+
+The halting problem is one such example for a problem that expects a Turing machine as input.
+
+\begin{problem}
+    \problemtitle{Halting problem}
+    \probleminput{ATM $M$, input $x$ for $M$.}
+    \problemquestion{Does $M$ halt on $x$, \ie is the computation tree of $M$ for input $x$ finite?}
+\end{problem}
+
+A variant of this halting problem is the famous problem for which \citea{Turing36} showed that it is undecidable.
+It is not too hard to obtain an ATM that recognize the language associated to a suitable encoding of the halting problem:
+This ATM has to simulate the given ATM on the given input.
+Our definition of acceptance makes sure that if the input is accepted, then a finite subtree of the computation tree is sufficient to prove acceptance.
+Hence, the simulation can accept all yes-instances of the halting problem with the finite time.
+No-instances are hard to detect within finite time.
+If the given machine M does not halt on the given input, then the simulation of that machine will not halt either.
+In fact, Turing result show that it is impossible to construct a decider for the halting problem.
+
+\paragraph{Restricted variants of Turing machines}
+
+An ATM is called an \emph{(existentially) nondeterministic Turing machine (NTM)} if $Q_\all = \emptyset$.
+In this case, an input is accepted if the associated computation tree contains an accepting leaf.
+
+An ATM is called a \emph{deterministic Turing machine (DTM)} if $\delta$ is unique in that for each \nb{tuple $(q,a) \in Q \times \Gamma$}, there is at most one transition $(q,a) \to (q',a',d)$ in $\delta$.
+In this case, each configuration has at most one successor, and the computation tree is actually a sequence of configurations.
+Whether the control states are universal or existential does not matter in this case; we may assume that every DTM is an NTM.\@
+
+It is well-known that NTMs can be converted in polynomial-time into language equivalent DTMs.
+While the translation runs in polynomial time, the resulting DTM may have increased resource consumption over the original NTM (a notion that we will make precise in the next section).
+Similarly, ATMs that are deciders can be converted to DTMs, but this does not hold true for arbitrary ATMs:
+The class of languages that can be recognized by ATMs is a strict superclass of the class of \emph{recursively enumerable} or \emph{semi-decidable} languages $\RECENUM$, the languages recognized by DTMs and NTMs.
+For example, $\RECENUM$ is not closed under complement\footnote{The famous halting problem~\cite{Turing36} is undecidable but semi-decidable. If $\RECENUM$ were closed under complementation, its complement would be semi-decidable too, implying that the problem itself is decidable.} while the class of ATM-recognizable languages is.
+
+So far, we have seen Turing machines as devices for deciding acceptance.
+We may see a decider as a device that computes the (total) characteristic function of its language $\chi_{\lang{M}} : \Sigma^* \to \B$ with $\chi_{\lang{M}} (x) = \true$ iff $x \in \lang{M}$.
+To conclude this section, we define Turing machines that compute functions with non-Boolean function values.
+To this end, we restrict ourselves to the class of deterministic Turing machines that accept every input.\footnote{
+    Note that it is not possible to algorithmically check whether a given DTM satisfies that condition.
+    % Instead, whenever we construct such a DTM, we have to guarantee that this property holds.
+}
+By our definition of acceptance, this in particular means that they halt on every input after finitely many steps.
+Such a DTM computes function $f \colon \Sigma^* \to \Sigma^*$ if on input $x$, the (unique) leaf of the computation tree is labeled by a configuration $w \ q_\final \ v$ such that $w.v = f(x)$ (with all occurrences of the blank symbol $\blank$ removed on both ends of the tape content).
+A function $f$ that is computed by some machine $M$ is called \emph{computable}.
+
+\paragraph{Alternative models}
+
+There is a variety of other models that are equally powerful as Turing machines.
+Formally, a model is called Turing-complete if each Turing machine can be simulated by an instance of the model and vice versa.
+All such models share the property of Turing-machines that any non-trivial verification problem -- like \emph{state reachability}, \emph{configuration reachability} or \emph{halting} -- are undecidable.
+Sometimes, it is technically easier to show the undecidability of a problem using one of the alternative models.
+In this thesis, we will consider \emph{counter machines} in several proofs.
+However, we delay giving a formal definition to the end of \cref{Section:PNUnlabeled} when we have more of the required notation at hand.
+
+\end{document}

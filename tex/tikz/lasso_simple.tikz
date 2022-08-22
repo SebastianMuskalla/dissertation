@@ -1,0 +1,20 @@
+\begin{tikzpicture}[->,>=latex,semithick]
+
+\node (Q0) [inner sep=0em, outer sep=0em] at (0,0) {};
+\node (Q1) [inner sep=0em, outer sep=0em] at (1,0) {};
+\node (Q2) [inner sep=0em, outer sep=0em] at (3,0) {};
+\node (pt) [inner sep=0em, outer sep=0em] at (5,0) {};
+
+\path [draw]
+    (Q0) edge (Q1)
+    (Q1) edge (Q2)
+    (Q2) edge [-, bend right,in=-90] (pt)
+    (pt) edge [bend right,out=-90] (Q2)
+;
+\node at (pt) {$\bullet$};
+
+\node at (0.5,-0.8) {$\tau$};
+\node at (2,-0.8) {$\tbox^*$};
+\node at (4.2,-0.8) {$\tbox^*$};
+
+\end{tikzpicture}

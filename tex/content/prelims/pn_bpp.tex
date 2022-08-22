@@ -1,0 +1,345 @@
+\documentclass[../../diss.tex]{subfiles}
+
+\begin{document}
+
+\section{BPP nets}%
+\label{Section:PNBPP}%
+
+The hardness of most computational problems for Petri nets motives studying subclasses of nets with better algorithmic properties.
+There are several classes of nets that are studied in this context, including \emph{safe}, \emph{communication-free}, \emph{conservative} Petri nets and many others.
+
+In a \emph{$k$-safe} net instance, we assume that each marking $M$ reachable from the initial marking satisfies $M(p) \leq k$ for all places $p$.
+The case of $1$-safety (often simply called \emph{safety}) is of particular interest.
+The state space of a $k$-safe net instance is finite; it is a transition system with at most $k^{\card{P}}$ configurations.
+In particular, the computational problems for $k$-safe Petri nets are as hard as the corresponding problems for finite state systems of exponential size.
+For example, the reachability problem for ($1$-)safe Petri nets is $\PSPACE$-complete, which corresponds to the reachability problems in directed graphs.
+The latter can be solved in $\NLOGSPACE$ (nondeterministic logarithmic space) for polynomially sized graphs, and hence in polynomial space for exponentially sized graphs.
+Altogether, this class is of high practical relevance, but rather boring from a theoretical point of view.
+
+In this thesis, we will, in addition to general Petri nets, exclusively focus on the following subclass.
+A Petri net $N$ is a \emph{BPP net} or \emph{communication-free} if each transition consumes at most one token, \ie for each $t$, we have $\sum_{p \in P} \i(t,p) \leq 1$.
+
+BPP nets are interesting for various reasons.
+On the practical side, a BPP net can model an unbounded number of instances of a finite state-automaton running in parallel.
+Each token in a place corresponds to an instance of the automaton that is in said place.
+Instances can \emph{die} (when the corresponding token is consumed), and new instances can be spawned at runtime (by transitions that produce more than one token).
+However, the instances cannot communicate or synchronize during runtime.
+This setting is modeled by the \emph{calculus of basic parallel processes}~\cite{Christensen93}, from which BPP nets get their name.
+
+On the theoretical side, BPP nets are special in that they have some structural properties that do not hold for general Petri nets:
+The state equation is an equivalence, and the reachability set is semi-linear.
+After giving an example, we discuss each of these properties in detail.
+
+\begin{example}%
+\label{Example:BPPNonRegular}%
+    Consider the labeled BPP net instance $(N,\vec{0},\vec{0})$ over the alphabet $\set{a,b,c}$, where $N$ is given in \cref{Figure:BPPNonRegularExample}.
+    Its language is the non-context-free language of all words $w \in \set{a,b,c}^*$ such that in every prefix of $w$, the number of occurrences of letter $a$ is greater than or equal to the number of occurrences of $b$, and the number of $b$s is greater than or equal to the number of $c$s.
+    The fact that this language is not context-free can be shown similar to the well-known proof for $\Set{a^n b^n c^n}{n \in \N}$ not being context-free.
+\end{example}
+
+\begin{figure}
+    \centering%
+    \input{tikz/bpp_example.tikz}%
+    \caption{A labeled BPP net with a non-context-free language.}%
+    \label{Figure:BPPNonRegularExample}%
+\end{figure}
+
+\paragraph{The state equation}
+
+Recall that $M \fire{\sigma} M'$ implies $M' = M + e(\sigma)$.
+In turn, this means that a marking~$M'$ can only be reachable from $M$ if there is a sequence of transitions with effect $M' - M$.
+Since the effect of a transition sequence does not depend on the order of the transitions, this can be described by a system of linear equations.
+If $M'$ is reachable from $M$, then the system of equations given by
+\[
+   M' - M = \sum_{t \in T} c_t \cdot e(t)
+\]
+has a non-negative solution $c \in \N^T$.
+This equation is called the \emph{state equation} (or \emph{marking equation}).
+It can be used as an easy preliminary check to rule out reachability: If the system has no solution, reachability cannot hold.
+Checking whether the state equation has a non-negative integer solution is an instance of the satisfiability problem for integer programming, which is $\NPTIME$-complete~\cite{Karp72,BoroshT76}.
+However, the state equation does not provide a characterization of Petri net reachability:
+Firstly, it is not hard to construct an example where the system of equations has a solution, but it is impossible to arrange the transitions such that a valid firing sequence is obtained.
+Secondly, even if reachability holds, the shortest valid firing sequence may be vastly longer, \ie it contains much more transitions, than the transition counts provided by the least solution to the state equation.
+In fact, the decision procedure for Petri net reachability in its presentation by \citea{Lambert92} can be understood as a procedure that expands the given Petri net until the satisfiability of the marking equation is equivalent to the reachability Problem.
+Note that this expansion process can lead to a blow-up that is non-primitive recursive.
+
+For BPP nets, however, the characterization of reachability by the state equation is precise in the following sense.
+
+\begin{theorem}[(\citea{Esparza97a})]
+    For a BPP net $N$, an initial marking $M$ and a vector $c \in \N^T$ of transition counts, there is a valid firing sequence $\sigma$ with $M \fire{\sigma}$ containing each transition $t$ exactly $c_t$ times if and only if
+    \begin{enumerate}[(1)]
+        \item the state equation holds, \ie \( \Minit + \sum_{t \in T} c_t \cdot e(t) \geq 0 \) and
+        \item the net is connected in the sense that for each place $p$ such that there is a transition $t$ with $c_t > 0$ and $\i(t,p) \neq 0$ or $\o(t,p) \neq 0$, there is a path from a place $p'$ with $\Minit(p') > 0$ to $p$ that only uses transitions $t'$ with $c_{t'} > 0$ (in the Petri net seen as graph).
+    \end{enumerate}
+\end{theorem}
+
+
+This characterization has two important consequences that are stated and proven in~\cite{Esparza97a}.
+Firstly, one obtains that, given a BPP net $N$ and a marking $\Minit$, the set of reachable markings $\Set{ M }{ \exists \sigma \colon \Minit \fire{\sigma} M}$ is effectively semi-linear.
+Secondly, it yields an $\NPTIME$-algorithm for reachability.
+The first step of this algorithm is to get rid of the dependency on $c$ in the theorem.
+
+\begin{corollary}[(\citea{Esparza97a})]
+    For a BPP net $N$, and markings $\Minit, \Mfinal$, there is a computation $\Minit \fire{\sigma} \Mfinal$ if and only if there is a subset of transitions $U \subseteq T$ such that
+    \begin{enumerate}[(1)]
+        \item the system of equations formed by the state equation, \ie \( \Minit - \Mfinal = \sum_{t \in T} c_t \cdot e(t) \), the equations $c_t = 0$ for $t \not\in U$, and the inequalities $c_t > 0$ for $t \in U$ has an integer solution $c$, and
+        \item the net is connected in the sense that for each place $p$ such that there is a transition $t \in U$ that is adjacent to $p$ (in the net seen as graph), there is a path from a place $p'$ with $\Minit(p') > 0$ to $p$ that only uses transitions from $U$.
+    \end{enumerate}
+\end{corollary}
+
+The corollary gives rise to an algorithm for reachability in a straightforward manner.
+One first guesses $U$, then checks the second property by a linear number of reachability checks in a directed graph, and finally solves the extended state equation using integer linear programming.
+As mentioned before, linear programming is $\NPTIME$-complete, so the whole algorithm runs in $\NPTIME$.
+
+By inserting transitions that consume superfluous tokens, an instance of the coverability problem for BPP nets can be easily reduced to an instance of reachability.
+In fact, both coverability and reachability are $\NPTIME$-complete~\cite{Esparza97a}.
+Since we will later present some hardness proofs that rely on the $\NPTIME$-hardness of coverability, we give the proof.
+
+\begin{lemma}%
+\label{Lemma:BPPCOVhardness}%
+    Coverability in BPP nets is $\NPTIME$-hard.
+\end{lemma}
+
+\begin{proof}
+    We reduce from $\SAT$, the satisfiability problem for propositional formulas in conjunctive normal form.
+    Let $F = K_1 \wedge \ldots \wedge K_n$ be the given formula with $K_i = L_{i1} \vee \ldots \vee L_{im_i}$ for each clause $K_i$.
+    Each literal is of the shape $L_{ij} = x_k$ or $L_{ij} = \neg x_k$ for one of the variables $x_1, \ldots, x_\ell$.
+    We construct a net that has three places $x_i, x_i^+, x_i^-$ for each variable.
+    The initial marking $\Minit$ puts a token on each place $x_i$.
+    For each variable, there is one transition moving that token to $x_i^+$, and one that moves it to $x_i^-$.
+    Intuitively, one assigns a truth value to variable $x_i$ using these transitions.
+
+    To encode the formula, we introduce places for all of its parts.
+    For each positive literal $L_{ij} = x_k$, there is a place $L_{ij}$ and a transition that checks for a token $x_k^+$ and produces a token on $L_{ij}$.
+    By checking for a token, we mean that the transition both consumes and produces a token on this place; the transition does not change the number of tokens on that places, but it requires a token to be able to be fired.
+    Similarly, there is a place for negative literals $L_{ij} = \neg x_k$ that check for a token on $x_k^-$.
+    For each clause $K_i$, there is a place $K_i$.
+    Every literal $L_{ij}$ from that clause induces a transition that moves one token from $L_{ij}$ to $K_i$.
+
+    The final marking $\Mfinal$ requires one token on each place $K_i$.
+    Each covering computation induces a satisfying truth assignment and vice versa:
+    If $\Minit \fire{\sigma} M \geq \Mfinal$, define the assignment $\varphi$ by $\varphi(x_k) = \true$ if $\sigma$ contains the transition moving a token from $x_k$ to $x_k^+$, $\varphi(x_k) = \false$ else.
+    The structure of the net ensures that (1)~no variable is set to true and false at the same time, \ie the places $x_k^+$ and $x_k^-$ are mutually exclusive, (2)~each clause is satisfied, since~(3)~each clause contains at least one literal that is satisfied.
+    For the other direction, assume that $\varphi$ is a satisfying truth assignment, and consider the computation $\varphi$ that first moves tokens to the places $x_k^-$ \nb{or $x_k^+$}, depending on the truth value of $\varphi(x_k)$, then creates tokens on all literals $L_{ij}$ that are satisfied, and then creates tokens on all clauses that are satisfied.
+    Since $\varphi(F) = \true$ by assumption, this computation will create a token for each clause and hence is covering.
+\end{proof}
+
+\begin{corollary}
+    Coverability and reachability in BPP nets are $\NPTIME$-complete.
+\end{corollary}
+
+\paragraph{The word problem for BPP nets}
+
+Let us now study the class of BPP net coverability languages and its algorithmic properties, starting with the word problem.
+The class of \emph{BPP (coverability) languages} is not well-studied yet.
+To the best of our knowledge, this is one of the first works that considers this class.
+BPP nets are commonly used to model the languages of commutative context-free grammars.
+We comment on this class of languages at the end of this section.
+In particular, we will argue that the theory of the languages of commutative context-free grammars is less rich than the theory of the BPP net languages.
+
+\begin{problem}
+    \problemtitle{Word problem for BPP net coverability languages}
+    \problemshort{($\WORDBPPCOV$)}
+    \probleminput{Labeled BPP net instance $(N, \Minit, \Mfinal)$ over $\Sigma$, word $w \in \Sigma^*$.}
+    \problemquestion{$w \in \lang{N,\Minit,\Mfinal}$?}
+\end{problem}
+
+In the case of Petri nets, the complexity results for unlabeled Petri nets directly translate into complexity results for the corresponding problems for languages.
+Unfortunately, some constructions do not carry over to BPP nets.
+For example, to show that the word problem for general Petri nets is $\EXPSPACE$-complete, we have constructed the product of the given net and an NFA for the given word.
+This construction cannot be used for BPP nets, since the product of a BPP net with an NFA is not a BPP net: Each transition will consume two tokens, one from the BPP net and one from the automaton.
+Nevertheless, the word problem is $\NPTIME$-complete, just as the coverability~problem.
+
+\begin{proposition}%
+\label{Proposition:BPPWordProblem}%
+    $\WORDBPPCOV$ is $\NPTIME$-complete.
+\end{proposition}
+
+The hardness of the word problem is easy to obtain: Consider an unlabeled BPP net as a labeled BPP net in which every transition is labeled by $\eps$, then the final marking is coverable in the original net if and only if $\eps$ is an element of the coverability language of the labeled version.
+Hence, the $\NPTIME$-hardness result for coverability implies the $\NPTIME$-hardness of $\WORDBPPCOV$.
+
+The proof for membership in $\NPTIME$ is harder.
+To get the desired result, we use the correspondence of BPP nets to \textit{Presburger arithmetic} and the concept of \text{semi-linearity} that we have introduced in \cref{Section:Formulas}.
+
+\begin{theorem}[(\citea{VermaSS05};~\citea{Esparza97a})]%
+\label{Theorem:BPPPResburger}%
+    The reachability set of a BPP is effectively semi-linear:
+    Given a BPP net $N$ and an initial marking $\Minit$, one can compute in polynomial time an existential Presburger formula $\Psi(P)$ so that for all markings $M$: $\Psi(M)$ is true iff $\Minit \fire{\sigma} M$ for some $\sigma \in T^*$.
+\end{theorem}
+
+The statement is not true for general Petri nets with at least 6 places~\cite{HopcroftP79}.
+We can now use \cref{Theorem:BPPPResburger} to prove that the word problem for BPP net coverability languages is in~$\NPTIME$.
+
+\begin{proposition}%
+\label{Proposition:BPPWordproblem}%
+    $\WORDBPPCOV$ is in $\NPTIME$.
+\end{proposition}
+
+\begin{proof}
+    Assume that $(N,\Minit,\Mfinal)$ is the given labeled BPP net instance and $w = w_1 \ldots w_m \in \Sigma^*$ is the word for which membership should be checked.
+    We could simply guess for each \nb{letter $w_i$} of~$w$ the transition $t_i$ of $N$ with $\lambda(t_i) = w_i$ that will be used to produce $w_i$.
+    The problem is that a computation $\Minit \fire{\sigma} M \geq \Mfinal$ with $\lambda(\sigma) = w$ can use an unbounded number of $\eps$-transitions in between the occurrences of the $t_i$.
+    Hence, we have to find a computation
+    \[
+        \Minit \fire{\sigma_0} M_1 \fire{t_1} M_1' \fire{\sigma_2} \ldots \fire{\sigma_m} M_m \fire{t_m} M_m' \fire{\sigma_{m+1}} M_{m+1} \geq \Mfinal
+    \]
+    where each $\sigma_i$ for $i \in \oneto{m+1}$ only consists of $\eps$-labeled transitions.
+
+    However, we cannot simply guess the markings $M_i$ in polynomial time, since we have no a priori bound on their number of tokens.
+    To overcome this issue, the characterization of reachability in terms of existential Presburger formulas is crucial.
+    Our goal is to design an existential Presburger formula $\varphi_{(N,\Minit,\Mfinal),w}$ that is satisfiable if and only if $w \in \lang{N,\Minit,\Mfinal}$,
+
+    On a high level of abstraction, the formula guesses the transitions $t_i$ that are used for the letters of the word.
+    It also guesses the markings $M_i$ and $M_i'$ and verifies that each $M_i'$ results from $M_i$ by applying the effect of transition $t_i$, and that each $M_{i+1}$ is reachable from $M_{i}'$ by a sequence of $\eps$-transitions.
+    To implement this idea, we let $N_\eps$ be a version of $N$ in which all transitions that are not labeled by $\eps$ have been removed.
+    We create $m+2$ copies of $N_\eps$, say $N_\eps^0, N_\eps^i, \ldots, N_\eps^m, N_\eps^{m+1}$.
+    Intuitively, the sequence $\sigma_i$ of $\eps$-transitions will be executed in copy $N_\eps^i$.
+    This is needed since the Presburger formula can only talk about the marking that is reached in the end, so we will need to preserve the intermediary markings in a separate copy to be able to access them.
+
+    However, we need to ensure that each copy $N_\eps^i$ starts from the correct initial marking.
+    To this end, we add transitions that allow us to populate $N_\eps^i$ for $i > 0$ with an arbitrary initial marking.
+    Our formula will check that the marking reached by firing $\sigma_i$ plus the effect of \nb{transition $t_{i+1}$} is indeed the initial marking of $N_\eps^{i+1}$ from which $\sigma_{i+1}$ is fired.
+    To implement this, we let $N_\eps^{1,\init}, \ldots, N_\eps^{m,\init}, N_\eps^{m+1,\init}$ be copies of $N$ that do not contain any transition.
+    We let $N'$ be the disjoint union of all $N_\eps^i$ for $i \in \zeroto{m+1}$ and all $N_\eps^{i,\init}$ for $i \in \oneto{m+1}$.
+    For each $i \in \oneto{m+1}$, and each place $p$ of $N$, we add a transition that simultaneously adds a token in place $p$ of \nb{copy $N_\eps^{i,}$} and place $p$ in copy $N_\eps^{i,\init}$.
+%
+    Furthermore, we let $M'$ be the initial marking of $N'$ that assigns $\Minit(p)$ tokens to the places $p$ of the first copy $N_\eps^{0}$ and no tokens elsewhere.
+
+    It remains to construct the Presburger formula $\varphi_{(N,\Minit,\Mfinal),w}$ that is satisfiable if and only if $w \in \lang{N,\Minit,\Mfinal}$.
+    The free variables of $\varphi_{(N,\Minit,\Mfinal),w}$ will correspond to the markings $M_i$ and $M_i'$ in the desired computation.
+    The formula
+    \begin{enumerate}[(1)]
+        \item checks that the markings correspond to a valid computation of net $N'$,
+        \item
+            it guesses the transitions $t_i$ used for each of the letters of $w$,
+            checks that the marking reached in copy $N_\eps^{i-1}$ enables transition $t_{i}$,
+            and that for each copy $i > 0$, the initial marking of $N_\eps^{i}$, which is stored in copy $N_\eps^{i,\init}$, is equal to the marking reached in the copy $N_\eps^{i-1}$ plus the effect of $t_i$, and
+        \item it checks that the final marking reached in the last copy $N_\eps^{m+1}$ covers $\Mfinal$.
+    \end{enumerate}
+
+    For the formal construction, we let $p^i$ and $p^{i,\init}$ denote the copy of place $p$ of $N$ in copy $N_\eps^i$ \nb{and $N_\eps^{i,\init}$}, respectively.
+    In the formula, we will use the name of each place as the variable describing the  number of tokens on that place.
+    For vectors of variables $\vec{y},\vec{z}$ of equal dimension $k$, we will write $\vec{y} \leq \vec{z}$ for the conjunction $y_1 \leq y_1' \wedge \ldots \wedge y_k \leq y_k'$.
+    For \nb{two variables $y_i, z_i$}, we write $y_i = z_i$ for $y_i \leq z_i \wedge z_i \leq y_i$.
+    We extend this notation to vectors and write $\vec{y} = \vec{z}$ for $\vec{y} \leq \vec{z} \wedge \vec{z} \leq \vec{y}$.
+
+    We define the formula $\varphi_{(N,\Minit,\Mfinal),w}$ to be
+    \[
+        \varphi_{(N,\Minit,\Mfinal),w} = \varphi_1 \wedge \varphi_2 \wedge \varphi_3
+        \ ,
+    \]
+    where each $\varphi_i$ expresses Property~(i) from above.
+    (To be precise, $\varphi$ should be in prenex normal form; however, it will be easy to achieve this without a blowup in size.)
+
+    We define $\varphi_1$ to be the formula characterizing reachability in net $N'$ from marking $M'$.
+    It exists, is of polynomial size, and can be computed in polynomial time by \cref{Theorem:BPPPResburger}.
+
+    Formula $\varphi_2$ is defined as follows:
+    \[
+        \varphi_2 =
+        \bigwedge_{i \in \oneto{m}}
+        \bigvee_{\substack{t_i\\\lambda(t_i) = w_i}}
+        \bigwedge_{p \in P}
+            \paren {p^{i-1} \geq \i(t_i,p)}
+            \wedge
+            \paren {p^{i,\init} = p^{i-1} + e(t_i)}
+        \ .
+    \]
+    For each of the letters $w_i$, it guesses a transition $t_i$ with the correct label using a disjunction, and then checks Property~(2).
+    Note that $e(t_i)$ can be negative, but we have not allowed subtraction \resp negative values in Presburger terms.
+    However, we may bring it to the other side of the equality, which allows us to replace subtraction by addition.
+
+    The construction of formula $\varphi_3$ is straightforward
+    \[
+        \varphi_3 = \bigwedge_{p \in P} p^{m+1} \geq \Mfinal(p)
+    \]
+
+    Obviously, $\varphi_{(N,\Minit,\Mfinal),w}$ is of size polynomial in $N$ and $w$.
+    It remains to argue that the formula is indeed satisfiable iff $w \in \lang{N,\Minit,\Mfinal}$.
+    For one direction, assume that
+    \(
+        \Minit \fire{\sigma_0} M_1 \fire{t_1} M_1' \fire{\sigma_2} \ldots \fire{\sigma_m} M_m \fire{t_m} M_m' \fire{\sigma_{m+1}} M_{m+1} \geq \Mfinal
+    \)
+    is a computation generating word $\lambda(\sigma)$.
+    We obtain a satisfying assignment for formula $\varphi$ by setting $p^i$ to the value $M_{i+1}$ reached by firing $\sigma_i$, and by setting $p^{i,\init}$ to the  value $M_i'(p)$.
+
+
+    For the other direction, note that a satisfying assignment of the formula is a witness for the existence of a computation $\sigma'$ of $N'$ from $M'$ such that the markings reached in each of the copies satisfy the properties postulated by the formula.
+    Since the copies are independent, we can \wolog assume that $\sigma'$ has been rearranged such that
+    \[
+        \sigma' = \sigma_0'.\tau_1.\sigma_1'\tau_2 \ldots \tau_{m+1}.\sigma_{m+1}
+    \]
+    where each $\sigma_i'$ exclusively contains transitions from copy $N_\eps^i$, and each $\tau_i$ contains transitions that initially populate $N_\eps^i$ and $N_\eps^{i,\init}$.
+    We define $\sigma_i$ to be obtained from $\sigma_i'$ by projecting the transitions in $N_\eps^i$ back to the transitions in $N$.
+    Let us denote by $t_i$ a transition with label $w_i$ such that the corresponding disjunct of the formula $\varphi_2$ is satisfied.
+    The computation
+    \(
+        \Minit \fire{\sigma_0} M_1 \fire{t_1} M_1' \fire{\sigma_2} \ldots \fire{\sigma_m} M_m \fire{t_m} M_m' \fire{\sigma_{m+1}} M_{m+1} \geq \Mfinal
+    \)
+    of net~$N$ produces word $w$ as desired.
+\end{proof}
+
+\paragraph{Commutative context-free grammars}
+
+We discuss how BPP nets and their languages relate to the class of languages of commutative context-free grammars.
+A \emph{commutative context-free grammar} is a CFG as defined in \cref{Section:CFG} for which we identify the terminal words that it produces that are equal up to commutativity.
+This can be formalized in various ways.
+One possibility is to use the \nb{\emph{Parikh image} $\Parikh{w}$} of a \nb{word $w \in \Sigma^*$}, the vector in $\N^\Sigma$ that counts for each letter its number of occurrences in~$w$.
+By generalizing the definition to languages, we may define the language of a commutative context-free grammar~$G$ as $\Parikh{\lang{G}} = \Set{ \Parikh{w} \in \N^\Sigma}{ w \in \lang{G}}$, where $\lang{G}$ is the language of $G$ seen as CFG.\@
+Alternatively, we may define the language via the \emph{commutative closure} $\commclosure{\lang{G}}$, where $\commclosure{\calL} = \Set{ w \in \Sigma^*}{ \exists v \in \calL \colon \Parikh{w} = \Parikh{v}}$ adds all words to a language that are equal to a word from the language up to commutativity.
+Here, we have used that equality up to commutativity means that the number of occurrences of each letter is~equal.
+% It is easy to see that identifying terminal words that are equal up to commutativity allows us to also identify sentential forms  that are equal up to commutativity during the derivation process.
+
+The correspondence between commutative context-free grammars and BPP nets has first been observed by \citea{Esparza97a}.
+To see a commutative context-free grammar as a BPP net, we introduce one place for each nonterminal and each terminal.
+A production $X \to \eta$ of the grammar induces a transition in the net that consumes one token from the place for $X$ and for each occurrence of a symbol in $\eta$ produces one token on the corresponding place.
+The initial marking $\Minit$ puts one token on the place for the initial symbol and no tokens elsewhere.
+With this construction at hand, we recover the language of the context-free grammar as
+\[
+    \Set{ M_{\restriction_{\Sigma}} }{ \exists \sigma \in T^* \colon \Minit \fire{\sigma} M, M \in \N^{\Sigma} \times \set{ \vec{0}}},
+\]
+the set of all markings reachable from $\Minit$ in which there are not tokens on the places for the nonterminals, restricted to the places for the terminal symbols.
+The fact that each production in a context-free grammar replaces exactly one nonterminal means the net is indeed a BPP net.
+In particular, the results on the structure of BPP nets apply which means that the set as defined before is effectively semi-linear.
+
+On the practical side, this correspondence has been used to develop an algorithm that in linear time constructs a formula in existential Presburger arithmetic that describes the Parikh image of a context-free grammar~\cite{VermaSS05}.
+On the theoretical side, Parikh's theorem~\cite{Parikh66} states that the classes of Parikh images of context-free languages and regular languages coincide; both are equal to the class of semi-linear sets of vectors.
+However, context-free grammars may give a representation that is more succinct:
+For each $n \in \N$, there is a context-free grammar over the alphabet $\set{a}$ of size polynomial in $n$ that generates the Parikh image $\set{2^n}$; the same is not true for finite automata or regular expressions.
+It is noteworthy that some classes of languages that we have introduced are not closed under taking the commutative closure:
+The commutative closure of the regular language ${(abc)}^*$ is the non-context-free language $\commclosure{{(abc)}^*}$ of words in which all three letters appear equally often.
+Similarly, the commutative closure of the non-context-free language $\Set{ w.w }{ w \in \set{a,b}^*}$ is the context-free (and even regular) language in which the number of occurrences of each of the two letters is even.
+
+We show how we can represent commutative context-free languages with our  definition of the languages of BPPs that is based on labeled transitions.
+If we consider \emph{BPP reachability languages} instead of coverability languages, it is easy to design a BPP net whose language is the commutative closure of the language of a given context-free grammar.
+We use the aforementioned construction by Esparza and make all transitions $\eps$-labeled.
+Then, we insert for each terminal symbol $a \in \Sigma$ an $a$-labeled transition that consumes a token from the corresponding place.
+The final marking of that net requires no tokens to be present.
+The language of this BPP net is exactly the commutative closure of the language of the given CFG:
+The final marking enforces that the derivation process has been completed, \ie no nonterminals remain, as well as that all terminal symbols have been taken into account.
+The fact that the transitions that are not $\eps$-labeled are independent of each other ensures that the language is commutatively~closed.
+
+It seems difficult to obtain a similar construction with coverability as the acceptance condition.
+While coverability and reachability in BPP nets are both $\NPTIME$-complete, which means that there is a polytime reduction from reachability to coverability, to the best of the author's knowledge, there is no known reduction that preserves the language of the net.
+
+Nevertheless, we can still represent all languages of commutative context-free grammars in the following sense:
+For every language of a context-free grammar there is a BPP net whose coverability language has the same Parikh image.
+To see this, we use the aforementioned result that shows that for every CFG, there is an NFA with the same Parikh image.
+In \cref{Example:RegularPNCOV}, we have shown how to see an NFA as a Petri net with the same language.
+This net is a BPP net.
+Hence, there is a BPP net with the same Parikh image.
+
+For the other direction, we observe that the Parikh images of all BPP net languages are semi-linear (and hence the Parikh image of a context-free or regular language).
+To see this, we add places to a given net that keep track of the letters that have been produced.
+Similar to Esparza's construction, we let each $a$-labeled transition produce an additional token on the place for \nb{letter $a$}.
+As mentioned before, the set of reachable markings in a BPP net is effectively semi-linear.
+It is easy to extend the Presburger formula by conjunctions that make sure that the final marking has been reached or covered.
+Finally, the semi-linear sets can be shown to be closed under projection.
+We apply this to project to the components that count the occurrences of letters.
+Altogether, we obtain that the Parikh image of a BPP net language (with either coverability or reachability as acceptance condition) is semi-linear.
+
+In summary, BPP net coverability languages can  represent semi-linear sets, and their Parikh images are always semi-linear.
+The same holds true for both the context-free and the regular languages.
+It makes sense to consider the class of languages of BPP nets without applying the Parikh image abstraction (or, equivalently, the commutative closure): With \cref{Example:BPPNonRegular} at hand, one can show that it is incomparable to both aforementioned classes.
+
+\end{document}

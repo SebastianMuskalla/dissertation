@@ -1,0 +1,22 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+In this chapter, we study the downward closures of Petri net coverability languages.
+Our goal is to obtain a finite automaton representing it with a minimal number of states.
+The structure of the chapter is similar to the structure of \cref{Chapter:UC}.
+Firstly, we consider the problem of computing a representation of the upward closure of a Petri net.
+This problem has already been solved in~\cite{HabermehlMW10} with a procedure that is based on the Karp-Miller tree.
+Hence, the resulting automaton can be of non-primitive recursive size.
+Here, we complement the result from~\cite{HabermehlMW10} by a matching lower bound, using the well-known fact that a Petri net can weakly compute a variant of the Ackermann function.
+
+This high complexity motivates studying the same restrictions that we have considered in \cref{Chapter:UC}:
+We consider the problems of computing the downward closure of BPP net languages, of checking whether a given SRE is included in the downward closure of a given Petri net, and finally whether an SRE is included in the downward closure of a BPP net.
+The results that we obtain are similar to the results in the previous chapter.
+The upward closure of a BPP net can be computed in exponential time, which we will show by proving some sort of pumping lemma for BPP nets.
+%
+The SRE-inclusion problems are $\EXPSPACE$ and $\NPTIME$-complete in the case of Petri nets and BPP nets, respectively.
+While the complexities match those for the problems $\SREUC$ and $\SREBPPUC$, the proofs are much more involved.
+%
+Also note that in contrast to the results from the previous chapter, the complexities of the three restricted versions are drastic improvements over the non-primitive complexity of the problem in the general case.
+
+\end{document}

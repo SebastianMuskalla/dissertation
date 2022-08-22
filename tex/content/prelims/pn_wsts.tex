@@ -1,0 +1,223 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Well-structured transition systems}%
+\label{Section:WSTS}%
+
+We present \emph{well-structured transition systems (WSTSes)}, a generalization of Petri nets with coverability as the acceptance condition.
+In \cref{Section:LTS}, we have explained that decidability results for automata models are usually based on the fact that the transitions are only allowed to depend on the memory in a way that is local.
+In the case of WSTSes, this locality is formalized by requiring an order on the states that is respected by the transition relation.
+Our presentation loosely follows~\cite{FinkelS01}.
+
+\paragraph{Upward and downward closures}
+
+We start by introducing some notation.
+Let $(X,\leq)$ be a quasi-ordered set.
+For a subset $Y \subseteq X$, its \emph{downward closure}
+\[
+    \dcwrt{Y}{\leq} = \Set{ x \in X}{ \exists y \in Y \colon x \leq y}
+\]
+is the set of all elements smaller than some element of $Y$.
+The set $Y$ is called \emph{downward closed} if it contains all elements that are smaller than some element.
+We may formalize this by requiring that $Y$ equals its downward closure, $Y = \dcwrt{Y}{\leq}$.
+
+The notions of the \emph{upward closure} $\ucwrt{Y}{\leq} = \Set{ x \in X}{ \exists y \in Y \colon y \leq x}$ and of being \emph{upward closed} are defined similarly.
+If the order is clear from the context, we omit the corresponding subscript.
+
+The complement of an upward-closed set is a downward-closed set and vice versa.
+Taking the upward closure commutes with unions, $\uc{\paren{Y \cup Y'}} = \uc{Y} \cup \uc{Y'}$, similarly for the downward closure.
+
+A \emph{set of minimal elements} for a set $Y$ is a subset $B \subseteq Y$ such that $B$ is an antichain, and for \nb{each $y \in Y$}, there is some $b \in B$ with $b \leq y$.
+The second condition may be rephrased as $\uc{B} = \uc{Y}$.
+We are particularly interested in the case where $Y$ is upward closed and $B$ is finite, $B = \set{b_1, \ldots, b_k}$.
+In this case, we call $B$ a \emph{basis} of $Y$ and we have $Y = \uc{b_1} \cup \ldots \cup \uc{b_k}$.
+Here and in the following, we omit the set-brackets when taking the upward closure or downward closure of single elements.
+
+We define the operator $\min$ that takes a set $Y$ and returns $\min Y$, a set of minimal elements of $Y$ of minimum size.
+In particular, if a finite set of minimal elements exists, it will return one.
+Since we have not required the order to be antisymmetric, the set of minimal elements does not have to be unique.
+For us, it will suffice that $\min$ returns some arbitrary set of minimal elements.
+
+\paragraph{Ordered LTS}
+
+An \emph{ordered LTS} over $\Sigma$ is of the shape $\wsts = (\configs,\leq,T,\configs_\init, \configs_\final)$, where $(\configs,T,\configs_\init, \configs_\final)$ is an LTS with labels from $\Sigma$ as defined in \cref{Section:LTS}, $\leq \ \subseteq \configs \times \configs$ is a quasi-order on configurations (\ie it is reflexive and transitive), the set of final configurations is upward-closed, \ie $\configs_\final = \uc{\configs_\final}$, and the transition relation is compatible with respect to $\leq$ in the following sense:
+If $c \tow{a} d$, and $c \leq c'$, then $c' \tow{a} d'$ for some $d'$ with $d \leq d'$.
+We say that $T$ is \emph{upward-compatible} with $\leq$, or that $\leq$ is a \emph{simulation relation}, since intuitively, the condition states that larger states can simulate the behavior of smaller states.
+
+Requiring an LTS to be ordered is actually not a real restriction: Any LTS is an ordered LTS with respect to equality as order.
+In this case, upward-compatibility is trivially satisfied since $c \leq c'$ means $c = c'$ in this case, and we have $S = \uc{S}$ for any set $S \subseteq \configs$ of configurations.
+To get a model with good properties, we have to restrict the order.
+
+\paragraph{Well-quasi orders}
+
+The crucial restriction is requiring the order to be a well-quasi-order.
+Before finally giving the definition of WSTSes, we define such orders and list some of their properties.
+
+Consider a quasi-ordered set $(X,\leq)$.
+We call it a \emph{well-quasi-order} (WQO) if any infinite sequence $x_0, x_1, x_2, \ldots$ of elements of $X$ contains an \emph{increasing pair}, \ie there are indices $i < j$ with $x_i \leq x_j$.
+
+\begin{example}%
+\label{Example:WQO}%
+    \begin{thmenumerate}[a)]
+        \item
+            Equality on a set, \ie the order $(X,=)$, is a WQO if and only if $X$ is finite.
+            Indeed, if $X$ is finite, any infinite sequence has to contain a repetition of elements.
+            If $X$ is infinite, then any infinite sequence without repetitions is a \emph{bad sequence}, a sequence without increasing pair.
+        \item\label{Example:WQONaturals}
+            The usual order $(\N,\leq)$ is a WQO:\@
+            Any sequence $n_0, n_1, n_2, \ldots$ of numbers contains an increasing pair.
+            In fact, the increasing pair has to occur within the first $n_0+2$ indices:
+            After starting with $n_0$, there are only $\card{\zeroto{n_0-1}} = n_0$ distinct numbers that are smaller than $n_0$.
+            Either the first $n_0+2$ entries of the sequence already contain the repetition of a number, which constitutes an increasing pair, or $n_{n_0 + 2}$ or an earlier entry is larger than $n_0$.
+    \end{thmenumerate}
+\end{example}
+
+The generalized version of Dickson's Lemma~\cite{Dickson13} states that the product of WQOs is a WQO.\@
+
+\begin{lemma}[(\citea{Dickson13})]%
+\label{Lemma:WSTSDickson}%
+    If $(X_1,\leq_1), (X_2,\leq_2)$ are WQOs, then the product order $(X_1 \times X_2, \leq_\times)$ is a WQO.\@
+\end{lemma}
+
+Consequently, $(\N^k,\leq)$ is a WQO for each $k \in \N$.
+
+%
+\cheatpagebreak
+%
+
+WQOs admit many different characterizations.
+We list some of them in the following lemma.
+
+\begin{lemma}%
+\label{Lemma:WQOProperties}%
+    Let $(X,\leq)$ be a quasi-order.
+    The following are equivalent:
+    \begin{enumerate}[(1)]
+        \item $(X,\leq)$ is a WQO.\@
+        \item Every infinite sequence in $X$ contains an infinite ascending subsequence.
+        \item\label{Property:WQOFiniteBasis} Every subset of $X$ has a finite set of minimal elements.
+        \item\label{Property:WQOAntichain} All antichains and strictly descending sequences in $X$ are finite.
+        \item Every infinite ascending chain of upward-closed sets
+        \(
+            \uc{U_0} \subseteq \uc{U_1} \subseteq \uc{U_2} \subseteq \ldots
+        \)
+        gets stationary, \ie there is $i \in \N$ such that $ \uc{U_i} =  \uc{U_{i+1}}$.
+        \item Every strictly ascending chain of upward-closed sets
+        \(
+            \uc{U_0} \subsetneq \uc{U_1} \subsetneq \uc{U_2} \subsetneq \ldots
+        \)
+        is finite.
+    \end{enumerate}
+\end{lemma}
+
+For the proof we refer to~\cite{FinkelS01}.
+The equivalence of the Properties~(1) and~(2) is sometimes credited to an unpublished draft by Erdős and Rado.
+The last two properties can also be phrased in terms of (strictly) descending chains of downward closed sets.
+
+With Property~(3), we have that $\min Y$ is finite for all $Y \subseteq X$.
+If $Y$ is upward closed, $\min Y = \set{b_1, \ldots, b_k}$ is a basis with $Y = \uc{b_1} \cup \ldots \uc{b_k}$.
+Note that this property cannot be dualized:
+It is not true that in a WQO, every downward-closed set can be represented by a finite set of maximal elements.
+For example, the downward-closed set $\N$ in the WQO $(\N,\leq)$ does not occur as the downward closure of any finite set of numbers.
+In many cases, this problem can be overcome by considering ideals, which we will do in \cref{Section:SeparabilityIdeals}.
+
+\paragraph{Well-structured transition systems}
+
+With all preliminaries at hand, we can finally give the crucial definition.
+We call an ordered \nb{LTS $\wsts = (\configs,\leq,T,\configs_\init, \configs_\final)$} a \emph{well-structured transition system (WSTS)} if $(\configs,\leq)$ is a WQO.\@
+
+The notions that we have introduced for general LTSes, \eg the notion of being finitely branching, carry over to ordered LTSes and WSTSes.
+
+In the definition of WSTSes, the WQO restriction and upward-compatibility come together to create a model that has nice structural properties.
+Upward compatibility states that large states can simulate the behavior of smaller states; the underlying order being a WQOs means that this will eventually be possible in a computation that is long enough.
+To obtain algorithms, \eg for coverability, it is sufficient to impose very mild restrictions:
+In~\cite{FinkelS01}, the authors show that it is sufficient that the order is decidable (\ie one can check, given two configurations, whether one is smaller than the other), and that for each configuration $c$, one can compute $\min \pre{}{\Sigma}{\uc{c}}$, a finite basis for the predecessors of the upward closure of $c$.
+
+WSTSes have their origins in a collection of papers~\cite{Finkel87,Finkel90,AbdullaJ1993,AbdullaCJT96,FinkelS01}.
+They provide a framework that subsumes several widely studied models.
+This includes Petri nets~\cite{Esparza98} (with coverability as the acceptance condition, see the example below) and their extensions, \eg Petri nets with transfer or reset transitions~\cite{DufourdFS98}, as well as lossy channel \nb{systems (LCSes)~\cite{AbdullaJ1993}.}
+The importance of WSTSes also comes from a collection of general decidability results that have been proven on the level of WSTSes with mild assumptions.
+These results include the decidability of termination and boundedness~\cite{Finkel87,Finkel90}, coverability~\cite{AbdullaJ1993}, as well as several simulation and equivalence problems~\cite{FinkelS01}.
+Going into the details is beyond the scope of the thesis.
+
+\begin{example}
+    Consider a labeled Petri net instance $(N,\Minit,\Mfinal)$ where $N = (P,T,\i,\o,\lambda)$ is a net in which no transition is labeled by $\eps$.
+    We consider coverability as the acceptance condition.
+    We may see it as an ordered LTS $(\N^P,\leq,T',\set{\Minit},\uc{\Mfinal})$ that has markings as configurations, the initial marking as initial configuration, and the markings that cover $\Mfinal$ as final configurations.
+    There is a transition $M \tow{a} M'$ if the Petri net contains some $a$-labeled transition $t$ such that $M \fire{t} M'$.
+    The order is the product order $\leq$ on $\N^P$.
+    Compatibility holds since greater markings potentially enable more transitions, and firing a transition in a greater marking leads to a greater marking.
+    By \cref{Lemma:WSTSDickson}, the product order on $\N^P$ is a WQO, so this ordered LTS is in fact a WSTS.\@
+\end{example}
+
+
+\begin{remark}%
+\label{Remark:WSTSEpsTransitions}%
+    The previously mentioned papers consider WSTS without transition labels.
+    We will discuss the related work on WSTS languages below.
+    Here, we explain why we have not allowed $\eps$-labeled transitions for WSTS.\@
+
+    The paper~\cite{FinkelS01} studies various versions of upward-compatibility.
+    The version that we have introduced for ordered LTS is called \emph{strong compatibility} in~\cite{FinkelS01}: A single transition originating in a small state can be simulated by a single transition from a larger state.
+    In the presence of $\eps$-labeled transitions, it would be consequential to consider (a variant of) \emph{transitive compatibility}.
+    In this version of compatibility, an $a$-labeled transition from a small state could be simulated by a non-empty sequence of transitions from a larger state in which all transitions are labeled with $\eps$ except for one $a$-labeled transition.
+
+    To avoid this complicated definition, we have simply disallowed $\eps$-labeled transitions.
+    Instead, we will proceed as follows when we want to apply a result that we have proven for WSTSes (where we do not allow $\eps$-transitions) to Petri net coverability languages (where we allow $\eps$-transitions) in \cref{Section:PNSeparabilityUpperBound}:
+    We argue that we can preprocess the nets under consideration so that all $\eps$-transitions get eliminated, and then apply the result.
+\end{remark}
+
+\paragraph{WSTS languages}
+
+The literature predominantly considers the unlabeled variant of well-structured transitions systems.
+The class of languages of WSTSes, which we will sometimes simply denote by WSTS, has received attention in~\cite{GeeraertsRV07}.
+We summarize some results from that paper that show why this class is worth studying.
+
+The class of WSTS languages satisfies some nice closure properties.
+In particular, it is closed under both union and intersection.
+Indeed, with the help of \cref{Lemma:WSTSDickson}, it is easy to show that the synchronized product of two WSTSes is a WSTS.\@
+% Note that the class of Petri net coverability languages is not closed under union; the class of WSTS languages is a strict superclass.
+% It is incomparable to the context-free languages.
+The aforementioned decidability of coverability proves that the class is a strict subclass of $\RECENUM$, the semi-decidable languages.
+For this property, it is important that we require the set of final configurations to be upward-closed.
+If we allow arbitrary finite sets or the set of deadlocked configurations (configurations with no successor) as the final configurations, we would obtain in both cases the class $\RECENUM$ and hence lose all decidability results.
+
+The paper~\cite{GeeraertsRV07} also formulates the following \emph{pumping lemma} for WSTS languages.
+It intuitively states that in an infinite sequence of words from a WSTS language, one can recombine the suffix of some word with a prefix of a later word from the sequence.
+
+\begin{lemma}[(\citea{GeeraertsRV07})]
+    Let $\lang{\wsts}$ be the language of a WSTS and let ${(w_n.v_n)}_{n \in \N}$ be an infinite sequence of words in $\lang{\wsts}$.
+    There are $i, j \in \N$ with $i < j$ and $w_j.v_i \in \lang{\wsts}$.
+\end{lemma}
+
+With this lemma, it is not difficult to show that the context-free language $\Set{a^n b^n}{n \in \N}$ is not a WSTS language:
+For each $n \in \N$, define $w_n = a^n$, $v_n = b^n$.
+If the language were the language of a WSTS $\wsts$, the sequence ${(w_n.v_n)}_{n \in \N}$ would satisfy the assumptions of the lemma.
+Hence, there are $i \neq j$ such that $w_j.v_i = a^{\,j}.b^i \in \lang{\wsts}$, a contradiction.
+Since the language $\Set{a^n b^n}{n \in \N}$ is the language of a Petri net with reachability as the acceptance condition, we can also conclude that the class of Petri net reachability languages is incomparable to the WSTS languages.
+Note that $\Set{ a^{\,j}.b^i }{i,j \in \N, j > i}$, a modified version of this language, does not violate the lemma and is indeed a Petri net coverability language.
+
+In~\cite{GeeraertsRV07}, the authors also show that there is a non-context-free language that occurs as a Petri net coverability language.
+Hence, both the Petri net coverability languages and the WSTS languages are incomparable to the class of context-free languages.
+Furthermore, the paper considers extensions of Petri nets, like Petri nets with transfer arcs~\cite{DufourdFS98}, that can be modelled as WSTSes.
+One can prove that these models can generate languages that are not Petri net coverability languages, while still being WSTS languages.
+We obtain that the class of WSTS languages is a strict superclass of the Petri net coverability languages.
+
+\paragraph{Downward-compatible WSTSes}
+
+To conclude this section, we define downward-compatible ordered LTS and WSTS similar to their upward-compatible variants.
+
+A \emph{downward-compatible ordered LTS} $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is an LTS $(\configs,T,\configs_\init,\configs_\final)$ together with a quasi-order $(\configs,\leq)$ on the configurations such that $\configs_\final$ is downward closed and $T$ is \emph{downward compatible}: If $c \tow{a} d$, and $c' \leq $, then $c' \tow{a} d'$ for some $d'$ with $d' \leq d$.
+
+We call such a system a \emph{downward-compatible well-structured transition system (DWSTS)} if $(\configs,\leq)$ is a WQO.\@
+
+One might expect that each result that holds for WSTSes can be dualized to obtain the dual result for DWSTSes and vice versa.
+This would be true if we would dualize the definition of WQO and require the existence of \emph{decreasing pairs}.
+With the definition above, however, DWSTSes form a separate category of systems, the results for which differ from the results for (upward-compatible) WSTSes.
+
+DWSTSes are less common than WSTSes.
+A natural source of examples are \emph{gainy} models,
+like gainy counter system machines or gainy communicating finite state machines.
+For an overview, see page~31 of~\cite{FinkelS01}.
+
+\end{document}

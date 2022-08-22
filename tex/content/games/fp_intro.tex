@@ -1,0 +1,55 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+Our goal in this part of the thesis is solving various types of games on the configurations graphs of automata.
+We aim for a method that also computes certificates in the form of representations of winning strategies for each player.
+We will achieve this by using \emph{effective denotational semantics}~\cite{Aehlig07,Summers77,SalvatiW15}.
+This means that we will translate the problem of solving a game into the problem of finding the least solution to a system of equations over a domain that represents the behavior of the game.
+Before we employ this method to solve context-free games in \cref{Chapter:ContextFreeGames} and higher-order games in \cref{Chapter:HOGames}, we give the basic definitions in this chapter.
+Furthermore, we demonstrate the technique by applying it to the verification problems of deciding regular inclusion for context-free and $\omega$-regular inclusion for $\omega$-context-free languages.
+
+The name \emph{effective denotational semantics} was introduced by \citeauthor{SalvatiW15} in~\cite{SalvatiW15}.
+They define it as follows: \enquote{By effective denotational semantics we mean semantic spaces in which the denotation of a term can be computed}~\cite{SalvatiW15}, where \enquote{term} is referring to a term in the simply typed $\lambda Y$-calculus.
+This model is similar to higher-order recursion schemes which we will consider in \cref{Chapter:HOGames}, but, among other differences, includes a collection of $Y$-operators, one for each type.
+In order to evaluate such a term, one needs a model that defines the interpretation of the syntactical elements of the term.
+In particular, one needs an interpretation of the $Y$-operators, which are typically interpreted as fixed point operators that take a function and compute a fixed point.\footnote{Depending on the type of model, the operator may compute the least, greatest, or a non-extremal fixed point.}
+We will come back to the work by \citeauthor{SalvatiW15} at the end of \cref{Section:CFGamesOmega}.
+
+When we speak of effective denotational semantics, we mean an approach to solving verification problems that is not restricted to problems phrased using the $\lambda Y$-calculus, which can be rather technical.
+However, we restrict ourselves in the sense that we only consider least-fixed-point semantics throughout this thesis.
+We briefly illustrate how our flavor of effective denotational semantics is supposed to work.
+Assume we are given a system $P$ and a property $\varphi$.
+The task is to check whether all possible executions of $P$ satisfy $\varphi$.
+
+%
+\cheatpagebreak
+%
+
+To solve the problem using effective denotational semantics, we proceed as follows:
+
+\begin{enumerate}[(1)]
+    \item We construct a system of equations (or inequalities) reflecting the runtime behavior of $P$.
+    \item We find a domain $\domain$ that captures the behavior of executions that is relevant for deciding whether $\varphi$ holds.
+        We find an interpretation of the syntax used in the system of equations on the domain $\domain$.
+    \item We solve the interpreted system of equations over $\domain$.
+    \item We can now read off the answer to the verification problem from the solution.
+\end{enumerate}
+
+Like in \emph{denotational semantics}~\cite{ScottS71}, the solution to the system of equations is usually defined as a fixed point.
+However, the domain $\domain$ does not represent the whole program behavior.
+It only captures the part that is relevant for determining whether of property $\varphi$ is satisfied.
+Our aim is to choose $\domain$ such that $\domain$ can be handled algorithmically (\eg choosing $\domain$ as a finite set), hence the name \emph{effective} denotational semantics.
+
+This approach has a key advantage over designing an algorithm that solves the verification problem of interest directly.
+By translating the problem into the task of solving a system of equations, we reduce it to a well-known \emph{master problem}.
+As we will discuss in the next section, this makes available to us both an extensive theory on solving systems of equations and a collection of optimizations that enable us to solve this master problem efficiently.
+
+\paragraph{Sources}
+
+The first section presents material that is standard in the literature.
+We will give references later.
+The content of the second section is taken from the publication~\cite{HolikM15} by \citeauthor{HolikM15}.
+The final section presents material from the paper~\cite{MeyerMN17a} to which the author has contributed.
+
+
+\end{document}

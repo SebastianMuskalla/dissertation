@@ -1,0 +1,60 @@
+\begin{tikzpicture}[->,>=latex,node distance=1em,semithick,scale=0.75]
+
+    \CoverabilityGamesUndecidableVisualProofBasicSetup
+
+    % edges among the ei (left row)
+    % \path [densely dotted,-,very thick]
+    %     (e1.center) edge (e2.center)
+    %     (e2.center) edge (e3.center)
+    %     (e1.center) edge [bend right, looseness=1.4] (e3.center)
+    % ;
+    % edges among the sj (middle row)
+    \path [densely dotted,-]
+        (s1.center) edge (s2.center)
+        (s2.center) edge (s3.center)
+        (s1.center) edge [bend right, looseness=1.4] (s3.center)
+    ;
+    % edges among the sl (right row)
+    \path [densely dotted,-]
+        (s4.center) edge (s5.center)
+        (s5.center) edge (s6.center)
+        (s4.center) edge [bend left, looseness=1.4] (s6.center)
+    ;
+    % edges from the ei (left row) to the sj (middle row)
+    \path [densely dotted,-]
+        (e1.center) edge [densely dashed, very thick] (s1.center)
+        (e1.center) edge (s2.center)
+        (e1.center) edge (s3.center)
+        (e2.center) edge [densely dashed, very thick]  (s1.center)
+        (e2.center) edge (s2.center)
+        (e2.center) edge (s3.center)
+        (e3.center) edge [densely dashed, very thick]  (s1.center)
+        (e3.center) edge (s2.center)
+        (e3.center) edge (s3.center)
+    ;
+    % edges from the ei (left row) to the sj (right row)
+    \path [densely dotted,-]
+        (e1.center) edge [bend left] (s4.center)
+        (e1.center) edge (s5.center)
+        (e1.center) edge (s6.center)
+        (e2.center) edge (s4.center)
+        (e2.center) edge [bend right,looseness=0.7] (s5.center)
+        (e2.center) edge (s6.center)
+        (e3.center) edge (s4.center)
+        (e3.center) edge (s5.center)
+        (e3.center) edge [bend right] (s6.center)
+    ;
+    % edges from the sj (middle row) to the sj (right row)
+    \path [densely dotted,-]
+        (s1.center) edge (s4.center)
+        (s1.center) edge (s5.center)
+        (s1.center) edge (s6.center)
+        (s2.center) edge (s4.center)
+        (s2.center) edge (s5.center)
+        (s2.center) edge (s6.center)
+        (s3.center) edge (s4.center)
+        (s3.center) edge (s5.center)
+        (s3.center) edge (s6.center)
+    ;
+
+    \end{tikzpicture}

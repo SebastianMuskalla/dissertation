@@ -1,0 +1,17 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[roundpos] (Q) {$q$};
+\node[squarepos] (Qallhat) [right of=Q] {${\hat{q}}_\allplayer$};
+\node[roundpos] (P) [right of=Qallhat] {$p$};
+\node[roundpos] (Qexhat) [above of=Qallhat,node distance=4em] {${\hat{q}}_\explayer$};
+\node[roundpos] (Qfinal) [right of=Qexhat] {$\qfinal$};
+
+\path
+    (Q) edge node [above]  {$\eps$} (Qallhat)
+    (Qallhat) edge node [above] {$\eps$} (P)
+    (Qallhat) edge node [right] {$\eps$} (Qexhat)
+    (Qexhat) edge [loop left] node [left] {$\dec{y}$} (Qexhat)
+    (Qexhat) edge node [above] {$\eps$} (Qfinal)
+;
+
+\end{tikzpicture}

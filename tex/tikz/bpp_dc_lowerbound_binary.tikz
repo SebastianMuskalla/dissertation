@@ -1,0 +1,14 @@
+\begin{tikzpicture}[->,>=latex,node distance=5em,semithick]
+
+\node[place] (P) [minimum size=3em, tokens=9, yshift=+0.5em] {};
+
+\node at (P) [fill=white,circle,inner sep=0em, scale=0.75] {$2^n$};
+
+\node [transition,square] (A) [right of=P,inner sep=0.25em] {$t$}
+    edge [pre] (P)
+;
+
+\node [below of=P, node distance=2.5em] {$p$};
+\node [below of=A, node distance=1.5em] {$a$};
+
+\end{tikzpicture}

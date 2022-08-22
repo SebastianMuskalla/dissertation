@@ -1,0 +1,26 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+We demonstrate the versatility of our technique for solving inclusion games based on effective denotational semantics by applying to it to games induced higher-order recursion schemes.
+The setting is similar to the one in the previous chapter:
+We consider a word-generating recursion scheme whose derivation processes are controlled by the players, and the goal of the game is membership \resp non-membership in a regular target language.
+The approach that we take, however, is vastly different.
+
+After giving the formal definition of HORS games, we consider the more general case of the system of equations associated to a deterministic HORS.\@
+We design a model template that allows us to get a full model for interpreting such a system.
+To instantiate the template, it is sufficient to provide a domain for kind ground and the interpretations for the nonterminals.
+We apply this model template to the determinization of a game HORS and show that the associated least solution to the interpreted system of equations characterizes the winner of the game.
+This leaves us with the problem that we cannot compute this least solution since we have used a domain that does not satisfy the ascending chain condition.
+
+Returning to a more general setting, we present a framework for exact fixed-point transfer.
+It allows us to transfer the properties of the least fixed point with respect to one model to the least fixed point with respect to another one.
+We then use this framework to go from the aforementioned infinite domain to a model with a finite domain.
+The latter allows us to compute the least solution while preserving the information about the winner of the game.
+
+\paragraph{Publication}
+
+The chapter presents material that has been published in the form of the paper~\cite{HagueMM17} (\resp its full version~\cite{HagueMM17a}).
+Compared to the publication, the material has been improved.
+We will discuss both the improvements and the authors author's contributions to the publication in \cref{Chapter:Contributions}.
+
+\end{document}

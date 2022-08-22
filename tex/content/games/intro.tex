@@ -1,0 +1,36 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\chapter*{Part V.\newline Games}
+
+This part of the thesis is concerned with solving games.
+We have argued in \cref{Section:IntroGames} of the introduction that games whose game arenas are defined by automata are related to the area of program verification.
+In particular, the task of a solving synthesis problem can be approached by translating it into an equivalent game.
+
+\paragraph{Outline}
+
+We start by formally define board games for two players with perfect information in \cref{Chapter:Games}.
+We discuss the intricacies that arise from considering inclusion games where the winning condition is membership in a given target language.
+
+Before we actually turn to solving games, we explain effective denotational semantics in \cref{Chapter:EDS}.
+Effective denotational semantics is an approach to solving decision problems that is based on computing the least solution to a system of equations, and it will be our preferred course of action throughout the rest of this part.
+We demonstrate how to use effective denotational semantics by applying it to the regular inclusion problem for context-free languages and the $\omega$-regular inclusion problem for $\omega$-context-free languages.
+
+In \cref{Chapter:ContextFreeGames}, we consider the problem of solving context-free inclusion games, games whose game arena is defined by a context-free grammar and whose winning condition is membership in a regular target language.
+We present an algorithm solving such games with the optimal time complexity that is based on effective denotational semantics.
+
+In \cref{Chapter:HOGames}, we extend this approach to games defined by higher-order recursion schemes.
+In addition to solving such games, we study effective denotational semantics for verification problems based on higher-order schemes on a more general level, proving an exact fixed-point transfer result that is of independent interest.
+
+Finally, \cref{Chapter:ValenceGames} is concerned with studying the frontier of the decidability of games.
+To this end, we use the model of valence systems, a type of automaton that generalizes well-known models like pushdown automata and Petri nets.
+We will prove a classification result that shows that context-free games are essentially the only decidable type of reachability games that can be modeled using valence systems over graph monoids.
+We propose using bounded context switching as an approach to obtain decidability in a wider range of cases.
+
+\paragraph{Publication}
+
+This part of the thesis is based on the publications~\cite{HolikMM16} (\resp its full version~\cite{HolikMM16a}),~\cite{HagueMM17} (\resp its full version~\cite{HagueMM17a}),~\cite{MeyerMZ18} (\resp its full version~\cite{MeyerMZ18a}), and~\cite{MeyerMN17a}.
+At the beginning of each chapter, we will provide more detailed information about which paper the chapter is based on.
+In \cref{Chapter:Contributions}, we will discuss the contribution the author made to these publications.
+
+\end{document}

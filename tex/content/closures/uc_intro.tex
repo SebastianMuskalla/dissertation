@@ -1,0 +1,20 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+This chapter of the thesis is dedicated to studying the computation of the upward closures of Petri net languages.
+The task is to compute an NFA whose language is the upward closure of the language of a given Petri net.
+We first study this problem in the case of Petri net coverability languages, showing that the state complexity of the upward closure is doubly exponential, and that a corresponding NFA can be computed in doubly exponential time.
+The proof techniques for the upper and lower bound use and extend the well-known results on coverability by \citea{Rackoff78} and~\citea{Lipton76}, respectively.
+
+The doubly exponential complexity motivates studying restricted versions of the problem.
+We do so in the second section by considering the upward closures of BPP net languages.
+We show that in this case, both the state complexity and the time to compute a corresponding NFA are singly exponential.
+% To prove the upper bound, we use a sort of pumping lemma.
+
+Finally, we consider a different kind of restriction.
+Instead of actually computing the upward closure, we consider the problem of checking whether a candidate SRE is included in it.
+We will give more motivation for studying this problem in \cref{Section:PNSREUC}.
+This restriction results in even better complexity: The problem is $\EXPSPACE$-complete for general Petri nets and $\NPTIME$-complete for BPP nets.
+In both cases, the proofs make use of coverability having the same~complexity.
+
+\end{document}

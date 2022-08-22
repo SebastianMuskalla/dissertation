@@ -1,0 +1,134 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{SRE inclusion in the upward closures for Petri nets}%
+\label{Section:PNSREUC}%
+
+In the first two sections, we have established that the upward closure can be computed in doubly exponential time for Petri nets and in exponential time for BPP nets.
+These intractable complexities motivate studying further restrictions of the problem.
+We have argued before that the upward and downward closure of any language can be represented by simple regular expressions (SREs).
+This result yields a new approach to the closures of Petri net languages:
+Instead of computing the closure, we check for a given SRE whether the closure is equal to the language of that SRE.\@
+Let us focus on the case of the upward closure for now.
+Formally, we will check $\uc{\lang{N,M_\init,M_\final}} = \lang{\sre}$, where $(N,M_\init,M_\final)$ is the given Petri net and $\sre$ is an SRE.\@
+This SRE may come from an oracle that iteratively creates candidate SREs based on membership queries and on whether the checks for the previously generated candidates have been successful.
+
+Checking the equality decomposes into checking both inclusion.
+Checking one of the inclusions is conceptually easy, namely checking $\mathmbox{\uc{\lang{N,M_\init,M_\final}}} \subseteq \lang{\sre}$.
+We proceed as follows:
+We use that the inclusion holds if and only if the intersection $\uc{\lang{N,M_\init,M_\final}} \cap \ \overline{\lang{\sre}}$ is empty.
+To represent $\overline{\lang{\sre}}$, we construct an NFA for the language of the SRE, determinize it and construct a DFA for the complement which we see as a Petri net in the following.
+To represent $\uc{\lang{N,M_\init,M_\final}}$, we may use the Petri net $\uc{N}$ whose language is $\uc{\lang{N,M_\init,M_\final}}$.
+Finally, we construct the synchronized product of the two nets and check language emptiness, which amounts to a coverability query.
+
+The complexity of this procedure depends on the size of the representation of $\overline{\lang{\sre}}$.
+In principle, an NFA for the complement of a regular language could be exponentially larger than an NFA for the language itself.
+We leave it as future work to see whether this worst-case behavior can actually occur in the case of languages defined by SREs.
+Instead, we focus on checking the other inclusion.
+
+The reason for focusing on the inclusion $\lang{\sre} \subseteq \uc{\lang{N,M_\init,M_\final}}$ is the following:
+We envision a refinement procedure in which an oracle iteratively outputs candidate SREs $\sre_1, \sre_2, \ldots$%.
+For each candidate, we check whether the inclusion $\lang{\sre_i} \subseteq \uc{\lang{N,M_\init,M_\final}}$ holds.
+The answer to each check is sent to the oracle, which uses it for refinement.
+Once we are sufficiently sure that some $\sre_i$ represents the actual upward closure of the language (\eg because the inclusion $\lang{\sre_i} \subseteq \uc{\lang{N,M_\init,M_\final}}$ holds, but the inclusion for SREs with a larger language  fails), we check $\uc{\lang{N,M_\init,M_\final}} \subseteq \lang{\sre_i}$.
+This procedure uses a high number of inclusion checks with the SRE as the left-hand side, compared to a low number of inclusion checks with the SRE as the right-hand side.
+
+%
+\cheatpagebreak
+%
+
+Formally, our goal in this section is to study the complexity of the following decision problem.
+
+\begin{problem}
+    \problemtitle{SRE inclusion in the upward closure}
+    \problemshort{($\SREUC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$, an SRE $\sre$.}
+    \problemquestion{$\lang{\sre} \subseteq \uc{\lang{N,\Minit,\Mfinal}} $?}
+\end{problem}
+
+We will show that this problem is $\EXPSPACE$-complete.
+This is an improvement over the doubly exponential time needed to construct a representation of the upward closure, as proven in the first section of this chapter.
+Furthermore, it matches the complexity of the coverability problem.
+Indeed, the lower bound is straightforward reduction from coverability, while the upper bound reduces $\SREUC$ to a polynomial number of membership queries.
+
+\begin{theorem}%
+\label{Theorem:PNSREUC}%
+    $\SREUC$ is $\EXPSPACE$-complete.
+\end{theorem}
+
+We proceed by proving the upper bound, \ie $\EXPSPACE$ membership, and the lower bound, $\EXPSPACE$-hardness, separately.
+
+\paragraph{Upper bound}
+
+We show one direction of \cref{Theorem:PNSREUC} by proving $\EXPSPACE$ membership.
+
+\begin{proposition}%
+\label{Proposition:SREUCMembership}%
+    The problem $\SREUC$ can be solved in exponential space.
+\end{proposition}
+
+To prove the proposition, we use the following observation.
+A language $\calL$ is contained in an upward-closed language $\calL'$ if every minimal word (\wrt the subword relation) of $\calL$ is a member of $\calL'$, \ie $\min \calL \subseteq \calL'$.
+Indeed, $\calL = \uc{\min \calL} \subseteq \uc{  \calL' } = \calL'$ holds in this case.
+We even know that the set of minimal words of a language is finite, by Property~\ref{Property:WQOFiniteBasis} from \cref{Lemma:WQOProperties} and the fact that the subword relation is a WQO.\@
+The problem with using this observation to decide inclusions is that it can be difficult or even impossible to compute the set of minimal words.
+
+Here, we use that for an SRE, it is easy to construct the set of minimal words in polynomial time.
+To be precise, we can construct for each product $p$ in the SRE of interest a word $\min p$ that is the unique minimal word in $\lang{p}$, \ie $\uc{(\min p)} = \uc{\lang{p}}$, in linear time.
+It then only remains to check that for each product $p$ of the given SRE, $\min p$ is contained in the upward closure of $\lang{N,M_\init,M_\final}$.
+To conduct this check, we do not need to construct an NFA representation of the upward closure.
+It is sufficient to use the net $\uc{N}$ whose size is polynomial in the size of $N$.
+
+We show how to extract from a product its minimal word, then give the formal proof.
+
+\begin{definition}
+   Let $p$ be the product of an SRE.\@
+   We define $\min p$ by induction as follows:
+    \begin{align*}
+        \min a &= a
+        &
+        \min p.p' &= \min p . \min p'
+        \\
+        \min a \cup \eps &= \eps
+        &
+        \min \Gamma^* &= \eps\ .
+    \end{align*}
+\end{definition}
+
+Using the definitions, it is easy to see that for each product $\product$, we have $\uc{\lang{\product}} = \uc{\min \product}$.
+To obtain $\min{\lang{\sre}}$, the minimal words of the language of an SRE, we can construct the minimal words for each of the products.
+Some of them might be comparable, so we obtain $\min{\lang{\sre}}$ by removing the non-minimal ones.
+The proof of \cref{Proposition:SREUCMembership} follows immediately.
+
+\begin{proof}[Proof of \cref{Proposition:SREUCMembership}]
+    Let $(N,\Minit,\Mfinal)$ be the given net and let $\sre = p_1 \cup \ldots \cup p_k$ be the given SRE, consisting of the products $p_i$.
+    As argued above, we have that $\lang{\sre} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ if and only if for each $i$, $\min p_i \in \uc{\lang{N,\Minit,\Mfinal}}$.
+    We consider the net $\mathmbox{\uc{N}}$ with $\lang{\mathmbox{\uc{N}},\Minit,\Mfinal} = \mathmbox{\uc{\lang{N,\Minit,\Mfinal}}}$, and check $\min p_i \in \lang{\uc{N},\Minit,\Mfinal}$.
+    Note that both the number of products and the length of each $\min p_i$ is polynomial in the size of the SRE.\@
+    Hence, we have reduced the problem $\SREUC$ to a polynomial amount of membership queries for instances of polynomial size.
+    The desired result follows as $\WORDPNCOV$ is in $\EXPSPACE$, see \cref{Section:PNCovLang}.
+\end{proof}
+
+\paragraph{Lower bound}
+
+The lower bound for $\SREUC$ follows directly from \cref{Theorem:PNLipton}, the $\EXPSPACE$-hardness of coverability.
+
+\begin{lemma}%
+\label{Lemma:PNSREUChardness}%
+    $\SREUC$ is $\EXPSPACE$-hard.
+\end{lemma}
+
+\begin{proof}
+    We reduce from the coverability problem for unlabeled Petri nets, which is $\EXPSPACE$-hard by \cref{Theorem:PNLipton}.
+    Let $(N,\Minit,\Mfinal)$ be a Petri net instance.
+    We see $N$ as a labeled Petri net in which all transitions are labeled by $\eps$.
+    Consequently, we have $\lang{N,\Minit,\Mfinal} = \set{\eps}$ if $\Mfinal$ is coverable from $\Minit$ in $N$, else $\lang{N,\Minit,\Mfinal} = \emptyset$.
+    Hence, $\uc{\lang{N,\Minit,\Mfinal}}$ is either $\Sigma^*$ or $\emptyset$.
+    We obtain that the instance $\emptyset^* \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ of $\SREUC$ is equivalent to the coverability problem, since the SRE $\emptyset^*$ expresses the language $\set{\eps}$.
+\end{proof}
+
+This completes the proof of \cref{Theorem:PNSREUC}.
+Note that the same result holds in the case of the unary encoding, since coverability remains $\EXPSPACE$-complete for nets encoded in unary:
+Lipton's construction only uses transition multiplicities from the set $\set{0,1}$.
+
+\end{document}

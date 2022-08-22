@@ -1,0 +1,189 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{The transition monoid}%
+\label{Section:TransitionMonoid}%
+
+In \cref{Part:Games}.~of the thesis, it will be important to have a finite representation of the effect that a finite (but unbounded) word $w$ has on an automaton $A$.
+We want that if two finite words $w$ \nb{and $w'$} have the same representation, then the behavior they induce on $A$ is the same, independent of the context.
+More formally, for any word $u.w.v$ that has $w$ as infix, we want that $u.w.v$ is in the language of $A$ if and only if $u.w'.v$ is.
+
+To this end, we introduce the \emph{transition monoid}~\cite{Buechi62,PerrinP04} of an NFA $A$.
+We define an equivalence relation $\nfaequiv{A}$ on $\Sigma^*$ that identifies words that cause the same state changes:
+\[
+    w \nfaequiv{A} w'
+    \quad \text{iff} \quad
+    \forall q,q' \in Q \colon
+    q \tow{w} q' \iff q \tow{w'} q'
+    \ .
+\]
+Using $\nfaequiv{A}$, we can assign to each word $w$ its equivalence class $\nfaequivclass{A}{w}$.
+Let the \emph{transition monoid} $\nfatransmonoid{A}$ be the set of all equivalence classes, \ie $\nfatransmonoid{A} = \Sigma^* / \nfaequiv{A}$.
+
+We can define a composition operation on $\nfatransmonoid{A}$ by
+\(
+    \nfaequivclass{A}{w} \relcomp \nfaequivclass{A}{w'} = \nfaequivclass{A}{w.w'}
+    \ .
+\)
+It is not hard to check that this operation is well-defined and associative.
+To see that the transition monoid is indeed a monoid, note that the equivalence class of $\varepsilon$ is the identity with respect to this composition.
+
+To be able to use the transition monoid algorithmically, we need a finite representation for the equivalence classes.
+Instead of representing equivalence classes by a representative in the classical sense, \ie by a word that is in the class, we proceed as follows.
+Each equivalence \nb{class $\rho \in \nfatransmonoid{A}$} is uniquely determined by the state changes that the words in the class induce on~$A$.
+We may see $\rho$ as a relation on $Q$, \ie as an element of $\powerset{Q \times Q}$ such that a tuple $(q,q')$ is in~$\rho$ if and only if we have $q \tow{w} q'$ for all words (or, equivalently, one word) $w \in \rho$.
+However, not every element of $\powerset{Q \times Q}$ represents a (non-empty) equivalence classes:
+For some elements of $\powerset{Q \times Q}$, there may be no word that induces the specified state changes.
+
+We can represent the elements of $\powerset{Q \times Q}$ graphically as shown in \cref{Figure:BoxesForABStar}.
+Because of the shape of the graphical representation, we usually call them \emph{boxes}.
+
+\begin{figure}
+    \centering
+    \input{tikz/boxes_ab.tikz}
+    \caption{The boxes representing non-empty equivalence classes for the automaton for ${(ab)}^*$ from \cref{Example:NFAForABStar} \resp \cref{Figure:NFAForABStar}.}%
+    \label{Figure:BoxesForABStar}%
+\end{figure}
+
+
+As mentioned above, elements $\rho, \tau \in \powerset{Q \times Q}$ are relations on $Q$.
+Hence, we may compose them using the \emph{relational composition}
+\[
+    \rho \relcomp \tau = \Set{ (q,q'') \in Q \times Q}{ \exists q' \colon (q,q') \in \rho, (q',q'') \in \tau}
+    \ .
+\]
+One can subsequently check that for elements of $\powerset{Q \times Q}$ representing non-empty equivalence classes, the composition based on representatives coincides with the relational composition.
+In particular, we have that $\nfaequivclass{A}{\varepsilon}$ is represented by the identity relation $\id = \Set{ (q,q) }{ q \in Q}$, which is neutral with respect to relational composition.
+
+Hence, we have that the transition monoid $(\nfatransmonoid{A},\relcomp,\nfaequivclass{A}{\varepsilon})$ is isomorphic to a submonoid of $(\powerset{Q \times Q}, \relcomp, \id)$, namely the submonoid of boxes representing non-empty equivalence classes.
+This implies
+\(
+    \card{\nfatransmonoid{A}} \leq \card{\powerset{Q \times Q}} = 2^{\card{Q}^2}
+    \ .
+\)
+In particular, $\nfatransmonoid{A}$ is finite.
+
+
+In the following, we usually work with boxes as a representation for elements of the transition monoid.
+Whenever it is important to take into account that not all boxes represent non-empty equivalence classes, we will point this~out.
+We write $\lang{\rho}$ to denote the language of a box (\ie the equivalence class it represents, seen as a set of words).
+We define the \nb{map $\tbox{-} \colon \Sigma^* \to \powerset{Q \times Q}$} that assigns each word $w$ the unique box $\tbox{w}$ with $w \in \lang{\tbox{w}}$.
+
+\begin{lemma}
+    For all $\rho \in \powerset{Q \times Q}$, $\lang{\rho}$ is regular.
+\end{lemma}
+
+\begin{proof}
+    For a tuple $(q,q')$ of states, we can define a modified version $A_{q,q'}$ of $A$ with $q$ as the initial and $q'$ as the unique final state such that $\lang{A_{q,q'}}$ is the set of words $w$ with $q \tow{w} q'$.
+    We obtain
+    \[
+        \lang{\rho} = \bigcap_{ (q,q') \in \rho} \lang{A_{q,q'}} \ \cap \bigcap_{ (q,q') \not\in \rho} \overline{\lang{A_{q,q'}}}\ ,
+    \]
+    which is clearly regular.
+\end{proof}
+
+Boxes have the desired property of characterizing the behavior of words in arbitrary contexts.
+Membership in the language of $A$ is invariant under the replacement of infixes by equivalent words:
+If $w,w'$ such that $\tbox{w} = \tbox{w'}$, then for any $u,v \in \Sigma^*$, we have $u.w.v \in \lang{A}$ iff $u.w'.v \in \lang{A}$.
+%
+In particular, we can read off from $\tbox{w}$ whether $w$ is a member of the language:
+We have $w \in \lang{A}$ if and only if $\tbox{w}$ contains a transition from the initial to a final state, \ie a tuple $(q,q')$ with $q = \qinit$ and $q' \in Q_\final$.
+We call boxes $\rho$ for which such a transition exists \emph{accepting}; they satisfy $\lang{\rho} \subseteq \lang{A}$.
+Boxes $\rho$ that do not have this property are \emph{rejecting} and satisfy $\lang{\rho} \cap \lang{A} = \emptyset$. In particular, their language is contained in the complement of $\lang{A}$.
+
+
+Note that it is very simple to obtain the boxes associated to the single letters.
+For $a \in \Sigma$, $\tbox{a}$ contains all pairs $(q,q')$ such that there is an $a$-labeled transition $q \tow{a} q'$ between the states in the automaton.
+The set of all boxes with non-empty equivalence classes can be obtained by iteratively composing boxes, it is the least subset of $\powerset{Q \times Q}$ that contains $\tbox{\eps}$, $\tbox{a}$ for all $a \in \Sigma$, and that is closed under composition.
+
+It is also noteworthy that the elements of the transition monoid of an NFA give rise to an alternative construction for determinization.
+The automaton $(\powerset{Q \times Q}, \delta', \tbox{\eps}, Q_\final')$, where the deterministic transition relation $\delta'$ is defined by $\delta(\rho,a) = \rho \relcomp \tbox{a}$ and $Q_\final'$ is the set of accepting boxes, is a DFA whose language is $\lang{A}$.
+In a sense, computing the boxes of an automaton is an implicit determinization.
+However, it is not as succinct as the powerset construction:
+The powerset constructions yields a DFA with at most $2^{\card{Q}}$ states, but there are at most $2^{\card{Q}^2}$ boxes.
+
+Nevertheless, boxes are useful.
+The box $\tbox{w}$ for some NFA $A$ contains more information than the state reached in the determinization of $A$ when processing $w$ from the initial states:
+Words that reach the same state behave the same with respect to appending suffixes, but they may show different behavior when prepending prefixes.
+As mentioned before, boxes allow us to characterize  the behavior of a word in all contexts.
+We will consider an algorithm that makes use of this advantage in \cref{Chapter:ContextFreeGames}.
+
+\paragraph{The transition monoid for Büchi automata}
+
+For Büchi and for parity automata, we could use an unchanged definition of the transition monoid.
+We obtain that if $u.w.v$ is an infinite word where $w$ and $w'$ are finite words that have same box, then $u.w.v$ is contained in the language of the automaton if and only if $u.w'.v$ is.
+This property can be lifted to finite sequences of replacements in a given word by induction.
+When we consider infinite sequences of replacements, however, we see that the transition monoid defined as before has undesired properties.
+Consider for example the NBA depicted in \cref{Figure:AutomatonInfiniteReplacement} whose language contains the word $a^\omega$.
+For this automaton, we have $\tbox{aa} = \tbox{bb}$, but the intermediary state after reading the first $a$ is final, while the one after reading the first $b$ is not.
+The word $b^\omega = {(bb)}^\omega$ is obtained from $a^\omega = {(aa)}^\omega$ by an infinite sequence of replacements that substitute a finite infix for another one with the same box.
+Unlike $a^\omega$, the word $b^\omega$ is not in the language of the automaton.
+
+\begin{figure}[t]
+    \centering%
+    \input{tikz/automaton_infinite_replacement.tikz}%
+    \caption{An NBA with $\tbox{aa} = \tbox{bb}$.}%
+    \label{Figure:AutomatonInfiniteReplacement}%
+\end{figure}
+
+
+From the example, we see that we need to redefine the transition monoid for Büchi automata such that equivalent words also exhibit the same behavior with respect to visiting final states.
+% Similarly, we need to keep track of the priorities of the states that we visit in parity automata.
+%
+Instead of boxes $\rho \in \powerset{Q \times Q}$,which we can also see as functions with signature $\rho \colon Q \times Q \to 2$, we need to consider boxes of the shape $\rho \colon Q \times Q \to 3$ that specify for each pair of states whether a transition exists, and if it does, whether a final state is seen during the transition.
+More formally, for a Büchi automaton $A = (Q, \delta, \qinit, \QF)$ we define for each letter $a \in \Sigma$ the \nb{box $\tbox{a} \colon Q \times Q \to 3$} as the function with
+\[
+    \tbox{a}(q,q')
+    =
+    \left\{
+    \begin{array}{ll}
+        0, & \text{ if $q \not\to q'$ in $\delta$}\ ,\\
+        1, & \text{ if $q \to q'$ in $\delta$ and $q,q' \not\in \QF$}\ ,\\
+        2, & \text{ if $q \to q'$ in $\delta$ and $q \in \QF$ or $q' \in \QF$}\ .
+    \end{array}
+    \right.
+\]
+The composition of boxes is defined so that it propagates the value $2$ if possible.
+For two \nb{boxes $\rho,\tau \colon Q \times Q \to 3$,} their composition $\rho \relcomp \tau$ is the function with
+\[
+    (\rho \relcomp \tau)(q,q'')
+    =
+    \left\{
+    \begin{array}{ll}
+    0, & \text{if } \forall q' \in Q \colon \rho(q,q') = 0 \text{  or } \tau(q',q'') = 0\ ,\\
+
+    2, & \text{if }  \exists q' \in Q \colon \rho(q,q') = 2 \text{ and } \tau(q',q'') > 0, \text{ or } \rho(q,q') > 0 \text{ and } \tau(q',q'')  = 2
+    \ ,\\
+    1, & \text{else, \ie if }\exists q' \in Q \colon \rho(q,q') = 1 \text{ and } \tau(q',q'') = 1
+    \\
+    & \quad \text{and }\forall q' \in Q \colon \rho(q,q') < 2 \text{ and } \tau(q',q'') < 2
+    \ .
+    \end{array}
+    \right.
+\]
+Note that this operation is associative.
+
+For a non-empty word $w_1 \ldots w_n$, we define $\tbox{w_1 \ldots w_n} = \tbox{w_1} \cdots \, \tbox{w_n}$.
+Informally, we have $\tbox{w}(q,q') = 0$ if the automaton has no path from $q$ to $q'$ along $w$, we have $\tbox{w}(q,q') = 2$ if it has a path from $q$ to $q'$ in which at least one state is final, and we have $\tbox{w}(q,q') = 1$ if it has a path from $q$ to $q'$, but none in which a final state occurs.
+
+It remains to associate a box to the empty word.
+It might seem sensible to define $\tbox{\eps}(q,q') = 1$ if $q = q'$, $\tbox{\eps}(q,q') = 0$ else.
+However, we should distinguish the empty word from any other word that might induce this behavior in the automaton:
+For any non-empty word $w$, we have $\set{w}^\omega = \set{ w^\omega}$, but $\set{\eps}^\omega = \emptyset$.
+To enable this distinction, we define a new element $\id$ and make it the neutral element with respect to composition, $\id \relcomp \rho = \rho \relcomp \id$ for all $\rho \in (Q \times Q \to 3) \dotcup \set{\id}$.
+We associate this new element to the empty word, $\tbox{\eps} = \id$, and the empty word is the only word whose box is $\id$.
+
+Altogether, we obtain that the transition monoid of a Büchi automaton $B$ is $({\nbatransmonoid{B}}, \relcomp)$, where ${\nbatransmonoid{B}} = (Q \times Q \to 3) \dotcup \set{\id}$ and the operation $\relcomp$ is defined by the rules for $\id$ and the composition of boxes.
+The transition monoid of a Büchi automaton satisfies the same properties as the transition monoid of a finite automaton.
+In particular, $\lang{\rho} = \Set{ w \in \Sigma^*}{\tbox{w} = \rho}$ is a regular language of finite words.
+Additionally, they have properties that allow us to use them as a representation for infinite words.
+We will discuss these properties in \cref{Section:EDSOmegaRegIncl}.
+%when we actually need them.
+
+The transition monoid for Büchi automata has been used successfully in algorithms, \eg for universality testing of Büchi automata in~\cite{FogartyV10,AbdullaCCHHMV10,AbdullaCCHHMV11}.
+
+One could extend the concept of boxes to parity automata.
+Instead of tracking the occurrence of final states, these boxes would need to track the priorities that have been visited.
+Since we will not need the transition monoid for parity automata, we forgo giving the formal definition.
+
+\end{document}

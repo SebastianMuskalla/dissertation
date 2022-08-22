@@ -1,0 +1,19 @@
+\begin{tikzpicture}[>=,->,semithick,scale=0.4]
+
+\pic [] (fid) [transform shape] {tbox={2}{}};
+\node [scale=1.5] {$\id$};
+\node [below = 1.5em] {$\id = \tbox{\varepsilon}$};
+
+\pic (req) at (3,0) [transform shape] {tbox={2}{1/2/dot, 2/2/}};
+\node [below = 1.5em] at (3,0) {$\tbox{r}$};
+
+\pic (ack) at (6,0) [transform shape] {tbox={2}{2/1/dot, 1/1/dot}};
+\node [below = 1.5em] at (6,0) {$\tbox{a}$};
+
+\pic (ack) at (9,0) [transform shape] {tbox={2}{1/2/dot, 2/2/dot}};
+\node [below = 1.5em] at (9,0) {$\tbox{a.r}$};
+
+\pic (qid) at (12,0) [transform shape] {tbox={2}{1/1/dot,2/2/}};
+\node [below = 1.5em] at (12,0) {$\tbox{s} = \tbox{t}$};
+
+\end{tikzpicture}

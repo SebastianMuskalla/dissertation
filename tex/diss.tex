@@ -1,0 +1,328 @@
+% LTeX: enabled=false
+
+\documentclass%
+[%
+    a4paper,                 %
+    11pt,                    %
+    parskip=half-,           % no weird indents after paragraphs
+    numbers=noenddot,        % Section 1 instead of Section 1.
+    twoside,                 %
+    fleqn,                   % equations are not centered, but set with a fixed indent
+    toc=chapterentrywithdots,% dots in TOC between chapter name and page number
+    cleardoublepage=plain,   % have page numbers on empty pages
+]
+{style/smbook}
+
+% special stuff for the dissertation
+\usepackage{diss}
+
+% use to hide table of contents and speed up compilation
+% \showtocfalse
+
+%
+% Meta information
+%
+
+\title{Certificates for automata in a hostile environment}
+
+\author{Sebastian Muskalla}
+
+%
+% Bibliography
+%
+
+\addbibresource{other.bib}
+\addbibresource{my.bib}
+
+\begin{document}
+
+%\=================================================
+
+\maketitle%
+
+\emptysheet%
+
+%\=================================================
+
+\subfile{content/intro/abstract_en}
+
+\subfile{content/intro/abstract_de}
+
+%\=================================================
+
+{%
+    \ifshowtoc%
+        % do only display parts and chapters in the main TOC, not sections and lower
+        \setcounter{tocdepth}{\chaptertocdepth}
+        %
+        \tableofcontents%
+        % dirty hacks
+        \addtocontents{toc}{\protect\enlargethispage{3\baselineskip}}
+        %
+        \vspace*{0.5em}
+        \noindent%
+        The title page of each part provides a table of contents listing the sections within each chapter.
+        % in the sub TOCs, display sections
+        \setcounter{tocdepth}{\sectiontocdepth}
+    \fi
+}%
+
+%\=================================================
+
+\part{Introduction}%
+\label{Part:Introduction}
+
+    \chapter{Introduction}%
+    \label{Chapter:Intro}%
+    \chaptertoc%
+        \subfile{content/intro/intro_intro}
+        \clearpage
+        \subfile{content/intro/intro_separability.tex}
+        \clearpage
+        \subfile{content/intro/intro_closures}
+        \clearpage
+        \subfile{content/intro/intro_games.tex}
+
+    \chapter{Outline}%
+    \label{Chapter:Outline}%
+    \subfile{content/intro/outline.tex}
+
+%\=================================================
+
+\part{Models of computation}%
+\label{Part:Prelims}
+
+    \subfile{content/prelims/intro}
+
+    \chapter{Preliminaries}%
+    \label{Chapter:Prelims}%
+    \chaptertoc%
+        \subfile{content/prelims/prelims_intro}
+        \subfile{content/prelims/prelims_basics}
+        \clearpage
+        \subfile{content/prelims/prelims_atm}
+        \clearpage
+        \subfile{content/prelims/prelims_complexity}
+        \clearpage
+        \subfile{content/prelims/prelims_formulas}
+
+    \chapter{Labeled transition systems and finite-state automata}%
+    \label{Chapter:LTSNFAs}%
+    \chaptertoc%
+        \subfile{content/prelims/lts_intro}
+        \subfile{content/prelims/lts_lts}
+        \clearpage
+        \subfile{content/prelims/lts_nfa}
+        \clearpage
+        \subfile{content/prelims/lts_descriptivecomplexity}
+        \clearpage
+        \subfile{content/prelims/lts_omega}
+        \clearpage
+        \subfile{content/prelims/lts_transmonoid}
+
+    \chapter{Grammar-based models}%
+    \label{Chapter:Grammars}%
+    \chaptertoc%
+        \subfile{content/prelims/grammars_intro}
+        \subfile{content/prelims/grammars_cfg}
+        \clearpage
+        \subfile{content/prelims/grammars_omega}
+        \clearpage
+        \subfile{content/prelims/grammars_hors}
+
+   \chapter{Petri nets and well-structured transition systems}%
+   \label{Chapter:PetriNets}%
+   \chaptertoc%
+       \subfile{content/prelims/pn_intro}
+       \subfile{content/prelims/pn_petrinets}
+       \clearpage
+       \subfile{content/prelims/pn_algorithmics}
+       \clearpage
+       \subfile{content/prelims/pn_languages}
+       \clearpage
+       \subfile{content/prelims/pn_bpp}
+       \clearpage
+       \subfile{content/prelims/pn_wsts}
+
+%\=================================================
+
+\part{Closures of Petri net languages}%
+\label{Part:Closures}%
+
+    \subfile{content/closures/intro}
+
+    \chapter{Closures of Petri net languages}%
+    \label{Chapter:Closures}%
+    \chaptertoc%
+        \subfile{content/closures/closures_intro}
+        \subfile{content/closures/closures_defs}
+        \clearpage
+        \subfile{content/closures/closures_relwork}
+        \clearpage
+        \subfile{content/closures/closures_results}
+
+    \chapter{Upward closures}%
+    \label{Chapter:UC}%
+    \chaptertoc%
+        \subfile{content/closures/uc_intro}
+        \subfile{content/closures/uc_petri}
+        \clearpage
+        \subfile{content/closures/uc_bpp}
+        \clearpage
+        \subfile{content/closures/uc_petri_sre}
+        \clearpage
+        \subfile{content/closures/uc_bpp_sre}
+
+    \chapter{Downward closures}%
+    \label{Chapter:DC}%
+    \chaptertoc%
+        \subfile{content/closures/dc_intro}
+        \subfile{content/closures/dc_petri}
+        \clearpage
+        \subfile{content/closures/dc_bpp}
+        \clearpage
+        \subfile{content/closures/dc_petri_sre}
+        \clearpage
+        \subfile{content/closures/dc_bpp_sre}
+
+    \chapter{Being upward/downward closed and regular containment}%
+    \label{Chapter:BeingUCDC}%
+        \subfile{content/closures/being_ucdc}
+        \clearpage
+        \subfile{content/closures/being_ucdc_containment.tex}
+
+%\=================================================
+
+\part{Separability}%
+\label{Part:Separability}%
+
+    \subfile{content/separability/intro}
+
+    \chapter{Separability and regular separability}%
+    \label{Chapter:Separability}%
+    \chaptertoc%
+        \subfile{content/separability/separability_intro}
+        \subfile{content/separability/separability_defs}
+        \clearpage
+        \subfile{content/separability/separability_relwork}
+        \clearpage
+        \subfile{content/separability/separability_results}
+
+    \chapter{WSTS expressiveness}%
+    \label{Chapter:WSTSExpressiveness}%
+    \chaptertoc%
+        \subfile{content/separability/expressiveness_intro}
+        \subfile{content/separability/expressiveness_omega}
+        \clearpage
+        \subfile{content/separability/expressiveness_result}
+
+    \chapter{Regular separability for WSTSes}%
+    \label{Chapter:WSTSSeparability}%
+    \chaptertoc%
+        \subfile{content/separability/wsts_separability_intro}
+        \subfile{content/separability/wsts_separability_results}
+        \clearpage
+        \subfile{content/separability/wsts_separability_core}
+        \clearpage
+        \subfile{content/separability/wsts_separability_ideals}
+
+     \chapter{Bounds on the separator size for Petri nets}%
+     \label{Chapter:WSTSSeparatorSize}%
+     \chaptertoc%
+        \subfile{content/separability/pn_bound_intro}
+        \subfile{content/separability/pn_bound_upper}
+        \clearpage
+        \subfile{content/separability/pn_bound_lower}
+
+%\=================================================
+
+\part{Games}%
+\label{Part:Games}%
+
+    \subfile{content/games/intro}
+
+    \chapter{Games with perfect information}%
+    \label{Chapter:Games}%
+        \subfile{content/games/games}
+
+    \chapter{Effective denotational semantics}%
+    \label{Chapter:EDS}%
+    \chaptertoc%
+        \subfile{content/games/fp_intro}
+        \clearpage
+        \subfile{content/games/fp_eqsys}
+        \clearpage
+        \subfile{content/games/fp_regincl}
+        \clearpage
+        \subfile{content/games/fp_omegaregincl}
+
+    \chapter{Context-free games}%
+    \label{Chapter:ContextFreeGames}%
+    \chaptertoc%
+        \subfile{content/games/cf_intro}
+        \subfile{content/games/cf_definition}
+        \clearpage
+        \subfile{content/games/cf_eds}
+        \clearpage
+        \subfile{content/games/cf_soundness}
+        \clearpage
+        \subfile{content/games/cf_strategies}
+        \clearpage
+        \subfile{content/games/cf_complexity}
+        \clearpage
+        \subfile{content/games/cf_related}
+        \clearpage
+        \subfile{content/games/cf_algorithmics}
+        \clearpage
+        \subfile{content/games/cf_deterministic}
+        \clearpage
+        \subfile{content/games/cf_omega}
+
+    \chapter{Higher-order games}%
+    \label{Chapter:HOGames}%
+    \chaptertoc%
+        \subfile{content/games/ho_intro}
+        \subfile{content/games/ho_games}
+        \clearpage
+        \subfile{content/games/ho_template}
+        \clearpage
+        \subfile{content/games/ho_fpsemantics}
+        \clearpage
+        \subfile{content/games/ho_framework}
+        \clearpage
+        \subfile{content/games/ho_solving}
+
+    \chapter{Valence games}%
+    \label{Chapter:ValenceGames}%
+    \chaptertoc%
+        \subfile{content/games/valence_intro}
+        \subfile{content/games/valence_systems}
+        \clearpage
+        \subfile{content/games/valence_games}
+        \clearpage
+        \subfile{content/games/valence_bcs}
+
+%\=================================================
+
+\part{Conclusion}%
+\label{Part:Conclusion}%
+
+    \chapter{Contributions}%
+    \label{Chapter:Contributions}%
+    \subfile{content/conclusion/contributions}
+
+    \chapter{Future work}%
+    \label{Chapter:FutureWork}%
+    \subfile{content/conclusion/futurework}
+
+%\=================================================
+
+% make sure that the TOC entry for the bibliography has a correct page number
+\cleardoublepage%
+\phantomsection%
+\addcontentsline{toc}{part}{Bibliography}%
+\printbibliography%
+
+\emptysheet%
+
+\end{document}

@@ -1,0 +1,383 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Upward closures for Petri nets}%
+\label{Section:PNUC}%
+
+We start by considering the problem of computing the upward closure of a given Petri net coverability language.
+This problem is formalized as follows.
+
+\begin{compproblem}
+    \problemtitle{Computing the upward closure for Petri net languages}
+    \problemshort{($\PNUC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$.}
+    \problemquestion{An NFA $A$ with $\lang{A} = \uc{\lang{N,\Minit,\Mfinal}}$.}
+\end{compproblem}
+
+%
+\cheatpagebreak
+%
+
+The result that we will show in this section is the following.
+
+\begin{theorem}%
+\label{Theorem:PNUCGeneral}%
+    Upward closures of Petri net coverability languages have doubly exponential state complexity, and the corresponding automata can be constructed in doubly exponential time.
+    These bounds are tight.
+\end{theorem}
+
+The proof consists of two steps.
+Firstly, we show the upper bound: Given a Petri net instance, one can compute in doubly exponential time an NFA representing the upward closure.
+Obviously, the time needed for the construction also limits the size of the NFA.\@
+Secondly, we present a family of Petri nets that provides a lower bound.
+We conclude the section by considering the case of Petri nets that are encoded in unary.
+
+\paragraph{Upper bound}
+
+We prove one direction of \cref{Theorem:PNUCGeneral} in the form of the following theorem.
+
+\begin{theorem}%
+\label{Theorem:PNUC}%
+    Given a labeled Petri net instances $(N,\Minit,\Mfinal)$, we can compute in doubly exponential time an NFA $A$ with $\lang{A} = \uc{\lang{N,\Minit,\Mfinal}}$.
+    The state complexity of $\uc{\lang{N,\Minit,\Mfinal}}$ is at most doubly exponential, as witnessed by automaton $A$.
+\end{theorem}
+
+Our proof strongly relies on an extension of the algorithm presented by Rackoff to show that Petri net coverability is in $\EXPSPACE$~\cite{Rackoff78}.
+Let us recapitulate Rackoff's approach.
+The key result is that if there is a covering computation, then there is one of doubly exponential length.
+With this property, it is not hard to enumerate and check all candidates of doubly exponential length using only exponential space.
+To prove the result, Rackoff considers \emph{pseudo-computations} that are valid only on a subset of the places, say on the first $i$ places \wrt some total order on the places.
+Assuming that the maximum length of the shortest covering pseudo-computation that is valid on the first $i$ places is known, one obtains a bound for $i+1$ places.
+This yields a recursive formula which one can evaluate for $i$ equal to the number of places to get a bound on the length of ordinary computations (instead of pseudo-computations).
+A closed form for this formula provides the desired doubly exponential bound.
+Establishing the recursive formula itself is quite involved:
+One has to show that any covering computation can be pruned and partially replaced to obtain one that fits the bound.
+This requires quantifying over all possible initial markings.
+
+We want to use and extend Rackoff's ideas to prove that any minimal word results from a computation of length at most doubly exponential.
+With this result, it is easy to find all minimal words and construct the automaton for the upward closure in doubly exponential time.
+Establishing the bound requires two major modifications in Rackoff's proofs:
+Firstly, the definition of the bound has to be adjusted such that it guarantees that it is larger than (the length of) all covering computations producing minimal words, instead of just one single covering computation.
+Secondly, the technique that is applied to long covering computations to establish the bound has to be handled with care to ensure that the resulting shortened computation generates a subword of the original one.
+
+Let us assume that $(N,\Minit,\Mfinal)$ is the labeled Petri net instance of interest, and that its places are ordered \ie $P = \oneto{\ell}$.
+We fix $n = \card{(N,\Minit,\Mfinal)}$ to be the size of this instance.
+A \emph{pseudo-marking} of $N$ is a function $M \colon P \rightarrow \Z$ that assigns an integer number of tokens to each place.
+
+Let $i \in \zeroto{\ell}$ be a number.
+Following Rackoff~\cite{Rackoff78}, we define versions of most notions that we have introduced for markings that work on pseudo-markings, but require the first $i$ places to be treated properly.
+We call pseudo-marking $M$ \emph{$i$-non-negative} if $M(p) \geq 0$ for $p \in \oneto{i}$.
+An $i$-non-negative marking $M$ \emph{$i$-enables} a transition $t$ if $M(p) - \i(t,p) \geq 0$ for $p \in \oneto{i}$.
+If we fire it, we obtain the $i$-non-negative marking $M' = M + e(t)$.
+We write $M \firei{t} M'$.
+A sequence of pseudo-markings and transitions
+\[
+    M_0 \firei{t_1} M_1\ldots \firei{t_m} M_m
+\]
+is an \emph{$i$-valid computation} if all markings are $i$-non-negative and all transitions are $i$-enabled in the marking from which they are fired.
+A pseudo-marking $M$ is \emph{$i$-covering} if $M(p) \geq \Mfinal(p)$ for $p \in \oneto{i}$.
+A computation on pseudo-markings is \emph{$i$-covering} if it is $i$-valid and it reaches a marking that is $i$-covering.
+
+There are two special cases that are worth mentioning.
+The case of $i = 0$ imposes no restrictions: Any pseudo-marking is $0$-non-negative, any transition is $0$-enabled in such a marking and any sequence of pseudo-markings and transitions that respects the effect of the transitions is $i$-covering.
+In the case of $i = \ell$, the definitions coincide with the usual definitions for markings, since we require all places to be treated properly.
+For instance, an $\ell$-non-negative pseudo-marking is a marking and an $\ell$-covering computation is a \nb{covering computation}.
+
+% There is one final technicality that we have to discuss.
+In the proof, we will need to consider markings other than $\Minit$ as the initial marking.
+Consequentially, the following definitions are parametric in the initial pseudo-marking $M$.
+Later, we maximize over all possible initial markings, which on the one hand removes the dependency on $M$, and on the other hand ensures that the bound holds for $\Minit$, the initial marking of interest.
+
+We proceed by giving the formal definitions.
+Let $M$ be some pseudo-marking.
+We define $\Paths(M,i)$ to be the set of all firing sequences inducing $i$-covering computations from $M$,
+\[
+    \Paths(M,i) = \Set{ \sigma\in T^* }{ M \firei{\sigma} M' \text{ is $i$-covering} }
+    \ .
+\]
+Let
+\(
+    \Words(M,i) = \Set{ \lambda(\sigma) }{ \sigma \in \Paths(M,i) }
+\)
+be the corresponding set of words, and let $\min \Words(M,i)$ be its minimal elements with respect to the subword relation.
+Since we allow $\eps$-labeled transitions, each element of $\min \Words(M,i)$ is potentially generated by an infinite number of computations.
+The definition of $\SPath(M,i)$ takes care of this by considering for each such element only the shortest computation(s),
+\[
+    \SPath(M,i)
+    =
+    \Set
+    {
+        \sigma \in \Paths(M,i)
+    }
+    {
+        \begin{array}{ll}
+            \lambda(\sigma) \in \min \Words(M,i),&
+            \\
+            \nexists\ \sigma' \in \Paths(M,i) \colon
+            &\card{\sigma'} < \card{\sigma}, \ \lambda(\sigma') = \lambda(\sigma)
+        \end{array}
+    }
+    \ .
+\]
+Finally, we define $m(M,i) = \max \Set{ \card{\sigma} + 1}{ \sigma \in \SPath(M,i) }$ to be the maximum number of markings (which is the number of transitions plus one) associated to any firing sequence from $\SPath(M,i)$.
+If $\SPath(M,i)$ is empty, we set $m(M,i) = 0$.
+Note that $\min \Words(M,i)$ is finite since the subword relation is a WQO, see \cref{Section:WSTS}.
+Hence, also $\SPath(M,i)$ is finite and $m$ is \nb{well-defined}.
+
+By definition, we have that any word that occurs along an $i$-covering computation from $M$ has a subword that labels an $i$-covering computation from $M$ with length at most $m(M, i)$.
+To get rid of the parameter $M$, we maximize over all pseudo-markings and define
+\[
+    f(i) = \max \Set{ m(M,i)} {M \colon P \to \Z}
+    \ .
+\]
+Obviously, we have $f(i) \geq m(\Minit,i)$.
+The well-definedness of $f$ is not clear from its definition.
+Instead, it will be implied by the bound that we will prove below.
+
+The above definitions incorporate the first major change to Rackoff's original proof in~\cite{Rackoff78}.
+Rackoff simply defines $m(i,M)$ to be the minimum length of an $i$-covering computation from $M$ plus one.
+Before continuing with the theory, we present our definitions on an example.
+
+\begin{example}%
+\label{Example:Rackoff}%
+    Consider the Petri net $N_{\mathit{ce}} = (\set{ \rprun, \rptemp, \rpstop  }, \set{ \rthelp, \rtb, \rta  }, \i, \o, \lambda)$ over $\set{a,b,c}$, where the multiplicities are given by Figure~\ref{Figure:Rackoff} and we have $\lambda(\rthelp) = a, \lambda(\rtb) = b$, and $\lambda (\rta) = c$.
+    %
+    \begin{figure}
+        \centering%
+        \input{tikz/pn_rackoff_counterexample.tikz}%
+        \caption{The Petri net $N_{\mathit{ce}}$.}%
+        \label{Figure:Rackoff}%
+    \end{figure}
+    %
+    Let us use the total order $\rprun < \rptemp < \rpstop$ on the places.
+    Consider the initial marking $\Minit = (1,0,0)$ with one token on $\rprun$ and no token elsewhere, and the final marking $\Mfinal = (0,0,1)$ that requires one token on $\rpstop$.
+    We see that $\SPath(\Minit,1)$ contains the firing sequence $\rtb$, which is $1$-valid, but not $2$-valid.
+    When choosing $i = 3$, we obtain that $\Words(\Minit,3) = \lang{N,\Minit,\Mfinal} = a^+b \cup a^*c$, $\min \Words(\Minit,3) = \set{ab, c}$ and thus $\uc{\lang{N,\Minit,\Mfinal}} \, =  \Sigma^*a\Sigma^*b\Sigma^* \cup \Sigma^*c\Sigma^*$.
+    We have $\SPath(\Minit,3) = \set{ \rthelp \rtb, \rta}$ and consequently $m(\Minit,3) = 3$.
+    Indeed, to generate the minimal word $ab$, a computation consisting of three markings and two transitions is needed.
+    It is not difficult to see that in fact, $f(3) = 3$ holds, since removing the token from $\rprun$ in the initial marking leads to $\Mfinal$ becoming non-coverable, while adding more tokens only makes covering easier.
+% This is not true as shown by the following example.
+\end{example}
+
+
+In the following, we will first obtain a recursive formula that establishes an upper bound for $f(i+1)$ depending on $f(i)$.
+The proof proceeds by Rackoff's famous case distinction from the proof of Lemma~3.4 in~\cite{Rackoff78}.
+The second case of the proof incorporates the changes necessary to maintain the subword relationship.
+
+\begin{proposition}%
+\label{Proposition:PNRackoffRecursiveBound}%
+    $f(0) = 1$ and $f(i+1) \leq {(2^n f(i))}^{i+1} + f(i)$ for all $i\in \oneto{\ell-1}$.
+\end{proposition}
+
+\begin{proof}
+    To prove $f(0) = 1$, we use that $\eps \in \min \Words(M_0,0)$ for any $M_0 \in \Z^{\ell}$, and the empty firing sequence induces a $0$-covering computation just consisting of the initial marking $M_0$ that generates the word $\eps$.
+
+    For the second part, we prove that $m(M_0,i) \leq {(2^n f(i))}^{i+1} + f(i)$ for any marking $M_0 \in \Z^\ell$.
+    If $\Mfinal$ is not $(i+1)$-coverable from $M_0$, we have $m(M_0,i) = 0$ by definition and the bound holds.
+    Hence, we may assume that there is an $(i+1)$-covering computation, say $M_0 \fireipo{\sigma} M'$.
+    We show that there is a firing sequence $\sigma'$ such that $M_0 \fireipo{\sigma\lowerprime} M''$ is also an $(i+1)$-covering computation, $\lambda(\sigma')$ is a subword of $\lambda(\sigma)$, and $\sigma'$ satisfies the bound $\card{\sigma'} < 2^n {(f(i))}^{i+1} + f(i)$.
+    To see that the desired statement is then indeed proven, note that by picking $M_0 \fireipo{\sigma} M'$ as a computation generating a word from $\min \Words(M_0,i+1)$ and applying the argument, we obtain a computation for the same word (since we assumed the word to be minimal) whose length satisfies the bound.
+    Hence, also a firing sequence for that word from $\SPath(M_0,i+1)$, \ie one with minimum length, satisfies the bound.
+    By the definition of $m(M_0,i+1)$ as the maximum over the length of all computations associated to firing sequences from $\SPath(M_0,i+1)$, we obtain that $m(M_0,i+1)$ itself satisfies the bound as required.
+
+
+    In order to prove the bound, we distinguish two cases.
+
+    \subproof{\nth{1} Case}
+    Suppose that for each marking $M$ occurring in the computation $M \fireipo{\sigma} M'$ and for each place $p \in \oneto{i+1}$, $M(p) < 2^n \cdot f(i)$ holds.
+    Our goal is to remove infixes of the computation, resulting in an $(i+1)$-covering computation in which no two markings agree on their restriction to the first $i+1$ places.
+    Whenever a repetition occurs, \ie we have markings $M_j$ and $M_{j'}$ with $j < j'$ and $M_j (p) = M_{j'}(p)$ for all $p \in \oneto{i+1}$, we remove the infix $\fireipo{\sigma_{j+1}} M_{j+1} \cdots \fireipo{\sigma_{j'}} M_{j'}$.
+    Note that this removal changes the markings occurring in the rest of the computation only on places $p$ with $p > i+1$.
+    Hence, the resulting computation is still a valid $(i+1)$-covering computation.
+    After iterating this process until all repetitions have been eliminated, we have obtained a computation $M_0 \fireipo{\sigma\lowerprime} M''$ of length strictly less than
+    \(
+        {(2^n f(i))}^{i+1}
+    \)
+    since each of the relevant $i+1$ places can only attain values from $\zeroto{2^n \cdot f(i) - 1}$.
+    The strictness comes from the fact that a computation consisting of $h$ markings has $(h-1)$ transitions.
+    Since $\sigma'$ was obtained from $\sigma$ by deleting infixes, it is a subword of $\sigma$, and $\lambda(\sigma') \subword \lambda(\sigma)$ holds.
+
+    \subproof{\nth{2} Case}
+    Otherwise, the computation contains a marking that assigns $2^n \cdot f(i)$ or more tokens to one of the first $i+1$ places.
+    Let $M_j$ be the first such marking.
+    Without loss of generality, we assume that for place $i+1$, $M_j(i+1) \geq 2^n \cdot f(i)$ holds.
+    Otherwise, swap the order of the places.
+    We decompose the computation into
+    \[
+        M_0 \fireipo{\sigma_1} M_{j-1} \fireipo{t} M_{j} \fireipo{\sigma_2} M'
+    \]
+    where, $\sigma_1, \sigma_2 \in T^*$ are a firing sequences.
+
+    Note that the computation $M_0 \fireipo{\sigma_1} M_{j-1}$ satisfies the requirement that we made in the first case of the proof.
+    Hence, we can assume that $\card{\sigma_1} < {(2^n f(i))}^{i+1}$ holds.
+    More formally, we could replace the computation by a repetition-free computation $M_0 \fireipo{\sigma_1\lowerprime} M_{j-1}'$, where $M_{j-1}$ and $M_{j-1}'$ coincide on the first $i+1$ places.
+    In particular, the computation obtained by now firing $t.\sigma_2$ is an $(i+1)$-covering computation.
+    Since $\sigma_1' \subword \sigma_1$, we also have $\lambda(\sigma_1'.t.\sigma_2) \subword \lambda(\sigma_1.t.\sigma_2)$.
+
+    Let us consider the third part of the computation, $M_{j} \fireipo{\sigma_2} M'$.
+    By the definition of $f(i)$, we have $m(M_j,i) \leq f(i)$.
+    Hence, for any word $w \in \Words(M_j,i)$, there is an associated subword $w' \in \min \Words(M_j,i)$ with $w \subword w'$ and an $i$-covering computation $M_j \firei{\sigma_2\lowerprime} M''$ of minimum length with $\lambda(\sigma_2') = w'$ and $\card{\sigma_2'} < m(M_j,i) \leq f(i)$.
+    In the following, we consider the word $w = \lambda(\sigma_2) \in \Words(M_j,i)$ and consider the firing sequence $\sigma_2'$ with the aforementioned properties.
+    Here, we have used that any $(i+1)$-covering computation is also $i$-covering.
+    We claim that $M_0 \fireipo{\sigma_1} M_{j-1} \fireipo{t} M_j \fireipo{\sigma_2\lowerprime} M''$ is a valid $(i+1)$-covering computation.
+    Since $M_j \firei{\sigma_2\lowerprime} M''$ was an $i$-covering computation, it only remains to argue that the transitions in the computation are enabled with respect to the place $i+1$, and that $M''(i+1) \geq \Mfinal(i+1)$.
+    To this end, note that we had $M_j(i+1) \geq 2^n \cdot f(i)$.
+    Each transition in $\sigma_2'$ can only consume at most $2^n$ tokens from this place, since this is the largest number that can be encoded in binary using $n \geq \card{N}$ bits.
+    Hence, in the worst case, all markings $M$ occurring in the computation $M_j \fireipo{\sigma_2\lowerprime} M''$ satisfy
+    \[
+        M(i+1) \geq M_j(i+1) - \card{\sigma_2'} \cdot 2^n \geq \paren{2^n \cdot f(i)} - \paren{ \paren{f(i) - 1} \cdot 2^n}
+        = 2^n
+        \ .
+    \]
+    Here, we have used $\card{\sigma_2'} < f(i)$.
+    By the definition of $n$ as the size of the Petri net instance, $2^n$ is larger than any incoming transition multiplicity and larger than $\Mfinal(i+1)$.
+    Thus, the transitions occurring in the computation are enabled, and $M''$ is covering with respect to the first $i+1$ places.
+
+    In total, we have obtained that $M_0 \fireipo{\sigma_1} M_{j-1} \fireipo{t} M_j \fireipo{\sigma_2\lowerprime} M''$ is an $(i+1)$-covering computation with
+    \[
+        \card{\sigma_1.t.\sigma_2'}
+        = \card{\sigma_1} + 1 + \card{\sigma_2'}
+        \leq \paren{ {(2^n f(i))}^{i+1} - 1 } + 1 + (f(i) - 1) <  {(2^n f(i))}^{i+1} + f(i)
+        \ ,
+    \]
+    and the desired bound holds.
+\end{proof}
+
+Using \cref{Proposition:PNRackoffRecursiveBound}, it is easy to prove a non-recursive bound on the length of computations that generate minimal words.
+
+\begin{proposition}%
+\label{Proposition:PNRackoffNonRecursiveBound}%
+  For each computation $\Minit \fire{\sigma} M \geq \Mfinal$, there is $\sigma'$ with $\Minit \fire{\sigma\lowerprime} M' \geq \Mfinal$, $\lambda(\sigma') \subword \lambda(\sigma)$ and $\card{\sigma'} \leq 2^{2^{c n \log n}}$ for some constant $c$.
+\end{proposition}
+
+The proof uses the same line of argumentation as Theorem~3.5 in~\cite{Rackoff78}.
+We give it for the sake of completeness.
+
+\begin{proof}
+    We define the function $g$ inductively by $g(0) = 2^{3n}$ and $g(i + 1) = {(g(i))}^{3n}$.
+    It is easy to see that $g(i) = 2^{({(3n)}^{(i+1)})}$.
+    Using \cref{Proposition:PNRackoffRecursiveBound} we can conclude $f(i) \leq g(i)$ for all $i \in \zeroto{\ell}$, where we again assume that $P = \oneto{\ell}$.
+    Furthermore,
+    \[
+      f(\ell)
+      \leq g(\ell)
+      \leq 2^{({(3n)}^{(\ell+1)})}
+      \leq 2^{({(3n)}^{n+1})}
+      \leq 2^{2^{(\ell + 1) \cdot \log (3n)}}
+    \]
+    which, using $\ell \leq n$ and the laws for logarithms, is of the required shape.
+
+    Now assume that $\Minit \fire{\sigma} M \geq \Mfinal$, \ie $\lambda(\sigma) \in \Words(\Minit,\ell)$.
+    This means that there is some $\sigma' \in \SPath(\Minit,\ell)$ with $\Minit \fire{\sigma\lowerprime} M' \geq \Mfinal$ and $\lambda(\sigma') \subword \lambda(\sigma)$.
+    By the definition of function $f$, $\card{\sigma'} \leq m(\Minit,\ell) \leq f(\ell)$ holds.
+    If we combine this with the above estimation, we obtain the desired result.
+\end{proof}
+
+\begin{remark}
+    Lemma 5.3 in~\cite{Leroux13} essentially states \cref{Proposition:PNRackoffNonRecursiveBound}.
+    For the proof, it is claimed that Rackoff's original proof already implies the statement.
+    While it is indeed true that the same (recursive as well as non-recursive) bounds hold as in Rackoff's paper, this claim is misleading.
+    This can be demonstrated using the Petri net instance from \cref{Example:Rackoff}.
+    When we compute Rackoff's bound according to his definitions, we obtain that if there is a computation covering $\Mfinal$ from $\Minit$, then there is one consisting of at most one transition.
+    Indeed, the computation $\Minit \fire{\rta} \Mfinal$ is covering.
+
+    However, computations whose length is within Rackoff's upper bound do not necessarily generate all minimal words:
+    We have that $ab$ is a minimal word in $\uc{\lang{N,\Minit,\Mfinal}}$ and the shortest covering computation that generates $ab$ is $\Minit \fire{\rthelp} (1,1,0) \fire{\rtb} \Mfinal$, consisting of $3$ markings and $2$ transitions.
+\end{remark}
+
+
+Recall that in order to prove \cref{Theorem:PNUC}, we need to construct an automaton for the upward closure of doubly exponential size.
+To this end, we employ the length-$k$ approximation that we have introduced in \cref{Section:PNCovLang}.
+It represents all words that can be generated by computations of length at most $k$.
+By choosing $k$ equal to the bound for $f(\ell)$, \cref{Proposition:PNRackoffNonRecursiveBound} guarantees that the upward closure of the approximation is equal to the upward closure of the language of the Petri net.
+Since the length-$k$ approximation is regular and we can construct an automaton for it, we can construct an automaton for the upward closure of the Petri net language with the desired size.
+
+\begin{proof}[Proof of \cref{Theorem:PNUC}]
+    Let $(N,\Minit,\Mfinal)$ be the Petri net instance of interest, and let $n = \card{(N,\Minit,\Mfinal)}$ be its size.
+    We define $k = 2^{2^{c n \log n}}$ to be the doubly exponential bound from \cref{Proposition:PNRackoffNonRecursiveBound}.
+    We consider the length-$k$ approximation $\languak{k}{N,\Minit,\Mfinal}$ of the given Petri net, see \cref{Proposition:PNLengthkApprox}, or rather, its upward closure $\uc{\languak{k}{N,\Minit,\Mfinal}}$.
+
+    Since the length-$k$ approximation is an underapproximation, we have $\languak{k}{N,\Minit,\Mfinal} \subseteq \lang{N,\Minit,\Mfinal}$ and hence $\uc{\languak{k}{N,\Minit,\Mfinal}} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$.
+    It remains to argue that equality holds.
+    Since $\uc{\languak{k}{N,\Minit,\Mfinal}}$ is upward closed, it is sufficient to show that the minimal words in $\lang{N,\Minit,\Mfinal}$ are contained in $\languak{k}{N,\Minit,\Mfinal}$.
+    Using \cref{Proposition:PNRackoffNonRecursiveBound} for some minimal word $w$, we obtain the existence of a covering computation for that word of length at most $k$.
+    Thus, $w \in \languak{k}{N,\Minit,\Mfinal}$ as desired.
+
+    To finish the proof, we need to consider the automaton for $\uc{\languak{k}{N,\Minit,\Mfinal}}$.
+
+    \cref{Proposition:PNLengthkApprox} gives us an automaton $A$ for $\languak{k}{N,\Minit,\Mfinal}$.
+    Furthermore, we get that the number of states of $A$ is at most $\bigO{k^n \cdot 2^{n^2}} = \bigO{2^{2^{c \cdot n^2 \cdot \log n}} \cdot 2^{n^2}}$, which is doubly exponential as required.
+    We have argued in \cref{Section:PNRelwork} that we can transform an automaton into an automaton for the upward closure by inserting self-loops $q \tow{a} q$ for every letter of the alphabet $a$ and every state $q$.
+    In particular, this construction does not add any new states.
+    Applying this construct to $A$ yields an automaton $\uc{A}$ for $\uc{\languak{k}{N,\Minit,\Mfinal}} = \uc{\languak{k}{N,\Minit,\Mfinal}}$ with a doubly exponential number of states.
+\end{proof}
+
+\paragraph{Lower bound}
+
+We complete the proof of \cref{Theorem:PNUCGeneral} by providing a lower bound that matches the doubly exponential upper that we have just proven, showing that the above construction is optimal.
+To achieve this goal, we present for each $n \in \N$ a Petri net instance of size polynomial in $n$ such that any NFA describing its upward closure is at least of doubly exponential size.
+To be precise, we show that we can generate the language $\Set{ a^k}{k \geq 2^{2^n}}$ with a Petri net of size polynomial in $n$.
+Note that this language is already upward closed, and its state complexity is doubly exponential as we have discussed in \cref{Example:StateComplexityEqualsIndex}.
+To ensure that a doubly exponential number of $a$-labeled transitions is fired, we rely on Lipton's construction, \cref{Proposition:Lipton}, from his proof of the $\EXPSPACE$-hardness of coverability~\cite{Lipton76}.
+
+\begin{proposition}%
+\label{Proposition:PNUCLowerBound}%
+    For each $n \in \N$, there is a labeled Petri net instance $(N(n), \Minit(n), \Mfinal(n))$ of size polynomial in $n$ such that $\uc{\lang{N(n), \Minit(n), \Mfinal(n)}}$ has state complexity at least $2^{2^n}$.
+\end{proposition}
+
+\begin{proof}
+    Let $n \in \N$.
+    Using \cref{Proposition:Lipton}, there is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a place $p_\indec$ such that for any marking $M$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
+    Let us see $\Ndec$ as a labeled Petri net in which all transitions are labeled by $\eps$.
+    We construct $N(n)$ by adding places and transitions to $\Ndec$.
+    A schematic representation of the net $N(n)$ is given in \cref{Figure:PNUCLowerBound}.
+    Firstly, we add two new places $p_{\text{init}}$ and $p_{\text{run}}$.
+    All existing transitions $t$ from $\Ndec$ are modified so that they check for the existence of a token on $p_{\text{run}}$, \ie we set $\i(t,p_{\text{run}}) = \o(t,p_{\text{run}}) = 1$.
+    Other than that, the effect of the transitions remain unchanged.
+    In particular, they do not consume or produce tokens on $p_{\text{init}}$.
+    We add a fresh transition $t_{\text{a}}$ that is labeled by $a$, checks for the existence of a token on $p_{\text{init}}$ and produces a token on the place $p_\indec$ of $\Ndec$.
+    We add another $\eps$-labeled transition $t_{\text{start}}$ that moves a token from $p_{\text{init}}$ to $p_{\text{run}}$.
+    The initial marking $\Minit$ assigns a single token to $p_{\text{init}}$ and no tokens elsewhere.
+    The final marking $\Mfinal$ coincides with $\Mfinaldec$ on the places of $\Ndec$ and requires no token on the new places.
+
+    A computation of $N(n)$ from $\Minit$ first fires $t_{a}$ an arbitrary number of times, then fires $p_{\text{run}}$ to enable the transition in $\Ndec$ and ends with a computation of $\Ndec$.
+    This final part of the computation starts from a marking in which the number of tokens on $p_\indec$ is equal to the number of times that $t_{a}$ has been fired.
+    By \cref{Proposition:Lipton}, any covering computation of $N(n)$ has to fire $t_{a}$ at least $2^{2^n}$ times.
+    Firing $t_{a}$ more often is also possible.
+    Since all transitions but $t_{a}$ are labeled by $\eps$, we obtain that the language of the Petri net instance is
+    \[
+        \lang{N(n),\Minit,\Mfinal} = \Set{ a^k}{k \geq 2^{2^n}}
+        \ .
+    \]
+    This language is upward closed and has state complexity $2^{2^n} + 1$ states, see \cref{Example:StateComplexityEqualsIndex}.
+    To conclude the proof, observe that the size of $N(n)$ is polynomial in the size of $\Ndec$, which in turn is polynomial in $n$.
+\end{proof}
+
+\begin{figure}
+    \centering%
+    \input{tikz/pn_uc_lowerbound.tikz}%
+    \caption{A schematic representation of the Petri net $N(n)$ used to prove the lower bound.}%
+    \label{Figure:PNUCLowerBound}%
+\end{figure}
+
+This completes the proof of \cref{Theorem:PNUCGeneral}.
+
+\paragraph{The unary case}
+
+To complete our study of the state complexity of the upward closures of Petri net languages, we consider the case in which the Petri net is encoded in unary.
+Let us consider the lower bound first.
+The transitions that are occurring in the nets whose properties we have specified in \cref{Proposition:Lipton} use in- and outgoing multiplicities only from the set $\set{0,1}$.
+This means that the size of the unary encoding of these nets is the same as the size of their binary encoding.
+Hence, the net $N(n)$ in the proof of \cref{Proposition:PNUCLowerBound} is still polynomial in $n$.
+We obtain the same lower bound as before.
+
+With this result at hand, it is already clear that we cannot obtain a better upward bound.
+Nevertheless, it is interesting to inspect the proof of the upper bound.
+Assume that $n$ is the size of the unary encoding of the given Petri net instance.
+We could now prove $f(i+1) \leq {(n \cdot f(i))}^{i+1} + f(i)$ for all $i\in \oneto{\ell-1}$, improving the bound $f(i+1) \leq {(2^n \cdot f(i))}^{i+1} + f(i)$ from \cref{Proposition:PNRackoffRecursiveBound}:
+If we consider an instance whose unary-encoded size is $n$, any transition can consume at most $n$ tokens and the final marking can require at most $n$ tokens on any place.
+However, this better bound for $f(i+1)$ does not lead to a better bound for $f(\ell)$.
+When computing $f(\ell)$ by evaluating the recursive formula, applying the exponent $(i+1)$ repeatedly turns out to be the dominating part.
+Altogether, we obtain that \cref{Theorem:PNUCGeneral} holds for Petri nets, independently of whether we measure their size using the unary or binary encoding.
+
+\end{document}

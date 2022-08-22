@@ -1,0 +1,35 @@
+\begin{tikzpicture}[->,>=latex,node distance=8em,semithick]
+
+\node[place] (P0) [minimum size=3em,tokens=1] {};
+\node[place] (P1) [minimum size=3em, right of=P0] {};
+\node (P2) [right of=P1] {$\cdots$};
+\node[place] (PN) [minimum size=3em, right of=P2,node distance=4em] {};
+
+\node [transition,square] (T1) [right of=P0,node distance=4em,inner sep=0.25em]
+    {$t_{1}$}
+    edge [pre] (P0)
+    edge [post] node [above] {2} (P1)
+;
+\node [transition,square] (T2) [right of=P1,node distance=4em,inner sep=0.25em]
+    {$t_{2}$}
+    edge [pre] (P1)
+    edge [post] node [above] {2} (P2)
+;
+
+\node [transition,square] (A) [right of=PN,node distance=4em,inner sep=0.25em]
+    {$t_{a}$}
+    edge [pre] (PN)
+;
+
+\path [->] (P2) edge  node [above] {2} (PN);
+
+\node [below of=P0, node distance=2.5em] {$p_0$};
+\node [below of=P1, node distance=2.5em] {$p_1$};
+\node [below of=PN, node distance=2.5em] {$p_n$};
+
+\node [below of=T1, node distance=2em] {$\eps$};
+\node [below of=T2, node distance=2em] {$\eps$};
+
+\node [below of=A, node distance=2em] {$a$};
+
+\end{tikzpicture}

@@ -1,0 +1,17 @@
+\begin{tikzpicture}[->,>=latex,node distance=6em,semithick]
+
+
+\node [initial,state, initial text={B}] (q0) {$p_0$};
+\node [state] (q1b) [above right of=q0] {$p_{1b}$};
+\node [state] (q1c) [below right of=q0] {$p_{1c}$};
+\node [state,accepting] (q2b) [right of=q1b] {$p_{2b}$};
+\node [state,accepting] (q2c) [right of=q1c] {$p_{2c}$};
+
+\path
+    (q0) edge node [above] {$a$} (q1b)
+    (q0) edge node [above] {$a$} (q1c)
+    (q1b) edge node [above] {$b$} (q2b)
+    (q1c) edge node [above] {$c$} (q2c)
+;
+
+\end{tikzpicture}

@@ -1,0 +1,107 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{\texorpdfstring{$\omega^2$}{Omega-squared}-WSTSes}%
+\label{Section:OmegaSquareWSTSes}
+
+In \cref{Section:LTS}, we have defined finitely branching and deterministic LTSes.
+These restrictions also apply to WSTSes, leading to the notions of finitely branching and deterministic WSTSes.
+In this section, we will introduce $\omega^2$-WSTSes, another restricted version of WSTSes.
+In contrast to deterministic and finitely branching WSTSes, $\omega^2$-WSTSes are defined exclusively by restricting the underlying order.
+To define what an $\omega^2$-WQO is, we will need some notation.
+For a quasi-order $(X,\leq)$, we denote by $\pwrsetdown{X}$ the downward-closed subsets of $X$,
+\[
+    \pwrsetdown{X}
+    = \Set{ D \subseteq X }{ D \text{ is downward closed}}
+    = \Set{ \dc{Y} }{ Y \subseteq X}
+    \ .
+\]
+Similarly, we define $\pwrsetup{X}$ to be the upward-closed subsets of $X$.
+
+The formal definition of $\omega^2$-WQOs, see \eg~\cite{Marcone94}, is technical.
+Instead of giving it, we use the following characterization that was proven by \citea{Jancar99}.
+
+\begin{lemma}%
+\label{Lemma:WSTSOmegaSquareCharacterization}%
+    $(X, \preceq)$ is an $\omega^2$-WQO iff $(\pwrsetdown{X}, \subseteq)$ is a WQO.\@
+\end{lemma}
+
+Phrased differently, a WQO is $\omega^2$ if applying the powerset construction results in a WQO.\@
+This property holds for all WQOs that we have introduced so far, but not for all WQOs.
+\citea{Jancar99} has shown that any WQO that is not $\omega^2$ embeds an isomorphic copy of the \emph{Rado order}~\cite{Rado54} $(\N^2,\leq_{\text{Rado}})$, an ordering on tuples of natural numbers that is a WQO but not $\omega^2$.
+We define a WSTS to be an \emph{$\omega^2$-WSTS} if the underlying order is an $\omega^2$-WQO, similar for \emph{$\omega^2$-DWSTSes.}
+The class of $\omega^2$-WQOs and the corresponding WSTSes provides a framework underlying the forward analysis of WSTSes that was  developed in~\cite{GeeraertsRV06,FinkelG09,FinkelG12}.
+In our case, we will use the fact that applying the powerset construction to an $\omega^2$-WQO results in a WQO to determinize WSTSes, similar to the well-known powerset construction for finite automata.
+
+Let us provide some examples for $\omega^2$-WQOs.
+
+\begin{example}%
+\label{Example:WSTSOmegaSquare}%
+    \begin{thmenumerate}[a)]
+        \item
+            Consider $(\Sigma,=)$, a finite alphabet ordered by equality.
+            This order is not only a WQO, see \cref{Example:WQO}, but also $\omega^2$:
+            The set $\pwrsetdown{\Sigma}$ is finite, so any quasi-order on it is a WQO.\@
+            Also note that $\pwrsetdown{\Sigma}$ is equal to $\powerset{\Sigma}$.
+        \item
+            Consider $(\N,\leq)$.
+            A downward-closed subset of $\N$ falls in one of three cases:
+            (1)~it is empty, or
+            (2)~it is infinite, in which case it is necessarily $\N$ itself, or
+            (3)~it is finite, in which case it is of the shape $\dc{n}$ for some number $n \in \N$.
+            Hence, $(\pwrsetdown{\N},\leq)$ is isomorphic to $(\N \cup \set{\bot,\top},\leq)$, the natural numbers extended by a bottom and a top element, where each number $n$ \nb{represents $\dc{n}$}, $\bot$ represents $\emptyset$, and $\top$ represents the set $\N$.
+            This order is a WQO, which can be shown similar to Part~\ref{Example:WQONaturals}) of \cref{Example:WQO}.
+            Hence, $(\N,\leq)$ is an $\omega^2$-WQO.\@
+    \end{thmenumerate}
+\end{example}
+
+One can also show that $\omega^2$-WQOs are closed under taking Cartesian products and under taking the subsequence ordering on finite sequences~\cite{FinkelG09,FinkelG12}.
+In particular, the product ordering $(\N^k,\leq)$ and the subword ordering $(\Sigma^*,\subword)$ are $\omega^2$-WQOs.
+
+Note that the class of $\omega^2$-WQOs is not closed under applying the powerset construction:
+There is a WQO $(X,\leq)$ that is $\omega^2$ such that $(\pwrsetdown{X},\subseteq)$ is not $\omega^2$, meaning that $(\pwrsetdown{\pwrsetdown{X}},\subseteq)$ is not a WQO~\cite{Jancar99}.
+To remedy this issue, one can consider the class of \emph{better-quasi orderings (BQOs)}~\cite{NashWilliams68}.
+Any BQO $(X,\leq)$ is an $\omega^2$-WQO, and $(\pwrsetdown{X},\subseteq)$ is a BQO again.
+The formal definition of BQOs is beyond the scope of this thesis.
+Let us just mention that the orders from \cref{Example:WSTSOmegaSquare} are BQOs and that BQOs are also closed under taking the Cartesian product and the subsequence ordering.
+
+Parts of the literature do not consider the downward-closed subsets ordered by inclusion, but $(\pwrsetup{X},\supseteq)$, the upward-closed subsets ordered by reverse inclusion, or $(\powerset{X},\sqsubseteq)$, where $Y \sqsubseteq Z$ iff $\dc{Y} \subseteq \dc{Z}$.
+The former is clearly isomorphic to $(\pwrsetdown{X},\subseteq)$, as witnessed by the order-preserving bijective map $D \mapsto X \setminus D$.
+The latter becomes equal to $(\pwrsetdown{X},\subseteq)$ after identifying sets that have the same downward closure (and hence are equivalent with respect to $\sqsubseteq$).
+
+
+In the following, we will have to apply the powerset construction to a WQO that may not be $\omega^2$.
+To obtain a WQO, we use a restricted version of the powerset construction.
+Let $(X,\leq)$ be a quasi-order and define $\pwrsetdownfin{X} = \Set{ \dc{Y} }{ Y \subseteq X, Y \text{ is finite}}$ to be the set of downward-closed subsets of $X$ that occur as the downward closure of finitely many elements.
+In contrast to $(\pwrsetdown{X},\subseteq)$, the order $(\pwrsetdownfin{X},\subseteq)$ always inherits the property of being a WQO.\@
+However, it may be missing some elements.
+For example, $\N$ is not an element of $(\pwrsetdownfin{\N},\subseteq)$.
+
+\begin{lemma}%
+\label{Lemma:WSTSPwrsetdownfin}%
+    $(X,\leq)$ is a WQO iff $(\pwrsetdownfin{X},\subseteq)$ is a WQO.\@
+\end{lemma}
+
+\begin{proof}
+    Assume that  $(\pwrsetdownfin{X}, {\subseteq})$ is a WQO.\@
+    We show that every infinite sequence $x_1, x_2, \dots$ of elements of $X$ contains an increasing pair.
+    The infinite sequence
+    $\dc{\set{x_1}}, \dc{\set{x_2}},\ldots $
+    in $\pwrsetdownfin{X}$ contains an increasing pair $i < j$ with $\dc{\set{x_i}} \subseteq \dc{\set{x_j}}$ by assumption.
+    We conclude $x_i \leq x_j$ as desired.
+
+    For the other direction, assume that $(X, \leq)$ is a WQO.\@
+    Using Higman's lemma, \cref{Lemma:Higman}, $(X^*,\leq^*)$ is a WQO.\@
+    Now consider any infinite sequence in $\pwrsetdownfin{X}$, which we may write as $\dc{Y_1},\dc{Y_2},\ldots$, where each
+    $Y_i = \set{ y^i_1, \ldots ,y^i_{n_i} }$ is a finite set.
+    We represent each $\dc{Y_i}$ by the finite sequence $y^i_1 \ldots y^i_{n_1} \in X^*$ and consider the infinite sequence
+    \[
+        y^1_1 \dots y^1_{n_1}, \ y^2_1 \dots y^2_{n_2}, \ \ldots
+    \]
+    in $X^*$.
+    Using the fact that $(X^*,\leq^*)$ is a WQO, we obtain $i < j$ such that
+    $y^i_1 \dots y^i_{n_i} \leq^* y^j_1 \dots y^j_{n_j}$.
+    From the definition of $\leq^*$ we obtain $Y_i \subseteq Y_j$.
+\end{proof}
+
+\end{document}

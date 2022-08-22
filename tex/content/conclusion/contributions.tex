@@ -1,0 +1,112 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+% \chapter{Conclusion}
+% \label{Chapter:Contributions}
+
+The purpose of this chapter is twofold.
+We will summarize the contributions to the field of automata theory that we have presented in the thesis.
+Additionally, we will also list for each of the results the publications that it stems from.
+While doing the latter, we will highlight the contributions of the author of this thesis to these publications.
+We proceed by considering each of the parts of the thesis separately.
+
+\paragraph{\cref{Part:Prelims}. Models of computation}
+
+This part consists of the preliminaries, so we forgo recapitulating its content.
+We have almost exclusively presented the work of others, for which we have given the appropriate references.
+There are two exceptions:
+The first is a novel and elegant way of defining $\omega$-context-free languages in \cref{Section:CFGOmega}.
+This definition and the accompanying results are taken from the non-peer-reviewed publication~\cite{MeyerMN17a}.
+The second is a proof for the word problem of BPP languages being $\NPTIME$-complete, \cref{Proposition:BPPWordproblem}.
+The upper bound has been obtained by adapting our proof that $\SREBPPDC$, the problem of checking whether the language of a simple regular expression is contained in the downward closure of a BPP net language, is in $\NPTIME$.
+The latter result, presented as \cref{Theorem:SREBPPDCMembership} in this thesis, is taken from the publication~\cite{AtigMMS17}.
+We will discuss both of these publications in more detail later.
+
+\paragraph{\cref{Part:Closures}. Closures of Petri net languages}
+
+In this part of the thesis, we have studied the computation of the upward and downward closures of Petri net languages.
+Both of these closures are regular overapproximations that are useful in the context of verification.
+After providing some basic definition, we have turned to considering the upward closure of Petri net languages in \cref{Chapter:UC}.
+We have established that an automaton of doubly exponential size representing the upward closure can be computed in doubly exponential time.
+Restricting the problem leads to lower complexities: The upward closure of a BPP net language has exponential state complexity, and the problem of checking whether a simple regular expression is contained in the upward closure is $\EXPSPACE$- and $\NPTIME$-complete for general Petri nets and BPP nets, respectively.
+We have obtained a similar collection of results for the downward closures in \cref{Chapter:DC}.
+For the downward closure of general Petri net languages, the literature~\cite{HabermehlMW10} already provides a non-primitive recursive upper bound.
+We have shown that the restricted versions share the complexities with their counterparts for the upward closure, \eg the downward closure of a BPP net language has exponential state-complexity.
+For all the aforementioned upper bounds on the state complexity of the closures, we have provided matching lower bounds.
+We have concluded the part in \cref{Chapter:BeingUCDC} by showing that the regular containment problem for Petri net coverability languages is decidable, extending an earlier result for trace languages from the literature.
+From this, we have deduced that it is decidable whether the language of a Petri net equals its upward or downward closure.
+
+The content of this part of the thesis is taken from the peer-reviewed conference publication~\cite{AtigMMS17} by Mohamed Faouzi Atig, Roland Meyer, Prakash Saivasan, and the author of this thesis.
+The full version~\cite{AtigMMS17a} including the proofs of all results is available on \arXiv.
+The author has majorly contributed to the proofs of the upper bounds for computing the upward closure of both general Petri nets and BPP nets, the proof for the upper bound for computing the downward closure of a BPP net, and the proof of regular containment being decidable.
+This thesis extends the paper by also considering the case of Petri nets whose size is measured in terms of their unary encoding, providing new bounds wherever they are needed.
+
+
+\paragraph{\cref{Part:Separability}. Separability}
+
+In this part of the thesis, we have considered the regular separability of WSTS languages, a class that includes the Petri net coverability languages.
+A separator is a certificate for the disjointness of two languages -- in general, disjointness is necessary, but not sufficient for separability, \ie the existence of a separator.
+After giving an introduction in the first chapter of the part, we have established some results on the relations between various classes of WSTS languages, defined by restricting the WSTSes that generate them, in \cref{Chapter:WSTSExpressiveness}.
+In the big picture, these results allow us to extend our results on separability, \eg from deterministic WSTS languages to the more general $\omega^2$-WSTS languages and finitely branching WSTS languages.
+The main result, presented in \cref{Chapter:WSTSSeparability}, shows that under mild conditions, any two disjoint WSTS languages are regularly separable -- disjointness is both necessary and sufficient to guarantee the existence of a regular separator.
+In order to prove the result, we have shown how to obtain a separator under the assumption that we start with a certain type of invariant in the state space of the WSTS.\@
+In a second step, we have used ideals to prove that any two language-disjoint WSTSes can be transformed to enforce the existence of such an invariant.
+We have completed our studies of regular separability by giving an explicit construction for obtaining a separator in the case of disjoint Petri net coverability languages.
+This has resulted in a triply exponential upper bound on the state complexity of the separator, and we have shown a doubly exponential lower bound.
+
+The content of this part of the thesis is taken from the peer-reviewed conference publication~\cite{CzerwinskiLMMKS18} by Wojciech Czerwiński, Sławomir Lasota, Roland Meyer, K.~Narayan Kumar, Prakash Saivasan, and the author of this thesis.
+The full version~\cite{CzerwinskiLMMKS18a} including the proofs of all results is available on \arXiv.
+The author has majorly contributed to the proofs of various of the results in \cref{Chapter:WSTSExpressiveness}, to the proof that the ideal decomposition of an invariant is again an invariant, \cref{Proposition:WSTSIdealInductiveInvariant}, as well as to the bounds presented in \cref{Chapter:WSTSSeparatorSize}.
+
+\paragraph{\cref{Part:Games}. Games}
+
+In the last of the three main parts of the thesis, we have discussed solving games with perfect information.
+After giving some preliminary definitions, we have laid out the framework of effective denotational semantics that we use as a vehicle for solving games.
+Before turning to games, we have demonstrated its usage by applying it to the ($\omega$-)regular inclusion problem for ($\omega$-)context-free languages.
+\cref{Chapter:ContextFreeGames} discusses an approach to context-free games that is also based on the framework.
+We have shown how a context-free grammar defining a game can be turned into a system of equations that, after choosing a suitable domain, can be solved via fixed-point iteration.
+The least solution to the system allows us to read off the winner of the game.
+This leads to a procedure that solves context-free games within doubly exponential time, which is optimal.
+We have extensively compared our result to other works on context-free games from the literature, provided a prototype implementation, and extended the theory towards games with an $\omega$-regular winning condition.
+
+In \cref{Chapter:HOGames}, we have considered higher-order games, a generalization of context-free games.
+Our goal was to again apply effective denotational semantics by associating a system of equations to a higher-order recursion scheme.
+We have established a framework for the transfer of properties of the fixed-point solution with respect to one domain to the fixed-point solution with respect to another domain.
+We have instantiated this framework to prove the correctness of our approach.
+It provides a $(k+1)$-fold exponential procedure to solve higher-order games of order $k$, which is optimal.
+
+Finally, we have considered the boundaries of the decidability of games in \cref{Chapter:ValenceGames}.
+To this end, we employ the model of valence systems over graph monoids, which subsumes various popular automata models, including context-free systems and Petri nets.
+We obtain a complete classification of the decidability of reachability and coverability games on valence systems, based on the structure of the underlying graph monoid.
+We essentially show that context-free games and games that can be reduced to context-free games are the only decidable cases.
+For games on valence systems over graph monoids that are not representing context-free systems or minor extensions thereof, undecidability holds.
+To mitigate this undecidability, we propose employing a bounded-context-switching restriction.
+While we cannot prove that this restriction makes games on valence systems decidable, we demonstrate that a similar result holds in the less general case of valence reachability:
+Under a bound on the number of context switches, reachability in valence systems is always solvable in $\NPTIME$ (and $\NPTIME$-complete in \nb{many cases}).
+
+Let us now discuss the publications that are related to this part of the thesis.
+The contents of \cref{Chapter:Games} and \cref{Chapter:EDS} serve as preliminaries for the part.
+We have mostly presented the work of others and given the appropriate references.
+In particular, this includes our extensive discussion of the regular inclusion problem for context-free languages as an introductory example, which is taken from the paper~\cite{HolikM15} by Meyer and Holík.
+The content of \cref{Section:EDSOmegaRegIncl} contains work by the author and is taken from the paper~\cite{MeyerMN17a}.
+We will come back to this publication in a moment.
+
+The content of \cref{Chapter:ContextFreeGames} is mostly taken from the peer-reviewed conference publication~\cite{HolikMM16} by Roland Meyer, Lukáš Holík, and the author of this thesis.
+The full version~\cite{HolikMM16a} including the proofs of all results is available on \arXiv.
+Except for the algorithmic considerations that go beyond what is featured in our prototype implementation, presented in \cref{Section:CFGamesAlgorithmics} in this thesis, the author has majorly contributed to all parts of the paper and the implementation.
+The final two sections of the chapter, \cref{Section:CFGamesDeterministic,Section:CFGamesOmega}, that are concerned with extending our results to the case of games with an $\omega$-regular winning condition, are taken from the paper~\cite{MeyerMN17a} by Roland Meyer, Elisabeth Neumann, and the author of this thesis.
+We have mentioned this paper before when talking about the \cref{Section:CFGOmega,Section:EDSOmegaRegIncl}.
+The paper has not been published in a peer-reviewed form, but it is available on \arXiv.
+
+The chapter on higher-order games, \cref{Chapter:HOGames}, is an extension of the peer-reviewed conference publication~\cite{HagueMM17} by Matthew Hague, Roland Meyer, and the author of this thesis.
+The full version~\cite{HagueMM17a} including the proofs of all results is available on \arXiv.
+The author has majorly contributed to the parts of the publication that are concerned with modeling a higher-order game as fixed-point system, proving the correctness of this approach, as well as the complexity-theoretic considerations for the upper bound.
+The presentation of the material in this thesis extends the paper by giving a version of the framework for fixed-point transfer in \cref{Section:HOGamesFramework} that is easier to apply as it requires fewer preconditions.
+
+Our work on valence games in \cref{Chapter:ValenceGames} stems from unpublished work by Roland Meyer, Georg Zetzsche, and the author of this thesis.
+The author has contributed to some proofs of the decidability \resp undecidability of various types of reachability and coverability games (presented in \cref{Section:ValenceGames}).
+The final section on reachability in valence systems under bounded context switching presents the contents of the peer-reviewed conference publication~\cite{MeyerMZ18} by the three aforementioned authors.
+The full version~\cite{MeyerMZ18a} including the proofs of all results is available on \arXiv.
+The author of this thesis has majorly contributed to the proof that reachability under BCS is in $\NPTIME$.
+
+\end{document}

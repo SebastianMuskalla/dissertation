@@ -1,0 +1,202 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Computing the strategies}%
+\label{Section:CFGamesStrategies}%
+
+We show that the information provided by the least solution to the system of equations can also be used to design winning strategies for each of the players.
+In this section, we will assume that the size of the game grammar $G$ and the size of the automaton $A$ are constants.
+(We will analyze the computational complexity of solving context-free games, measured in the size of the given grammar and the given automaton in the next section.)
+This assumption allows us to assume that we can precompute $\sol{a}$ for all $a \in N \cup \Sigma \cup \set{\eps}$ in constant time.
+Since $G$ and $A$ are of constant size, so is $\sol{X}$ for each $X \in N$.
+Furthermore, this assumptions means that we can compute the composition of two formulas in constant time.
+% Note that when we assume that the size of the input is variable, the size of the formulas can be substantial and operations on these formulas can be expensive.
+
+\paragraph{Representing the winning region}
+
+We start by considering a representation of the two winning regions $W_\allplayer$ and $W_\explayer$.
+\citea{Serre03} has shown that a context-free game with an ($\omega$-)regular winning condition always has an \nb{($\omega$-)regular} winning region.
+Correspondingly, we are able to design for each player $\player \in \players$ a finite automaton over $N \cup \Sigma$ that accepts exactly the sentential forms $\beta$ from $W_\player$.
+
+Formally, we define the DFA~$B$ as follows.
+Its set of states is $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$, the sets of equivalence class of positive Boolean formulas over $\nfatransmonoid{A}$.
+The initial state is the equivalence class of $\tbox{\eps}$, which is the neutral element of $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$ seen as monoid.
+If the automaton is in state $F$, where $F$ is the representative of some equivalence class, and reads the letter $a \in \paren{N \cup \Sigma}$, it goes to state $F \comp \sol{a}$.
+Note that $\sol{a}$ is simply $\tbox{a}$ for $a \in \Sigma$; otherwise, we take $\sol{a}$ for $a \in N$ from the precomputed solution to the system of equations.
+
+To obtain the automaton $B_\explayer$ representing the winning region of the existential player, we make all states $F$ final where $F$ is rejecting, which means that $F(\Mrej) = \true$.
+(Recall that $\Mrej = \Set{ \tbox{w} }{ w \not\in \lang{A}}$ is the set of rejecting boxes.)
+The automaton $B_\allplayer$ representing the winning region of the universal player is the complement of $B_\explayer$, \ie $B$ with all states representing non-rejecting formulas being final.
+
+Automaton $B$ ensures that after reading sentential form $\beta \in \sententials$, it is in state $\sol{\beta}$.
+Hence, \cref{Theorem:CFGamesSoundness} proves that $\lang{B_\player} = W_\player$ for $\player \in \players$ as desired.
+Also note that given a sentential form $\beta$, automaton $B$ allows us to decide the winner of the game from $\beta$ in time linear in $\card{\beta}$ (under the assumption that the size of the grammar and the automaton are constants).
+
+\paragraph{Winning strategies for the universal player}
+
+We continue by discussing how winning strategies for both of the players can be obtained.
+Assume that the play starts from a position whose associated formula is not rejecting.
+By \cref{Proposition:CFGamesSoundnessUniversal}, this means that this position is in the winning region of the universal player.
+Actually, the proof of the proposition also provides a winning strategy:
+It is a safety strategy that simply maintains the invariant of the formula associated to the current position not being rejecting.
+
+One can implement this strategy in the following way.
+Assume that the current position is $w.X.\beta$ and the universal player should select a production rule to replace $X$.
+For each production rule $X \to \eta$, we compute the formula $\sol{w.\eta.\beta}$ that results from applying the rule.
+We select the first rule so that $\sol{w.\eta.\beta}$ is not rejecting.
+The proof of the aforementioned proposition shows that if the formula for $w.X.\beta$ is not rejecting, then one can find such a rule.
+It also shows that the existential player has no choice but to preserve the invariant of the formula not being rejecting.
+Hence, this strategy is indeed a winning strategy.
+
+However, this strategy needs linear time for each move:
+Assume that we consider a play in which already $n$ moves have been made.
+This means that the length of the sentential form that is the current position is in $\bigO{n}$.
+Indeed, in each step, the sentential form grows by at most the length of the longest right-hand side of any production rule, which is less than the size of $G$ which we assume is a constant.
+Our strategy requires computing and evaluating a constant number of formulas (at most one for each rule of the grammar), each formula associated to a sentential form of size $\bigO{n}$.
+The strategy does not reuse the information that has been computed in step $n-1$ to make a decision in step $n$.
+It cannot be implemented by a strategy automaton as defined in \cref{Chapter:Games}, because such a strategy is only allowed to use constant time -- one step of the strategy automaton -- to update its state after each move.
+
+In the following, we design a strategy that is more efficient.
+It is a \emph{pushdown strategy}, a strategy that is defined by a deterministic pushdown automaton.
+The input and output alphabet of this pushdown automaton is the set $P$ of production rules of the grammar.
+Assume that the current sentential form is $w.X.\beta$, where $w$ is the terminal prefix, $X$ is the leftmost terminal, and $\beta = \beta_1 \ldots \beta_m$ is the rest of the sentential form.
+To simplify the notation, we define $\beta_0 = X $.
+The state of the automaton will be the box $\tbox{w} \in \nfatransmonoid{A}$ associated to the terminal prefix $w$.
+On its stack, it stores for each symbol $\beta_i$ with $i \in \zeroto{m}$ that is a nonterminal a tuple $(\beta_i, \sol{\beta_{i+1} \ldots \beta_m})$ consisting of the symbol $\beta_i \in \Sigma \cup N$ and the formula $\sol{\beta_i \ldots \beta_m}$ associated to the rest of the sentential form (without that symbol).
+The stack is organized so that the information for symbols that are further to the left of the sentential form occur on the top of the stack, with the tuple for $X$ being the top-of-stack.
+%
+Assume that the automaton reads a move of the game, \ie the application of a production rule $X \to \eta$ to the leftmost nonterminal by any of the players.
+Let $\eta = v.\eta'$, where $v$ is the terminal prefix and $\eta' = \eta'_1 \ldots \eta'_\ell$ is the rest of the sentential form.
+The automaton pops the top-of-stack symbol, say $(X, F)$, and replaces it by
+\[
+    (\eta'_1, \sol{\eta'_2 \ldots \eta'_\ell} \comp F),
+    (\eta'_2, \sol{\eta'_3 \ldots \eta'_\ell} \comp F),
+    \ldots,
+    (\eta'_{\ell - 1}, \sol{ \eta'_\ell} \comp F),
+    (\eta'_\ell, F)
+    \ .
+\]
+If some of the $\eta'_i$ are terminals, we omit the corresponding stack symbols (but we still include $\eta'_i$ in the compositions that form the second component of the other stack symbols).
+Note that because we assume the size of the grammar to be constant, this is a constant number of stack symbols.
+The automaton also updates its internal state to $\tbox{w} \relcomp \tbox{v}$, \ie the box associated to the new terminal prefix.
+This transition maintains the shape of the stack as described above.
+
+To output a move for the universal player, the automaton peeks at the top-of-stack $(X, F)$, the information for the symbol $X$ that should be replaced.
+It then computes the formula $\sol{w.\eta.\beta}$ for all possible successors, the number of which is constant.
+Each such formula is of the shape $\tbox{w} \comp \sol{\beta} \comp F$, where $\tbox{w}$ and $F$ can be read off from the internal state and stack, respectively.
+It then prints out any move $X \to \beta$ so that the resulting formula is not rejecting.
+Note that one could modify the automaton so that all information that is needed to determine the next move can be read off from the internal state without peeking at the top-of-stack.
+
+Assuming that the play starts from $S$, the initial symbol of the grammar, we initialize the pushdown automaton with state $\tbox{\eps}$, the box associated to the empty terminal prefix, and stack content $(S,\tbox{\eps})$.
+Throughout the play, we update the automaton with the moves in the game as detailed above, and whenever the universal player has to make a move, we query the automaton.
+For each move in the game, the automaton only needs a single transition to update its internal state.
+Even after the game has already been played for $n$ steps, the automaton can give us the next move in constant time.
+% Assuming that the size of the grammar and the sizes of all formulas are constants, the automaton only needs constant time to update its configuration and only constant time to output a move.
+In principle, the automaton implements the same safety strategy as before, but it stores the computed information in a clever way that allows it to use only constant time instead of linear time.
+
+One can look at the structure of the automaton in more detail and note that it is a \emph{synchronized pushdown automaton}.
+This concept has been introduced by \citea{Walukiewicz01} in his study of context-free games.
+Assume that we convert the context-free grammar that describes the game arena into a pushdown automaton $\Parena$.
+For each finite play of a context-free game, the configurations reached in the strategy automata and in the automaton $\Parena$ for the arena have the same height.
+Namely, the stack of both automata will contain one stack symbol for each nonterminal in the current sentential form.
+This property allows us to take a product of the strategy automaton $\Pstratallplayer$ and the automaton for the arena, resulting in a single pushdown automaton that on its stack stores tuples of stack symbols.
+(Note that in general, the product of two pushdown automata results in a multi-pushdown automaton with two stacks that cannot be merged, since the heights of the stacks may not coincide.)
+
+We then use the output function of the strategy automaton to resolve all choices of the universal player in the game.
+The result is a nondeterministic pushdown automaton, say PDA $\Pexplayer = \Parena \times \Pstratallplayer$, the nondeterminism of which represents the choices of the existential player.
+One can verify that the strategy for the universal player that was defined by $\Pstratallplayer$ is indeed a winning strategy by checking that $\lang{\Pexplayer} \subseteq \lang{A}$:
+No finite play of the game that conforms to the strategy defined by $\Pstratallplayer$ produces a counterexample to inclusion.
+
+\paragraph{Winning strategies for the existential player}
+
+Let us now consider the case of a sentential form in the winning region of the existential player, \ie the associated formula is rejecting.
+The winning strategy for the existential player is necessarily more involved than the one for the universal player.
+Instead of simply maintaining an invariant, it has to enforce reaching a counterexample to inclusion after \nb{finitely many steps.}
+
+There is a brute-force approach to computing such a strategy.
+Consider the infinite tree of plays from the given initial position, and consider the subtree that only contains the plays conforming to a winning strategy for the existential player.
+The strategy has to enforce that all its plays are finite, and the out-degree of the tree is limited by the number of production rules of the grammar.
+Kőnig's lemma~\cite{Koenig27}  proves that a tree with finite height and finite out-degree is necessarily finite.
+Hence, the subtree of plays associated to a winning strategy is finite.
+
+This result allows us to simply explore the tree of all plays in a breadth-first manner and search for a winning strategy of the existential player.
+Such a strategy corresponds to a finite subtree that satisfies the following conditions:
+(1)~All the leaves are rejecting in that they are labeled by rejecting boxes.
+(2)~Each inner node owned by the existential player is rejecting in that it has a successor in the subtree that is rejecting as well.
+(3)~Each inner node owned by the universal player is rejecting in that all its successors are present in the subtree and are rejecting.
+If we start from an initial position whose formula is rejecting, we know that such a finite subtree has to exist, and it can be found by enumeration.
+
+The size of this subtree is immense but constant.
+We can use $i_0$, the number of steps after which the fixed-point iteration terminates with the least solution, to estimate its height.
+One has to take into account that the fixed-point iteration evaluates the equation for every nonterminal in every step.
+Hence, a bound $i_0$ on the steps of the iteration leads to a bound $\card{G}^{i_0}$ on the height of the tree, where $\card{G}$ is a coarse estimation for the size of any right-hand side in the system of equations.
+Assuming that $\card{G}$ and $\card{A}$ are constant, this number is constant, which allows us to explicitly compute and store a positional winning strategy for the existential player.
+However, this approach is purely theoretical:
+We will later discuss that $i_0$ may be up to doubly exponential in $\card{A}$, which means that the height of the tree is up to triply exponential in the input size.
+The strategy is finite, but even assuming that $\card{A}$ is small (and hence so is $i_0$), its representation may be too large to store.
+
+To obtain a strategy that is more practical, we use a different approach that is similar to the pushdown safety strategy for the case of the universal player.
+To understand the construction of the strategy, it is helpful to consider an alternative proof of \cref{Proposition:CFGamesSoundnessExistential} that uses a single induction instead of a nested one.
+We have provided this proof in~\cite{HolikMM16a}, the full version of our paper.
+Here, we briefly recall the important parts and refer to the publication for the technical details.
+The proof of \cref{Proposition:CFGamesSoundnessExistential} that we have given in this thesis uses the same line of argumentation, but due to the nested induction, the technical details are \nb{somewhat hidden}.
+
+The alternative proof uses a single induction over the set $\N^*$ of sequences of natural numbers.
+The order is defined so that a sequence becomes smaller by replacing a positive number $i$ in it by a sequence of numbers $i_1 \ldots i_m$, all of them strictly smaller than $i$.
+One can show that this order is well-founded, meaning that all its strictly descending chains are finite, which is needed for a valid proof.
+Intuitively, we consider sequences of numbers that associate to each symbol $\beta_j$ in a sentential form $\beta$ a number $i_j$.
+When computing the formula associated to $\beta$, we should not use $\sol{\beta_j}$, the least fixed point solution associated to $\beta_j$, but rather $\sol{i_j}{\beta_j}$, \nb{the $\nth{i_j}{th}$ approximant}.
+When we replace a nonterminal $X$ by the right-hand side of a production rule $X \to \eta$, this corresponds to one evaluation of the equation for $X$.
+Accordingly, we replace the number $i$ associated to $X$ by the sequence $(i-1) \ldots (i-1)$ of length $\card{\eta}$.
+
+We use this proof concept to define a pushdown strategy.
+As in the case of the strategy for the universal player, the automaton stores the box associated to its terminal prefix in its control state and information on the rest of the sentential form on its stack.
+For each nonterminal in the current sentential form, we store a triple
+\(
+    (X, i, F)
+\)
+consisting of the symbol itself, a number $i \in \N$ that tells us which fixed-point approximant to consider, and a formula that describes the rest of the sentential form in a manner that we will detail below.
+
+Assuming that the play starts from $S$, the initial control state is $\tbox{\eps}$ and the initial stack content is $(S,i_0,\tbox{\eps})$.
+Here, $i_0$ is the number of steps after which the fixed-point iteration terminates, \ie the $\nth{i_0}{th}$ approximant equals the least solution.
+Assume that the produces has arrived in a sentential form $w.X.\beta$.
+This in particular means that the current control state is $\tbox{w}$ and that the stack contains for each nonterminal $\beta_j$ in $X.\beta$ a symbol $(\beta_j, i_j, F_j)$.
+When the rule $X \to \eta$ is applied, the stack is updated as follows.
+We first remove the top-of-stack $(X, i_X, F_X)$ and remember $i_X \in \N$ and the formula $F_X$.
+Assume that the rightmost symbol $\eta_\ell$ of $\eta$ is a nonterminal.
+We then push
+$( \eta_\ell, i_X - 1, F_X)$ onto the stack.
+If the penultimate symbol $\eta_{\ell - 1}$ is a nonterminal too, we then push
+$( \eta_{\ell - 1}, i_X - 1, \sol{i_X - 1}{\eta_{\ell}} \comp F)$.
+Assume that $\eta_{\ell - 2}$ is a terminal while $\eta_{\ell - 3}$ is a nonterminal again.
+We skip the stack symbol for $\eta_{\ell - 2}$ and store
+$( \eta_{\ell - 3}, i_X - 1, \tbox{\eta_{\ell - 2}} \comp \sol{i_X - 1}{\eta_{\ell - 1}} \comp \sol{i_X - 1}{\eta_{\ell}} \comp F)$.
+We proceed until all of $\eta$ but its terminal prefix $v$ has been processed.
+We then store the terminal prefix by updating the control state to $\tbox{w} \relcomp \tbox{v}$.
+
+The stack of the automaton stores for each symbol which fixed-point approximant to consider, and the formula that one gets for the rest of the sentential form by using the stored fixed-point approximants for each of the symbols.
+Replacing a symbol $X$ by a right-hand side $\eta$ corresponds to evaluating the equation for $X$ once, which means that we go from the $\nth{i_X}$ fixed point approximant for $X$ to the $\nth{\paren{i_X - 1}}{th}$ fixed point approximant for the symbols in $\eta$.
+
+To output a move, the automaton proceeds as follows.
+It peeks at $(X, i_X, F_X)$, the top-of-stack that provides information for the symbol $X$ that should be replaced.
+It then finds a rule $X \to \eta$ so that $\tbox{w} \comp \sol{i_X - 1}{\eta} \comp F_X$ is rejecting.
+To do so, it simply iterates over all production rules and prints the first one that has the desired property.
+One can prove that such a rule has to exist as in the proof of \cref{Proposition:CFGamesSoundnessExistential}.
+
+The automaton maintains the invariant that if the control state is $\tbox{w}$ and the top-of-stack is $(X, i_X, F_X)$, then $\tbox{w} \comp \sol{i_X}{X} \comp F_X$ is rejecting.
+Note that this invariant is preserved not only by the moves selected by the automaton, but also by any move picked by the universal player.
+The index $i_Y$ associated to any nonterminal $Y$ in the sentential form is always a positive number.
+As soon as the index associated to the top-of-stack $X$ is $1$, the next replacement step necessarily replaces $X$ by a terminal word.
+The fact that the aforementioned order on $\N^*$ is well-founded means that after finitely many steps, all nonterminals have been replaced and the play ends with a terminal word.
+The invariant guarantees that this terminal word has a rejecting box, meaning that it is not contained in $\lang{A}$.
+
+If the initial position $S$ satisfies the invariant, \ie $\sol{S} = \sol{i_0}{S}$ is rejecting, then the automaton indeed implements a winning strategy for the existential player.
+It has the same properties as the one for the universal player:
+Each update of the configuration of the automaton is a single move.
+By querying the automaton, the strategy can output the next move in constant time.
+Furthermore, the automaton is a synchronized pushdown automaton, having one symbol on its stack for each nonterminal of the sentential form.
+To verify that it represents a winning strategy, one can compute $\Pallplayer = \Pstratexplayer \times \Parena$, the product of the strategy automaton $\Pstratexplayer$ and the automaton $\Parena$ representing the context-free game grammar.
+The result is a pushdown automaton the nondeterminism of which represents the choices of the universal player.
+If $\Pstratexplayer$ represents a winning strategy, we have that all runs of $\Pallplayer$ are finite and that $\lang{\Pallplayer} \subseteq \overline{\lang{A}}$.
+
+\end{document}

@@ -1,0 +1,256 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Computing the winner}%
+\label{Section:CFGamesSoundness}%
+
+We discuss how to compute the winner of a context-free inclusion game.
+In the previous section, we have set up a system of equations that represents a game grammar.
+We then have provided a model, consisting of the domain of equivalence classes of positive Boolean formulas over the transition monoid.
+We have argued that this model satisfies all requirements that are needed to be able to apply Kleene's theorem and the theory from \cref{Section:EDSEqSys}.
+
+Kleene's theorem proves that the least solution to the system of equations exists, and the fact that our domain is finite means that we can explicitly compute it.
+The solution is the least fixed point of the function $\rhs$ obtained by interpreting the right-hand sides of the system of equations.
+Recall that we have defined $\soli{i} = \rhs^{i}\paren{\bot}$ to be the $i$-fold application of this function to the least element.
+In our case, the least element is the vector that assigns to each variable the equivalence class of unsatisfiable formulas, \ie the equivalence class of $\false$.
+Because the domain satisfies the ACC, the least fixed point $\sol$ occurs as $\soli{i_0} = \sol$ for some $i_0 \in \N$ so that $\soli{i_0} = \soli{i_0 + 1}$.
+% Recall that $\sol$ and the $\soli{i}$ do not only provide us with a class of formula for each nonterminal, but they can be also extended to arbitrary terms.
+The goal of this chapter is proving that the winner of a context-free inclusion game can be read off from $\sol$.
+
+We consider $\Mrej \subseteq \nfatransmonoid{A}$, the set of \emph{rejecting boxes}
+\[
+    \Mrej = \Set{ \tbox{w} }{ w \not\in \lang{A}}
+    \ .
+\]
+Recall that if one word in the language $\lang{\tbox}$ of some box is not contained in $\lang{A}$, then no such word is.
+Furthermore, whether a box is rejecting or not can be determined by checking for the existence of a transition from the initial to a final state.
+
+We call a formula $F \in \pBF\paren{\nfatransmonoid{A}}$ \emph{rejecting} if it evaluates to true under $\Mrej$ seen as variable assignment, \ie the assignment that sets exactly the atoms to true that are contained in $\Mrej$.
+Since being satisfied under a certain assignment is preserved by logical equivalence, this notion can be extended to equivalence classes of formulas by picking an arbitrary representative.
+
+We claim that for each sentential form $\beta$, the existential player has a winning strategy for the context-free inclusion game from $\beta$ if and only $\sol{\beta}$ is rejecting.
+(Recall that we have extended the definition of $\sol$ from variables to arbitrary terms)
+In particular, the winner of the context-free game when starting from $S$ can be read off from $\sol{S}$.
+
+More formally, we define a partition of the set of sentential forms, the positions of the game,
+ \[
+     W_\explayer = \Set{ \beta \in \sententials }{ \sol{\beta} \text{ is rejecting } }
+ \]
+and
+ \[
+     W_\allplayer = \sententials \setminus W_\explayer = \Set{ \beta \in \sententials }{ \sol{\beta} \text{ is not rejecting } }
+     \ .
+ \]
+We prove that for each player $\player \in \players$, $W_\player$ is indeed her winning region.
+
+\begin{theorem}%
+\label{Theorem:CFGamesSoundness}%
+    The set $W_\explayer$ is the winning region of the existential, $W_\explayer$ is the winning region of the existential player.
+\end{theorem}
+
+\begin{example}%
+\label{Example:CFGamesThree}%
+    We continue \cref{Example:CFGamesTwo}.
+    The box $\tbox{b}$ is rejecting while $\tbox{ab}$ and $\tbox{\eps}$ are not.
+    Hence, the formula $\sol{X} = \tbox{ab} \vee \tbox{\eps}$ is not rejecting and the universal player wins the game $(G,A)$ starting from $X$.
+    The formula $\sol{Y} = \tbox{b}$ is rejecting and the existential player wins from $Y$.
+\end{example}
+
+To prove the theorem, we prove a more general statement:
+For each sentential form $\beta$, the behavior of $\sol{\beta}$ under evaluation describes exactly the behavior of the context-free game from $\beta$.
+If $M \subseteq \nfatransmonoid{A}$ is a set of boxes such that $\sol{\beta}(M) = \false$, then the universal player can prevent the derivation of any word $w$ with $\tbox{w} \in M$.
+If $\sol{\beta}(M) = \true$, then the existential player can enforce the derivation of a word $w$ with $\tbox{w} \in M$.
+Instantiating these results for the set of rejecting boxes $\Mrej$ then yields the desired result.
+
+We start by considering the case of the universal player.
+
+\begin{proposition}%
+\label{Proposition:CFGamesSoundnessUniversal}%
+    Let $M \subseteq \nfatransmonoid{A}$ be a set of boxes and let $\beta \in \sententials$ be a sentential form.
+    If $\sol{\beta}(M) = \false$, then the universal player has a strategy such that every maximal play conforming to it is either infinite or it ends in a terminal word $w$ with $\tbox{w} \not\in M$.
+\end{proposition}
+
+\begin{proof}
+    We show that the universal player has a strategy that maintains $\sol{\sentform}(M) = \false$ as an invariant for all positions $\sentform \in \sententials$ that occur in the play.
+    This invariant guarantees that if a play conforming to it ends after finitely many steps in a terminal word $w$, we must have $\sol{w}(M) = \tbox{w}(M) = \false$.
+    This means $\tbox{w} \not\in M$ as desired.
+
+    Let us construct a strategy that maintains the invariant.
+    For the initial position, the invariant holds by the assumption.
+    % We show that if $\beta$ is an arbitrary sentential form with $\sol{\beta}(M) = \false$ that is not a deadlock, then there is a successor $\gamma$ with  $\sol{\gamma}(M) = \false$.
+    If a sentential form does not contain a nonterminal, it is a deadlock in the game.
+    Hence, we consider $\sentform = w.X.\gamma$, where $X$ is the leftmost nonterminal.
+
+    Firstly, we look at the case that the owner of $X$ (and hence the owner of $\sentform$) is the universal player.
+    We have $\sol{\sentform} = \sol{w . X  . \gamma} = \tbox{w} \comp \sol{X} \comp \sol{\gamma}$ using the associativity of formula composition.
+    Let $\itr{\eta}{1}, \ldots, \itr{\eta}{k}$ be the right-hand sides for nonterminal $X$, \ie $X \to \itr{\eta}{1} \mid \ldots \mid \itr{\eta}{k}$ are all productions for $X$.
+    Then we have $\sol{X} = \sol{\itr{\eta}{1}} \wedge \ldots \wedge \sol{\itr{\eta}{k}}$ by the definition of the system of equations and the fact that the least solution $\sol$ satisfies all equations.
+    Substituting $\sol{X}$ and applying the definition of formula composition yields
+    \[
+        \sol{\sentform} = \tbox{w} \comp \sol{\itr{\eta}{1}} \comp \sol{\gamma} \wedge \ldots \wedge \tbox{w} \comp \sol{\itr{\eta}{k}} \comp \sol{\gamma}
+        \ .
+    \]
+    Since we had $\sol{\sentform}(M) = \false$ and $\sol{\sentform}$ can be written as the above conjunction, there is at least one $j$ such that
+    $
+        \paren{ \tbox{w} \comp \sol{\itr{\eta}{j}} \comp \sol{\gamma} } (M) = \false
+        \ .
+    $
+    We define the strategy so that it picks the move $w.X.\gamma \to w.\itr{\eta}{j}.\gamma$ induced by the production $X \to \itr{\eta}{j}$.
+    The formula for the new position is $\sol{w} \comp \sol{\itr{\eta}{j}} \comp \sol{\gamma}$, and the construction guarantees that the invariant is maintained.
+
+    If the leftmost nonterminal is owned by the existential player, we argue similarly.
+    We have
+    \[
+        \sol{\sentform} = \tbox{w} \comp \sol{\itr{\eta}{1}} \comp \sol{\gamma} \vee \ldots \vee \tbox{w} \comp \sol{\itr{\eta}{k}} \comp \sol{\gamma}
+        \ .
+    \]
+    This disjunction only evaluates to $\false$ if $\tbox{w} \comp \sol{\itr{\eta}{j}} \comp \sol{\gamma}$ evaluates to $\false$ for all $j$.
+    Hence, the invariant is maintained, no matter which move is picked by the existential player.
+\end{proof}
+
+The proof in the case of the existential player is more involved.
+This is because she has to enforce reaching a word that violates inclusion within finite time.
+
+\begin{proposition}%
+\label{Proposition:CFGamesSoundnessExistential}%
+    Let $M \subseteq \nfatransmonoid{A}$ be a set of boxes and let $\beta \in \sententials$ be a sentential form.
+    If $\sol{\beta}(M) = \true$, then the existential player has a strategy such that every maximal play conforming to it is finite and ends in a terminal word $w$ with $\tbox{w} \in M$.
+\end{proposition}
+
+\begin{proof}
+    We prove that the desired property already holds if $\sol{i}{\beta}(M) = \true$ for some $i \in \N$.
+    Since we have $\sol = \soli{i_0}$ for some $i_0 \in \N$ and that $\sol{i}{\beta} \lleq \sol{\beta}$ for all $i \in \N$, this is a stronger statement.
+    Its advantage is that we can now proceed by induction on $i$.
+
+    In the base case, we consider $i = 0$.
+    Since $\false$ is the least element in $\pBF\paren{\nfatransmonoid{A}}$ with respect to implication, we have $\sol{0}{X} = \false$ for all nonterminals.
+    Hence, $\sol{0}{\beta}(M) = \true$ is only possible if $\beta$ does not contain any nonterminal.
+    This means $\beta = w$ is a terminal word and $\sol{0}{\beta} = \tbox{w}$.
+    Thus, position $w$ is a deadlock and $\sol{0}{\beta}(M) = \true$ implies  $\tbox{w} \in M$.
+
+    For the inductive step, assume that the statement holds for $i$ and consider $i+1$.
+    Let $\beta$ be some sentential form.
+    The proof uses an inner induction on the number of nonterminals in $\beta$.
+    In the base case, this number is $0$ and $\beta$ is a terminal word.
+    We have already considered this case in the base case of the outer induction.
+
+    In the inductive step of the inner induction, we consider $\sol{i+1}{\beta}$ for some sentential form $\beta = w.X.\gamma$, where $X$ is the leftmost nonterminal in $\beta$.
+    We have
+    \(
+        \sol{i+1}{\beta} = \sol{i+1}{w.X.\gamma} = \sol{i+1}{w} \comp \sol{i+1}{X} \comp \sol{i+1}{\gamma} = \tbox{w} \comp \sol{i+1}{X} \comp \sol{i+1}{\gamma}
+    \)
+    using the associativity of formula composition.
+
+    Let us assume that $X$ is owned by the existential player.
+    We may write $\sol{i+1}{X} = \sol{i}{\itr{\eta}{1}} \vee \ldots \vee \sol{i}{\itr{\eta}{k}}$ where $X \to \itr{\eta}{1} \mid \ldots \mid \itr{\eta}{k}$ are all the rules for nonterminal $X$.
+    Using the definition of formula composition, we obtain
+    \[
+        \sol{i+1}{\beta} = \tbox{w} \comp \sol{i}{\itr{\eta}{1}} \comp \sol{i+1}{\gamma} \vee \ldots \vee \tbox{w} \comp \sol{i}{\itr{\eta}{k}} \comp \sol{i+1}{\gamma}
+        \ .
+    \]
+    Using $\sol{i+1}{\beta}(M) = \true$, we conclude that there is at least one $j \in \oneto{k}$ such that $\paren{\tbox{w} \comp \sol{i}{\itr{\eta}{j}} \comp \sol{i+1}{\gamma}}(M) = \true$.
+
+    We would like to apply the induction hypothesis at this point.
+    However, the formula $\tbox{w} \comp \sol{i}{\itr{\eta}{j}} \comp \sol{i+1}{\gamma}$ is not of the required shape as we use different approximants for different parts of the formula.
+    To solve this problem, we apply induction only to $\sol{i}{\itr{\eta}{j}}$.
+    To take the rest of the sentential form $w.\itr{\eta}{j}.\gamma$ into account, we consider a different variable assignment.
+
+    We define the assignment $M'$ by $\tbox(M') = \paren{\tbox{w} \comp \tbox \comp \sol{i+1}{\gamma}}(M)$.
+    Intuitively, it evaluates the given box under $M$ in the context of $w$ on the left-hand side and $\gamma$ on the right-hand side.
+    By the definition of formula composition, we have that $F(M') = \paren{\tbox{w} \comp F \comp \sol{i+1}{\gamma}}(M)$ for any formula $F$.
+    Indeed, formula $F$ is the leftmost operand of $\tbox{w} \comp F \comp \sol{i+1}{\gamma}$ that may contain conjunctions or disjunctions, which will be resolved first when evaluating the composition.
+    In particular, we have $\sol{i}{\itr{\eta}{j}}(M') = \paren{\tbox{w} \comp \sol{i}{\eta} \comp \sol{i+1}{\gamma}}(M) = \true$.
+    We may use the induction hypothesis of the outer induction to obtain that the existential player has a strategy $\strat'$ from $\itr{\eta}{j}$ to enforce the derivation of a terminal word $v$ with $\tbox{v}(M') = \true$.
+
+    We define the strategy $\strat$ from $\beta$ to first pick the move $\beta \to w.\itr{\eta}{j}.\gamma$ that is induced by the production $X \to \itr{\eta}{j}$.
+    Then, it imitates $\strat'$ (by ignoring the prefix~$w$ and the suffix~$\gamma$) until $\itr{\eta}{j}$ has been derived to a terminal word.
+    After this process has been completed, we end up with $w.v.\gamma$ such that $\tbox{v}(M') = \true$.
+    By the definition of $M'$, we have $\tbox{v}(M') = \paren{\tbox{w} \comp \tbox{v} \comp \sol{i+1}{\gamma}}(M) = \paren{\sol{i+1}{w.v.\gamma}}(M) = \true$.
+
+    The sentential form $w.v.\gamma$ contains strictly fewer terminals than $\beta$, since we have replaced $X$ by a terminal word.
+    We may now use the induction hypothesis of the inner induction to obtain that there is a strategy $\strat''$ from $w.v.\gamma$ that is guaranteed to derive a terminal word $w'$ with $\tbox{w'}(M) = \true$, \ie $\tbox{w'} \in M$, within finitely many steps.
+
+    We complete the definition of $\strat$ by letting $\strat$ behave as $\strat''$ does from $w.v.\gamma$ on.
+
+    The case that $X$ is owned by the universal player is similar.
+    The formula $\sol{i+1}{X}$ is a conjunction with one conjunct $\tbox{w} \comp \sol{i}{\itr{\eta}{j}} \comp \sol{i+1}{\gamma}$ for each rule $X \to \itr{\eta}{j}$.
+    We have that $\sol{i+1}{X}(M) = \true$ implies that each conjunct evaluates to true under $M$.
+    For any conjunct $j$, we proceed as above:
+    After defining a new assignment $M'_j$ with $\tbox(M'_j) = \paren{ \tbox{w} \comp \tbox \comp \sol{i+1}{\gamma}}$, we can apply the induction hypothesis of the outer induction.
+    We get a strategy $\strat'_j$ that enforces the derivation of a terminal word $v_j$ with $(\sol{i+1}(w.v_j.\gamma))(M) = \true$.
+    Applying the inner induction to $w.v_j.\gamma$ gives us a strategy $\strat_j''$ that derives a word $w'$ with $\tbox{w'} \in M$.
+    We define the strategy $\strat$ for the existential player as follows:
+    In position $w.X.\gamma$, the strategy reads the production rule $X \to \itr{\eta}{j}$ that is picked by the universal player.
+    Afterwards, it imitates $\strat'_j$ until the sentential form $w.v_j.\gamma$ has been derived.
+    Finally, it behaves as $\strat''_j$ until the end of the play.
+    The result is again that we guarantee the derivation of a terminal word $w'$ with $\tbox{w'} \in M$ within finitely many steps.
+\end{proof}
+
+\begin{example}%
+\label{Example:CFGamesFour}%
+    We continue \cref{Example:CFGamesThree} to complete our running example.
+    The formula associated to $\sol{Y} = \tbox{b}$ is rejecting, so the existential player should win the game starting from $Y$.
+
+    In the first move, the universal player has no choice but to derive $b.X$, and indeed $\sol{b.X} = \sol{Y} = \tbox{b}$ is still rejecting.
+    It is now the existential players choice to replace $X$ either using the production $X \to \eps$ or $X \to a.Y$.
+    The productions lead to the formulas $\sol{b} = \tbox{b}$ and $\sol{b.a.Y} = \tbox{ba} \comp \sol{Y} = \tbox{bab} = \tbox{b}$, respectively.
+    Either move maintains the invariant of being rejecting.
+    However, this is insufficient to ensure that the existential player wins.
+    If she picks the production $X \to a.Y$ whenever she has to replace $X$, the resulting play is infinite.
+    Even though it consists entirely of positions whose associated formula is rejecting, the existential player loses.
+    To ensure that she wins, she has to pick the production $X \to \eps$ after finitely many steps, \eg the first time she replaces $X$.
+
+    We show that we read off this property using the approximants.
+    Recall that the least solution corresponds to the $\nth{3}$ approximant.
+    The game starts from $Y$ and $\sol{3}{Y} = \tbox{b}$ is rejecting.
+    After one move, the game is in $bX$ and $\sol{2}{bX} = \tbox{b} \comp \sol{2}{X} = \tbox{b} \cdot \tbox{\eps} = \tbox{b}$ is still rejecting.
+    Applying $X \to \eps$ yields the position $b$ with $\sol{1}{b} = \tbox{b}$ being rejecting.
+    Using $X \to aY$ however yields $baY$ with $\sol{1}{b.a.Y} = \tbox{ba} \comp \sol{1}{Y} = \tbox{ba} \comp \false = \false$.
+    The formula $\false$ is unsatisfiable and evaluates to $\false$ under any assignment.
+    In particular, it is not rejecting.
+    Hence, the production $X \to \eps$ should be used to ensure that the play terminates and that the existential player wins.
+\end{example}
+
+With both propositions at hand, it is not difficult to obtain the proof of the theorem.
+
+\begin{proof}[Proof of \cref{Theorem:CFGamesSoundness}]
+    We first show that \( W_\allplayer =  \Set{ \beta \in \sententials }{ \sol{\beta} \text{ is not rejecting } } \) is a subset of the winning region of the universal player.
+    This means that the universal player wins from all positions whose associated formula is not rejecting.
+
+    Let $\beta \in \sententials$ be so that $\sol{\beta}(\Mrej) = \false$.
+    By \cref{Proposition:CFGamesSoundnessUniversal} the universal player has a strategy from $\beta$ that enforces plays that are either infinite or derive a word $w$ with $\tbox{w} \not\in \Mrej$.
+    By the definition of $\Mrej$, the latter means $w \in \lang{A}$.
+    Hence, such a strategy is a winning strategy for the universal player in the context-free regular inclusion game.
+
+    It remains to show that the existential player wins from all positions in $W_\explayer = \Set{ \beta \in \theta }{ \sol{\beta} \text{ is rejecting}}$.
+    Because $W_\explayer$ and $W_\allplayer$ form a partition of the set of positions $\sententials$, this completes the proof.
+    If $\sol{\beta}$ is rejecting, \ie $\sol{\beta}(\Mrej) = \true$, then \cref{Proposition:CFGamesSoundnessExistential} guarantees the existence of a strategy from $\beta$ that derives a word $w$ with $\tbox{w} \in \Mrej$ within finitely many steps.
+    By the definition of $\Mrej$, $\tbox{w} \in \Mrej$ implies $w \not\in \lang{A}$.
+    Hence, such a strategy is a winning strategy for the existential player.
+\end{proof}
+
+\begin{remark}
+    There is a different approach to proving the soundness of our procedure.
+    For some fixed initial position, one can see the tree of all plays from that position as an infinite formula over $\nfatransmonoid{A}$.
+    To this end, we see inner nodes of the tree as disjunctions or conjunctions, depending on the owner of the corresponding position.
+    We see a leaf as the atom $\tbox{w}$, where $w$ is the unique word that has been derived by the play reaching that leaf.
+    The result is a formula that potentially has infinite depth.
+
+    We equip it with an evaluation semantics that gets rid of this problem:
+    We evaluate boxes depending on a variable assignment, \ie a subset $M \subseteq \nfatransmonoid{A}$.
+    We then propagate the values for the boxes upwards using the usual rules for conjunction and disjunction.
+    This evaluation semantics essentially ignores all infinite paths, \ie it evaluates them to $\false$.
+
+    The result is that to each infinite formula $F$, we associate a function from $\powerset{\nfatransmonoid{A}} \to \set{\true,\false}$ that evaluates the formula under the given variable assignment.
+    However, it is well known that all functions of this type can be represented by finite formulas.
+    Hence, there is a finite formula that is logically equivalent to the infinite one.
+
+    To prove the soundness of our algorithm, one first shows that the evaluation of the infinite formula under the variable assignment $\Mrej$, the rejecting boxes, indeed yields the winner of the game.
+    Secondly, one shows that the formula associated to the initial position by the least solution to the system of equations is equivalent to the infinite formula.
+    We have made this approach formal in Section~4 of the full version of our paper~\cite{HolikMM16a}.
+
+    The approach that we have presented above is not only easier.
+    It also allows us to extract the winning strategies for each of the players, as we will see in the next section.
+\end{remark}
+
+\end{document}

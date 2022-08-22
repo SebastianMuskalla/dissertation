@@ -1,0 +1,312 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{\texorpdfstring{$\omega$}{Omega}-languages of context-free grammars}%
+\label{Section:CFGOmega}%
+
+We introduce $\omega$-context-free languages, $\omega$-languages defined by context-free grammars.
+In the literature, $\omega$-context-free languages are an established class of languages that can be defined in several equivalent ways, which we will discuss later.
+For now, we present a novel definition of this class of languages that we feel is more elegant.
+This also means that in contrast to the rest of this chapter, this section contains a contribution from the author of this thesis.
+This research is taken from the publication~\cite{MeyerMN17a}, as detailed in \cref{Chapter:Contributions}.
+
+Consider an infinite left-derivation process
+\[
+    S = \beta_0 \leftderive \beta_1 \leftderive \ldots
+\]
+for some CFG $G = (N, P, S)$.
+As discussed in the previous section, it induces a sequence of terminal words
+\(
+    \tprefix{\beta_0}, \tprefix{\beta_1}, \ldots
+\)
+such that for each $i,k \in \N$, $\tprefix{\beta_i}$ is a prefix of $\tprefix{\beta_{i+k}}$.
+Intuitively, we want to associate to such a derivation process the infinite word that is the limit of these prefixes.
+If the length of the prefixes grows unboundedly, we may define the infinite word
+\(
+    \lim \tprefix{\beta_i}_{i \in \N} \in \Sigma^\omega
+\)
+whose $\nth{j}$ letter is the $\nth{j}$ letter of the $\nth{i_j}$ prefix, where $i_j \in \N$ is an arbitrary index so that the corresponding prefix is sufficiently long.
+Formally, we define ${(\lim \tprefix{\beta_i}_{i \in \N})}_j = \tprefix{\beta_{i_j}}_j$, where $i_j \in \N$ is chosen so that $\card{ \tprefix{\beta_{i_j}} } \geq j$.
+The above observation guarantees that the definition is independent of the choice of each $i_j$.
+
+With this definition at hand, it is possible to associate to a context-free grammar $G$ a \nb{language $\calL' = \Set{ \lim \tprefix{\beta_i}_{i \in \N} \in \Sigma^\omega }{ {(\beta_i)}_{i \in \N} \text{ is an infinite left-derivation process}}$} of all infinite words that occur as the prefix limits along infinite left-derivation processes.
+
+For example, the $\omega$-regular language ${(a \cup b)}^* b^\omega$ of words that contain only finitely many $a$s occurs as the language of the grammar with the rules $S \to XY, X \to Xa \mid Xb \mid \eps, Y \to bY$.
+In a left-derivation process, we can first use the rules for $X$ to derive a prefix from $\set{a,b}^*$ of arbitrary, but finite length, and then append $b^\omega$ by using $Y \to bY$ infinitely often.
+We cannot obtain infinitely many $a$s, because to do so, we would need to preserve nonterminal $X$ for infinitely many steps.
+Such a derivation process consists entirely of sentential forms that start with \nb{nonterminal $X$}, so their prefixes are $\eps$ and the prefix limit is not an infinite word.
+
+However, the definition is too weak to express some languages that certainly should be $\omega$-context-free according to any reasonable definition.
+For example, there can be no context-free grammar whose associated language is $\Set{a^n b^n}{n \in \N}^\omega$, which is the $\omega$-iteration of a context-free language.
+To sketch the proof of this fact, we observe that any candidate grammar needs to contain a nonterminal $X$ that can be reached from the initial symbol and a rule $X \to aXb$ (or a set of rules that after a finite number of replacement steps lead to such a pattern).
+Such a rule is needed to be able to create an unbounded but equal amount of $a$s and $b$s on each side: It is well-known that with rules that are exclusively left- or right-linear (rules that only contain one nonterminal that is the leftmost or rightmost symbol), it is impossible to generate non-regular languages.
+By infinitely often applying this rule, we obtain a left-derivation process with prefix limit $a^\omega$, a word which is not in the desired language.
+
+We present a definition that solves this problem.
+Let us call an infinite left-derivation process $S = \beta_0 \leftderive \beta_1 \leftderive \ldots$ \emph{right-infinite} if it contains infinitely many sentential forms of the \nb{shape $wX$} where $w \in \Sigma^*$ is a terminal prefix and $X$ is a single nonterminal.
+In such a derivation process, the rightmost nonterminal is replaced infinitely often.
+Additionally, every other nonterminal is replaced by a terminal word within finitely many derivation steps.
+
+The name right-infinite comes from the shape of the derivation tree associated to this type of derivation process.
+A derivation tree (associated to a derivation process) is a tree in which the nodes are labeled by symbol from $N \cup \Sigma$.
+It is constructed inductively as follows:
+We start with a tree only consisting of a root node labeled by $S$.
+If production rule $X \to \eta$ is used in the derivation process, we consider the node of the derivation tree that corresponds to the occurrence of~$X$ that should be replaced and insert children $\eta_1, \ldots, \eta_{\card{\eta}}$.
+The limit of this process is a derivation tree in which all inner nodes are labeled by nonterminals, while the leaves are terminals.
+The yield of the tree (the leaves read from left to right) form the terminal word that is derived by the derivation process.
+The derivation tree associated to a right-infinite left-derivation process is infinite only in its rightmost branch.
+Any node in the tree that is not this branch can be reached within finitely many steps.
+%  $X$ is (the label of) an inner node and $Y$ is a child of this node that is not the rightmost child, then any descendant, \ie an indirect successor, of $Y$ can be reached from $X$ in finitely many steps.
+
+The proper definition of the omega-language of a context-free grammar associates to a grammar all infinite prefix limits that occur along right-infinite left-derivation processes.
+
+\begin{definition}
+    A CFG $G$ defines the $\omega$-language
+    \[
+        \olang{G} =
+        \Set{ \lim \tprefix{\beta_i}_{i \in \N} \in \Sigma^\omega }{ {(\beta_i)}_{i \in \N} \text{ is a right-infinite left-derivation process}}
+        \ .
+    \]
+\end{definition}
+
+In a sense, this definition imposes a Büchi acceptance condition.
+We may consider the \nb{LTS $(\sententials,T,S,\Sigma^*N)$} with sentential forms as configurations and transitions induced by left-derivations with their prefix growth as label.
+The final configurations are configurations of the \nb{shape $wX \in \Sigma^*N$}, \ie configurations in which the unique nonterminal is the rightmost symbol.
+The language of the LTS with a Büchi acceptance condition (\ie requiring that computations contain infinitely many final configurations) is exactly $\olang{G}$ as defined above.
+
+We will later show in \cref{Example:OmegaCFGAnBnOmega} and \cref{Remark:OmegaCFGWeakerDefinition} that this way of defining the $\omega$-languages of CFGs is strictly more expressive than the version without the restriction to right-infinite processes.
+On the one hand, $\Set{a^n b^n}{n \in \N}^\omega$ is the $\omega$-language of a suitable CFG.\@
+On the other hand, we can recover the weaker definition that does not require right-infinity by adding rules to the grammar.
+
+\paragraph{Characterizing $\omega$-context-free languages}
+
+Let us call a language of infinite words \emph{$\omega$-context-free} if it occurs as $\olang{G}$ of some CFG $G$.
+The class of these languages admits the following characterization.
+
+\begin{theorem}%
+\label{Theorem:CFGOmegaLangCharacterization}%
+    An $\omega$-language $\calL \subseteq \Sigma^\omega$ is $\omega$-context-free iff it can be written as
+    \[
+        \calL = \bigcup_{i \in \oneto{n}} U_i . V_i^\omega
+    \]
+    where $n \in \N$ and for each $i \in \oneto{n}$, $U_i, V_i \subseteq \Sigma^*$ are context-free languages.
+\end{theorem}
+
+In words, a language is $\omega$-context-free iff it is the finite union of languages that consist of a finite context-free prefix, and a context-free period that is repeated \emph{ad infinitum}.
+Note that this is analogous to the characterization of $\omega$-regular languages given in \cref{LTS:OmegaAutomata}.
+Once proven, the characterization will in particular show that $\Set{a^n b^n}{n \in \N}^\omega$ is an $\omega$-context-free~language.
+
+Before proving the result, we discuss its implications.
+In particular, we use the result to show that our definition of $\omega$-context-free languages coincides with various~definitions from the literature.
+
+\paragraph{Related work}
+
+Other works in the past have considered various definitions of $\omega$-context-free languages.
+
+\citea{CohenG77} have studied how $\omega$-context-free language can be defined by (1) pushdown automata with a Büchi acceptance condition on the states, (2) pushdown automata with the condition that the empty stack is reached infinitely often, and (3) context-free grammars that proceed by left-derivations and are equipped with a so-called repetition set.
+The repetition set specifies which productions need to be used infinitely often (or, equivalently, which nonterminals need to be replaced infinitely often) for a derivation process to be accepting.
+Hence, it also imposes a Büchi condition.
+The authors prove that all three definitions are equivalent, since all three are equal to what they call the Kleene closure of the context-free languages of finite words.
+The Kleene closure is exactly the type of languages as in \cref{Theorem:CFGOmegaLangCharacterization}.
+Hence, with the theorem at hand, our definition of $\omega$-context-free languages is also equivalent to the three methods.
+Arguably, our method is more elegant as the Büchi condition is implicit instead of being explicitly specified in the form of a repetition set.
+
+In the second part of the paper, the authors show that if one allows arbitrary derivations (instead of exclusively considering left-derivations), one obtains a weaker class of languages, even under the presence of a Büchi condition in the form of a repetition set.
+For example, the \nb{language $\Set{a^n b^n}{n \in \N}^\omega$} cannot be obtained by such a grammar.
+
+Independently, \citea{Linna76} has given a definition of $\omega$-context-free languages defined by pushdown automata with a Büchi acceptance condition.
+He shows that this class is equal to the languages obtained from the $\omega$-regular languages by applying context-free substitutions.
+Given the characterization of $\omega$-regular languages, this proves a result analogous to \cref{Theorem:CFGOmegaLangCharacterization} and shows that his definition coincides with our definition.
+
+He also considers the class of languages defined as limits of context-free languages.
+The limit of a context-free language is the set of infinite words such that all their finite prefixes are contained in the context-free language.
+This class of languages is incomparable to the $\omega$-context-free languages.
+On the one hand, it does not contain the $\omega$-regular language ${(a \cup b)}^* b^\omega$.
+On the other hand, the limit of the context-free language $\Set{ w.b.a^k}{k \text{ equals the number of $b$s in $w$}}$ is not $\omega$-context-free: It is a language without so-called ultimately periodic words.
+An \emph{ultimately periodic word} is an infinite word of the shape $w.v^\omega$ for suitable finite words $w, v \in \Sigma^*$.
+From our characterization result, \cref{Theorem:CFGOmegaLangCharacterization}, we immediately obtain that every $\omega$-context-free language is guaranteed to contain at least one such word.
+
+Linna also shows that by closing the class of limits of context-free languages under homomorphisms (or, equivalently, context-free substitutions), one obtains a superclass of both that class and the class of $\omega$-context-free languages.
+The algorithms for languages of infinite words that we will consider later, \eg in \cref{Section:EDSOmegaRegIncl}, rely on the presence of ultimately periodic words.
+Hence, they would not work for the latter two classes of languages defined by Linna.
+
+\paragraph{Proof of \cref{Theorem:CFGOmegaLangCharacterization}}
+
+The rest of this section is dedicated to the proof of \cref{Theorem:CFGOmegaLangCharacterization}.
+One direction is easy, as we can give a straightforward construction.
+
+\begin{lemma}
+    If \( \calL = \bigcup_{i \in \oneto{n}} U_i . V_i^\omega \) for $n \in \N$ and context-free $U_i, V_i$, then $\calL$ is $\omega$-context-free.
+\end{lemma}
+
+\begin{proof}
+    Assume that for each $i$, $U_i = \lang{N_i,\Sigma,P_i,S_i}$ and similarly $V_i = \lang{N_i',\Sigma,P_i',S_i'}$.
+    We assume \wolog that all $N_i$ and $N_i'$ (and hence also all $P_i$ and $P_i'$) are pairwise disjoint, and we assume that none of these sets contain $S$ and $X_i$ for $i \in \oneto{n}$.
+    We construct a new grammar $G = (N,\Sigma,P,S)$ with
+    \(
+        N = \bigcup_{i} N_i \cup \bigcup_{i} N_i \dotcup \set{ S } \dotcup \Set{ X_i}{i \in \oneto{n}}
+    \)
+    and
+    \(
+        P = \bigcup_{i} P_i \cup \bigcup_{i} P_i' \dotcup \Set{ S \to S_i X_i, X_i \to S_i' X_i}{i \in \oneto{n}}
+    \).
+
+    Grammar $G$ intuitively works as follows:
+    In the first step, one chooses some part $U_i . V_i^\omega$ of the union by picking the corresponding rule $S \to S_i X_i$.
+    From $S_i$, a word in $U_i$ can be derived (recall that $S_i$ is the initial symbol of the corresponding grammar).
+    This process has to be finite, since $S_i$ is not the rightmost nonterminal.
+    Afterwards, an infinite process starts, in each step of which $X_i$ is replaced using $X_i \to S_i' X_i$.
+    After one such step, the occurrence of $S_i'$ can then be used to derive a finite word from $V_i$.
+    Hence, the language $\olang{G}$ is indeed \(\bigcup_{i \in \oneto{n}} U_i . V_i^\omega \).
+\end{proof}
+
+\begin{example}%
+\label{Example:OmegaCFGAnBnOmega}%
+    To obtain a grammar for $\Set{a^n b^n}{n \in \N}^\omega$, we may apply a simplified version of the construction from the above proof, obtaining $G = (\set{S,X},\set{a,b},\set{ S \to XS, X \to aXb \mid \eps},S)$.
+    This grammar indeed generates the desired language:
+    Intuitively, it produces an infinite number of occurrences of $S$, each of which is then replaced by a finite word from $\Set{a^n b^n}{n \in \N}$.
+\end{example}
+
+\begin{remark}%
+\label{Remark:OmegaCFGWeakerDefinition}%
+    We briefly discuss how to recover the weaker definition of the $\omega$-language of a CFG in which we do not restrict ourselves to right-infinite derivation processes.
+    Observe that because a derivation process is linear, at most one branch of the derivation tree can be infinite.
+    Since we only consider left-derivations, any node in the tree that is to the right of an infinite branch will not be replaced:
+    The infinite branch will always contain a nonterminal that is more to the left and has to be replaced first.
+    Similarly, terminal symbols that are to the right of an infinite branch will not contribute to the word generated by the derivation process.
+    Since the infinite branch will always contain some nonterminal that occurs earlier, these terminals are not contained in any prefix.
+
+    This observation yields a method to turn a grammar $G$ into a grammar $G'$ so that $\olang{G'}$ is equal to $\Set{ \lim \tprefix{\beta_i}_{i \in \N} \in \Sigma^\omega }{ {(\beta_i)}_{i \in \N} \text{ is a right-infinite left-derivation process of } G}$.
+    The idea is to allow any branch of the derivation tree to be infinite by making it the rightmost branch.
+    To this end, we simply drop the part of the derivation tree that is to the right of this infinite branch.
+    As argued before, dropping this part will not influence the words that can be~produced.
+
+    To implement this idea, we let $G'$ consist of the nonterminals of $G$ as well as a fresh version $X'$ for every nonterminal $X$.
+    Intuitively, we will make sure that the infinite branch of the derivation tree will consist of nonterminals of the shape $X'$.
+    The initial symbol is $S'$, the copy of $S$.
+    The old nonterminals retain their rules.
+    For each rule $X \to \eta$ of $G$ and each prefix $\beta.Y$ of $\eta$ that ends in a nonterminal, we add a rule $X' \to \beta.Y'$ for $X'$.
+    Note that we use the old versions of the nonterminals in~$\beta$, but we replace $Y$ by its copy $Y'$.
+
+    All sentential forms that can be reached from $S'$ contain exactly one nonterminal of the \nb{shape $X'$}, which is the rightmost symbol.
+    Whenever we replace such a terminal, we intuitively pick a \nb{rule $X \to \eta$} of $G$, designate a nonterminal $Y$ in $\eta$ to be on the infinite branch of the derivation tree and drop the rest of $\eta$.
+
+    We apply this construction to the grammar from \cref{Example:OmegaCFGAnBnOmega}.
+    We obtain the grammar $G' = (\set{S',X',X},\set{a,b},\set{ S' \to XS' \mid X' , X \to aXb \mid \eps, X' \to aX'},S')$.
+    The rules $S' \to XS'$ and $S \to X'$ result from the rule $S \to XS$ of $G$ by choosing $X$ \resp $S$ as the nonterminal on the infinite branch.
+    Similarly, $X' \to aX'$ results from $X \to aXb$.
+    Note that we have omitted the \nb{nonterminal $S$} because it does not occur in any sentential form that is reachable from~$S'$.
+
+    A right-infinite left-derivation process of this grammar either uses the rule $S' \to XS'$ infinite often.
+    In this case, it behaves as the derivation processes of $G$ from \cref{Example:OmegaCFGAnBnOmega} and generates a word of the shape ${(a^{n_i}b^{n_i})}^\omega$.
+    Alternatively, the derivation process uses the \nb{rule $S' \to X'$} at some point, followed by an infinite sequence of applications of the rule $X' \to aX'$.
+    Hence, the word we obtain is a member of the language $\Set{a^n b^n}{n \in \N}^*.a^\omega$.
+    Altogether, $\olang{G} = \Set{a^n b^n}{n \in \N}^\omega \cup \Set{a^n b^n}{n \in \N}^*.a^\omega$.
+\end{remark}
+
+
+The other direction of the proof requires more work.
+The first step is to present a different view of the language $\olang{G}$ that separates the infinite rightmost branch of the derivation tree from the other branches.
+We start by noting that if $w.X$ is a sentential form in a right-infinite left-derivation process, then the next step will not apply a production rule whose rightmost symbol is a terminal:
+Otherwise, we would end up in a sentential form with a terminal as the rightmost symbol, and it becomes impossible to reach another sentential form that ends in \nb{a nonterminal}.
+
+We use this observation to define the \emph{spinal graph}, a finite LTS with nonterminals as configurations that is labeled by sentential forms.
+Formally we define $\SpinalGraph = (N,T,S)$ where $X \tow{\beta} Y$ if grammar $G$ contains a production rule $X \to \beta.Y$.
+Since the number of nonterminals and productions in the grammar is finite, so is $\SpinalGraph$.
+Note that we have not equipped $\SpinalGraph$ with an acceptance condition.
+We define $\olang{\SpinalGraph} \subseteq \sententials^\omega$ to be all sequences of labels that occur along infinite paths in $\SpinalGraph$ starting in $S$.
+We may flatten $\sententials^\omega = {({(\Sigma \cup N)}^*)}^\omega$ to see such a sequence as an element of~${(\Sigma \cup N)}^\omega$, and hence $\olang{\SpinalGraph}$ as an $\omega$-language over $\Sigma \cup N$.
+A problem arises in the case that in an infinite path $\eps$ is the only label occurring infinitely often.
+In this case, the resulting sequence over $\Sigma \cup N$ is finite.
+We will take care of this problem later by excluding such paths.
+
+It remains to relate the language of $\SpinalGraph$ to $\olang{G}$.
+To this end, we define $\calL_G\paren{\eps} = \set{ \eps }$, $\calL_G\paren{a} = a$ for terminals $a \in \Sigma$ and $\calL_G\paren{X} = \lang{N,P,X}$, \ie the context-free language of finite words obtained by seeing $X$ as the initial symbol of grammar $G$.
+For finite and infinite sequences \nb{over $N \cup T$}, we define their language to be $\calL_G\paren{\beta_1\beta_2 \ldots} = \calL_G\paren{\beta_1}.\calL_G\paren{\beta_2}\ldots$, the (finite or infinite) concatenation of the respective languages.
+For sets of such sequences, we define the language by applying the operator $\calL_G$ element-wise and then taking the union.
+
+\begin{lemma}%
+\label{Lemma:CFGOmegaLangSpinalGraph}%
+    $\olang{G} = \calL_G\paren{\olang{\SpinalGraph}} \cap \Sigma^\omega$.
+\end{lemma}
+
+Note that the intersection with $\Sigma^\omega$ removes paths from $\olang{\SpinalGraph}$ in which $\eps$ is the only label occurring infinitely often.
+
+\begin{proof}
+    Consider a word $w$ in $\olang{G}$ and a right-infinite left-derivation process for that word.
+    Extracting the infinite sequence of derivation steps that replace nonterminal yields a path $\pi$ in $\SpinalGraph$.
+    The infinite sequence of labels over ${(N \cup \Sigma)}^*$ along $\pi$ can be flattened to obtain an infinite \nb{word $\beta \in \olang{\SpinalGraph}$} over $N \cup \Sigma$.
+    The rest of the derivation steps in the right-infinite left-derivation process for $w$ can be used to replace each nonterminal $X$ in $\beta$ by a finite word in $\calL_G\paren{X}$.
+    The concatenation of these finite words with the nonterminals that may occur in $\beta$ yields the infinite word $w$.
+    Altogether, we obtain that $w$ is an infinite word in $\calL_G\paren{\beta} \subseteq \calL_G\paren{\olang{\SpinalGraph}}$ as desired.
+
+    For the other direction, consider an infinite word $w$ in $\calL_G\paren{\olang{\SpinalGraph}}$.
+    By definition, it is an element of $\calL_G\paren{\beta}$ for some $\beta \in \olang{\SpinalGraph}$, where $\beta$ corresponds to an infinite path $\pi$ in $\SpinalGraph$.
+    We construct a right-infinite left-derivation process for $w$ as follows.
+    We start from the initial symbol of the grammar.
+    Whenever we have to replace the rightmost nonterminal in the current sentential form, say $X$, we consider the earliest transition in the path $\pi$ that has not been processed yet.
+    It is of the shape $X \tow{\itr{\beta}{i}} Y$, corresponding to a rule $X \to \itr{\beta}{i}Y$ of the grammar.
+    We apply this rule, producing a finite infix $\itr{\beta}{i}$ of the infinite sequence $\beta$ and a new rightmost nonterminal.
+    In order to replace the nonterminals in $\itr{\beta}{i}$, we use $w \in \calL_G\paren{\beta}$ to obtain a finite sequence of left-derivations that replace such a nonterminal by an infix of $w$.
+    For each such nonterminal, we use the corresponding sequence of left-derivations until $Y$ is the only nonterminal remaining and we proceed by processing the next transition from $\pi$.
+    The infinite word produced by this derivation process is $w$, as it is the concatenation of the terminals in $\beta$ and the finite infixes of~$w$ derived from the nonterminals.
+    Hence, $w \in \olang{G}$.
+\end{proof}
+
+Finally, we can finish the proof of \cref{Theorem:CFGOmegaLangCharacterization}
+by showing the missing implication.
+
+\begin{proposition}
+    Each $\omega$-context-free language $\calL \subseteq \Sigma^\omega$ can be written as
+    \[
+        \calL = \bigcup_{i \in \oneto{n}} U_i . V_i^\omega
+    \]
+    for some $n \in \N$ with each $U_i, V_i \subseteq \Sigma^*$ context-free.
+\end{proposition}
+
+\begin{proof}
+    Consider an $\omega$-context-free language $\olang{G}$ for some CFG $G$.
+    We may construct the associated spinal graph $\SpinalGraph$.
+    For nonterminals $X,Y$, we define $\calL_{X,Y}$ to be set of sequences over $N \cup \Sigma$ that occur in $\SpinalGraph$ as the labels along finite paths from node $X$ to $Y$.
+
+    We claim that
+    \[
+        \olang{G} = \bigcup_{X \in N} \calL_G\paren{\calL_{S,X}} {(\calL_G\paren{\calL_{X,X}})}^\omega
+        \ .
+    \]
+
+    Firstly, we argue that the expression on the right-hand side is of the required shape.
+    Because there are only finitely many nonterminals, the union is finite.
+    Each language $\calL_{X,Y}$ is a regular language over $N \cup \Sigma$.
+    To this end, observe that we may see the spinal graph as a finite automaton (after inserting suitable intermediary states to make sure that each transition generates at most one letter) with $X$ as the initial and $Y$ as the unique final state.
+    Finally, observe that $\calL_G\paren{\calL_{X,Y}}$ is hence context-free.
+    The regular languages are a subclass of the context-free ones, so there is a CFG over $N \cup \Sigma$ for $\calL_{X,Y}$.
+    By adding the rules for the nonterminals from $G$ to this grammar, we obtain a CFG over $\Sigma$ that generates
+    $\calL_G\paren{\calL_{X,Y}}$.
+    In particular, $\calL_G\paren{\calL_{S,X}}$ and $\calL_G\paren{\calL_{X,X}}$ are context-free languages and the expression is as required.
+
+    Secondly, we argue that $\olang{G} \subseteq \bigcup_{X \in N} \calL_G\paren{\calL_{S,X}} {(\calL_G\paren{\calL_{X,X}})}^\omega$.
+    By \cref{Lemma:CFGOmegaLangSpinalGraph}, $\olang{G} = \calL_G\paren{\olang{\SpinalGraph}} \cap \Sigma^\omega$.
+    Consider a word $w \in \olang{G}$.
+    It is a member of $\calL_G\paren{\beta}$ for some $\beta \in \olang{\SpinalGraph}$, \ie $\beta$ is the sequence of labels along an infinite path $\pi$ in $\SpinalGraph$ that starts \nb{in $S$}.
+    Because the spinal graph has only finite many nodes, there is some nonterminal $X$ that is visited infinitely often by $\pi$.
+    By summarizing transitions in the graph, we may write $\pi$ as
+    \[
+        S \tow{\eta} X \tow{\gamma_1} X \tow{\gamma_2} X \tow{\gamma_3} \ldots \ ,
+    \]
+    where $\eta$ and the $\gamma_i$ are words over $N \cup \Sigma$ so that $\beta = \eta.\gamma_1.\gamma_2\ldots$
+    By definition, $\eta \in \calL_{S,X}$ and \nb{each $\gamma_i \in \calL_{X,X}$} for all $i$.
+    Hence, $\beta \in  \calL_{S,X}.\paren{\calL_{X,X}}^\omega$ and $w \in \calL_G\paren{\beta}$ is an element of~$\calL_G\paren{\calL_{S,X}}.\paren{\calL_G\paren{\calL_{X,X}}}^\omega$ as desired.
+
+    Finally, we consider the other direction.
+    Let $w \in \calL_G\paren{\calL_{S,X}}.\paren{\calL_G\paren{\calL_{X,X}}}^\omega$ for some $X \in N$.
+    Note that $w$ is an infinite word because the omega-iteration of a language is defined to only produce words in $\Sigma^\omega$.
+    By definition, we may write $w = \itr{w}{0}.\itr{w}{1}.\itr{w}{2}\ldots$ with $\itr{w}{0} \in \calL_G\paren{\calL_{S,X}}$ and $\itr{w}{i} \in \calL_G\paren{\calL_{X,X}}$ for all $i > 0$.
+    This in turns means there is $\eta \in \calL_{S,X}$ with $\itr{w}{0} \in \calL_G\paren{\eta}$ and $\gamma_i \in \calL_{X,X}$ with $\itr{w}{i} \in \calL_G\paren{\gamma_i}$ for all $i > 0$.
+    By the definition of the languages $\calL_{S,X}$ and $\calL_{X,X}$, $\beta = \eta.\gamma_1.\gamma_2\ldots$ is a sequence of labels along an infinite path in the spinal graph starting in $S$, hence $\beta \in \olang{\SpinalGraph}$.
+    We have that $w \in \Sigma^\omega$ is an infinite word in $\calL_G(\beta)$ with $\beta \in \olang{\SpinalGraph}$.
+    By \cref{Lemma:CFGOmegaLangSpinalGraph}, this is sufficient so show $w \in \olang{G}$, which completes the proof.
+\end{proof}
+
+
+\end{document}

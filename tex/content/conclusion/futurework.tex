@@ -1,0 +1,72 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+% \section{Future work}
+% \label{Chapter:FutureWork}
+
+We conclude by giving a brief overview of future directions for extending the research presented in this thesis.
+
+\paragraph{Applications}
+
+In the main part of the thesis, we have almost exclusively considered the theoretical aspects of the problems under consideration.
+Embedding our proposed solutions for these problems into frameworks and tools that solve verification problems in practice is a challenge that we have not tackled.
+This process would consist of at least three steps.
+The first is designing a tool that translates an actual instance of a verification problem, \eg the source code of a program (in some fixed programming language) and a specification (in some fixed specification language) into an instance of an automaton model.
+We have briefly explained the challenges associated to this step at the beginning of \cref{Chapter:Intro}.
+Secondly, one needs to implement the algorithms proposed in this thesis.
+We have presented a prototype implementation only for solving context-free games in \cref{Section:CFGamesAlgorithmics}.
+Extending the implementation to also deal with $\omega$-games or even incorporating it into a general framework for effective denotation semantics (as explained at the beginning of \cref{Chapter:EDS}) would be desirable.
+Finally, one would need to optimize the implementations so that they are well-behaved on the instances that are of practical interest.
+It is well-known that a naive implementation of an algorithm often does not perform well in practice, even if its worst-case running time matches a complexity-theoretic lower bound.
+The instances that are relevant in practice often exhibit a special structure that can be exploited if the algorithm is designed and optimized accordingly, \eg by using suitable data structures and heuristics.
+For solving context-free games, we have reported on some early work in this direction in \cref{Section:CFGamesAlgorithmics}.
+
+In addition to these considerations on applying our results, there are a few open questions on the theoretical side.
+We have discussed most of them extensively in the main parts of the thesis.
+Therefore, it should be sufficient to conclude the thesis by giving a brief summary.
+
+\paragraph{\cref{Part:Closures}.~Closures of Petri net languages}
+
+All the upper and lower bounds that we have presented for the sizes of closures of Petri net coverability languages match.
+The same holds true for the variations of these problems, \eg the case of BPP nets and the containment of SREs in the closures.
+We have not investigated the complexity of regular containment and the question of whether a given Petri net coverability language is upward or downward closed in \cref{Chapter:BeingUCDC}, neither for general Petri nets nor for BPP nets.
+Finding an algorithm for regular containment whose termination does not rely on properties of WQOs and hence allows an estimation of the running time would be desirable.
+
+Additionally, we want to highlight that the class of languages of BPP nets is not widely studied yet.
+We have established a few results in this thesis, \eg the word problem being $\NPTIME$-complete, but there are algorithmic problems for which, to the best of the author's knowledge, decidability and/or computational complexity are open questions.
+For example, the proof that inclusion and equality of Petri net coverability languages are undecidable~\cite{Jancar95, Wimmel08} does not carry over to BPP net languages.
+It is not clear whether these properties are decidable and if so, what the computational complexity is.
+
+\paragraph{\cref{Part:Separability}.~Separability}
+
+We have encountered a handful of open problems related to the separability of WSTS languages.
+Arguably, the most interesting one is the question on whether the inclusions among language classes in \cref{Theorem:WSTSExpressiveness} are strict.
+This boils down to the question of whether there is an infinitely branching non-$\omega^2$ WSTS whose language is not the language of a finitely branching WSTS.\@
+As argued at the end of \cref{Section:WSTSExpressiveness}, this problem is of little practical interest, but solving it would provide insights on the expressive power of non-$\omega^2$ WSTSes and whether finite words are sufficient to distinguish them from $\omega^2$-WSTSes.
+If it turns out that the aforementioned classes are equal, we also obtain a generalization of our results in \cref{Section:SeparabilityAndConsequences}.
+For example, if the classes are equal, we immediately obtain that any two disjoint WSTS languages are regularly separable.
+If the two classes were proven to be different, separability would remain an open question.
+Hopefully, the proof for classes not being equal would provide additional insight.
+
+In \cref{Chapter:WSTSSeparatorSize} we have presented non-matching upper and lower bounds on the size of the separator in the case of Petri net coverability languages.
+We have already conjectured that the upper bound can be improved by a construction for determinization that is more clever.
+
+Finally, it should be mentioned that the regular separability of Petri net reachability languages is at the time of this writing the most important open problem in the area of separability.
+Note that Petri net reachability languages are not WSTS languages (at least not with reaching an upward-closed set of configurations as the acceptance condition).
+In contrast to WSTS languages, there are pairs of Petri net reachability languages that are disjoint but not regularly separable.
+Hence, the goal here is to understand whether regular separability is a decidable property.%, while deciding it is trivial in the case of WSTS languages.
+
+\paragraph{\cref{Part:Games}.~Games}
+
+We have extensively studied context-free games producing finite words and compared our approach to other works.
+We have discussed that our approach avoids an upfront determinization of the problem input which would be needed in order to apply various algorithms from the literature (\eg the ones by Cachat~\cite{Cachat02} and \Walu~\cite{Walukiewicz01}).
+When it comes to games that produce infinite words, however, we have employed a determinization in \cref{Section:CFGamesOmega}.
+It is unclear whether this step in our construction can be avoided.
+We refer to the end of the aforementioned section for a discussion of the topic and related work that hints at the construction being potentially unavoidable.
+In the case of higher-order games, we have not yet attempted at all to generalize our approach to the case of infinite words.
+
+Finally, when considering valence games in the last chapter of the part, we have conjectured in \cref{Section:ValenceBCS} that all reachability games become decidable once we restrict them by bounding the number of context switches.
+We have justified this conjecture by proving a weaker result for valence reachability under bounded context switching and discussed the problems that prevent us from adapting that proof to the case of games in a straightforward manner.
+We hope that these problems can be overcome in the future in order to obtain \nb{a proof for the conjecture}.
+
+\end{document}

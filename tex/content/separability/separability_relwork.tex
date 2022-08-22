@@ -1,0 +1,84 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Related work}%
+\label{Sectiopn:SeparabilityRelatedWork}%
+
+We summarize results from the literature regarding separability and regular separability.
+
+The separability \emph{of} regular languages \emph{by} subclasses of the regular languages is a widely studied problem, but beyond the scope of this thesis.
+Let us briefly mention that the decision problem of $\calS$-separability of regular languages is decidable if $\calS$ is the class of piecewise-testable languages~\cite{CzerwinskiMM13,PlaceVZ13}, or the class of locally testable or locally threshold-testable languages~\cite{PlaceVZ13b}, or the class of  languages definable in first-order logic~\cite{PlaceZ14}, or one of certain classes in the higher levels of the first-order hierarchy~\cite{PlaceZ14b}.
+
+\begin{figure}
+    \centering%
+    \input{tikz/separability_map.tikz}%
+    \caption{An overview of the decidability status of the regular separability problem for various languages classes. Boxes represent classes, arrows represent inclusions among classes. The symbol on the left-hand side of each node shows whether regular separability is decidable ($\checkmark$), undecidable ($\bm\times$), or whether the decidability status is unknown ($\bm?$).}%
+    \label{Figure:RegularSeparabilityRelatedWork}%
+\end{figure}
+
+\cref{Figure:RegularSeparabilityRelatedWork} contains an overview of the results that have been established regarding regular separability.
+We will discuss these results in detail in the following.
+
+\paragraph{Undecidable cases}
+
+A classical result by \citea{SzymanskiW76} shows that regular separability is undecidable for the class $\DCFL$, the \emph{deterministic context-free languages}.
+This class is a strict subclass of $\CFL$, the class of context-free languages, that is defined by deterministic pushdown automata.
+The undecidability for $\DCFL$ implies undecidability for all superclasses, including $\CFL$, $\HORS$ (the languages of higher-order recursion schemes), and the class of Turing machine languages $\RECENUM$.
+
+\citea{Kopczynski16} has shown that the problem is also undecidable for $\VPL$, the class of languages of \emph{visibly pushdown automata (VPAs)}.
+A VPA over an input alphabet that is partitioned into push-letters, pop-letters, and internal letters, acts like a pushdown automaton, but in each step, the type of letter that is read determines the type of stack operation that should be performed.
+The undecidability for $\VPL$ is surprising because $\VPL$ shares many closures properties and the resulting algorithmic properties with the regular languages.
+In particular, $\VPL$ is closed under complementation and intersection-emptiness for $\VPL$ can be decided (assuming that both languages use the same partitioning of the alphabet)~\cite{AlurM04}.
+
+\citea{CzerwinskiL17} have shown that regular separability is also undecidable for $\OCA$, the class of languages of one-counter automata.
+A one-counter automaton is an automaton that uses a single non-negative counter as storage in addition to its finitely many control states.
+The class $\OCA$ is a subclass of $\CFL$ -- one-counter automata can be seen as pushdown automata over two stack symbols, where one is exclusively used to mark the bottom-of-stack -- that is incomparable to $\VPL$.
+
+Finally, the paper~\cite{ClementeCLP17} strengthens the aforementioned results by showing that regular separability is undecidable even for languages of \emph{visibly one-counter automata (VOCA)}, one-counter automata for which each letter that is read determines the counter operation that is performed.
+This type of automata defines a class of languages that is a strict subclass of both $\VPL$ and $\OCA$.
+This shows that regular separability becomes undecidable for classes that extend the regular languages towards the context-free ones, even if the extension is very restricted.
+
+\paragraph{Decidable cases}
+
+The paper by \citea{CzerwinskiL17} exhibits a case in which regular separability is decidable.
+It is decidable for $\OCN$, the class of \emph{one-counter nets}, one-counter automata that cannot check their counter value during runtime.
+Alternatively, these may be seen as Petri nets with reachability as the acceptance condition in which all places but one only contain one token in total.
+The decidability for $\OCN$ is interesting because regular separability is non-trivial in this case: There are disjoint languages from $\OCN$ that are not regularly separable.
+In the paper, checking the existence of a regular separator is reduced to checking whether a specific approximation is a separator for some constant determining the precision of the approximation.
+The latter can be reduced to reachability in $2$-dimensional vector addition systems (or, equivalently, Petri nets with $2$ unbounded places), which is $\PSPACE$-complete~\cite{BlondinFGHM15}.
+Regular separability inherits this complexity.
+
+To the best of the author's knowledge, it has not yet been determined whether regular separability is decidable in the case of Petri net reachability languages.
+However, there are subclasses for which the problem has been shown to be decidable.
+We have already elaborated on the result for one-counter nets.
+In~\cite{ClementeCLP17}, the authors prove that the problem is decidable for \emph{Parikh automata}, or equivalently, \emph{integer Petri nets} with reachability as the acceptance condition.
+An integer Petri net is a Petri net that is executed on what we have called pseudo-markings, markings that may assign negative numbers of tokens.
+%
+Additionally, the regular separability problem has been shown to be decidable for the class of commutative closures of Petri net reachability languages~\cite{ClementeCLP17b}.
+Equivalently, it is decidable whether two Petri net reachability languages can be separated by the commutative closure of a regular language.
+% For the proof, the authors study separability problems that do not work on the level of languages, but on the level of configurations, an approach that we will also take in \cref{Chapter:WSTSSeparability}.
+
+The rest of this part of the thesis is dedicated to showing results related to regular separability for Petri net coverability languages, another important subclass of the Petri net reachability languages.
+In fact, we will show that under mild assumptions, regular separability is decidable even for the languages of WSTSes, a class that extends the Petri net coverability languages and is incomparable to the Petri net reachability languages~\cite{GeeraertsRV07}.
+We will discuss these results, which stem from the publication~\cite{CzerwinskiLMMKS18} in the next section.
+
+\paragraph{Related problems}
+
+We conclude our overview of the related work from the literature by comparing regular separability to other decision problems for language classes.
+There are two candidate problems that seem to be closely related to regular separability.
+The first one is the intersection-emptiness problem for which we have already  extensively discussed why it is related to regular separability.
+The second one is the \emph{regularity problem}, the problem of checking whether the language of a given system is regular.
+Its relation to regular separability stems from the fact that if a language and its complement are from the same class of languages, then these languages are regular if and only if they are regularly separable.
+This is because in that case, the language itself is the only possible candidate for a regular separator; we will later formally prove this statement in the form of \cref{Corollary:WSTSNecessarilyRegular}.
+However, it has been shown that both problems are independent of regular separability in general.
+The decidability or undecidability of regularity or intersection-emptiness does not imply the decidability or undecidability of regular separability and vice versa.
+
+The result by \citea{Kopczynski16} on visibly pushdown languages exhibits a case in which intersection-emptiness is decidable, but regular separability is undecidable.
+Recently, \citea{ThinniyamZ19} have constructed a setting in which regular separability is decidable while intersection-emptiness is undecidable.
+A notable property of their construction is that they consider the intersection-emptiness problem and regular separability problem for two classes of input languages that are not equal.
+Formally defining the classes of languages for which they show the result is rather involved and beyond the scope of this thesis.
+
+Regarding regularity, it has been observed that regular separability is undecidable for deterministic one-counter automata~\cite{CzerwinskiL17}, while regularity is decidable even for deterministic pushdown automata~\cite{Valiant75}.
+For the other direction, one observes that regularity is undecidable for Parikh automata~\cite{CadilhacFM11}, while regular separability is decidable~\cite{ClementeCLP17}.
+
+\end{document}

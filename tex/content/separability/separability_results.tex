@@ -1,0 +1,32 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Results}%
+\label{Separability:Results}
+
+The main result that we will show in this part of the thesis is the following:
+\emph{Under mild assumptions, any two disjoint WSTS languages are regularly separable}.
+The mild assumptions are in the case of upward-compatible WSTSes that one of the languages is the language of a WSTS that is finitely branching, deterministic or $\omega^2$.
+The result also applies in the case of downward-compatible WSTSes (DWSTSes).
+Here, we need that one of the languages is the language of a deterministic DWSTS or the language of an $\omega^2$-DWSTS.\@
+We have not yet formally defined the restriction of being $\omega^2$; we will do so in \cref{Section:OmegaSquareWSTSes}.
+For now, it suffices to know that virtually all WSTSes that occur in practice are $\omega^2$-WSTSes.
+In particular, our result applies to Petri net coverability languages.
+
+In \cref{Chapter:WSTSExpressiveness}, we will study several restricted versions of WSTSes and prove inclusions among their languages classes.
+We obtain that the aforementioned restriction have in common that they allow us to determinize the corresponding WSTS.\@
+
+We will use this fact in \cref{Chapter:WSTSSeparability} when proving our results.
+Firstly, we show a technical core result that relates certain invariants on the level of configurations to the existence of a regular separator on the level of languages.
+This result is stated on the level of upward-compatible LTSes, which then allows us to apply it to both DWSTSes and to WSTSes.
+
+Our result on regular separability implies that checking regular separability amounts to checking disjointness, which can be done under mild assumptions.
+Furthermore, it is constructive in the sense that from a certain type of proof of disjointness, one can construct a regular separator.
+Hence, it provides the desired certificate for intersection-emptiness, which was our initial motivation for studying regular separability.
+
+We will demonstrate the construction in \cref{Chapter:WSTSSeparatorSize} in the case of Petri nets with coverability as the acceptance condition.
+We obtain a triply exponential upper bound for the state complexity of a regular separator.
+Furthermore, we complement this by providing a doubly exponential lower bound.
+We will comment on the fact that the bounds do not match and on several other open questions regarding our results throughout this part of the thesis.
+
+\end{document}

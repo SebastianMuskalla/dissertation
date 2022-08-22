@@ -1,0 +1,233 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Higher-ordered recursion schemes}%
+\label{Section:HORS}%
+
+We introduce \emph{higher-order recursion schemes (HORSes)}~\cite{Nivat72,CourcelleN78}, a rewriting-based type of language generating mechanism that can be seen as a generalization of context-free grammars.
+As briefly mentioned, context-free grammars can be used to model recursive programs;
+they can be seen as a HORSes of order one.
+Modern programming languages like Haskell~\cite{Haskell03} support higher-order functions, \ie functions whose parameters themselves are functions.
+Context-free grammars (and HORSes of order one) are insufficient to model this concept, while HORSes of order greater than one provide a model for such programs.
+Our presentation follows~\cite{Haddad12}.
+
+We first introduce a typing discipline.
+The typing fixes for each term a type, which in particular determines its order, \ie whether it is a value (a term of order zero), a function of order one that operates on values, or a function of higher order that has functions as parameters.
+Representing both functions and values by terms corresponds to the concept of treating functions as \emph{first-class citizens} in modern programming languages.
+Instead of having a clear distinction between values and functions, functions are simply seen as values of the corresponding function type.
+
+We will actually not use the name type in the following.
+We refer to the concept that was explained above as \emph{kinds}, to avoid confusion with type-based approaches to the verification of HORSes as used \eg in~\cite{Kobayashi09}.
+
+We define $\ground$ to be the unique kind \emph{ground} of data values.
+Functions kinds are derived by composition.
+Formally, the kinds $\kappa$ are defined by the following grammar:
+\begin{align*}
+     \kappa\ \bnfdef \ground \bnf ( \kappa \to \kappa)\ .
+\end{align*}
+Intuitively, a term of kind $\kappa_1 \to \kappa_2$ is a function that takes a value of kind $\kappa_1$ and returns a value of kind $\kappa_2$ (where both the parameter and the return value may be functions).
+We define $\kinds$ to be the set of all kinds.
+
+We usually omit unnecessary brackets by assuming right-associativity.
+For instance, this means that $\ground \to \ground \to \ground$ denotes $\ground \to (\ground \to \ground)$, \ie the kind of functions that take a ground value and return a function that takes and returns a ground value.
+
+Our definition of kinds does not allow for multi-parameter functions.
+Instead, we use the concept of currying.
+A function that takes two values and returns one, which intuitively should have kind $\ground \times \ground \to \ground$ is seen as a function of kind $\ground \to (\ground \to \ground)$:
+It takes the first parameter and returns a function that takes the second parameter and then returns the final value.
+Formally, we consider $f \colon \ground \times \ground \to \ground$ as a function $f' \colon \ground \to (\ground \to \ground)$ by defining $f'(x) \colon \ground \to \ground$ with $(f'(x))(y) = f(x,y)$.
+This concept is commonly implemented in functional programming languages like Haskell to simplify the usage of partially evaluated functions.
+
+We define the notion of \emph{arity} that describes the number of parameters that a function takes (in its uncurried form), and its \emph{order} as explained above.
+We formally define
+\begin{align*}
+        \horsarity{\ground} &= 0,
+        & \horsorder{\ground} &= 0,\\
+        \horsarity{\kappa_1 \to \kappa_2} &= \horsarity{\kappa_2}+1,
+        & \horsorder{\kappa_1 \to \kappa_2} &= \max(\horsorder{\kappa_1} +1, \horsorder{\kappa_2})\ .
+\end{align*}
+
+For example, we have $\horsarity{\ground \to (\ground \to \ground)} = \horsarity{\ground \to \ground} + 1 = \horsarity{\ground} + 2 = 2$ and $\horsorder{\ground \to (\ground \to \ground)} = 1$.
+Indeed, functions of type $\ground \to (\ground \to \ground)$ in their uncurried form take two parameters and are of order one, since their parameters and their return value are ground values.
+In contrast, we have $\horsarity{(\ground \to \ground) \to \ground} = 1$ and $\horsorder{(\ground \to \ground) \to \ground} = 2$.
+A function of kind $(\ground \to \ground) \to \ground$ takes a function as parameter and returns a ground value.
+% , but it  a function as parameter.
+% Also note that the kind $(\ground \to \ground) \to \ground$ cannot be simplified by omitting brackets without changing its meaning.
+
+
+Just as a context-free grammar, a HORS consists of terminals and nonterminals.
+In contrast to CFGs, we see the nonterminals of HORSes as functions.
+Syntactically, this means that we also need a set of variables.
+%
+To get a consisting typing, each of the three types of symbols has an associated kind.
+More formally, a \emph{kinded symbol} is a symbol $a$ together with a kind $\kappa$, which we write as $a \colon \kappa$.
+Let $\Lambda$ be a set of kinded symbols.
+When convenient, we see $\Lambda$ as a set of (distinct) symbols and assume that the kind assignment is implicitly given.
+By $\Lambda_\kappa$, we denote the restriction of $\Lambda$ to symbols with kind~$\kappa$.
+
+For each kind $\kappa$, $\horsterms{\Lambda}{\kappa}$ is the set of terms of kind $\kappa$.
+These sets are defined by simultaneous inductions over all kinds.
+They are the smallest sets so that
+\begin{enumerate}[(1)]
+    \item
+        All symbols from $\Lambda$ are terms of the appropriate kind,
+        \[
+            \forall \kappa \colon
+            \Lambda_\kappa \subseteq \horsterms{\Lambda}{\kappa}
+        \]
+    \item
+        If $f  \in \horsterms{\Lambda}{\kappa_1 \to \kappa_2}$ is a (function) term of kind $\kappa_1 \to \kappa_2$, and $v \in \horsterms{\Lambda}{\kappa_1}$ is a term of kind $\kappa_1$, then the \emph{application} $f\ v$ is a term in $\horsterms{\Lambda}{\kappa_2}$ of kind $\kappa_2$,
+        \[
+            \forall \kappa_1, \kappa_2 \colon
+            \Set{f \appl t}{f \in \horsterms{\Lambda}{\kappa_1 \to \kappa_2},  v \in \horsterms{\Lambda}{\kappa_1}} \subseteq \horsterms{\Lambda}{\kappa_2}
+            \ .
+        \]
+    \item
+        If $t \in \horsterms{\Lambda}{\kappa_2}$ is a term of kind $\kappa_2$, and $x \in \horsterms{\Lambda}{\kappa_1}$ is a term of kind $\kappa_1$, then the \emph{$\lambda$-abstraction} $\lambda x . t$ is a term of kind $\kappa_1 \to \kappa_2$,
+        \[
+            \Set{ \lambda x . t}{ t \in \horsterms{\Lambda}{\kappa_2},  x \in \horsterms{\Lambda}{\kappa_1} }
+            \subseteq
+            \horsterms{\Lambda}{\kappa_1 \to \kappa_2}
+            \ .
+        \]
+\end{enumerate}
+The set of all terms $\horsterms{\Lambda}$ is defined as the union of the $\horsterms{\Lambda}{\kappa}$ for all kinds $\kappa$.
+
+As we have seen in the second rule, we usually omit the brackets for function application, \ie we \nb{write $f \appl t$} instead of $f(t)$.
+The last rule is interesting as it allows us to construct infinitely many terms of arbitrarily large order assuming there is at least one symbol of kind ground.
+Instead of \nb{writing $t \in \horsterms{\Lambda}{\kappa}$}, we simply write $t \colon \kappa$ (where we assume that $\Lambda$ is clear from the context).
+%
+Terms that do not contain $\lambda$-abstractions, \ie they are build only using the first two cases of the definition of terms, are called $\lambda$-free.
+
+When defining HORSes, we will assume that $\Lambda$ contains a set of variables.
+To distinguish these variables form other types of variables that we will consider in \cref{Part:Games}.~of the thesis, we speak of \emph{HORS variables}.
+We assume that only the HORS variables are allowed to take the place of $x$ in the $\lambda$-abstraction $\lambda x . t$.
+This allows us to speak of the free variables of a term, \ie variables that occur in the term and that are not bound by a preceding $\lambda$-abstraction.
+A \emph{variable-closed} term is a term that does not contain any free variables.
+
+We have now gathered the prerequisites to formally defines HORSes.
+
+% \begin{definition}
+    A \emph{higher-order recursion scheme (HORS)} is a tuple $G = (V, N, T, P, S)$, where
+        $V$ are the HORS variables, $T$ are the terminals, $N$ are the nonterminals.
+        All three sets are finite sets of kinded symbols that are pairwise disjoint.
+        The symbol $S \in N$ is the initial symbol.
+        The set $P$ contains a finite set of \emph{production rules} of the shape $F \to t$, where $t$ is a term over $\Lambda = V \dotcup N \dotcup T$, the union of variables, nonterminals and terminals.
+        We require that $P$ is well-typed in that for each \nb{production $X \to t$}, the kinds of $X$ and $t$ coincide.
+        We require that each right-hand side $t$ is a variable-closed term $\lambda x_1 \ldots \lambda x_n . e$ where the $x_i$ are variables and $e$ is a $\lambda$-free term of kind $\ground$. (This implies \nb{that $x_1, \ldots, x_n$} is a superset of the variables that occur in $e$.)
+% \end{definition}
+
+We generalize the notions of order and arity from kinds to terms of that kind.
+The order of a HORS is the maximum order of any of its nonterminals.
+
+The semantics of a HORS $G$ is defined in the form of a term rewriting system, whose terms are the terms (over the union of variables, nonterminals, and terminals), and the rewriting rules of which are induced by the productions of $G$.
+To make this definition formal, we define a \nb{\emph{context} $C[\contextplaceholder]$} to be a term over $\Lambda \dotcup \set{ \contextplaceholder \colon \ground}$ in which the placeholder $\contextplaceholder$ of kind ground occurs exactly once.
+Given $C[\contextplaceholder]$ and a term $t \colon \ground$ of kind ground, we define $C[t]$ as the term over $\Lambda$ obtained by replacing the unique occurrence of $\contextplaceholder$ by $t$.
+Note that the kinds of $C[\contextplaceholder]$ and $C[t]$ coincide.
+We introduce a derivation relation on terms over $\Lambda$ by defining $t \derive t'$ to hold iff if there is a \nb{context $C[\contextplaceholder]$}, a production rule $X \to \lambda x_1 \ldots \lambda x_n.e$, and a term $X\ t_1\ \ldots\ t_n \colon \ground$ such that
+$t = C[X\ t_1\ \ldots\ t_n]$ and $t' = C[e[x_1 \mapsto t_1, \ldots, x_n \mapsto e_n]]$.
+In words, the derivation relation allows us to choose a subterm $X\ t_1\ \ldots\ t_n$ of kind ground (which intuitively means that all parameters of $X$ are present) and replace it by the right-hand side of a production for $X$, with the occurrences of the variables replaced by the appropriate parameters.
+We call such a subterm a \nb{\emph{reducible expression (redex)}}.
+Note that since we required productions to be well-typed, the derivation relation is kind-preserving: If $t \derive t'$, then $t$ and $t'$ are of the same kind.
+
+To associate a language to a HORS, one usually imposes several restrictions.
+The first one is that we require the initial symbol $S$ to be of kind ground.
+Since the rewriting relation is kind-preserving, this implies that any term derivable from $S$ is of kind ground.
+The second one is that all terminals have order at most one.
+Together, this means that any term over the terminals that can be derived from the initial word can be seen as a tree:
+The term $a\ t_1\ t_2\ \ldots t_n$, where $a$ is a terminal of arity $n$, is a tree consisting of an $a$-labeled root and $n$ subtrees that correspond to the parameters.
+In particular, a terminal of arity $0$ is seen as a tree consisting of a single leaf.
+% Note that we have omitted brackets by writing $a\ t_1\ t_2\ \ldots t_n$ for the term $(\ldots((a\ t_1)\ t_2) \ldots ) t_n$, similar to the conventions for kinds.
+
+\paragraph{Word-generating schemes}
+
+We are interested in schemes that define a language of finite words.
+To this end, we impose the stronger restriction that the set of terminals is of the shape $T = \Sigma \dotcup \set{ \wordend \colon \ground}$, where $\wordend$ is the \emph{word-end marker} of kind ground, and the other terminals in $\Sigma$ are of kind $\ground \to \ground$, \ie they are first-order and have arity one.
+
+We say that the word $w = a_1 \ldots a_n \in \Sigma^*$ (with the symbols $a_i$ from $\Sigma$ seen as normal letters) can be derived by HORS $G$ if $S \derive^* a_1 (a_2 ( a_3 \ldots a_n(\wordend)))$.
+In the following, we will identify terms of this shape with the corresponding words.
+The language $\lang{G}$ of $G$ is defined to be the set of all words that can be derived by $G$.
+
+A derivation step is \emph{outermost to innermost (OI)} if there is no redex that contains the one that was replaced as a proper subterm.
+\citea{Haddad12} has shown that we do not lose expressiveness by restricting ourselves to OI-derivations:
+Any word that can be derived from the initial symbol can be derived by a sequence of OI-derivation steps.
+In a sense OI-derivation steps for HORSes correspond to left-derivations in the case of CFGs.
+
+There is the analogue notion of innermost to outermost (IO) derivations.
+However, there are words that can be derived by OI derivations, but not by IO derivations.
+Also, we will later make use of the fact that each derivable term in a word-generating scheme has a unique outermost redex.
+The same is not true for innermost redexes.
+
+\begin{example}%
+\label{Example:HORSfromCFG}%
+    Let $G = (N,P,S)$ be a context-free grammar over $\Sigma$.
+    We define a word-generating \nb{scheme $G' = (V, N', T, P, S')$} of order one with the same language.
+    The set of variables consists of the unique variable $x \colon \ground$.
+    The set $N'$ consists of the nonterminals $N$ of $G$, each seen $X \in N$ as a symbol of kind $\ground \to \ground$.
+    Additionally, we introduce a fresh nonterminal $S' \colon \ground$ that is the initial symbol of the HORS.\@
+    The terminals $T$ of the HORS consist of the word end marker $\wordend \colon \ground$ and of the \nb{terminals $\Sigma$} of the grammar, each terminal $a$ seen as a symbol of kind $\ground \to \ground$.
+
+    For the nonterminals in $N$, each rule $X \to \eta$ of the grammar with $\eta = \eta_1 \eta_2 \ldots \eta_m \in {(N \cup \Sigma)}^*$ induces a rule $X \to \lambda x . \eta_1 (\eta_2 ( \ldots \eta_m (x) \ldots )) $.
+    Intuitively, a nonterminal takes the suffix of the terminal word that has already been generated as the parameter $x$ of kind $\ground$.
+    It then prepends the sentential form $\eta$.
+    Technically, the concatenations in $\eta$ are seen as a sequence of function applications.
+    % Finally, this allows us to derive $w.x$, where $w$ is a word derived from sentential form $\beta$.
+%
+    Additionally, there is a rule $S' \to S \appl \wordend$ for the fresh initial symbol $S'$.
+    Intuitively, it starts the derivation process with the empty suffix.
+
+    We obtain a one-to-one correspondence between derivation steps in the grammar and derivation steps of the HORS, and between OI-replacement steps and left-derivations.
+    To see that this is true, note that any term that can be derived by the HORS from $S$ is of the \nb{shape $\beta_1 (\beta_2 ( \ldots \beta_k (\wordend) \ldots ))$}, where each $\beta_i$ is a terminal or a nonterminal from $N$.
+    Each \nb{subterm $\beta_i (\beta_{i+1} ( \ldots \beta_k (\wordend) \ldots ))$} where $\beta_i$ is a nonterminal is a redex.
+%
+    % Similarly, each left-derivation corresponds to a OI-replacement step:
+    % The leftmost occurrence of a nonterminal in a sentential form corresponds to the outermost redex in a HORS term.
+%
+    Altogether, we obtain $\lang{G} = \lang{G'}$ as desired.
+
+    We instantiate this construction for the grammar from \cref{Example:CFGAnBn} and obtain the \nb{HORS $G' = (\set{x \colon \ground},\set{S' \colon \ground, S \colon \ground \to \ground},\set{a \colon \ground \to \ground, b \colon \ground \to \ground, \wordend \colon \ground}, P, S')$} with the rules $S' \to S \appl \wordend$, $S \to \lambda x . x$, and $S \to \lambda x . a \appl S \appl b \appl x$.
+    Note that $a \appl S \appl b \appl x$ stands for $a(S(b(x)))$.
+    This HORS generates the language $\Set{a^n b^n}{n \in \N}$ as expected.
+\end{example}
+
+\begin{example}
+    We give an example showing that HORSes are strictly more expressive than CFGs.
+    Consider the \nb{HORS
+    $G = (\set{f \colon \ground \to \ground, x \colon \ground}, N, T, P,S)$} where
+    $N = \set{S \colon \ground, X, Y \colon (\ground \to \ground) \to \ground \to \ground, Z \colon \ground \to \ground}$,
+    $T = \set{a, b, c \colon \ground \to \ground, \wordend \colon \ground}$,
+    and the rules are $S \to X \appl Z \appl \wordend$, $X \to \lambda f. \lambda x . f \appl x$, $X \to \lambda f. \lambda x . X \appl (Y \appl f) \appl (c x)$, $Y \to \lambda f.\lambda x . a \appl f \appl b \appl x$, and $Z \to \lambda x . x$.
+    It is of order two and generates the non-context-free \nb{language $\Set{a^n b^n c^n}{n \in \N}$}.
+\end{example}
+
+\paragraph{Determinism}
+
+A HORS is deterministic if each nonterminal $X$ has a unique rule with $X$ as its left-hand side.
+If we restrict ourselves to OI-derivation steps, this makes the transition relation on the semantic level deterministic for word-generating schemes.
+
+Many works in the literature present word-generating schemes in a different way:
+They consider deterministic schemes without restricting the terminals to be of arity one.
+These schemes have a unique derivation process, the limit of which is a tree.
+The language of finite words of the scheme occurs as the set of all labels along finite branches of that tree.
+Both views have advantages and drawbacks, and it is easy to convert between them.
+We will formally introduce the construction for determinization in \cref{Section:HORSFPSemantics}.
+The definition of word-generating schemes here makes it easier to see the correspondence between CFGs and HORSes of order one.
+
+\paragraph{Alternative models}
+
+In the same way that context-free languages can also be defined via pushdown automata, there is a state-based model for languages of word-generating higher-order schemes.
+A higher-order pushdown automaton of order $n$ is an automaton that uses an order-$n$ stack as storage. A stack of order one is simply a LIFO stack as defined in \cref{Section:CFG}.
+A stack of order $i+1$ for $i \geq 1$ is a sequence of order $i$ stacks.
+In addition to the order-one operations $\pushop A$ and $\popop A$ for every symbol of the stack alphabet, the transitions can be labeled by $\pushop_{\!i}$ and $\popop_{\!i}$ for $i \in \fromto{2}{n}$.
+An order-$i$ push duplicates the topmost order-$i$ stack (inside the topmost order-$(i+1)$ stack inside the topmost-$(i+2)$ stack and so on, if $i \neq n$).
+Similarly, an order-$i$ pop operation removes the topmost order-$i$ stack.
+
+Unfortunately, order-$n$ pushdown automata do not generate all languages of HORSes of order~$n$.
+Rather, they generate a subclass, the languages of \emph{safe} HORSes, where safety is a syntactic restriction on the production rules of HORSes~\cite{DammG86,KnapikNU02}.
+
+To get the desired equivalence, one has to enhance the model to obtain collapsible higher-order pushdown systems~\cite{HagueMOS17}.
+In this model, each (order-$1$) stack symbol is equipped with a link, a pointer into the stack that represents the context in which the symbol was created.
+Additionally, there is a collapse operation that removes a part of the stack so that the target of the link becomes the top-of-stack.
+Giving the formal definitions and a more in-depth explanation is not needed for this thesis.
+
+\end{document}

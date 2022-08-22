@@ -1,0 +1,29 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\chapter*{Part IV.\newline Separability}
+
+In \cref{Section:IntroSeparability} of the introduction, we have explained that the (regular) separability problem is related to the compositional verification of concurrent systems.
+This part of the thesis is concerned with studying regular separability for well-structured transition \nb{systems (WSTSes)}.
+
+\paragraph{Outline}
+
+We start by providing the basic definitions regarding separability and regular separability in \cref{Chapter:Separability}.
+We also discuss related work from the literature and summarize the results that we will show in this part of the thesis.
+
+Before actually considering the separability problem for the class of languages of WSTSes, we study the relations among various subclasses thereof in \cref{Chapter:WSTSExpressiveness}.
+These results widen the applicability of our main result, which we will present in \cref{Chapter:WSTSSeparability}.
+We will prove that under mild preconditions, any two disjoint WSTS languages are regularly separable.
+We first prove a technical core result that relates a certain type of invariant of the state space of a WSTS to the existence of a regular separator.
+Then, we use the ideal completion of a WSTS to prove that such an invariant always has to exist.
+
+In \cref{Chapter:WSTSSeparatorSize}, we demonstrate our result on regular separability by applying it to Petri net coverability languages, a subclass of the class of WSTS languages.
+We explicitly provide the construction of a regular separator, which yields a triply exponential state complexity.
+Furthermore, we prove a doubly exponential lower bound for that space complexity.
+
+\paragraph{Publication}
+
+The content we present in this section is mostly taken from the publication~\cite{CzerwinskiLMMKS18} (\resp its full version~\cite{CzerwinskiLMMKS18a}).
+We will discuss the author's contributions to this paper in \cref{Chapter:Contributions}.
+
+\end{document}

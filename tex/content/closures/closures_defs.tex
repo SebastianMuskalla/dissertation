@@ -1,0 +1,104 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Basic definitions}%
+\label{Closures:Defs}%
+
+We start by making formal the notions of superwords and subwords and the sets of such.
+To be precise, we show that they can be incorporated into the framework of WQOs, see \cref{Section:WSTS}.
+
+Let $(X,\leq)$ be a quasi-order.
+The \emph{subsequence ordering} $(X^*,\leq^*)$ on the set of finite-length sequences over $X$ is defined as follows.
+A sequence $v$ is smaller than sequence $w$, $v \leq^* w$, if it can be obtained from $v$ by iteratively deleting elements and replacing elements by smaller elements with respect to the underlying order $(X,\leq)$.
+If $v = a_1 a_2 \ldots a_n$ and $v \leq^* w$, this means that we can write
+$w = \itr{c}{0} b_1 \itr{c}{1} b_2 \ldots \itr{c}{n-1} b_n \itr{c}{n}$ for sequences $\itr{c}{i} \in X^*$ and elements $b_i \in X$ with $a_i \leq b_i$ for all $i$.
+Note that here, we use $X^*$ to denote the finite-length sequences over $X$ following the notation for words, even if $X$ is not finite.
+
+Higman's lemma~\cite{Higman52} guarantees that the subsequence ordering induced by a WQO is a WQO again.
+
+\begin{lemma}[(\citea{Higman52})]%
+\label{Lemma:Higman}%
+    If $(X,\leq)$ is a well-quasi-order, then so is $(X^*,\leq^*)$.
+\end{lemma}
+
+Throughout this thesis, we will be exclusively interested in the case where the underlying order is $(\Sigma,=)$, a finite alphabet ordered by equality.
+Indeed, such a set is a WQO, see Part~a) of \cref{Example:WQO}, so Higman's Lemma guarantees that $(\Sigma^*,=^*)$ is a WQO.\@
+In this special case, we call the order the \emph{subword order} and denote it by $(\Sigma^*,\subword)$.
+Since the underlying order is equality, the definition of the subsequence order is restricted: It is impossible to replace an element by a distinct smaller element.
+Hence, the definition is as expected: A word $w$ is a subword of another word $v$, $w \subword v$, if it can be obtained by deleting letters.
+In that case, we also say that $v$ is a \emph{superword}, which means that it can be obtained from $w$ by inserting letters.
+Note that when we say \emph{subword}, we are talking about \emph{scattered subwords}, \ie we do not require subwords to occur as infixes.
+It is also noteworthy that the subword ordering inherits the property of being partial order from $(\Sigma,=)$, meaning that unlike WQOs in general, it is antisymmetric.
+
+In \cref{Section:WSTS}, we have introduced the notion of the upward and the downward closure of a set.
+Here, we apply these operations to a language with respect to the subword ordering.
+Given a language $\calL$, its downward closure
+\(
+    \dc{\calL} = \Set{ w \in \Sigma^*}{ \exists v \in \calL \colon w \subword v}
+\)
+is the set of all words that are a subword of a word in the language.
+Similarly, the upward closure
+\(
+    \uc{\calL} = \Set{ w \in \Sigma^*}{ \exists v \in \calL \colon v \subword w}
+\)
+is the set of all superwords of a word in the language, or equivalently, all words that have a subword in the language.
+Unless stated otherwise, all closure operators will refer to the closures with respect to the subword ordering in this part of the thesis.
+
+\paragraph{Regularity and simple regular expressions}
+
+With Higman's Lemma, we also get that the various properties of WQOs stated in \cref{Lemma:WQOProperties} apply to the subword ordering.
+A surprising consequence of this is the classical result states that both the upward closures and the downward closures of arbitrary languages are guaranteed to be regular.
+We give the proof to show how the properties of well-quasi-orders come into play.
+
+\begin{theorem}[(\citea{Haines69})]%
+\label{Theorem:Haines}%
+    For any language $\calL \subseteq \Sigma^*$, $\dc{\calL}$ and $\uc{\calL}$ are regular.
+\end{theorem}
+
+\begin{proof}
+    By Higman's Lemma $(\Sigma^*,\subword)$ is a WQO, so every language over $\Sigma$ has a finite set of minimal elements by Item~(\ref{Property:WQOFiniteBasis}) of \cref{Lemma:WQOProperties}.
+    Applying this property to $\uc{\calL}$ yields a finite set of words $\itr{w}{1}, \ldots, \itr{w}{k}$ such that $\uc{\calL} = \uc{\set{ \itr{w}{1}, \ldots, \itr{w}{k}}} = \uc{\itr{w}{1}} \cup \ldots \cup \uc{\itr{w}{k}}$.
+%
+    To show that $\uc{\calL}$ is regular, we observe that the upward closure of a single word $\itr{w}{i} = a_1 \ldots a_n$ can be represented by the regular expression $\Sigma^* a_1 \Sigma^* \ldots \Sigma^* a_n \Sigma^*$, and that the class of regular languages is closed under finite unions.
+
+    To see that the downward closures are regular as well, we use that the complement of a downward-closed language is upward-closed, hence regular, and complements of regular languages are again regular.
+\end{proof}
+
+A more recent result~\cite{AbdullaCBJ04} shows that a certain type of restricted regular expressions is sufficient to describe downward and upward closures.
+A \emph{simple regular expression (SRE)} is a choice among products,
+\[
+     \sre \bnfdef \product \bnf \sre \cup \sre
+     \ ,
+\]
+where a product is a concatenation of letters, optional letters, and iterations over subsets $\Gamma\subseteq \Sigma$ of the alphabet,
+\[
+    \product \bnfdef a \bnf (a\cup\varepsilon)\bnf\Gamma^*\bnf\product.\product
+    \ .
+\]
+SREs are sufficient to describe all upward and downward-closed languages.
+
+\begin{theorem}[(\citea{AbdullaCBJ04})]
+    For any language $\calL \subseteq \Sigma^*$, there are simple regular expressions describing its downward and upward closures.
+\end{theorem}
+
+For upward closures, the proof follows directly from the proof of \cref{Theorem:Haines}.
+For downward closures, one needs to carefully look at the shape of the language obtained by complementing an upward-closed language.
+
+Actually, the original definition of SREs in~\cite{AbdullaCBJ04} is simpler than ours.
+In~\cite{AbdullaCBJ04}, a product is defined to be a concatenation $p.p$ of products, an optional letter $(a\cup\varepsilon)$, or the Kleene iteration of a subalphabet $\Gamma^*$, omitting the case of a single non-optional letter.
+With this version, one obtains a tight correspondence with the downward-closed languages:
+The language of an SRE is downward closed, and any downward-closed language can be described by an SRE.\@
+We have modified the definition to ensure that also upward-closed languages are covered, losing the property that every language of an SRE is downward closed.
+
+\paragraph{Effectivity}
+
+As we have seen, closures of languages are guaranteed to be regular.
+This in turn means that they cannot be \emph{effectively regular} in general.
+We know that they can be represented by \eg an NFA, but it may be impossible to compute such a representation.
+We have given a sketch of the corresponding proof in \cref{Section:IntroClosures}, which we repeat here for the sake of completeness.
+By the well-known results of Turing and others, all non-trivial decision problems for languages of Turing machines are undecidable.
+This in particular means that the emptiness problem for Turing machine languages is undecidable.
+However, the upward and downward closure of a language are empty if and only if the language itself is empty.
+Hence, the computability of an effective representation of the closure of a Turing machine language (\eg an NFA or a regular expression) would allow us to decide the emptiness problem, a contradiction.
+
+\end{document}

@@ -1,0 +1,57 @@
+% LTeX: language=de-DE
+
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+%
+\chapter*{\centering Zusammenfassung}%
+\addcontentsline{toc}{part}{Zusammenfassung}%
+
+\textlang{german}{%
+Die automatisierte Verifikation des Laufzeitverhaltens eines Programms entsprechend einer Spezifikation ist ein kompliziertes Problem, wie durch die Unentscheidbarkeitsresultate von Turing, Rice und anderen gezeigt wurde.
+Die automatentheoretische Herangehensweise an dieses Problem besteht darin, das Programm zu einem Automaten, einem eingeschränkten Berechnungsmodell, zu abstrahieren, dabei allerdings den Teil des Programmverhaltens, der für die Spezifikation relevant ist, zu erhalten.
+Das Gebiet der Automatentheorie stellt eine Reihe solcher \emph{Automaten} zur Verfügung und untersucht den Zielkonflikt zwischen dem Erreichen möglichst hoher Ausdruckskraft und der Entscheidbarkeit und Berechnungskomplexität ihrer algorithmischen Probleme.
+Wenn ein sprachtheoretischer Ansatz gewählt wird, assoziiert man zu einem Automaten die Menge der von ihm generierten Wörter und untersucht algorithmische Probleme, bei denen es das Ziel ist, Eigenschaften dieser Sprachen zu entscheiden.
+
+Entscheidungsverfahren für Automaten bzw.~für ihre Sprachen können in der Verifikation genutzt werden, indem man den gegebenen Automaten als ein perfektes Modell für das System sieht, welches verifiziert werden soll.
+Dieser Ansatz hat jedoch zwei Unzulänglichkeiten.
+Die Erste ist, dass ein einzelner Aufruf einer Entscheidungsprozedur meist nicht ausreicht, da ein Automat lediglich eine Abstraktion des zu verifizierenden Systems ist.
+Typischerweise ist eine Vielzahl von Prozeduraufrufen nötig, z.B. wenn eine Schleife genutzt wird, die die Abstraktion in jeder Iteration verfeinert, oder wenn ein nebenläufiges System verifiziert wird, bei dem jede Komponente einzeln betrachtet wird.
+Das Überwinden dieser Unzulänglichkeit erfordert Prozeduren, die zusätzlich zu ihrem Bool'schen Ergebnis auch ein \emph{Zertifikat} liefern, also einen leicht überprüfbaren Beweis als Begründung für die Ja/Nein-Antwort.
+In einem Szenario, in dem eine Entscheidungsprozedur mehrfach aufgerufen wird, können die Zertifikate, die von früheren Aufrufen generiert werden, als zusätzliches Argument für weitere Aufrufe genutzt werden, um den Verifikationsprozess zu erleichtern.
+Die zweite Schwäche ist, dass der Automat meist nicht isoliert betrachtet werden kann.
+Er interagiert möglicherweise mit einer \emph{Umgebung}, die sich gegenüber dem Verifikationsziel \emph{feindlich} verhält.
+Diese Umgebung kann aus Benutzereingaben, der Kommunikation mit externen Komponenten, die im System nicht modelliert sind, unzuverlässiger Kommunikation über ein Netzwerk oder einfach daraus resultieren, dass bei der Abstraktion des Systems in einen Automaten manche Aspekte verloren gegangen sind.
+
+Unsere These ist, dass die Ermöglichung der automatentheoretischen Herangehensweise an die Verifikation von Programmen Entscheidungsprozeduren für \emph{Automaten} benötigt, die \emph{Zertifikate} liefern und die die \emph{feindliche Umgebung} berücksichtigen.
+Die hier vorliegende Arbeit stellt solche Prozeduren für drei verschiedenen Szenarien zur Verfügung.
+
+Im ersten Szenario gehen wir davon aus, dass die Kommunikation mit dem zu betrachtenden System über ein unzuverlässiges Netzwerk abgewickelt wird, welches verlustbehaftet ist.
+Die beobachtbare Ausgabe des Systems ist eine Teilsequenz der tatsächlichen Ausgabe, was als Abschluss der Sprache des Systems nach unten modelliert werden kann.
+Analog dazu kann man eine Situation betrachten, in der die beobachtbare Ausgabe des Systems die tatsächliche Ausgabe als eine Teilsequenz enthält, was dem Abschluss der Sprache nach oben entspricht.
+Es ist bekannt, dass diese \emph{Sprachabschlüsse} immer aus der einfachen Klasse der regulären Sprachen stammen, was insbesondere bedeutet, dass ein sie repräsentierender Automat als Zertifikat geeignet ist.
+Einen solchen Automaten zu berechnen ist jedoch ein nicht-triviales Problem, abhängig davon, aus welcher Klasse die ursprüngliche Sprache kommt.
+In dieser Arbeit betrachten wir Petri-Netze mit Überdeckbarkeit als Akzeptanzbedingung, eine Klasse von Automaten, welche bekannt dafür ist, für die Modellierung nebenläufiger Systeme geeignet zu sein.
+Wir beweisen eine Reihe von Resultaten, durch die wir zeigen, wie im Fall von Petri-Netzen Automaten optimaler Größe, die den Sprachabschluss nach unten bzw.~oben repräsentieren, mit optimalem Zeitverbrauch berechnet werden können.
+
+Das zweite Szenario ist die kompositionelle Verifikation nebenläufiger Systeme.
+Diese Herangehensweise besteht darin, jede Komponente eines solchen Systems isoliert zu verifizieren, um damit das Problem der Zustandsraumexplosion zu vermeiden.
+Beim Betrachten einer einzelnen Komponente bilden die anderen Komponenten eine feindliche Umgebung, die berücksichtigt werden muss.
+Wir argumentieren, dass der sogenannte Assume-Guarantee-Ansatz für kompositionelle Verifikation mit dem \emph{regulären Separierbarkeitsproblem} verwandt ist.
+Zwei Sprachen sind regulär separierbar, wenn es eine reguläre Sprache gibt, die eine der Sprachen beinhaltet, aber von der anderen disjunkt ist.
+Dieser reguläre Separator dient als Zertifikat für die Leerheit des Schnitts der Sprachen und er kann als Überapproximation für die Sprache, die er beinhaltet, verwendet werden.
+Wir zeigen, dass für die Sprachen von wohlstrukturierten \nb{Transitionssystemen (WSTS)}, eine Verallgemeinerung der oben genannten Petri-Netz-Überdeckbarkeitssprachen, gilt, dass zwei disjunkte WSTS-Sprachen immer regulär separierbar sind.
+Aus unserem Beweis resultiert eine Konstruktion für den Separator.
+
+Im letzten Szenario betrachten wir \emph{Spiele}, die auf von Automaten induzierten Spielbrettern gespielt werden.
+Diese Spiele modellieren Situationen, in denen zwei Arten von Nichtdeterminismus das Verhalten des Systems beeinflussen.
+Typischerweise ist dabei eine Art des Nichtdeterminismus hilfreich bei der Verifizierung des Systems, während die andere die feindliche Umgebung repräsentiert.
+Diese Situation entsteht z.B. bei der Verifikation verzweigender Systeme und bei Syntheseproblemen.
+Wir stellen eine Herangehensweise zum Lösen solcher Spiele vor, die auf effektiver denotationeller Semantik beruht.
+Das bedeutet, dass wir den Automaten in ein Gleichungssystem übersetzen, dessen kleinste Lösung den Gewinner des Spiels liefert.
+Zusätzlich kann die Gewinnstrategie, welche als Zertifikat dient, auch von dieser kleinsten Lösung abgelesen werden.
+Wir entwerfen auf effektiver denotationeller Semantik basierende Algorithmen für mehrere durch Automaten induzierte Spiele, darunter Spiele, die durch kontextfreie Systeme sowie durch Rekursionsschemata höherer Ordnung definiert werden.
+Schlussendlich untersuchen wir die Grenze der Entscheidbarkeit von Spielen, die von Valenzsystemen über Graphmonoiden induziert sind, und zeigen, dass nur bei kontextfreien Spielen der Gewinner berechnet werden kann.
+}%
+\enlargethispage*{\baselineskip}%
+
+\end{document}

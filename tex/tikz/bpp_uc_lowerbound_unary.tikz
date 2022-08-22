@@ -1,0 +1,27 @@
+\begin{tikzpicture}[->,>=latex,node distance=5em,semithick]
+
+\node[place] (P1) [minimum size=3em] {};
+\node[place] (P2) [minimum size=3em, right of=P1,node distance=6em] {};
+\node (P3) [right of=P2, xshift=-3em, yshift=-3em] {$\cdots$};
+\node[place] (P4) [minimum size=3em, right of=P2, node distance=8em] {};
+
+\node [transition,square] (A1) [below of=P1,inner sep=0.25em] {$t_{a_1}$}
+    edge [post] (P1)
+;
+\node [transition,square] (A2) [below of=P2,inner sep=0.25em] {$t_{a_2}$}
+    edge [post] (P2)
+;
+\node [transition,square] (A4) [below of=P4,inner sep=0.25em] {$t_{a_n}$}
+    edge [post] (P4)
+;
+
+\node [left of=P1, node distance=2.5em] {$p_{a_1}$};
+\node [left of=A1, node distance=2em] {$a_1$};
+
+\node [left of=P2, node distance=2.5em] {$p_{a_2}$};
+\node [left of=A2, node distance=2em] {$a_2$};
+
+\node [left of=P4, node distance=2.5em] {$p_{a_n}$};
+\node [left of=A4, node distance=2em] {$a_n$};
+
+\end{tikzpicture}

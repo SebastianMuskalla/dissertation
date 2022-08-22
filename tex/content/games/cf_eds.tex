@@ -1,0 +1,537 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Solving context-free games}%
+\label{Section:CFGamesEDS}%
+
+To solve context-free games, we want to apply effective denotational semantics.
+We understand the grammar describing the game arena as a system of equations.
+We then solve it over a domain that represents the winning condition (the regular target language) of the game.
+The (least) solution will allow us to read off the winner of the game and the winning strategies.
+
+We start by designing the system of equations.
+
+\paragraph{The system of equations}
+
+Let $G = (N_\allplayer \dotcup N_\explayer,P,S)$ be the game grammar over $\Sigma$ that we consider.
+The construction is similar to the one from \cref{Section:EDSRegIncl}.
+The difference is that we use a system of equations instead of a system of inequalities.
+In the previous chapter, we were able to create independent inequalities for each of the productions.
+Conceptually, the iteration solving the system collects them using the join operator of the lattice.
+In this chapter, the rules for each nonterminal have to be collected and connected using different operators, depending on the owner of the nonterminal.
+To this end, we use two distinct operators, conjunction $\wedge$ and disjunction $\vee$.
+
+Throughout the rest of this chapter, we take the perspective of the existential player and associate disjunction $\vee$ to her and conjunction $\wedge$ to the universal player.
+The motivation for this choice is that in order to win, the existential player has the harder task of enforcing a \nb{finite derivation}.
+
+Formally, the system of equations associated to grammar $G$ is as follows.
+It uses $\Sigma$, the set of terminal symbols and $\eps$ as constants, and the binary operators concatenation $\comp$\ , disjunction $\vee$, and conjunction $\wedge$.
+The system has one variable $X$ for each nonterminal.
+Its unique defining equation is of the shape
+\[
+    X = \itr{\eta}{1} \wedgevee \ldots \wedgevee \itr{\eta}{k}
+    \ ,
+\]
+where $X \to \itr{\eta}{1}, \ldots, X \to \itr{\eta}{k}$ are all production rules with $X$ as their left-hand side.
+Here, we see each $\itr{\eta}{i}$ as a term by using the appropriate constants and concatenation.
+The operator $\wedgevee$ is $\vee$ if $X \in N_\explayer$ is owned by the existential player and $\wedge$ otherwise.
+
+If one tried to solve the system of equations with uninterpreted symbols, one would obtain for each nonterminal $X$ a description of the tree of plays from the sentential form $X$.
+For example, consider the grammar with the rules $X \to a.Y \mid b.Y$ and $Y \to c \mid d$, where $X$ is owned by the existential and $Y$ by the universal player.
+The least solution to the resulting system of equations with uninterpreted symbols is $\sol{Y} = c \wedge d$, $\sol{X} = a.(c \wedge d) \vee b.(c \wedge d)$.
+By being audacious and applying distributivity, even though it does not hold for uninterpreted symbols, the latter can be transformed to $(ac \wedge ad) \vee (bc \wedge bd)$.
+This formula represents exactly the behavior of the game:
+First, the existential player can decide whether the first letter should be $a$ or $b$, then the universal player can pick the second letter.
+If we are given a target language $\lang{A}$, we could find out the winner of the game from $X$ by checking which of the words $ac,ad,bc,bd$ are contained in that language.
+
+Note that in this toy example, it is possible to explicitly construct this finite representation because the grammar is non-recursive, meaning that it has only finite many derivation processes.
+In general, the tree of all plays will be infinite and we will not be able to solve the system of equations using uninterpreted symbols.
+Formally, the domain associated to uninterpreted symbols is a generalization of the language semiring, see \cref{Section:EDSEqSys}.
+Just as the language semiring, this domain does not satisfy the ascending chain condition and we are unable to obtain the least solution in finite time.
+
+\begin{example}%
+\label{Example:CFGamesOne}%
+    Consider the game grammar $G$ with the production rules $X \to aY \mid \eps$ and $Y \to bX$, where $X$ is owned by the universal player and $Y$ is owned by the universal player.
+    Consider the automaton $A$ with language $\paren{ab}^*$ from \cref{Example:NFAForABStar} \resp \cref{Figure:NFAForABStar}.
+    Throughout this chapter, we will consider the context-free inclusion game $(G,A)$ as our running example.
+
+    The system of equations associated to $(G,A)$ is
+    \begin{align*}
+        X &= a.Y \vee \eps
+        \ ,
+        \\
+        Y &= b.X
+        \ .
+    \end{align*}
+    %
+    By substitution, we obtain $X = a.b.X \vee \eps$.
+    This means our system of equations is recursive and we cannot simply explicitly compute its solution with uninterpreted symbols.
+\end{example}
+
+It remains to find a model, \ie a domain and an interpretation of the symbols used in the system of equations.
+On the one hand, it should be so that $\sol{X}$, the least solution associated to the nonterminal $X$, still represents the effect of all plays from $X$.
+On the other hand, the model should allow us to compute the least solution within finite time.
+Hence, it should satisfy the ascending chain condition so that we can apply Kleene iteration.
+
+
+% Formally, we need a partial order and an interpretation of all occurring operations, namely the terminals, concatenation, and choices, as functions over this domain.
+% The nonterminals will form the variables of the system of equations as usual.
+
+\paragraph{The need for composable information}
+
+The key aspect here is that we design the domain so that the information its elements represent is compositional.
+This is because of the following crucial observation.
+Assume that $X \to Y.Z$ is the unique production rule for nonterminal $X$.
+A play from $X$ that reaches a terminal word will necessarily be of the shape
+\[
+    X
+    \leftderive Y.Z
+    \leftderive \beta_1.Z
+    \leftderive \ldots
+    \leftderive \beta_{k-1}.Z
+    \leftderive w.Z
+    \leftderive w.\beta_1'
+    \leftderive \ldots
+    \leftderive w.\beta_{m-1}'
+    \leftderive w.v
+    \ ,
+\]
+where $Y \leftderive \beta_1 \leftderive \ldots \leftderive w$ is a play from $Y$ to a terminal word and similarly, $Z \leftderive \beta_1' \leftderive \ldots \leftderive v$ is a play from $Z$ to a terminal word.
+For the other direction, any two plays from $Y$ \resp $Z$ to terminal words can be combined into a play from $X$ to the concatenation of the terminal words.
+The reason for this behavior is that we have limited ourselves to left-derivations.
+
+For the system of equations, this means that the solution for the term $Y.Z$ (which will be the same as the solution for $X$) should be computable using the solutions for $Y$ and $Z$.
+Our domain has to be devised so that this compositionality is supported.
+Suppose for example that we would simply assign $\set{0,1}$ to each nonterminal, depending on whether the existential player has a winning strategy from the position of the game consisting just of that nonterminal.
+While this is exactly the information that we want to obtain, there is no hope that we can compute it by a fixed-point iteration over that domain:
+Consider again $X \to Y.Z$, and assume that we have computed that the existential player wins from $Y$ and $Z$, which means that she can enforce the derivation of terminal words not contained in $\lang{A}$.
+We get no information on $Y.Z$ (and thus no information on $X$), however.
+The fact that we can derive words from $Y$ and $Z$ that are not in the target language does not mean that their concatenation is not in the target language.
+
+% In the following, we will explain step-by-step how to obtain the desired domain whose elements can be composed.
+% Finally, we give the full formal definition.
+
+\paragraph{The domain}
+
+Let $A$ be an NFA representing the regular target language.
+We interpret a terminal symbol $a$ by the element of the transition monoid $\tbox{a}$.
+Similarly, we interpret $\eps$ as $\tbox{\eps} = \id$.
+As we have discussed in \cref{Section:TransitionMonoid}, the transition monoid element represents the effect that a word has with respect to an NFA, and it does so in a way that can be composed: $\tbox{a}$ is sufficient to understand whether $w.a.w'$ is contained in the language $\lang{A}$ for arbitrary words $w,w'$.
+
+To be able to interpret the choice operators $\vee$ and $\wedge$, we use positive Boolean formulas as defined in \cref{Section:Formulas}, Boolean formulas without negation.
+This means that our domain is $\pBF(\nfatransmonoid{A})$, the positive Boolean formulas over the transition monoid of $A$.
+The transition monoid elements $\tbox{a}$ are embedded into this domain as atomic formulas in the expected way.
+Furthermore, this domain allows us to interpret conjunction and disjunction as the respective operations on Boolean formulas.
+
+Recall that $\pBF(\nfatransmonoid{A})$ contains the unsatisfiable formula $\false$ which we eliminate using the following syntactic rules:
+\begin{align*}
+    F \vee \false &= \false \vee F = F
+    &
+    F \wedge \false &= \false \wedge F = \false
+    \ .
+\end{align*}
+Consequently, the disjunction or conjunction of two formulas that are not $\false$ is never $\false$.
+(Similar rules would apply for the formula $\true$, but it turns out that true will never occur as a formula when we conduct fixed-point iteration.)
+
+The hard part is interpreting concatenation.
+Recall from above that a play from $Y.Z$ is essentially a play from $Y$ (with suffix $Z$) followed by a play from $Z$ (with the outcome of the play from $Y$ as prefix).
+This in particular means that when the play from $Z$ occurs, the choices that were made when deriving $Y$ are visible to both of the players.
+Our goal is to interpret concatenation as \emph{formula composition}, an operator that mimics this behavior:
+When composing two formulas, as long as there are choices in the left operand, it resolves these choices while propagating the right operand downwards.
+As soon as all choices in the left operand are resolved (\ie the left operand is an atom, an element of the transition monoid), the choices in the right operand are resolved.
+The atom that is the left operand is propagated downwards.
+Finally, we obtain a composition of two atoms that we will resolve by composing them using the composition of transition monoid elements.
+
+The formal definition is as follows.
+
+\begin{definition}%
+\label{Definition:CFComp}%
+    The composition $F \comp H$ of two formulas is inductively defined as follows.
+    \begin{align*}
+        (F \wedgevee F') \comp H &= F \comp H \wedgevee F' \comp H
+        \\
+        \tbox \comp (H \wedgevee H') &= \tbox \comp H \wedgevee \tbox \comp H'
+        \\
+        \tbox \comp \tbox' &= \tbox \relcomp\tbox'
+        \ ,
+    \end{align*}
+    where $F,F',H,H' \in \pBF\paren{\nfatransmonoid{A}}$, $\tbox,\tbox' \in \nfatransmonoid{A}$, and ${\wedgevee} \in \set{\wedge, \vee}$.
+\end{definition}
+
+\paragraph{The order}
+
+To be able to conduct fixed-point iteration to solve the system of equations, we need to equip the set of positive Boolean formulas over the transition monoid with a partial order.
+The order should be appropriate in that the operations (conjunction, disjunction, and composition) are monotonic with respect to that order.
+Furthermore, the least fixed-point solution with respect to this order should indeed capture the effect of the possible plays of the game.
+
+Our idea is that $F \leq H$ holds for two formulas if it is easier for the existential player to win the tree of plays described by $H$ than the tree of plays represented by $F$.
+More formally, the fixed-point iteration with respect to that order will be set up so that it iteratively explores the outcomes of plays that the existential player can enforce.
+This means we start with the formula $\false$ that represents that the existential player cannot even enforce termination of the play.
+Later iterations will yield formulas $F$ such that the existential player can enforce visiting an element from any set $M \subseteq \nfatransmonoid{A}$ if $F(M)$ evaluates to true.
+Here, we see $M$ as the variable assignment that assign true to $\tbox$ if and only if $\tbox \in M$.
+The least fixed point solution associated to a nonterminal will be a formula that characterizes the set of words whose derivation the existential player can enforce from that nonterminal.
+
+However, since the system of equation is set up so that it composes old information to obtain new information, it is not sufficient to define $F \leq H$ to hold if the tree of plays represented by $H$ is easier to win than the tree of plays represented by $F$.
+We have to require that this holds not only for $F$ and $H$ in isolation, but for $F$ and $H$ in any possible context.
+More formally, assume that $F$ represents the plays from $X$ and $H$ represents the plays from $Y$.
+Intuitively, we should require that $F \leq H$ implies that for any sentential forms $\beta,\gamma$, we have that it is easier for the existential player to win from $\beta.Y.\gamma$ than from $\beta.X.\gamma$.
+Expressed on the level of formulas, this in particular means that $F \leq H$ implies $G' \comp F \comp G'' \leq G' \comp H \comp G''$ for any two formulas $G',G''$, which is simply the requirement for composition to be monotonic with respect to our order.
+
+While it would be possible to use the observation in the above paragraph for the formal definition, we will avoid going down this path.
+An advantage of said definition would be that it is the coarsest order that would be suitable for conducting fixed-point iteration.
+However, the major drawback is that computing for two formulas whether one is smaller with respect to the order than the other would be very intricate.
+% This is the case because the relation is non-uniform in the sense that for some formulas, the context would not matter while it does for others.
+
+We choose to circumvent these issues by considering a more fine-grained order whose definition is not dependent on the notion of context.
+Then, we will prove that composition is monotonic with respect to that order.
+As mentioned above, this implies that it has the required properties, \ie it behaves correctly with respect to all possible contexts.
+The order that we choose is logical implication.
+Recall that $F \lleq H$ iff for any valuation of the atoms (the transition monoid elements in our case) $M$, we have $F(M) \leq H(M)$, \ie if $F(M)$ is \true, then so is $H(M)$.
+
+Let us argue that implication is a sane choice that matches the intuition provided above.
+Assume that $F \lleq H$ holds.
+We argue that than indeed $H$ describes a tree of plays in which it is easier for the existential player to win than in the one described by $F$.
+Let $M$ be a set of monoid elements so that the existential player can enforce deriving some word $w$ with $\tbox{w} \in M$.
+We will later prove that this is equivalent to $F(M) = \true$.
+Since $F \lleq H$, we have $H(M) = \true$ as well, so the existential player can also enforce deriving words whose associated box is in $M$ in the tree of plays described by $H$.
+
+There is one minor challenge that we need to overcome: Logical implication is not a partial order.
+In fact, each formula is logically equivalent to infinitely many other formulas.
+% This is because there are infinitely many formulas that are logically equivalent.
+We solve both problems at once, the problem of implication not being a partial order and the problem of our domain being infinite.
+We simply factorize along logical equivalence $\lequiv$.
+Two formulas $F,H$ are logically equivalent, $F \lequiv H$, if $F \lleq H$ and $H \lleq F$.
+If we express the orders as subsets of ${\pBF\paren{\nfatransmonoid{A}}}^2$, we may write $\lequiv = \lleq \cap \impliedby$, where~$\impliedby$ is the opposite of~$\lleq$.
+
+The result of factorizing $\pBF\paren{\nfatransmonoid{A}}$ with respect to logical implication is $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$.
+The elements of this set are equivalence classes of positive Boolean formulas over $\nfatransmonoid{A}$ with respect to~$\lequiv$.
+On the one hand, this set is finite since the set of atoms $\nfatransmonoid{A}$ is finite.
+Each equivalence class of formulas is uniquely determined by the set of subsets of $\nfatransmonoid{A}$ that satisfy the formulas in the class, and there are only finitely many such sets of subsets.
+On the other hand, implication is a partial order on these equivalence classes.
+
+We show that the operations of conjunction, disjunction, and composition of formulas are monotonic with respect to logical implication.
+As a consequence, we obtain that these operations are well-defined on the equivalence classes.
+In particular, to obtain the conjunction, disjunction, or composition of two equivalence classes, we can apply the operation to arbitrary representatives and obtain a representative for the equivalence class of the result.
+Altogether, we will not need to distinguish between equivalence classes and formulas that represent them in the following.
+This allows us to work with formulas in both the implementation of the resulting algorithm and in the proof of its soundness.
+However, one has to take into account that in order to check whether the least fixed-point has been reached, one has to check for logical equivalence instead of checking (syntactic) equality.
+
+We summarize the above discussion by providing the formal definition.
+
+\begin{definition}%
+\label{Definition:CFModel}%
+    We consider the model $\model = (\domain, \interpretation)$.
+
+    The domain is $\domain = (\pBF\paren{\nfatransmonoid{A}}/_{\lequiv},\lleq)$, equivalence classes of positive Boolean formulas over the transition monoid ordered by implication.
+    It is both a lattice and a monoid.
+    The least element is $\false$, the join operation is disjunction and the meet is conjunction.
+    The monoid operation is formula composition $\comp$\ , and the atom $\tbox{\eps} = \id$ is the neutral element.
+
+    The interpretation $\calI$ interprets constants $a \in \Sigma \cup \set{\eps}$ as the associated atom $\tbox{a}$, conjunction and disjunction as the respective operation, and concatenation as formula composition.
+    All these operations are monotonic with respect to implication.
+\end{definition}
+
+We have to prove several claims made in this definition.
+Let us first show that the Boolean formulas equipped with formula composition are a monoid.
+It is easy to see that the formula $\tbox{\eps}$ is the neutral element.
+The composition $F \comp \tbox{\eps}$ is a formula with the structure of $F$ in which each atom $\tbox$ of $F$ is replaced by itself, since $\tbox \comp \tbox{\eps} = \tbox \relcomp \tbox{\eps} = \tbox$; similar for $\tbox{\eps} \comp F$.
+Associativity is stated as the following lemma.
+Its proof is an uninspired and tedious nested induction on the structure of the operands.
+It is noteworthy that we get associativity as a syntactic equality and not just modulo logical equivalence.
+Also note that we use $G$ to refer to a formula here.
+This should not be confused with the game grammar, which we also denote by $G$.
+
+\begin{lemma}%
+\label{Lemma:CFGamesCompositionAssociative}%
+    Formula composition is associative: For any formulas $F, G, H$ we have $F \comp (G \comp H) = (F \comp G) \comp H$.
+\end{lemma}
+
+\begin{proof}
+    First note that if any of the three formulas is $\false$, then the result of the composition will be $\false$ in both cases.
+    Hence, we will focus on the case that none of the formulas is $\false$ in the following.
+    We proceed by a threefold nested induction on the structure of the formulas.
+
+    In the base case of the innermost induction, all three formulas are an atom, so $F = \tbox, G = \tbox', H = \tbox''$.
+    We have $F \comp (G \comp H) = \tbox \relcomp (\tbox' \relcomp \tbox'')$ and $(F \comp G) \comp H = (\tbox \relcomp \tbox') \relcomp \tbox''$.
+    These are equal using the associativity of the composition in $\nfatransmonoid{A}$.
+
+    In the inductive step, we assume that $F = \tbox$ and $G = \tbox'$ are atomic, while $H = H' \wedgevee H''$ is composite (for some operator ${\wedgevee} \in \set{\wedge,\vee}$).
+    We have
+    \begin{align*}
+        F \comp (G \comp H)
+        &= \tbox \comp (\tbox' \comp H)
+        = \tbox \comp (\tbox' \comp (H' \wedgevee H''))
+        \\
+        &= \tbox \comp (\tbox' \comp H' \wedgevee \tbox' \comp H'')
+        = \tbox \comp (\tbox' \comp H') \wedgevee \tbox \comp (\tbox' \comp H'')
+        \\
+        &= ((\tbox \comp \tbox') \comp H') \wedgevee ((\tbox \comp \tbox') \comp H'')
+        = ((\tbox \relcomp \tbox') \comp H') \wedgevee ((\tbox \relcomp \tbox') \comp H'')
+        \ ,
+    \end{align*}
+    where the penultimate equality uses the induction hypothesis.
+    We also have
+    \[
+        (F' \comp G) \comp H
+        = (\tbox \comp \tbox') \comp (H' \wedgevee H'')
+        = (\tbox \relcomp \tbox') \comp (H' \wedgevee H'')
+        = ((\tbox \relcomp \tbox') \comp H') \wedgevee ((\tbox \relcomp \tbox') \comp H')
+        \ ,
+    \]
+    so the desired equality holds.
+
+    The second induction is on the structure of $G$.
+    We still assume that $F = \tbox$ is atomic, while $H$ is arbitrary.
+    In the base case, $G$ is atomic, so it is already proven by the innermost induction.
+    For the inductive step, consider $G = G' \wedgevee G''$.
+    We have
+    \begin{align*}
+        F \comp (G \comp H)
+        &= \tbox \comp ( (G' \wedgevee G'') \comp H)
+        = \tbox \comp ( (G' \comp H) \wedgevee (G'' \comp H))
+        \\
+        &= \tbox \comp (G' \comp H) \wedgevee \tbox \comp (G'' \comp H)
+        = ((\tbox \comp G') \comp H) \wedgevee ((\tbox \comp G'') \comp H)
+        \ ,
+    \end{align*}
+    where the last equality uses the induction hypothesis.
+    Similarly, we get
+    \[
+        (F \comp G) \comp H
+        = (\tbox \comp (G' \wedgevee G'')) \comp H
+        = ((\tbox \comp G') \wedgevee (\tbox \comp G'')) \comp H
+        = ((\tbox \comp G') H) \wedgevee ((\tbox \comp G'') \comp H)
+        \ ,
+    \]
+    which completes this part of the proof.
+
+    In the outermost induction, we induct on the structure of $F$.
+    The formulas $G,H$ are arbitrary.
+    In the base case, $F$ is atomic, so the second induction proves it.
+    For the inductive step, let $F = F' \wedgevee F''$.
+    We have
+    \[
+        F \comp (G \comp H)
+        = (F' \wedgevee F'') \comp (G \comp H)
+        = F' \comp (G \comp H) \wedgevee F'' \comp (G \comp H)
+    \]
+    and
+    \[
+        (F \comp G) \comp H
+        = (F' \comp G \wedgevee F'' \comp G) \comp H
+        = ((F' \comp G) \comp H) \wedgevee ((F'' \comp G) \comp H)
+        \ .
+    \]
+    Using the induction hypothesis, we obtain the two equalities $F' \comp (G \comp H) = (F' \comp G) \comp H$ and $F'' \comp (G \comp H)= (F'' \comp G) \comp H$, which concludes the proof.
+\end{proof}
+
+We now proceed to prove that conjunction, disjunction and composition on formulas are monotonic with respect to logical implication.
+The fact that these operations are well-defined and monotonic on equivalence classes will be a direct consequence of this result.
+
+\begin{proposition}%
+\label{Proposition:CFGamesCompositionMonot}%
+    Conjunction, disjunction, and composition of positive Boolean formulas are monotonic with respect to implication.
+\end{proposition}
+
+The proof for conjunction and disjunction is absolutely straightforward.
+Assume that $F \lleq F'$ and $H \lleq H'$.
+To show that $F \wedge H \lleq F' \wedge H'$, consider a variable assignment, \ie a subset $M \subseteq \nfatransmonoid{A}$ with $(F \wedge H)(M) = \true$.
+This means $F(M) = H(M) = \true$, and yields $F'(M) = H'(M) = \true$ by assumption.
+We conclude $(F' \wedge H')(M) = \true$ as desired.
+
+The proof for disjunction is similar.
+For composition, it is more involved.
+We state and prove monotonicity in the form of the following lemma.
+
+\begin{lemma}%
+\label{Lemma:CFGamesCompositionMonot}%
+    Composition is monotonic with respect to implication: If $F \lleq F'$ and $H \lleq H'$, then $F \comp H \lleq F' \comp H'$.
+\end{lemma}
+
+\begin{proof}
+    The structure of the proof is similar to the proof of \cref{Lemma:CFGamesCompositionAssociative}.
+    It is a four-fold nested induction on the structure of the formulas.
+    In the outer three inductions, the base case is proven by the previous induction.
+
+    In the proof, we let $\set{ \wedgevee, \veewedge } = \set{ \wedge, \vee}$, \ie $\wedgevee$ is one of the operators and $\veewedge$ is the other.
+    We will use $\wedgevee$, $\veewedge$, and $\lleq$ as syntactic parts of the formula as well as to connect statements in the part of the proof.
+    For example, we may write $(H_1 \lleq H') \veewedge (H_2 \lleq H')$ to express that $H_1 \lleq H'$ and/or $H_2 \lleq H'$ hold.
+    This unusual choice prevents the proof from becoming too technical.
+
+    Before proceeding with the proof, we make three preliminary observations.
+    \begin{itemize}
+        \item[$\nth{1}$ Observation:]
+            For boxes, $\tbox \lleq \tbox'$ is equivalent to $\tbox = \tbox'$.
+            Indeed, if $\tbox \neq \tbox'$, then any assignment that sets $\tbox$ to true but $\tbox'$ to false is a witness for the implication not holding.
+        \item[$\nth{2}$ Observation:]
+            The formulas $A \lleq (B \wedgevee C)$ and  $(A \lleq B) \wedgevee (A \lleq C)$ are logically equivalent for any three formulas $A,B,C$.
+            This is simply a consequence of the distributivity of conjunction and disjunction, and can be proven easily by rewriting implications as a disjunctions and vice versa.
+        \item[$\nth{3}$ Observation:]
+            Similarly, the formulas  $(A \wedgevee B) \lleq C$ and $(A \lleq C) \veewedge (B \lleq C)$ are logically equivalent for any three formulas $A,B,C$.
+            The proof is similar to the one of the $\nth{2}$ Observation, but additionally uses De Morgan's laws.
+    \end{itemize}
+
+    With these preliminaries at hand, we can show the desired statements.
+    Let $F,F',H,H'$ be formulas with $F \lleq F'$ and $H \lleq H'$.
+    We show $F \comp H \lleq F' \comp H'$.
+
+    It is easy to see that if $F$ or $H$ is $\false$, then $F \comp H$ will be $\false$ and the implication trivially holds.
+    If $F'$ is $\false$, then $F$ has to be $\false$ as well since $F \lleq F'$, and we are in the previous case, similar for $H'$.
+    In the rest of the proof, we can assume that none of the formulas is $\false$.
+
+    We proceed with the four-fold nested induction.
+
+    \begin{enumerate}[(1)]
+        \item
+            We induct on the structure of $H$.
+            In the base case of the innermost induction, all four formulas $F,F',H,H'$ are elements of the transition monoid.
+            Using the \nth{1} Observation, we obtain $F = F'$ and $H = H'$, and we conclude $F \comp H = F' \comp H'$, which implies the desired implication.
+
+            For the step, assume that $H = H_1 \wedgevee H_2$ is composite.
+            Using the \nth{3} Observation, we obtain $(H_1 \lleq H') \veewedge (H_2 \lleq H')$ from $H \lleq H'$.
+            We may use the monotonicity of $\veewedge$ together with the induction hypothesis to conclude
+            \[
+                (F \comp H_1 \lleq F \comp H') \veewedge (F \comp H_2 \lleq F \comp H')
+                \ .
+            \]
+            Applying the \nth{3} Observation in reverse, we obtain
+            \(
+                (F \comp H_1 \wedgevee F \comp H_2) \lleq F \comp H'
+                \ .
+            \)
+            The premise of that implication is $F \comp H$ by the definition of composition, and the conclusion is $F' \comp H'$ since $F = F'$ by the \nth{1} Observation.
+        \item
+            We induct on the structure of $F$.
+            In the base case, all formulas but $H$ are atomic, and Part~(1) provides the proof.
+            For the step, consider $F = F_1 \wedgevee F_2$.
+            Using the \nth{3} Observation, we get
+            \(
+                (F_1 \lleq F') \veewedge (F_2 \lleq F')
+                \ .
+            \)
+            Therefore, the induction hypothesis and the monotonicity of $\veewedge$ yield
+            \[
+                (F_1 \comp H \lleq F' \comp H') \veewedge (F_2 \comp H \lleq F' \comp H')
+                \ .
+            \]
+            Applying the \nth{3} Observation (in reverse), we get
+            \(
+                (F_1 \comp H) \wedgevee (F_2 \comp H) \lleq F' \comp H'
+                \ .
+            \)
+            By the definition of formula composition, this is the desired statement.
+        \item
+            We proceed by induction on $H'$ while still assuming that $F'$ is atomic.
+            The base case is proven by Part~(2).
+            Let $H' = H_1' \wedgevee H_2'$.
+            We apply the \nth{2} Observation to get $(H \lleq H_1') \wedgevee (H \lleq H_2')$.
+            We use the induction hypothesis and the monotonicity of $\wedgevee$ to obtain
+            \[
+                (F \comp H \lleq F' \comp H_1')
+                \wedgevee
+                (F \comp H \lleq F' \comp H_2')
+                \ .
+            \]
+            The \nth{2} Observation in reverse yields
+            \(
+               F \comp H \lleq (F' \comp H_1 \wedgevee F' \comp H_2)
+               \ ,
+            \)
+            where the conclusion is the same as $F' \comp H'$.
+            Here, it is crucial that we assume $F'$ to be atomic.
+        \item
+            It remains to prove the general case by induction on $F'$.
+            In the base case, $F'$ is atomic and Part~(3) gives us the proof.
+            Now assume $F' = F_1' \wedgevee F_2'$.
+            Using the \nth{2} Observation, we get $(F \lleq F_1') \wedgevee (F \lleq F_2')$, use the induction hypothesis and monotonicity to get
+            \[
+                (F \comp H \lleq F_1' \comp H')
+                \wedgevee
+                (F \comp H \lleq F_2' \comp H')
+                \ .
+            \]
+            We use the \nth{2} Observation in reverse to get $F \comp H \lleq (F_1' \comp H' \wedgevee F_2' \comp H')$, and finally use the definition of composition to see that we have indeed shown $F \comp H \lleq F' \comp H'$.
+     \end{enumerate}
+     \vspace*{-\baselineskip}
+\end{proof}
+
+Note that the transitivity of implication would allow us to prove the statement by separately showing $F \comp G \lleq F' \comp G$ and $F \comp  G \lleq F \comp G'$.
+We also see this in Step~2 of the proof, since we do not need the assumption that $G$ is atomic.
+
+We conclude that the operations are not only monotonic on formulas, but also monotonic and well-defined on equivalence classes.
+
+\begin{lemma}
+    Disjunction, conjunction and composition are well-defined and monotonic operations on $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$.
+\end{lemma}
+
+\begin{proof}
+    We formally prove the statement for formula composition.
+    The other two cases are similar.
+
+    Let $F,F' \in \equivclass{F}$ and $H,H' \in \equivclass{H}$ by two representatives each for two equivalence classes $\equivclass{F}, \equivclass{H} \in \pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$.
+    Recall that the composition of equivalence classes is defined by composing arbitrary representatives, $\equivclass{F} \comp \equivclass{H} = \equivclass{F \comp H}$.
+    This is well-defined: We have that $F' \comp H' \lequiv F \comp H$ by the monotonicity of the composition of formulas, and hence $\equivclass{F \comp H} = \equivclass{F' \comp H'}$.
+
+    Let $\equivclass{F},\equivclass{F'},\equivclass{H},\equivclass{H'}$ be equivalence classes with $\equivclass{F} \lleq \equivclass{F'}$ and $\equivclass{H} \lleq \equivclass{H'}$.
+    Recall that the implication of equivalence classes means that implication holds between arbitrary representatives of these classes.
+    We have that $\equivclass{F} \comp \equivclass{H}$ is an equivalence class represented by $F \comp H$, similar for $\equivclass{F'} \comp \equivclass{H'}$  and $F' \comp H'$.
+    The implication $F \comp H \lleq F' \comp H'$ holds by the monotonicity of the composition on formulas.
+    Hence, $\equivclass{F} \comp \equivclass{H} \lleq \equivclass{F'} \comp \equivclass{H'}$ as desired.
+\end{proof}
+
+We have shown that our model satisfies all necessary conditions to solve the interpreted system of equations.
+To be precise, we have only argued that the interpretation of each function symbols are monotonic.
+To be able to apply Kleene's theorem, \cref{Theorem:EDSKleene}, we would need that they are join-continuous, which is a stronger requirement.
+However, we have already observed that our domain is finite, which in particular means that it satisfies the ascending chain condition.
+As explained in \cref{Remark:EDSMonotonocityContinuity} this means that join-continuity and monotonicity are equivalent.
+We indeed get that all requirements for applying Kleene iteration are satisfied.
+
+We will discuss in the next section how the solution to the game can be read off from the solution to the system of equations.
+To complete this section, we continue our example.
+
+\begin{example}%
+\label{Example:CFGamesTwo}%
+    Consider $(G,A)$ from \cref{Example:NFAForABStar} \resp \cref{Figure:NFAForABStar}.
+    Note that we have depicted all boxes with non-empty equivalence class for automaton $A$ in \cref{Figure:BoxesForABStar}.
+
+    Interpreting the system of equations associated to $(G,A)$ yields
+    \begin{align*}
+        X &= \tbox{a} \comp Y \enspace \vee \enspace \tbox{\eps}
+        \ ,
+        \\
+        Y &= \tbox{b} \comp X
+        \ .
+    \end{align*}
+    %
+    We use Kleene iteration to compute the first few approximants, obtaining the \nb{following values}.
+    \[
+        \begin{array}{c|c@{\hskip 2em}c}
+            \soli{i}\paren{-} & X & Y
+            \\
+            \hline
+            i = 0 & \false & \false
+            \\
+            i = 1 & \tbox{\eps} & \false
+            \\
+            i = 2 & \tbox{\eps} & \tbox{b}
+            \\
+            i = 3 & \tbox{ab} \vee \tbox{\eps} & \tbox{b}
+            \\
+            i = 4 & \tbox{ab} \vee \tbox{\eps} & \tbox{b} \comp \paren{ \tbox{ab} \vee \tbox{\eps} }
+        \end{array}
+    \]
+%
+    We resolve the composition to obtain
+    \[
+        \sol{4}{Y}
+        = \tbox{b} \comp \paren{ \tbox{ab} \vee \tbox{\eps} }
+        = \paren{ \tbox{b} \cdot \tbox{ab} } \vee \paren{ \tbox{b} \cdot \tbox{\eps} } = \tbox{bab} \vee \tbox{b}
+        \ .
+    \]
+    We observe that $\tbox{bab} = \tbox{b}$ for automaton~$A$; hence, $\sol{4}{Y} = \tbox{b} \vee \tbox{b}$.
+    This formula is syntactically different from $\tbox{b}$, but logically equivalent to it.
+    Since we work over the domain of equivalence classes, we obtain $\sol{3}{Y} = \sol{4}{Y}$.
+    The third iteration corresponds to the least fixed point and $\sol = \soli{3} = \soli{4}$ is the least solution to the system of equations.
+\end{example}
+
+\end{document}

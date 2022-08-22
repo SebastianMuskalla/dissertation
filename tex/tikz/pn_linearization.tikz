@@ -1,0 +1,43 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[place] (Pinit)  [minimum size=3em,tokens=1] {};
+\node[place] (Ploop1) [minimum size=3em, above of=P0] {};
+\node[place] (Pfinal) [minimum size=3em, right of=Pinit, node distance=21em] {};
+\node[place] (Ploop2) [minimum size=3em, above of=Pfinal] {};
+
+\node[place] (Gamma1) [minimum size=3em, right of=Ploop1] {};
+\node[place] (Gamma2) [minimum size=3em, left of=Ploop2] {};
+
+\node [transition] (Aloop1) [above left of=Pinit,node distance=5em,inner sep=0.4em] {$a\mathstrut$}
+    edge [pre] (Pinit)
+    edge [post] (Ploop1)
+;
+
+\node [transition] (Cloop1) [above right of=Pinit,node distance=5em,inner sep=0.4em] {$c\mathstrut$}
+    edge [pre] (Ploop1)
+    edge [post] (Pinit)
+    edge [post] (Gamma1)
+;
+
+\node [transition] (A) [right of=Pinit,node distance=11em,inner sep=0.4em] {$a\mathstrut$}
+    edge [pre] (Pinit)
+    edge [post] (Pfinal)
+;
+
+\node [transition] (Bloop2) [above right of=Pfinal,node distance=5em,inner sep=0.4em] {$b\mathstrut$}
+    edge [pre] (Pfinal)
+    edge [post] (Ploop2)
+;
+
+\node [transition] (Cloop2) [above left of=Pfinal,node distance=5em,inner sep=0.4em] {$c\mathstrut$}
+    edge [pre] (Ploop2)
+    edge [post] (Pfinal)
+    edge [post] (Gamma2)
+;
+
+\node [below of=Pinit, node distance=2em] {$p_{0}$};
+\node [below of=Pfinal, node distance=2em] {$p_{f}$};
+\node [below of=Gamma1, node distance=2em] {$p_{\set{a,c}}$};
+\node [below of=Gamma2, node distance=2em] {$p_{\set{b,c}}$};
+
+\end{tikzpicture}

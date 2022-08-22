@@ -1,0 +1,195 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Algorithmic problems for Petri nets}
+
+We mention some algorithmic problems for Petri nets that are important in the rest of this~thesis.
+
+As usual, automata should have an initial and a final state.
+In the case of Petri nets, this means we consider \emph{Petri net instances} $(N,\Minit,\Mfinal)$ consisting of a Petri net $N$, an initial marking $\Minit$ for $N$ from which the computation should start, and a final marking $\Mfinal$ for $N$ that specifies where the computation should end.
+
+To be able to talk about the computational complexity of these algorithms, we need to define the size of (the encoding) of a Petri net instance.
+Firstly, we define the size $\size{M}$ of a \nb{marking $M$} as
+\(
+    \card{M} = \sum_{p \in P} (\lceil \log M(p) \rceil + 1)
+    \ .
+\)
+The size $\size{N}$ of a Petri net $N = (P,T,\i,\o)$ is
+\(
+    \size{N} =  \sum_{t \in T} \size{\i(t)} + \size{\o(t)}
+    \ ,
+\)
+where we see $\i(t)$ and $\o(t)$ as markings.
+Finally, the \nb{size $\size{(N,\Minit,\Mfinal)}$} of a Petri net instance is defined to be the sum of the size of its components,
+\(
+    \size{(N,\Minit,\Mfinal)} = \size{N} + \size{\Minit} + \size{\Mfinal}
+    \ .
+\)
+Note that we have
+\(
+    \size{M} \in \bigO{ \card{P} \cdot (\ceil{\log \norminf{M}} + 1)  }
+\)
+and
+\(
+    \size{N} \in \bigO{ \card{P} \cdot \card{T} \cdot \left( \ceil{ \log \norminf{\i} } + \ceil{ \log \norminf{\o} } + 2  \right) }
+\)
+
+In the definition of the size, we have measured the size of all numbers via their \emph{binary encoding} which is logarithmic in the absolute value of the number.
+Altogether, to guarantee that the size of a Petri net instance is polynomial in some number $k \in \N$, it is sufficient to guarantee that its number of places and transitions are polynomial in $k$ and the occurring multiplicities and numbers of tokens are exponential in $k$.
+
+Sometimes, we will explicitly refer to the unary encoding of a Petri net instance.
+Formally, the size of the unary encoding of a marking is $\sizeunary{M} = \sum_{p \in P} \card{M(p)} + 1 = \normone{M} + \card{P}$.
+The definitions of the size of the unary encoding of a net $\sizeunary{N}$ \resp of a net instance are similar to the binary case, with occurrences of $\size{-}$ replaced by $\sizeunary{-}$.
+
+\paragraph{Reachability and coverability}
+
+The most natural algorithmic problem for Petri nets is the \emph{reachability} problem.
+
+\begin{problem}
+    \problemtitle{Petri net reachability}
+    \problemshort{($\PNREACH$)}
+    \probleminput{Petri net instance $(N, \Minit, \Mfinal)$.}
+    \problemquestion{Is $\Mfinal$ reachable from $\Minit$ in $N$, \ie $\exists \sigma \in T^* \colon \Minit \fire{\sigma} \Mfinal$?}
+\end{problem}
+
+Unfortunately, the Petri net reachability problem turned out to be very hard, see the discussion below.
+To circumvent this problem, one often considers the \emph{coverability problem}.
+
+\begin{problem}
+    \problemtitle{Petri net coverability}
+    \problemshort{($\PNCOV$)}
+    \probleminput{Petri net instance $(N, \Minit, \Mfinal)$.}
+    \problemquestion{Is there $\sigma \in T^*$ such that $\Minit \fire{\sigma} M'$ with $M' \geq \Mfinal$?}
+\end{problem}
+
+% Here and in general, the comparison of the markings is via the \emph{product order}, \ie $M_1 \geq M_2$ iff $M_1(p) \geq M_2(p) \forall p \in P$.
+
+We say that a marking $M'$ with $M' \geq \Mfinal$ \emph{covers} $\Mfinal$.
+A computation $M \fire{\sigma} M'$ with $M' \geq \Mfinal$ is called \emph{covering computation}.
+For the ease of notation, we contract the expression and simply write $M \fire{\sigma} M' \geq \Mfinal$.
+
+The reason for considering coverability instead of reachability is not only that coverability is much simpler to solve.
+In many applications, it is in fact sufficient to decide coverability.
+We provide two examples to justify this claim.
+
+For the first example, consider a Petri net $N$ in which the places are states of a concurrent system.
+The number of tokens that a place carries in a marking is the number of threads that are in a specific state at a certain point in time.
+(Note that threads that are in the same state are indistinguishable in this model.)
+A typical verification problem considers one of the \nb{states $p_\bad \in P$} to be a bad state, and one wants to ensure that from some initial configuration $\Minit$, it is not possible for any component to reach state $p_\bad$.
+This is modeled by the coverability problem for $(N,\Minit,\Mfinal)$, where $\Mfinal$ is the unit vector that is zero but for $\Mfinal(p_\bad) = 1$.
+This \nb{marking $\Mfinal$} is coverable from $\Minit$ if and only if the system is incorrect (with respect to the specification that $p_\bad$ is not reachable by any component).
+Here, we use that it does not matter whether exactly one or more than one component is able to enter the bad state.
+
+The second example is similar.
+We consider a Petri net modeling a \emph{mutex (mutual exclusion) protocol}.
+It has a state $p_{\text{cs}}$ modeling the critical section.
+The protocol should guarantee that no two components ever enter the critical section at the same time.
+We model this by considering coverability with respect to the marking $\Mfinal$ that is zero but for $\Mfinal(p_{\text{cs}}) = 2$.
+Modeling this problem using coverability is suitable because the system is incorrect as soon as any number of components greater than $1$ is able to enter the critical section and the same time.
+
+\begin{example}
+    We make the second example explicit.
+    Consider a program that continuously spawns a nondeterministic amount of worker threads that first compute on their own for some time.
+    At some point, each worker thread enters a critical section to transfer the result of its computations to a data structure in shared memory.
+    To ensure mutual exclusion, \ie only one worker accesses the critical section at the same time, we protect the critical section by a lock which the threads have to acquire.
+    After the threads have transferred their data, they leave the critical section, release the lock and die.
+
+    We model this behavior by the Petri net depicted in \cref{Figure:PNMutex}.
+    Tokens on place $p$ represents worker threads that are not in the critical section; transition $t_{\text{spawn}}$ creates such threads.
+    The transition that enters the critical section by moving a token from $p$ to $p_{\text{cs}}$ also acquires the lock by moving a token from $\ell_{\text{free}}$ to $\ell_{\text{held}}$.
+    The transition that kills the thread by removing a token from $p_{\text{cs}}$ returns the token from $\ell_{\text{held}}$ to $\ell_{\text{free}}$.
+    The initial marking puts one token on $\ell_{\text{free}}$, \ie the lock is initially not acquired, and no token elsewhere.
+    It is easy to verify that it is impossible to create more than one token in $p_{\text{cs}}$ at the same time.
+\end{example}
+
+\begin{figure}
+    \centering%
+    \input{tikz/pn_example.tikz}%
+    \caption{A Petri net modeling a simple concurrent system.}%
+    \label{Figure:PNMutex}%
+\end{figure}
+
+In the following, we recall classical results on the complexity of coverability and reachability.
+
+
+\paragraph{Lipton's result}
+
+Both coverability and reachability were shown to be $\EXPSPACE$-hard by \citea{Lipton76} (\cf a presentation of the proof by \citea{Esparza98}).
+
+\begin{theorem}[(\citea{Lipton76})]%
+\label{Theorem:PNLipton}%
+    $\PNREACH$ and $\PNCOV$ are $\EXPSPACE$-hard.
+\end{theorem}
+
+The hardness of reachability follows directly from the hardness of coverability:
+Given an instance of the coverability problem, we can construct an equivalent instance of the reachability problem by adding transitions to the net that consume superfluous tokens.
+
+The proof uses a polytime reduction from the acceptance problem for $\EXPSPACE$, which is $\EXPSPACE$-complete.
+Formally, this problem can be defined similarly to the $\AEXPSPACE$ acceptance problem that we have considered in \cref{Section:Complexity}.
+Firstly, one observes that a Turing machine with exponential space consumption can be simulated by a counter machine with counter values bounded by a number doubly exponential in $n$.
+Lipton shows how to simulate such a counter machine with counters bounded by $2^{2^n}$ with a Petri net of size polynomial in~$n$.
+The crucial step is the simulation of zero tests that are present in counter machines, but not in Petri nets.
+To this end, each counter~$x_i$ of the machine is represented by two places~$x_i$ and~$\overline{x_i}$ such that every marking~$M$ that is reachable from the initial one satisfies $M(x_i) + M(\overline{x_i}) = 2^{2^n}$.
+To check that counter $x_i$ is currently zero, we need to check that place $\overline{x_i}$ contains at least $2^{2^n}$ tokens.
+Furthermore, the places need to be initialized to carry the correct number of tokens.
+This is made possible by polynomially sized gadgets that increment or decrement the number of tokens at a place by precisely $2^{2^n}$.
+Since we will need these gadgets in the Sections~\ref{Section:PNUC} and~\ref{Section:PNSeparabilityLowerBound}, we give a formal specification of their properties in the form of the following proposition.
+
+%
+\cheatpagebreak
+%
+
+\begin{proposition}%
+\label{Proposition:Lipton}%
+    Let $n \in \N$.
+    \begin{enumerate}[a)]
+        \item
+            There is a Petri net instance $(\Ninc,\Minitinc,\vec{0})$ polynomial in $n$ with two special places $p_\haltinc$, $p_\outinc$ such that any computation $\Minitinc \fire{\sigma} M$ of $\Ninc$ with $M(p_\haltinc) \geq 1$ satisfies $M(p_\outinc) = 2^{2^n}$.
+        \item
+            There is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a special place $p_\indec$ such that for any marking $M$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
+    \end{enumerate}
+\end{proposition}
+
+\paragraph{Rackoff's result}
+
+When Lipton proved the $\EXPSPACE$-hardness of reachability and coverability, reachability was not known to be decidable.
+Coverability, however, was already proven to be decidable using a technique by \citea{KarpM69} which we will discuss in detail in \cref{Section:PNDC}.
+The precise complexity was determined by \citea{Rackoff78} who provided an algorithm whose complexity that matches Lipton lower bound.
+
+\begin{theorem}[(\citea{Rackoff78})]
+    $\PNCOV$ can be solved using exponential space.
+\end{theorem}
+
+\begin{corollary}
+    $\PNCOV$ is $\EXPSPACE$-complete.
+\end{corollary}
+
+Rackoff's proved this result by showing that if there is a covering computation, then there is one of doubly exponential length.
+With this bound, one can enumerate and simulate all candidate executions using only exponential space.
+We will discuss Rackoff's proof in detail in \cref{Section:PNUC}.
+
+\paragraph{Petri net reachability}
+
+After an incomplete proof by \citea{SacerdoteT77}, Petri net reachability was finally proven to be decidable in 1981 by \citea{Mayr81}.
+
+\begin{theorem}[(\citea{Mayr81})]
+    $\PNREACH$ is decidable.
+\end{theorem}
+
+Simplified versions of the proof were later published by \citea{Kosaraju82} and \citea{Lambert92}.
+The algorithm that can be extracted from the proof of decidability is known to be non-primitive recursive.
+A more precise complexity analysis was presented 2015 by \citea{LerouxS15}, showing that the running time of the algorithm in the worst case is at least Ackermann and at most cubic Ackermann, \ie roughly spoken the Ackermann function applied to itself applied to itself applied to the size of the input.
+
+The gap between the $\EXPSPACE$-hardness proven by Lipton and the non-primitive recursive running time of the only known algorithm remained unclosed for more than 30 years, becoming one of the most important open problems in theoretical computer science.
+From 2009 \nb{to 2012}, Leroux published a series of papers, \eg \cite{Leroux11}, that contributed new insights about the structure of the set of reachable markings and a new algorithm, but not a better upper bound.
+\nb{In 2019} \citea{LerouxS19} have shown that the reachability problem can be solved in $\ACKERMANN$ time for arbitrary Petri nets (improving the previous analysis of the algorithm), and in primitive recursive time for Petri nets when the number of places is fixed.
+
+Also in 2019, the lower bound was improved by \citea{CzerwinskiLLLM19}. They have shown that Petri net reachability is $\TOWER$-hard.
+In 2021, the problem has finally been solved.
+Independently, \citea{Leroux21} and \citea{CzerwinskiO21} have proven that Petri net reachability is $\ACKERMANN$-complete by providing an $\ACKERMANN$ lower bound that matches the earlier upper bound from~\cite{LerouxS19}.
+
+\begin{theorem}[(\citea{Leroux21}, \citea{CzerwinskiO21}, \citea{LerouxS19})]
+    $\PNREACH$ is $\ACKERMANN$-complete.
+\end{theorem}
+
+\end{document}

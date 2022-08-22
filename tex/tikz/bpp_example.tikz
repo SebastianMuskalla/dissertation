@@ -1,0 +1,17 @@
+\begin{tikzpicture}[->,>=latex,node distance=5em,semithick]
+
+\node[place] (P) [minimum size=3em] {};
+\node[place] (P2) [minimum size=3em, right of=P, node distance=10em] {};
+
+\node[transition,square] (A) [left of=P, inner sep=0.25em] {$a\mathstrut$}
+    edge [post] (P);
+
+\node[transition,square] (B) [right of=P, inner sep=0.25em] {$b\mathstrut$}
+    edge [post] (P2)
+    edge [pre] (P)
+;
+
+\node[transition,square] (C) [right of=P2, inner sep=0.25em] {$c\mathstrut$}
+    edge [pre] (P2);
+
+\end{tikzpicture}

@@ -1,0 +1,625 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Complexity}%
+\label{Section:CFGamesComplexity}%
+
+We discuss the computational complexity of solving context-free regular inclusion games.
+Formally, the associated decision problem is defined as follows.
+
+\begin{problem}
+    \problemtitle{Solving context-free regular inclusion games}
+    \probleminput{Game grammar $G = (N_\allplayer \dotcup N_\explayer, P, S)$, NFA $A = A = (Q, \delta, \qinit, \QF)$.}
+    \problemquestion{Does the existential player have a winning strategy for $(G,A)$ \newline from the position $S$?}
+\end{problem}
+
+Our main result is that this problem is complete for $2\EXPTIME$, the class of problems solvable within doubly exponential time, with respect to polynomial-time reductions.
+
+\begin{theorem}%
+\label{Theorem:CFGamesComplexity}%
+    Solving context-free regular inclusion games is $2\EXPTIME$-complete.
+\end{theorem}
+
+As usual, the proof of a result of this type decomposes into showing membership and hardness separately.
+To prove the upper bound, we will show that our algorithm based on effective denotational semantics solves context-free games in $2\EXPTIME$.
+Together with the lower bound, we obtain that our algorithm has the optimal time complexity.
+
+\paragraph{Membership / Upper bound}
+
+We prove that context-free regular inclusion games can be solved in doubly exponential time.
+To this end, we analyze the running time of our algorithm.
+We start by recapping the algorithm.
+Given an instance $(G,A)$, it works as follows.
+
+\begin{enumerate}
+    \item
+        Construct the system of equations representing $G$ as described in \cref{Section:CFGamesEDS}.
+    \item
+        Solve the system of equations interpreted over $\pBF(\nfatransmonoid{A})$.
+        \begin{itemize}
+            \item
+                Initialize $\sol{0}{X} = \false$ for all nonterminals $X$.
+            \item
+                Starting with $i = 0$, compute $\soli{i+1}$ by evaluating the interpreted right-hand sides of the equations at $\soli{i}$:
+                \[
+                    \soli{i+1} = \rhs \paren{ \soli{i}}
+                    \ .
+                \]
+                While $\soli{i+1} \neq \soli{i}$, \ie $\sol{i+1}{X} \not\implies \sol{i}{X}$ for at least one nonterminal $X$, increment $i$ and repeat this step.
+            \item
+                Let $i_0$ be the first index so that $\soli{i_0} = \soli{i_0 + 1}$, \ie $\sol{i_0}{X} \lequiv \sol{i_0 + 1}{X}$ for all nonterminals.
+        \end{itemize}
+    \item
+        The existential player has a winning strategy from $S$ if and only if $\sol{i_0}{S}$ is rejecting, \ie if $\paren{\sol{i_0}{S}}(\Mrej) = \true$.
+\end{enumerate}
+
+Firstly, note that we use Kleene iteration here instead of the more efficient chaotic iteration using a worklist as described in \cref{Section:EDSEqSys}.
+This will simplify the analysis of the algorithm.
+Secondly, our domain technically is the set of equivalence classes of formulas.
+However, we will assume that we represent each equivalence class by some formula in that class.
+This means that checking equality of equivalence classes amounts to checking logical equivalence of representatives.
+More precisely, the approximants necessarily form an ascending chain, so $\sol{i}{X} \implies \sol{i+1}{X}$ always holds.
+The iteration has arrived at the fixed point corresponding to the least solution as soon as $\sol{i+1}{X} \implies \sol{i}{X}$ holds for all nonterminals.
+
+Finally, we have to deal with the problem that the formulas that occur in the approximants may grow in each step.
+To solve this problem, we assume that formulas are given in conjunctive normal form (CNF) without redundant clauses.
+This means that each formula is of shape $F = \bigwedge_{K} \bigvee_{\tbox \in K} \tbox$ so that no two clauses $K, K'$ are equal.
+We may also see $F$ as a set of clauses, each of which is a set of boxes.
+
+In order to be able to execute the algorithm on formulas in CNF, we need to discuss how the operations can be implemented.
+In addition to the three operations conjunction, disjunction, and formula composition, we will also need a criterion for checking implication.
+
+\begin{lemma}%
+\label{Lemma:CFGamesCNFOperations}%
+    Let $F = \bigwedge_{K} \bigvee_{\tbox \in K} \tbox$ and $H = \bigwedge_{K'} \bigvee_{\tbox' \in K'} \tbox'$ be positive Boolean formulas over $\nfatransmonoid{A}$ in CNF.\@
+    \begin{enumerate}[a)]
+        \item
+            $F \wedge H = F \cup H$,
+            \ie $F \wedge H = \paren{ \bigwedge_{K} \bigvee_{\tbox \in K} \tbox} \wedge \paren{\bigwedge_{K'} \bigvee_{\tbox' \in K'} \tbox'}$.
+        \item
+            $F \vee H = \Set{ K \cup K' }{K \in F, K' \in H}$,
+            \ie $F \vee H = \bigwedge_{K, K'} \paren{ \paren{ \bigvee_{\tbox \in K} \tbox } \vee  \paren{ \bigvee_{\tbox' \in K'} \tbox'} }$.
+        \item
+            $F \comp G = \bigcup_{K \in F} \bigcup_{\zeta \colon K \to H} \big\{ \bigcup_{\tbox \in K } \tbox \comp \zeta(\tbox)\big\}$,
+            \ie $F \comp G = \bigwedge_{K \in F} \bigwedge_{\zeta \colon K \to H} \bigvee_{\tbox \in K } \tbox \comp \zeta(\tbox)$.
+        \item
+            $F \lleq H$ holds iff every clause of $H$ contains a clause of $F$,
+            \ie iff there is a function $\iota \colon H \to F$ so that $\iota(K') \subseteq K'$ for all $K' \in H$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    Part~a) is obvious.
+    Part~b) is obtained by applying distributivity to bring the disjunction of two CNFs back into CNF.\@
+
+    For Part~c), observe that the composition of $F$ and $H$ is
+    \[
+        \bigwedge_{K} \bigvee_{\tbox \in K}
+        \bigwedge_{K'} \bigvee_{\tbox' \in K'}
+            \tbox \cdot \tbox'
+        \ .
+    \]
+    To obtain a CNF, we need to swap the order of the disjunction $\bigvee_{\tbox \in K}$ and the conjunction $\bigwedge_{K'}$ using distributivity.
+    The resulting formula will have one conjunct for each combination of a box $\tbox \in K$ and a clause $K'$ of $H$.
+    The conjunction $\bigwedge_{\zeta \colon K \to G}$ over all functions that assign a clause $\zeta(\tbox)$ of $H$ to every box $\tbox$ in $K$ produces exactly these conjuncts.
+    Additionally, the composition $\tbox \comp K'$ of a box $\tbox$ and a clause $K'$ is the disjunction $\bigwedge{\tbox' \in K'} \tbox \cdot \tbox'$.
+
+    For Part~d), assume a function $\iota \colon H \to F$ as specified exists and assume that $F(M) = \true$ for some variable assignment $M$.
+    We need to argue that every clause $K'$ of $H$ is satisfied under $M$.
+    Each~$K'$ contains a clause $\iota(K')$ of $F$.
+    Since $F$ is satisfied under $M$, so are all its clauses.
+    A clause is a disjunction, so if $\iota(K')$ is satisfied, then so is $K'$.
+
+    For the other direction, assume that there is a clause $K'$ of $H$ that does not contain any clause of~$F$.
+    Consider the variable assignment that sets to true all atoms not contained in $K'$.
+    This variable assignment does not satisfy $H$ since it does not satisfy $K'$.
+    Since $K'$ does not contain any clause of $F$, every clause of $F$ contains at least one atom that is set to true.
+    Hence, $F$ is satisfied under this assignment and we obtain $F \not\lleq H$.
+\end{proof}
+
+With these preliminaries at hand, we can now analyze the running time of the algorithm.
+We obtain that the time is polynomial in the size of the grammar, but doubly exponential in the size of the automaton.
+
+\begin{proposition}%
+\label{Proposition:CFGamesComplexityMembership}%
+    The algorithm solves a given context-free regular inclusion game in time
+    \[
+        \bigO{\card{G}^{c_1}} \cdot 2^{2^{\bigO{\card{Q}^{c_2}}}}
+    \]
+    for suitable constants $c_1, c_2 \in \N$.
+\end{proposition}
+
+\begin{proof}
+    The two crucial factors for the running time of the algorithm are the size of the formulas that need to be manipulated, and the number of steps after which the fixed point \nb{iteration terminates}.
+%
+    We first observe that constructing the system of equations is polynomial in the size of \nb{the grammar}.
+
+    To analyze the complexity of the fixed-point iteration, we start by analyzing the height of the domain.
+    We argue that its height is at most the height of $(\powerset{\powerset{\nfatransmonoid{A}}}, \subseteq)$, a two-fold powerset over $\nfatransmonoid{A}$.
+    To see this, we identify an equivalence class of formulas $\equivclass{F}$ with the set of variable assignments $\Set{ M \subseteq \nfatransmonoid{A}}{ F(M) = \true  } \in \powerset{\powerset{\nfatransmonoid{A}}}$ under which $F$ evaluates to true.
+    We observe that if $F \implies H$, then any variable assignments satisfying $F$ will also satisfy $H$ and we get that $\Set{ M \subseteq \nfatransmonoid{A}}{ F(M) = \true  }$ is a subset of $\Set{ M \subseteq \nfatransmonoid{A}}{ H(M) = \true  }$.
+    If the implication is strict, meaning that the two formulas are not equivalent, then also the subset relation among the associated sets of variable assignments will be strict.
+    Altogether, we obtain that a strict ascending chain of equivalence classes of formulas with respect to implication induces a strict ascending chain in $(\powerset{\powerset{\nfatransmonoid{A}}}, \subseteq)$.
+    Hence, the height of the latter partial order bounds the height of our domain.
+    For any set $D$, the height of $\powerset{D}$ is $\card{D}$, as we have discussed in \cref{Section:EDSEqSys}.
+    Hence, the height of $\pBF(\nfatransmonoid{A})$ is bounded by $\card{\powerset{\nfatransmonoid{A}}} = 2^{2^{\card{Q}^2}}$.
+    The fixed-point iteration is actually conducted over the product domain $N \to \pBF(\nfatransmonoid{A})$ that associates one formula to each nonterminal.
+    It is not difficult to check that the height of that domain is
+    \[
+        \card{N} \cdot 2^{2^{\card{Q}^2}} \in \bigO{\card{G}} \cdot 2^{2^{\card{Q}^2}}
+        \ ,
+    \]
+    since any strictly ascending chain in the product domain can be decomposed into $\card{N}$ ascending chains, one for each of the nonterminals.
+    In each of these chains, there are at most $2^{2^{\card{Q}^2}}$ steps in which the elements can strictly increase.
+
+    The height of the domain gives us the required bound on the steps of the fixed-point iterations.
+    We analyze the cost of one step of the iteration.
+    If we assume that a formula in CNF contains no repeated clauses, we obtain that the size of a single formula is at most doubly exponential.
+    To be precise, it contains at most each of the $2^{2^{\card{Q}^2}}$ different clauses of size at most $2^{\card{Q}^2}$.
+
+    It remains to discuss the cost of the operations that we perform on these formulas.
+    Using \cref{Lemma:CFGamesCNFOperations}, the conjunction and the disjunction of two formulas can be computed in time polynomial in the size of the formulas.
+
+    The size of the composition $F \comp H = \bigwedge_{K \in F} \bigwedge_{\zeta \colon K \to H} \bigvee_{\tbox \in K } \tbox \comp \zeta(\tbox)$
+    of two formulas is mainly determined by the number of functions $\zeta \colon K \to H$.
+    This number is at most
+    \[
+        \card{H}^{\card{K}}
+        \leq {\paren{2^{2^{\card{Q}^2}}}}^{\paren{2^{\card{Q}^2}}}
+        = 2^{ \paren{2^{\card{Q}^2}}^2}
+        = 2^{ {2^{2 \cdot \card{Q}^2}}}
+        \ ,
+    \]
+    which is doubly exponential in $Q$.
+    Altogether, the cost of computing the composition is at most doubly exponential.
+
+    After each operation, we get rid of redundant clauses, which takes quadratic time (in the size of the formulas).
+    The total number of operations that we need to apply in one step of the fixed-point operation is bounded by the size of the system of equations, which is polynomial in $\card{G}$.
+
+    After each step of the iteration, we need to check whether we have reached the fixed point.
+    To this end, we use Part~d) of \cref{Lemma:CFGamesCNFOperations}.
+    This check can be conducted in quadratic time (in the size of the formulas).
+
+    Finally, we observe that reading off the winner of the game requires evaluating a formula, which is polynomial in the size of the formula.
+    Altogether, we obtain the desired result.
+\end{proof}
+
+As a consequence of this result, solving context-free games is easy as long as the automaton representing the target language is small.
+This is in particular the case when the condition for membership in the target language is a simple one like the absence of a certain symbol in the produced word.
+In this case, the size of the automaton is a constant, and the resulting algorithm runs in polynomial time.
+
+
+\paragraph{Hardness}
+
+To complete the proof of \cref{Theorem:CFGamesComplexity}, we show that solving context-free inclusion game is $2\EXPTIME$-hard.
+
+\begin{theorem}%
+\label{Theorem:CFGamesComplexityHardness}%
+    Deciding context-free inclusion games is $2\EXPTIME$-hard.
+\end{theorem}
+
+The proof uses a well-known technique that was introduced to the best of the author's knowledge in Stockmeyer's and Meyer's proof that deciding language equivalence for regular expressions is $\PSPACE$-hard~\cite{StockmeyerM73}.
+The proof uses that is sufficient to show that the universality problem, \ie the task of deciding whether a regular language is equal to $\Sigma^*$, is $\PSPACE$-hard.
+The original paper uses regular expressions to represent regular languages, but we will work with NFAs in the following.
+
+The idea behind that proof is as follows:
+Given a Turing machine $M$ with polynomial space consumption and an input $x$ for that machine, we construct an NFA that accepts all invalid or non-accepting computations of $M$ on $x$.
+To this end, it expects a string of configurations of the machine, and it accepts if one of the encodings of the configurations is invalid or the transition relation of the Turing machine has not been respected.
+If $M$ does not accept $x$, $M$ has no valid accepting computation for that input and the language of the automaton is universal.
+The well-known proof for the universality problem for Turing machines being neither semi-decidable nor co-semi-decidable uses a similar construction.
+
+\citea{Walukiewicz01} has extended this idea to show that a special type of context-free games, namely parity games on the configuration graphs of pushdown automata are $\EXPTIME$-hard.
+He makes use of the game-aspect in the pushdown to simulate an alternating Turing machine with polynomial space consumption, relying on $\EXPTIME = \APSPACE$.
+Later, \citea{MuschollSS06} have in turn extended \Walus proof to show that a type of context-free games that is similar to the one that we consider is $2\EXPTIME$-hard.
+We will explain this type of game in detail in \cref{Section:CFGamesRelWork}.
+The additional layer provided by having a winning condition that works on the level of languages rather than on the internal state of the system can be used to simulate an alternating Turing machine that has an exponential space bound instead of a polynomial one.
+
+The full proof that we provide in the rest of this section is strongly inspired by the proof of Theorem~4.3 in~\cite{MuschollSS06}.
+It uses the same idea:
+Given an ATM with exponential space construction and an input for that machine, we construct a game that proceeds in two phases.
+The first phase produces a computation of the machine for the given input, represented as a sequence of configurations.
+We use the players to mimic the alternation between universal and existential control states of the ATM.\@
+In the second phase, the players place markers in this computation that help the automaton to detect whether the computation is valid.
+The automaton is designed so that it accepts all computations that are invalid or non-accepting.
+If the existential player manages to enforce the derivation of a valid accepting computation, winning the game, the given input is in the language of the machine and vice versa.
+
+\paragraph{Into the proof}
+
+The rest of the section is dedicated to making this proof approach formal, including all gory technical details.
+We provide a polynomial time reduction from the $\AEXPSPACE$ acceptance problem.
+Recall that this problem is, given an alternating Turing machine $M$ and an input $x$ for that machine, to decide whether $M$ accepts $x$ with a computation tree in which each configuration has space consumption at most $2^{\card{x}}$.
+We have argued in \cref{Lemma:ComplexityAEXPSPACEcompleteProblem} that this problem is $\AEXPSPACE$-complete.
+Furthermore, it is well known that $\AEXPSPACE = 2\EXPTIME$~\cite{ChandraKS81}.
+
+We also assume that the input alphabet of the Turing machine is $\set{a,b}$, meaning that the tape alphabet $\set{a,b,\blank}$.
+It is well-known that an arbitrary input alphabet can be encoded into a binary one by only polynomially increasing the space consumption.
+
+Let $(M,x)$ be the input for the $\AEXPSPACE$ acceptance problem.
+We define $n = \card{x}$, and we see the transition relation $\delta$ of the Turing machine as a set of transitions of the shape $t = \  (q,y) \mapsto (q',y',d)$ with $q,q'$ control states, $y,y' \in \Gamma$ tape symbols and $d \in \set{L,R}$ a direction for the head movement.
+
+Our reduction constructs a context-free inclusion game such that its tree of plays from a fixed initial position corresponds to the computation tree of $M$ on input $x$.
+The game will be designed so that the existential player has a winning strategy if and only if $x$ is accepted by $M$ with space consumption at most $2^n$.
+More precisely, a play of the game will derive a terminal word that is a branch of the computation tree, \ie a sequence of successive configurations of $M$.
+To this end, the players will write down configurations of the Turing machines, starting with the initial one.
+The ownership assignment is chosen such that the universal player chooses the transitions that originate in configurations with a universal control state, similar for the existential player.
+
+We combine this approach with two tricks.
+The first trick is to use the automaton that represents the winning condition of the game to detect invalid computations.
+% Intuitively, it is constructed so that it computations that are invalid in a way that cannot be detected by a polynomially sized grammar.
+For example, it will detect if the head of the ATM is moved in an invalid way or the tape content is not copied properly from one transition to next.
+
+It remains to deal with the problem that the configurations of exponential length are too long for a polynomially sized automaton to properly keep track of the tape content and head movement.
+The second trick solves this problem by designing the grammar so that the game proceeds in two phases.
+% To tackle this problem, we make use of the fact that we are allowed to construct a grammar and not just a finite-state system.
+% This allows us to build a game whose plays consist of two rounds.
+The first phase is a left-to-right pass in which the computation of the Turing machine is constructed as discussed above.
+The second phase is a right-to-left pass in which the players can place markers within the computation.
+With the help of these markers, the automaton can check whether the computation is valid or not.
+
+\paragraph{The first phase}
+
+We start by discussing the technical details of the first phase.
+The goal of the first phase is to obtain a sentential form of the shape
+\[
+    \itr{c}{k} \ t_{k} \ \itr{c}{k-1} \ t_{k-1} \ \ldots \ t_1 \ \itr{c}{1} \ t_0\  \itr{c}{0}
+\]
+so that $\itr{c}{0} \tow{t_0} \itr{c}{1} \tow{t_1} \ldots \tow{t_{k-1}} \itr{c}{k-1} \tow{t_k} \itr{c}{k}$ is a candidate for an accepting computation of the ATM.\@
+By $\itr{c}{i} \tow{t_i} \itr{c}{i+1}$, we mean that transition $t_i \in \delta$ of the ATM was used to get from $\itr{c}{i}$  o $\itr{c}{i+1}$.
+Each configuration $\itr{c}{i}$ is encoded as its tape content
+\[
+    \itr{c}{i} = \itr{c}{i}_1 \ldots \itr{c}{i}_m
+\]
+of length exactly $m = 2^n$. (If a configuration uses less than $m$ space, we fill up the remaining space with blank symbols).
+Each $\itr{c}{i}_j$ is either just a tape symbol, or a tape symbol together with a control state.
+The latter case occurs exactly once per configuration.
+
+For the verification of the validity of the computation, it will be important that each tape cell is preceded by an index, \ie its number on the tape.
+Formally, we assume that $\set{0,1}$ are two terminal symbols used for the indexing (while $\set{a,b,\blank}$ is the tape alphabet of the ATM).\@
+Furthermore, each index is preceded by two marker symbols $M_\allplayer M_\explayer$ that will be needed during the second phase.
+
+Hence, each $\itr{c}{i}_j$ is either of the shape $M_\allplayer M_\explayer\set{0,1}^n\set{a,b}$, or $M_\allplayer M_\explayer\set{0,1}^n Q\set{a,b}$.
+Note that since each configuration has length $m = 2^n$, a binary number of length $n$ is necessary and sufficient to properly number the cells on the tape.
+As we can see, the control states are used as terminal symbols as well.
+
+\subparagraph{The initial configuration}
+
+The derivation starts with rules that implement a process that writes down the initial configuration.
+The result of this process is the sentential form
+\[
+    E_{q_0,x_1}
+    M_\allplayer M_\explayer
+    \underbrace{0 \ldots 0}_{\mathclap{\text{encoding of }0}}
+    q_0 x_1
+    % M_\allplayer M_\explayer
+    % \underbrace{0 \ldots010}_{\text{encoding of }2}
+    %  x_2
+    \enspace \ldots \enspace
+    M_\allplayer M_\explayer
+    \underbrace{0 \ldots}_{\mathclap{\text{encoding of }n-1}} x_n
+    \enspace
+    % \ldots \enspace
+    M_\allplayer M_\explayer
+    \underbrace{0 \ldots}_{\mathclap{\text{encoding of }n}} \blank
+    % M_\allplayer M_\explayer
+    % \underbrace{0 \ldots}_{\text{encoding of }n+1} \blank
+    \enspace \ldots \enspace
+    M_\allplayer M_\explayer
+    \underbrace{1 \ldots 1}_{\mathclap{\text{encoding of }2^n-1}} \blank
+    \ .
+\]
+Here, we use that $x = x_1 \ldots x_n$ has length $n$, meaning we can explicitly encode it via grammar rules.
+Furthermore, we use the well-known result that a context-free grammar can produce an exponential number of symbols with a polynomial number of rules to derive the $2^n - n$  blank symbols at the end of the tape content.
+(See the end of \cref{Section:BPPDC} for a similar construction.)
+For the indexing of each symbol (including the preceding markers), we essentially let the existential player guess the correct indexing.
+We discuss this mechanism in detail later.
+
+\subparagraph{Picking a transition}
+%
+The symbol $E_{q_0,x_1}$ is a nonterminal whose subscripts indicate that we have seen control state $q_0$ and tape symbol $x_1$ at the head position in the last configuration.
+After every configuration, we will have some nonterminal $E_{q,y}$ as the leftmost symbol of the sentential form where $q$ is the control state and $y \in \set{a,b,\blank}$ is the head symbol.
+This nonterminal is owned by the player that owns state $q$.
+Her task is now to pick a transition of the Turing machine that is valid with respect to state $q$ and symbol $q$.
+Formally, she has a rule
+\[
+    E_{q,y} \to A_{q'} \ t
+\]
+for any transition $t \in \delta$ with $t = (q,y) \mapsto (q',y',d)$.
+The transition that was used is written down as a terminal symbol.
+% The derivation process is now in $A$-mode, meaning that it is at the beginning of a configuration in which the head position has not seen yet.
+
+A special case is that the control state $q = q_\final$ is the unique accepting control state of the ATM.\@
+In this case, we have the rule
+\[
+    E_{q_\final,y} \to \varepsilon
+\]
+that enforce the termination of the first phase.
+
+\subparagraph{Writing the tape content}
+%
+Whenever $A_{q}$ occurs (for some state $q$), the existential player that owns the symbol can iteratively write cells of the tape of the next configuration.
+For each cell, she can first decide whether this should be the new position of the head by choosing between the rules
+\[
+    A_{q} \to A_{q}^{\text{nohead}} \mid A_{q}^{\text{head}}
+    \ .
+\]
+If she picks $A_{q}^{\text{nohead}}$, the next cell is not the position of the head, and she can first pick a tape content in $\set{a,b,\blank}$ and then an index, a string over $\set{0,1}$ of arbitrary length.
+Formally, we have the rules
+\[
+    A_{q}^{\text{nohead}} \to A_{q}^{\text{index}} a \mid A_{q}^{\text{index}} b \mid A_{q}^{\text{index}} \blank
+\]
+and
+\[
+    A_{q}^{\text{index}} \to A_{q} M_\allplayer M_\explayer \mid A_{q}^{\text{index}} 0 \mid A_{q}^{\text{index}} 1
+    \ .
+\]
+The nonterminals $A_{q}^{\text{nohead}}$ and $A_{q}^{\text{index}}$ are owned by the existential player.
+The markers $M_\allplayer$ and $M_\explayer$ that are inserted in front of the index are used for the second phase; we will describe their function later in detail.
+
+%
+\cheatpagebreak
+%
+
+\subparagraph{Writing the head position}
+%
+If she picks $A_{q}^{\text{head}}$, the next tape cell should be the position of the head.
+This means she is forced to write down control state $q$ (that should be the control state in the current position), but she may select an arbitrary tape content.
+% After writing down the head, the derivation process switches to $B$-mode, meaning that the head position has already occurred in the current configuration.
+The control state and the tape content at the head position are tracked as a subscript.
+The rules are
+\[
+    A_{q}^{\text{head}} \to
+        B_{q,a}^{\text{index}} q a
+    \mid B_{q,b}^{\text{index}} q b
+    \mid B_{q,\blank}^{\text{index}} q \blank
+    \ .
+\]
+
+\subparagraph{Writing the rest of the tape content}
+%
+The rest of the tape content is written while $B_{q,y}$ is the leftmost nonterminal, indicating that the head position has already occurred in the current configuration.
+In $B_{q,y}$, the existential player can either continue to write cells (namely, the cells that are to the left of the head position).
+Or, she can derive $E_{q,y}$ as the leftmost nonterminals, which means that the next transition should be picked.
+
+Formally, the rules are
+\[
+    B_{q,y} \to E_{q,y}
+        \mid B_{q,y}^{\text{index}} a
+        \mid B_{q,y}^{\text{index}} b
+        \mid B_{q,y}^{\text{index}} \blank
+    \ .
+\]
+
+The indexing for the symbols in this part of the tape content works just as before with the rules
+\[
+    B_{q,y}^{\text{index}} \to B_{q,y} M_\allplayer M_\explayer
+        \mid B_{q,y}^{\text{index}} 0
+        \mid B_{q,y}^{\text{index}} 1
+    \ .
+\]
+
+
+This process proceeds either ad infinitum (in this case, the existential player looses by definition), or until the accepting state is reached.
+In the latter case, we end up with a sentential form in which the only occurrences of nonterminals are the markers $M_\allplayer$ and $M_\explayer$.
+Before discussing their usage, we explain the parts of the automaton that solely reference the terminals that have been written in first phase.
+
+\subparagraph{Summarizing the first phase}
+
+If the first phase terminates, it derives a sequence $\itr{c}{k} \ t_k \ \ldots \ t_0 \ \itr{c}{0}$, where $\itr{c}{0}$ is the initial configuration.
+Each $\itr{c}{i}$ contains exactly one control state, and the last configuration $\itr{c}{k}$ contains the accepting control state.
+The transitions of the control states respects the transitions $t_i$ that occur between the configuration, meaning that the new control state indeed results from the old control state and the old symbol at the head position.
+Each tape symbol is preceded by an indexing from $\set{0,1}^*$ and the two markers.
+Also note that the transitions originating in universal \resp existential control states have been picked by the universal \resp existential player.
+
+There are two properties that are still required so that $\itr{c}{k} \ t_k \ \ldots \ t_0 \ \itr{c}{0}$ is indeed a valid computation:
+\begin{enumerate}
+    \item The indexing has to be correct: All indices have length $n$, the first tape symbol of each configuration is indexed by $0 = \underbrace{0 \ldots 0}_{n \text{ times}}$, the last tape symbol is indexed by $2^n-1 = \underbrace{1 \ldots 1}_{n \text{ times}}$, and successive tape symbols are indexed with successive binary numbers \nb{(from left to right)}.
+    \item The tape content has to respect the transition relation of the Turing machine: From one configuration to the next, the tape content does not change at any position but at the former position of the head.
+        Additionally, the head position and the tape content at the former head position have to be modified according to the transition that was picked.
+\end{enumerate}
+
+To check the indexing, the information that is present in the sentential form resulting from the first phase is sufficient.
+To enable the automaton that will represent the target language of the game to check the second property, we need the second phase of the game.
+
+\paragraph{The second phase}
+
+The goal of the second phase is to help the automaton checking that the tape content has been manipulated in the correct way.
+Intuitively, the automaton should compare for each index $j \in \zeroto{2^n-1}$ and for each two successive configurations $\itr{c}{i+1},\itr{c}{i}$ that the tape content of $\itr{c}{i+1}$ in cell $j$ has indeed been obtained from $\itr{c}{i}$ at all cell $j$ in a valid way.
+To be able to do this, the automaton would have to store $j$ to match the two cells in the configurations.
+Since there are $2^n$ possibilities for $j$, this is not possible using a polynomially sized automaton.
+
+To solve this problem, we use the help of the players.
+Recall that at the end of the first phase, each cell is of the shape
+\[
+    M_\allplayer M_\explayer \set{0,1}^* Q^{\leq 1} \set{a,b,\blank}
+    \ ,
+\]
+where all symbols but $M_\allplayer$ and $M_\explayer$ are terminals.
+(The expression $Q^{\leq 1}$ stands for the optional occurrence of a state, \ie it is either some $q \in Q$ or $\eps$.)
+
+As we will explain later, we can detect configurations in which the indexing is incorrect without the help of the markers.
+Hence, we will assume that Property~1 is satisfied in the following.
+We use the nonterminals $M_\player$ to implement a marking mechanism.
+After the first phase has finished, the leftmost pair of markers becomes the leftmost nonterminal.
+After replacing this occurrence of $M_\allplayer M_\explayer$, the second occurrence of $M_\allplayer M_\explayer$ becomes active and so on.
+In total, the $M_\player$ markers implement a left-to-right pass (in contrast to the right-to-left writing process of the first phase) over the word.
+
+Intuitively, the universal player can use $M_\allplayer$ to mark cell $j$ of configuration $\itr{c}{i+1}$ for which she thinks that the existential player has made a mistake when writing down the cell content in the first phase.
+This can be seen as a challenge for the existential player.
+The existential player should defend herself by using $M_\explayer$ at cell $j$ of configuration $\itr{c}{i}$.
+%
+Formally, for each occurrence of $M_\player$, its owner $\player$ can select to use the marker $m_\player$ or to omit it.
+We have rules
+\[
+    M_\allplayer \to m_\allplayer \mid \eps
+    \qquad \text{ and } \qquad
+    M_\explayer \to m_\explayer \mid \eps
+    \ .
+\]
+After all $M_\player$ symbols have been replaced, we obtain a terminal word.
+
+
+\paragraph{The automaton}
+
+In the following, we will define the automaton $A$ representing the target language.
+It will accept a terminal word if and only if it encodes a candidate computation in which one the two properties is violated.
+Because the goal of the existential player is non-inclusion, this will force her to ensure that the computation is valid.
+
+\subparagraph{Checking the indexing}
+
+We describe the behavior of the automaton that is related to Property~1.
+Firstly, we construct automata that accept all words that contain
+\[
+    \set{a,b,\blank}
+    {m_\allplayer}^{\leq 1}
+    {m_\explayer}^{\leq 1}
+    \set{0,1}^{\ell} Q^{\leq 1} \set{a,b,\blank}
+\]
+as an infix where $\ell \neq n$.
+Here, the two occurrences of $\set{a,b,\blank}$ are two successive tape symbols and $\set{0,1}^{\ell}$ is an indexing of the wrong length.
+The other symbols are the optional occurrences of control states and markers.
+We essentially have to encode this expression for $\ell \in \set{\zeroto{n-1}}$ and $\ell \geq n+1$.
+This can be done using $(n+1)$ automata that are of size polynomial in $n$.
+
+Secondly, we construct an automaton accepting any word that contains an infix $t\ {m_\allplayer}^{\leq 1} {m_\explayer}^{\leq 1} w$ where $w \neq 0\ldots0$.
+This enforces that the first cell in each configuration has the binary encoding of $0$ (of length $n$) as indexing.
+This can be implemented by an automaton that counts the number of zeros.
+% An analogous construction works if instead of $t$, we have the left end of the word.
+A similar construction ensures that all configurations end with $1 \ldots 1 Q^{\leq 1} \set{a,b,\blank}\ t$, where $1 \ldots 1$ is the binary encoding of $2^n-1$ and $\set{a,b,\blank}$ is the \nb{tape symbol}.
+
+Finally, we have an automaton accepting words that contain as infix
+\[
+    {m_\allplayer}^{\leq 1} {m_\explayer}^{\leq 1} \ \ w \ \  Q^{\leq 1} \set{a,b,\blank}
+    \quad
+    {m_\allplayer}^{\leq 1} {m_\explayer}^{\leq 1} \ \ v \ \ Q^{\leq 1} \set{a,b,\blank}
+\]
+so that $w$ is an indexing of number $\ell$ and $v$ is not the indexing of number $\ell+1$.
+We argue that this can be implemented by an automaton of polynomial size.
+The key observation is that the encoding of $\ell+1$ can be obtained from the encoding of $\ell$ as follows:
+The rightmost $0$ is replaced by a $1$, and all ones that are to the right of that $0$ are replaced by zeroes.
+To implement this, we use nondeterminism.
+The automaton assumes that $v$ is not the encoding of $\ell+1$ and guesses in which bit $v$ differs from the proper encoding, say bit $s$.
+It walks through $w$ and stores bit $s$ of $w$, and whether there is a later bit in $w$ that is zero.
+It then goes to bit $s$ of $v$ and checks the following.
+If $w$ contains a later zero, then the $\nth{s}$ bit of $w$ and the $\nth{s}$ bit of $v$ should coincide (because the increment only affects a suffix of the word that does not contain the $\nth{s}$ bit).
+If $w$ contains no later zero, then the $\nth{s}$ bit of $w$ and the $\nth{s}$ should be different (either $w$ at $s$ was the last zero which should be flipped to one in $v$, or $w$ at $s$ was a one which should be flipped to zero).
+Whenever this condition is violated, the automaton accepts.
+
+% For each of these cases, we can construct a polynomially sized automaton.
+% The final automaton for the first property is the union of all these automata.
+
+\subparagraph{Checking the tape content}
+
+It remains to check the tape content.
+We implicitly assume that the automata we describe in the following only accept words that contain precisely one occurrence of $m_\allplayer$.
+If a word contains no occurrence of $m_\allplayer$, this means that the universal player admits that it indeed encodes an accepting computation of the ATM.\@
+For the sake of simplicity, we force the universal player to mark exactly one mistake, even if the computation contains several mistakes.
+She then should choose the earliest mistake (\ie the rightmost).
+Note that the grammar does not allow this occurrence to be in the initial configuration, since the tape content of the initial configuration is guaranteed to be valid by the grammar.
+
+Assume that a word contains exactly one occurrence of $m_\allplayer$, say in configuration $\itr{c}{i+1}$.
+If the word does not contain exactly one occurrence of $m_\explayer$, we make the automaton accept the word (which corresponds to the existential player admitting defeat).
+This unique occurrence of $m_\explayer$ should be in configuration $\itr{c}{i}$, \ie in the configuration to the right of the one that contains $m_\allplayer$.
+Intuitively, if the universal player has marked cell $j$ in $\itr{c}{i+1}$, then the existential player should mark cell $j$ in $\itr{c}{i}$.
+This uniquely determines the correct location for her marker $m_\explayer$.
+
+Assume that the word has an infix of the shape
+\[
+    \underbrace{m_\allplayer \ \ w \ \ q y}_{\mathclap{\text{ cell } j \text{ in } \itr{c}{i+1}}}
+    \enspace
+    \ldots
+    \quad
+    t
+    \quad
+    \ldots
+    \enspace
+    \underbrace{m_\explayer \ \ w' \ \  q' y'}_{\mathclap{\text{ cell } j \text{ in } \itr{c}{i}?}}
+    \ ,
+\]
+where $w,w' \in \set{0,1}^n$ are indexings, $q,q' \in Q \cup \set{\eps}$ are optional control states and $y,y' \in \set{a,b,\blank}$ are tape symbols.
+
+The automaton can easily verify that the markers occur in successive configurations by requiring the occurrence of exactly one terminal symbol $t \in \delta$ corresponding to a transition between the markers.
+The automaton then checks that $m_\explayer$ is at the correct position, \ie at cell $j$.
+If this is not the case, $w$ and $w'$ differ.
+To do so, the automaton guesses a position $s \in \oneto{n}$, stores the $\nth{s}$ bit of $w$ and compares it to the $\nth{s}$ bit of $w'$.
+If the bits differ, it accepts the input (meaning that the existential player loses).
+
+Assume that the marker $m_\explayer$ is at the correct position.
+It remains to verify that the cell content is valid.
+%
+We distinguish several cases.
+If control state $q'$ is not present, then cell $j$ was not the head position in configuration $\itr{c}{i}$.
+This means $y = y'$ should hold.
+The automaton checks this and accepts if the condition is violated.
+
+In the second case, we assume that $q'$ is present.
+This means $y$ should be chosen according to the transition that has been applied. The automaton stores $y$, reads the transition $t = (q',y') \mapsto (q'',y'',d)$ and accepts if the symbol $y''$ that should be written by the transition is not equal to $y$.
+
+Finally, the position of the head in $\itr{c}{i+1}$ should be valid with respect to the transition.
+More formally, the automaton checks that if control state $q$ is present, and the two configurations are separated by a transition $t = (q''',y') \mapsto (q,y'',L)$ that moves the head to the left, then the control state in configuration $\itr{c}{i}$ is present in cell $j+1$.
+Similarly, if the configuration moves the head to the right, then the control state in $\itr{c}{i}$ should be present in cell $j-1$.
+For each of these cases, one can create a polynomially sized automaton.
+
+In total, we obtain a collection of NFAs of polynomial size.
+If the word violates any of the properties that are required to ensure that it represents an accepting computation of the ATM, at least one of these automata accepts the word.
+If the word represents an accepting computation, none of the automata accept.
+The final automaton defining our target language is the union of all aforementioned automata.
+Since all automata were of polynomial size, so is their union.
+
+\paragraph{The exponential space bound}
+
+Recall that an instance $(M,x)$ of the $\AEXPSPACE$ acceptance problem is only a yes-instance if the computation tree of $M$ on input $x$ is accepting and its configurations use less than $2^{\card{x}}$ space.
+Without loss of generality, we can assume that the tape of the Turing machine is bounded on the left side, and no computation ever goes to the left of the first cell of the input.
+It remains to check that no cell ever exceeds cell $2^{\card{x}}$ on the right-hand side.
+Luckily, this property is already implicitly verified by our construction.
+We have enforced that each configuration is represented by a tape content of length exactly $2^{\card{x}}$.
+If the computation exceeds space $2^{\card{x}}$, there is a step in which the head position moves from cell $2^{\card{x}}$ to cell $2^{\card{x}} + 1$.
+Since we enforce the encoding of the configurations to be of size $2^{\card{x}}$, this means that the encoding of the latter configuration is invalid:
+It either contains an invalid indexing, or the head of the Turing machine has been moved incorrectly.
+In both cases, the existential player loses the play, as expected.
+
+\paragraph{Soundness}
+
+It remains to argue that the construction is correct:
+The existential player wins the context-free inclusion game if and only if input $x$ is accepted by a computation of the ATM that does not use more than exponential space.
+
+
+\subparagraph{Game to machine}
+
+Assume that the existential player has a winning strategy for the game.
+We consider the tree of all plays conforming to this strategy.
+In this tree, we cut off each branch after the first phase has ended.
+Each branch contains such a point, since infinite plays cannot be won by the existential player.
+% (Since the marker placement in the second phase is essentially deterministic, we will not lose any information by removing the second phase).
+Note that the result of the first phase, and hence each branch of the tree, is essentially a computation of the ATM.\@
+To be precise, the fact that we start with the winning strategy for the existential player ensures that it is a valid accepting computation.
+We obtain a subtree of the computation tree in which in for each configuration owned by the existential player, only one transition has been considered, namely the one chosen by the strategy.
+In configurations owned by the universal player, all transitions have been taken into account.
+This subtree is a witness for the full computation tree of the ATM for input $x$ \nb{being accepting}.
+% By construction, each node of the subtree is accepting (here, note that its leaves are labeled with the final state), and it contains the root node.
+
+\subparagraph{Machine to game}
+
+Assume that the configuration tree of $M$ for input $x$ is accepting.
+In \cref{Chapter:Games}, we have mentioned that alternating Turing machines can be seen as games played on the configuration graphs of Turing machines.
+To be precise, the computation tree of $M$ on $x$ being accepting means that the existential player wins the reachability game on that computation tree.
+The ownership is given by the partition of the control states, the winning condition is reaching an accepting configuration.
+Let us consider a winning strategy for the existential player in that reachability game.
+
+We now construct a winning strategy for the existential player in the context-free inclusion game.
+Whenever it is the choice of the existential player to write the index of a tape cell, she should pick the correct indexing, \ie cell number $j$ from the left should be indexed with the $n$-bit binary encoding of $j$.
+Assume that in the game, the encoding of some configuration $c$ has just been written down.
+If it is the existential players choice to pick the next transition, she does so by picking the transition that leads to successor of $c$ in the computation tree of $M$ as selected by her winning strategy for the reachability game.
+Otherwise, the universal player picks the transition.
+In any case, the existential player than proceeds to write down the configuration that results from that transition, with the correct indexing, tape content, and head position.
+When the first phase of the game has ended, the existential player defends from a challenge of the universal player -- say she puts her marker $m_\allplayer$ in cell $j$ of configuration $\itr{c}{i+1}$ -- by putting marker $m_\explayer$ in cell $j$ of configuration $\itr{c}{i}$.
+
+We argue that the resulting play is won by the existential player.
+Because she picks her transitions conforming to a winning strategy for the reachability game on the computation tree, it is guaranteed that the first phase ends after finitely many steps by reaching an accepting configuration.
+The assumption that we start with a yes-instance of the $\AEXPSPACE$ acceptance problem also means that no configuration exceeds $2^{\card{x}}$ space.
+Hence, the existential player can ensure that the indexing, the tape content, and the head movements are correct.
+If the universal player places a marker, she can successfully defend the challenge.
+The automaton representing the target language will not accept the outcome of the play and the existential \nb{player wins}.
+
+This finishes the proof of \cref{Theorem:CFGamesComplexityHardness} and establishes $2\EXPTIME$-completeness.
+
+\end{document}
