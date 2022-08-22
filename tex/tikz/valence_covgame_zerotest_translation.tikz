@@ -1,0 +1,14 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[roundpos] (Q) {$q$};
+\node[squarepos] (Qallhat) [right of=Q] {${\hat{q}}_\allplayer$};
+\node[roundpos] (P) [right of=Qallhat] {$p$};
+\node[roundpos] (Qdead) [above of=Qallhat,node distance=4em] {$q_{\text{dead}}$};
+
+\path
+    (Q) edge node [above]  {$\eps$} (Qallhat)
+    (Qallhat) edge node [above] {$\eps$} (P)
+    (Qallhat) edge node [right] {$\dec{x}$} (Qdead)
+;
+
+\end{tikzpicture}

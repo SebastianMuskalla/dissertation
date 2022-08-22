@@ -1,0 +1,14 @@
+\begin{tikzpicture}[->,>=latex,node distance=1em,semithick]
+
+\node (o) at (0,0) {$\bullet$};
+\node (u) at (2,0) {$\bullet$};
+\node (a) at (1,-1) {};
+
+\node [left of=o] {$x$};
+\node [right of=u] {$y$};
+
+\path [draw,-]
+    (o.center) -- (u.center)
+;
+
+\end{tikzpicture}

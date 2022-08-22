@@ -1,0 +1,284 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Classes of computational complexity}%
+\label{Section:Complexity}%
+
+We define the complexity classes, classes of languages that are defined by having Turing machines deciding the membership problem for these languages within certain resource bounds.
+The presentation loosely follows standard textbooks, \eg \cite{Kozen06}.
+
+We are exclusively interested in the resources time and space.
+The \emph{space consumption} of ATM~$M$ on input $x$, $\Space{M}{x}$ is the maximum length of $\card{w.v}$ in any configuration $w \ q \ v$ occurring in the configuration tree of $M$ for $x$ (with symbol $\blank$ truncated exhaustively on both ends of the tape content).
+The \emph{time consumption} $\Time{M}{x}$ is the height of the computation tree, the number of transitions from the initial configuration to the most distant leaf of the tree.
+Both $\Space{M}{x}$ and $\Time{M}{x}$ may be infinite, but whenever $M$ halts on $x$, they are guaranteed to be finite:
+Indeed, $\Space{M}{x} \leq \Time{M}{x} + \card{x}$ holds.
+% To see that $\Space{M}{x}$ is finite in this case, note that $\Space{M}{x} \leq \Time{M}{x} + \card{x}$, since in each step, the ATM can allocate at most one new cell.
+In the following, we only consider deciders, which implies that $\Space{M}{x}$ and $\Time{M}{x}$ are finite natural numbers for any input~$x$.
+Hence, $\Space{M}$ and $\Time{M}$ are functions with signature $\Sigma^* \to \N$ in this case.
+We generalize $\Space{M}$ and $\Time{M}$ to functions with signature $\N \to \N$ by considering the worst-case input:
+We define $\Space{M}(n) = \max \Set{ \Space{M}(x) }{ x \in \Sigma^*, \card{x} = n}$, similarly for $\Time{M}{n}$.
+
+
+For a function $f \colon \N \to \N$, we define $\ASPACE{f}$ to be the class of all languages $\calL \subseteq \Sigma^*$ such that there is an alternating Turing machine deciding it with space consumption $f$, \ie there is an ATM $M$ (with input alphabet $\Sigma$) that is a decider with $\Space{M} = f$ such that $\lang{M} = \calL$ holds.
+We generalize the definition to classes of languages $F \subseteq \N \to \N$ by taking the union, \ie $\ASPACE{F} = \bigcup_{f \in F} \ASPACE{f}$.
+We will mostly use this definition in the case $F = \bigO{f}$ for some function $f$, where $\bigO{f}$ is the set of functions that are asymptotically bounded by $f$ from above,
+\(
+    \bigO{f} = \Set{ g \colon \N \to \N}{ \exists c \in \N, \exists n_0 \in \N \colon \forall n \geq n_0 \colon g(n) \leq c \cdot f(n)}
+    \ .
+\)
+Similarly, we define $\ATIME{f}$ to be the class of languages that can be decided with a Turing machine with time consumption~$f$.
+We define $\NSPACE{f}$ and $\NTIME{f}$, as well as $\DSPACE{f}$ and $\DTIME{f}$ by replacing ATM in the definition of $\ASPACE$ and $\ATIME$ by NTM \resp DTM.\@
+
+\begin{example}
+    The class of \emph{decidable} or \emph{recursive languages} $\RECURSIVE$ is
+    \[
+        \RECURSIVE = \ATIME{\N \to \N} = \NTIME{\N \to \N} = \DTIME{\N \to \N}
+        \ ,
+    \]
+    the set of languages that can be decided by (alternating / nondeterministic / deterministic) Turing machines with arbitrarily high but finite time consumption.
+\end{example}
+
+With the notation at hand, we can now define the \emph{robust complexity classes},
+% \scalebox{0.8}{
+    \begin{align*}
+        \PTIME = \mathsf{PTIME} &= \bigcup_{k \in \N} \DTIME{\bigO{n^k}}
+        &
+        % \NPTIME &= \bigcup_{k \in \N} \NTIME{\bigO{n^k}}
+        \PSPACE &= \bigcup_{k \in \N} \NSPACE{\bigO{n^k}}
+        % \NPSPACE &= \bigcup_{k \in \N} \DSPACE{\bigO{n^k}}
+        \\
+        \EXPTIME = \mathsf{EXPTIME} &= \bigcup_{k \in \N} \DTIME{2^{\bigO{n^k}}}
+        &
+        % \NEXPTIME &= \bigcup_{k \in \N} \NTIME{2^{\bigO{n^k}}}
+        \EXPSPACE &= \bigcup_{k \in \N} \DTIME{2^{\bigO{n^k}}}
+        % \NEXPSPACE &= \bigcup_{k \in \N} \DSPACE{2^{\bigO{n^k}}}
+        % \APTIME &= \bigcup_{k \in \N} \ATIME{\bigO{n^k}}
+        % &
+        % \APSPACE &= \bigcup_{k \in \N} \ASPACE{\bigO{n^k}}
+        % \\
+        % \AEXPTIME &= \bigcup_{k \in \N} \ATIME{2^{\bigO{n^k}}}
+        % &
+        % \AEXPSPACE &= \bigcup_{k \in \N} \ASPACE{2^{\bigO{n^k}}}
+        % \ ,
+    \end{align*}
+% }
+the classes of languages decidable using polynomial time \resp polynomial space \resp exponential time \resp exponential space by deterministic Turing machines.
+The classes $\NPTIME$ (or $\mathsf{NPTIME}$), $\mathsf{NPSPACE}$, $\NEXPTIME$ (or $\mathsf{NEXPTIME}$), and $\mathsf{NEXPSPACE}$ are defined by replacing $\DTIME$ and $\DSPACE$ by $\NTIME$ and $\NSPACE$, respectively.
+Similarly, we can define $\APTIME$, $\APSPACE$, $\AEXPTIME$ and $\AEXPSPACE$ using $\ATIME$ and $\ASPACE$.
+
+These classes are considered \emph{robust} since they are invariant to minor changes of the computational model, \eg equipping Turing machines with additional tapes.
+The \emph{Church-Turing thesis}, first stated in 1943 by Kleene~\cite{Kleene43}, claims that any decision problem that can be solved by some (physically implementable) model of computation can be solved by a deterministic Turing machine.
+Its \emph{strong} version additionally states that this deterministic Turing machine is slower than the other model of computation only by a polynomial factor.
+There are two problems with that thesis:
+The first are the recent advantages in quantum computing that have lead to an ongoing discussion of whether the strong version of the Church-Turing thesis is true~\cite{BernsteinV93,KayeLM07}.
+The second is the problem of defining precisely what it means to be \emph{computable} by a physically implementable device.
+Different versions of the thesis use different wordings to express this, but they share the problem that without a much deeper understanding of physics, it is impossible to prove any such thesis.
+Luckily, we can use that effective polynomial-time equivalence has been shown for many random access machines~\cite{CookR72}, a model that is very close to sequential imperative programs.
+Hence, to show that a problem is in a certain complexity class, it will be sufficient to provide pseudocode for an algorithm solving the problem within that time.
+We then know that it is possible to construct a Turing machine solving the problem that is slower only by a polynomial factor.
+
+\paragraph{Relations between the complexity classes}
+
+Let us put the classes defined by alternating Turing machines aside for a bit.
+The following relationships between the other complexity classes are known:
+\[
+    \PTIME \subseteq \NPTIME \subseteq \PSPACE = \mathsf{NPSPACE} \subseteq \EXPTIME \subseteq \NEXPTIME \subseteq \EXPSPACE = \mathsf{NEXPSPACE}
+    \ .
+\]
+We give a brief explanation for the inclusions:
+% We have $\DTIME{f} \subseteq \NTIME{f} \subseteq \ATIME{f}$ by definition, and hence $\PTIME \subseteq \NPTIME$, similar for space consumption and the classes with exponential resource bound.
+%
+We have already observed that $\Space{M}{x} \leq \Time{M}{x} + \card{x}$; thus, $\PTIME \subseteq \PSPACE$, $\NPTIME \subseteq \mathsf{NPSPACE}$ and so on.
+Savitch's result~\cite{Savitch70} states that nondeterministic machines can be converted to deterministic machines while squaring the space consumption, yielding $\PSPACE = \mathsf{NPSPACE}$ and $\EXPSPACE = \mathsf{NEXPSPACE}$.
+This also proves $\NPTIME \subseteq \PSPACE$ and $\NEXPTIME \subseteq \mathsf{NEXPSPACE}$, but these inclusions could actually be shown with a simpler proof that does not invoke Savitch's theorem.
+If a machine defines a language in $\PSPACE$, its computation tree can only contain configurations of bounded length.
+The number of such configurations is at most exponential in the input, so it is possible to deterministically simulate the machine with a time consumption that is exponentially higher.
+We obtain the final relation $\PSPACE \subseteq \EXPTIME$.
+One could state more general versions of these results (in which some of them have additional prerequisites, \eg time-constructability), but doing so is beyond the scope of the thesis.
+
+For all inclusions among neighbors in the above chain, it is unknown whether they are strict.\footnote{
+    It seems that a majority of computer scientists believes that the inclusions are strict~\cite{Rosenberger12}, but theory has turned out to be rather undemocratic in the past, demonstrated \eg by the surprising equality of the complexity classes $\NLOGSPACE$ and $\co\NLOGSPACE$, proven independently by Immerman~\cite{Immerman88} and Szelepcsényi~\cite{Szelepcsenyi87}.
+}
+It is known that having exponentially more space or time strictly increases the computational power, \ie $\PTIME \subsetneq \EXPTIME$, $\PSPACE \subsetneq \EXPSPACE$ and so on.
+The relationship between time and space and between determinism and nondeterminism in the case of time, however, is not well understood.
+In fact, answering these questions is universally considered to be the most important open problem of computer science.
+This in particular holds true for $\PTIME \subseteq \NPTIME$, often phrased as $\PTIME \stackrel{?}{=} \NPTIME$.
+Without going into any details, we briefly mention that $\PTIME$ is considered the class of \emph{tractable problems}, problems that can be solved efficiently, while $\NPTIME$ is the class of problems where a proposed solution (a \emph{certificate}) can be verified efficiently.
+Answering $\PTIME \stackrel{?}{=} \NPTIME$ thus not only has practical implications (since many important practical problems from $\NPTIME$, \eg optimization problems, are not known to be in $\PTIME$), but also philosophical ones~\cite{Fortnow13}.
+
+
+\paragraph{Reductions and hardness}
+
+At the moment, it seems out of reach to show absolute hardness, \ie proving that some computational problems from $\NPTIME$ or $\PSPACE$ are not in $\PTIME$.
+Instead, one defines a notion of relative hardness:
+A problem is hard for a class if an efficient solution for that problem leads to an efficient solution to all problems in the class.
+
+To formalize the concept, we introduce \emph{polytime reductions}.
+A polynomial-time computable function $f \colon \Sigma^* \to \Sigma^*$ is a function that is computed by a DTM running in time $\bigO{n^k}$ for some constant $k$.
+A \emph{polynomial-time} or \emph{polytime reduction} from some language $\calL \subseteq \Sigma^*$ to $\calL' \subseteq \Sigma'{}^*$ is a polytime-computable function $f \colon \Sigma''{}^* \to \Sigma''{}^*$ (with $\Sigma, \Sigma' \subseteq \Sigma''$) such that $x \in \calL$ if and only if $f(x) \in \calL'$.
+We write $\calL \polyleq \calL'$ if such a reduction exists.
+Intuitively, this means $\calL$ is \emph{easier} to decide than $\calL'$:
+If $\calL'$ can be decided in time $t \colon \N \to \N$, then $\calL$ can be decided in time $t \circ \bigO{n^k}$ by first applying the reduction and then using the decider for $\calL'$.
+Formally, for any of the classes~$\calC$ introduced above, the following \emph{robustness against polytime reductions holds}:
+If $\calL \in \calC$ and $\calL' \polyleq \calL$, then $\calL' \in \calC$.
+
+With the notation at hand, we can formalize the concept of relative hardness.
+We say that a problem $\calL$ is \emph{hard} for a class $\calC$ if any problem from $\calC$ can be reduced to it, \ie for all $\calL' \in \calC$, $\calL' \polyleq \calL$ holds.
+A problem is \emph{complete} for a class $\calC$ if it satisfies both \emph{membership} ($\calL \in \calC$) and \emph{hardness} ($\calL$ is hard for $\calC$).
+
+To show that a problem $\calL$ is hard for a class, it is sufficient to show that $\calL' \polyleq \calL$, where $\calL'$ is a problem for which we already have proven hardness.
+This is because $\polyleq$ can be easily shown to be transitive (the composition of polynomials is again a polynomial).
+This observation greatly simplifies proofs of hardness, and motivates the study of \emph{canonical} hard problems for each class.
+
+\paragraph{Alternation versus determinism}
+
+In contrast to the relationship of time and space \resp nondeterminism, the relationship between the classes defined by alternating Turing machines and the classes defined by deterministic Turing machines is well understood: The paper that introduced ATMs contains the proof of the following equalities~\cite{ChandraKS81}:
+\[
+    \APTIME = \PSPACE, \APSPACE = \EXPTIME, \AEXPTIME = \EXPSPACE
+    \ .
+\]
+For more general statements of the equalities, we refer to the literature.
+
+\paragraph{Fast-growing functions}
+
+So far, we have restricted ourselves to classes defined by at most exponential resource consumption.
+We now define fast-growing functions and their associated complexity classes.
+
+For $m \in \N$, the \emph{$m$-fold exponential function $\kexp{m} \colon \N \to \N$} is inductively defined as follows:
+\begin{align*}
+    \kexp{0}{n} &= n
+    &
+    \kexp{m+1}{n} &= 2^{\kexp{m}{n}}
+    \ .
+\end{align*}
+%
+For example, $\kexp{2}{n} = 2^{2^n}$.
+% since otherwise the expression would collapse to $2^{2 \cdot n}$, which is only singly exponential.
+For each $m \in \N$, we may define the associated complexity classes, \eg $\mathsf{m}\EXPSPACE = \bigcup_{k \in \N} \DSPACE{\kexp{m}{\bigO{n^k}}}$, similar for $\mathsf{m}\EXPTIME$, $\mathsf{m}\NEXPTIME$ and so on.
+
+The equalities and inclusions among complexity classes mentioned above carry over, for example $1\AEXPSPACE = \AEXPSPACE = 2\EXPTIME$.
+
+We define $\ELEMENTARY$ to be the class of all problems that can be solved with some $m$-fold exponential bounded resource consumption, \eg $\ELEMENTARY = \bigcup_{m \in \N} \mathsf{m}\EXPTIME$.
+Using the results mentioned above, the definition of $\ELEMENTARY$ remains the same, no matter whether we define it using time or space.
+Note that while $m$ is allowed to be arbitrarily high, it is independent of the input size.
+The class $\PRIMREC$ includes all languages that can be computed with resources bounded by a \emph{primitive recursive function} (where again it does not matter whether we bound space or time).
+The precise definition of primitive recursion is irrelevant here; it can be found \eg in~\cite{Kozen97}.
+% Again the precise definition of primitive recursion is beyond the scope of this thesis; it can be found \eg in \cite{Kozen97}.
+The class $\PRIMREC$ includes for example $\TOWER = \DTIME{\bigO{\Tower}}$, where $\Tower \colon \N \to \N$ is the  non-elementary function defined by
+\[
+    \Tower(n) = \kexp{n}{n}
+    \ .
+\]
+Note that the height of the tower of exponentials \emph{is} depending on the input size.
+% In fact, $\Tower$ is considered to be a small-growing non-elementary function.
+
+Beyond $\PRIMREC$, there are the classes defined by non-primitive recursive functions, functions that grow faster than any primitive recursive function.
+The most well-known example is the (two-parameter version of the) \emph{Ackermann} function~\cite{Ackermann28,Peter35}, inductively defined by
+\begin{align*}
+         \Acker{0}{m} &= m + 1 \\
+         \Acker{n+1}{0} &= \Acker{n}{1}\\
+         \Acker{n+1}{m+1} &= \Acker{n}{\Acker{n+1}{m}}\ .
+\end{align*}
+%
+Roughly spoken, the first parameter of the Ackermann function determines which operation should be executed on the second parameter.
+We have $\Acker{2}{m} \approx 2m$, $\Acker{3}{m} \approx 2^m$, and $\Acker{4}{m}$ is approximately equal to a tower of exponentials $2^{2^{\iddots^2}}$ of height $m$.
+
+To get a one-parameter version, we may define $A(n) = \Acker{n}{n}$.
+The complexity class $\ACKERMANN$ can be defined by $\DTIME{\bigO{A(n)}}$.
+
+\begin{remark*}
+    \begin{thmenumerate}[a)]
+        \item
+            One can define hierarchies of fast-growing functions (and the associated complexity classes), see \eg \cite{Schmitz16}.
+            Within these hierarchies, $\Tower$ is a mildly fast-growing non-elementary function, and $\AckerT$ is a mildly fast-growing non-primitive recursive function.
+            However, for practical usage, such considerations do not matter:
+            An algorithm whose worst-case resource consumption is described by the Ackermann function is useless on inputs that trigger this behavior.
+        \item
+            Complexity classes defined by fast-growing functions allow for more freedom in the type of reductions:
+            For example, to show that a problem is in $\PRIMREC$, it is sufficient to reduce it to a problem already known to be in the class with a reduction that runs in time $\kexp{m}$ for some constant $m$.
+        \item
+            There is also interest in complexity classes that are defined by functions with sublinear growth, \eg $\LOGSPACE$ and $\NLOGSPACE$, the problems solvable by deterministic \resp nondeterministic Turing machines within logarithmic space consumption.
+            To give a precise definition of the classes, we would need to modify our definition of ATMs: With our definition, any ATM needs at least $\card{x}$ space on input $x$.
+            Polynomial-time reductions are too coarse to handle these classes, instead, one needs to consider logarithmic-space reductions, the definition of which would suffer from the same problem.
+
+            Since the classes $\LOGSPACE$ and $\NLOGSPACE$ do not play an important role in this thesis -- we are mostly concerned with complexity classes that are much larger -- we forgo giving the formal definitions.
+            Note that even for larger classes like $\PTIME$, it would actually make sense to define logarithmic-space reductions:
+            Since $\LOGSPACE \subseteq \PTIME$ (and the inclusion is believed to be strict), proving that a problem is hard for a class with respect to logarithmic-space reductions is potentially a stronger statement than showing that it is hard for the class with respect to polynomial-time reductions.
+            We believe that for our purposes, showing hardness with respect to polytime reductions is fine-grained enough.
+    \end{thmenumerate}
+\end{remark*}
+
+
+\paragraph{A generic hard problem}
+
+We present a general way to obtain for each complexity class a complete problem, an approach that has for example been used by \citeauthor{MeyerS72}~\cite{MeyerS72,StockmeyerM73} and \citea{Walukiewicz01}.
+For many of the \emph{small} complexity classes, like $\PTIME$, $\NPTIME$,  and $\PSPACE$, there is an abundance of well-known problems that are complete for each class.
+The same is not true for the larger classes.\footnote{
+    Since the classes are much larger, this is likely not because of an inherent property of these classes, but because humans rarely try to solve such hard problems in practice.
+    % of the general unwillingness of humans to occupy themselves with very hard problems.
+}
+Luckily, each class has a generic problem that is complete for the class, namely the \emph{acceptance problem} for ATMs whose properties coincide with the properties defining the class.
+The acceptance problem (without any restrictions) is the following.
+\begin{problem}
+    \problemtitle{Acceptance problem}
+    \probleminput{ATM $M$ over $\Sigma$, input $x \in \Sigma^*$.}
+    \problemquestion{$x \in \lang{M}$?}
+\end{problem}
+
+It is easy to show that the acceptance problem is a variant of the undecidable halting problem, which we have discussed briefly in the previous section.
+If we restrict the machine $M$ to only uses bounded resources, however, it can be solved by simulating the machine.
+Consider for example the following variant for $\AEXPSPACE$.
+
+\begin{problem}
+    \problemtitle{Acceptance problem for $\AEXPSPACE$ (Promise version)}
+    \probleminput{ATM $M$ over $\Sigma$ that runs in $\Space{M}{2^{\bigO{n^k}}}$ for some $k \in \N$, input $x \in \Sigma^*$.}
+    \problemquestion{$x \in \lang{M}$?}
+\end{problem}
+
+Intuitively, the problem should obviously be $\AEXPSPACE$-complete.
+However, the problem is not a proper decision problem, but a so-called \emph{promise problem}: We have the guarantee that our input is the encoding of a machine that runs in exponential space.
+Another minor annoyance is the dependency on the constant $k$.
+We solve both issues and consider the following decision problem instead.
+
+\begin{problem}
+    \problemtitle{Acceptance problem for $\AEXPSPACE$}
+    \probleminput{ATM $M$ over $\Sigma$, input $x \in \Sigma^*$.}
+    \problemquestion{Is the computation tree for $x$ accepting and uses space at most $2^{\card{x}}$?}
+\end{problem}
+
+We see that we have replaced the promise that $M$ runs using exponential space for \emph{all inputs} by checking that $M$ uses exponential space for the concrete input.
+We also replaced $2^{\bigO{n^k}}$ by $2^n$.
+Now, we can prove that this problem indeed is $\AEXPSPACE$-complete.
+
+\begin{lemma}%
+\label{Lemma:ComplexityAEXPSPACEcompleteProblem}%
+    The acceptance problem for $\AEXPSPACE$ is $\AEXPSPACE$-complete.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+    We first show membership.
+    We construct an ATM that simulates the given machine $M$ on the given input $x$.
+    Should it encounter a configuration with space consumption larger than $2^{\card{x}}$, it rejects.
+    The overhead caused by the simulation and by checking the space consumption is at most polynomial in $2^{\card{x}}$, so the resulting machine proves that the acceptance problem is in~$\AEXPSPACE$.
+
+    We argue that the problem is $\AEXPSPACE$-hard by following the definition:
+    Let $\calL$ be any problem from $\AEXPSPACE$.
+    There is an ATM $M$ with $\lang{M} = \calL$ and constants $k, c$ such that $M$ uses space at most $2^{{(c \cdot n)}^k}$ on an input of size $n$.
+    Let $\Sigma$ be the input alphabet of $M$, and let $\# \not\in \Sigma$ be a fresh symbol.
+    We define a new machine $M'$ over $\Sigma \dotcup \set{\#}$ that behaves as $M$ does for the symbols in~$\Sigma$ and that treats $\#$ as $M$ treats $\blank$.
+    In particular, $M'$ will accept input $x\#^\ell$ (with $x \in \Sigma^*$) for any~$\ell \in \N$ if and only if $M$ accepts $x$.
+    We define our reduction to take input $(M,x)$ and yield output~$(M',x\#^{{(c \cdot \card{x})}^k - \card{x}})$.
+    We have that $M'$ accepts $x\#^{{(c \cdot \card{x})}^k - \card{x}}$ if and only if $M$ accepts $x$.
+    Furthermore, $M'$ runs on $x\#^{{(c \cdot \card{x})}^k - \card{x}}$ with space consumption at most $2^{\card{x\#^{{(c \cdot \card{x})}^k - \card{x}}}} = 2^{{(c \cdot \card{x})}^k}$, since $M$ runs on~$x$ with space consumption at most $2^{{(c \cdot \card{x})}^k}$.
+\end{proof}
+
+\begin{remark*}
+    Making the proof sketch above precise requires techniques from complexity theory that are beyond the scope of this thesis, \eg encoding ATMs as strings, manipulating the encodings, efficiently simulating given ATMs, and the \emph{padding} technique to go from $2^{n^k}$ to $2^n$, see \eg~\cite{Kozen06}.
+    % These missing details can be found in the literature~\cite{Kozen06}.
+\end{remark*}
+
+We now have a problem that is complete for $\AEXPSPACE = 2\EXPTIME$.
+We will reduce from it in \cref{Section:CFGamesComplexity} to show that context-free inclusion games are $2\EXPTIME$-hard.
+A similar construction works for all the other complexity classes that are robust against polynomial-time reductions.
+
+\end{document}

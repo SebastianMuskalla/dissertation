@@ -1,0 +1,23 @@
+\begin{tikzpicture}[->,>=latex,node distance=1em,semithick]
+
+\node (a) at (0,0) {$\bullet$};
+\node (b) at (1,0) {$\bullet$};
+\node (c) at (60:1) {$\bullet$};
+
+\node [left of=a] {$c_1$};
+\node [right of=b] {$c_2$};
+\node [left of=c] {$c_3$};
+
+\node at (0.5,-0.4) {};
+
+\path [draw,-]
+    (a.center) -- (b.center)
+    (a.center) -- (c.center)
+    (b.center) -- (c.center)
+;
+
+\draw (a.center) ++(-90:0.5em) circle (0.5em);
+\draw (b.center) ++(-90:0.5em) circle (0.5em);
+\draw (c.center) ++(90:0.5em) circle (0.5em);
+
+\end{tikzpicture}

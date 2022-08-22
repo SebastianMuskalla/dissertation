@@ -1,0 +1,52 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Context-free regular inclusion games}%
+\label{Section:CFGamesDefinition}%
+
+We define a context-free inclusion game as a game whose plays represent derivation processes of a context-free grammar.
+The winning condition is membership of the derived word in a regular or $\omega$-regular language.
+For now, we limit ourselves to the case of a regular target language of finite words.
+
+For the formal development, we use the definition of inclusion games that we have given in \cref{Chapter:Games}.
+We apply it to the automata-theoretic view on context-free grammars that was based on prefix-growth, see \cref{Section:CFG}.
+Formally, this means that we associate to a context-free grammar $G = (N,P,S)$ an LTS whose configurations are either terminal words or sentential forms of the shape $w.X.\beta$, where $w \in \Sigma^*$ is a terminal prefix, $X \in N$ is the leftmost nonterminal and $\beta \in {(N \cup \Sigma)}^*$ is the rest of the sentential form.
+There is a transition $w.X.\beta \to w.v.\eta.\beta$ in that LTS if $X \to v.\eta$ is a production rule of the grammar, with $v$ being the terminal prefix of the right-hand side, the largest prefix that exclusively consists of symbols from $\Sigma$.
+The label $\lambda(w.X.\gamma \to w.v.\eta.\gamma) = v$ of this transition is $v$, the growth of the terminal prefix.
+Recall that $\lang{G}$ is the set of labels that occur along paths from $S$, the configuration associated to the initial symbol, to terminal words, configurations of the shape $w \in \Sigma^*$.
+The labels along a path from $S$ to $w$ form exactly the word~$w$.
+
+To turn this LTS in a game arena, we assume that we start with a \emph{game grammar}, a context-free grammar where the nonterminals $N = N_\allplayer \dotcup N_\explayer$ are partitioned into the nonterminals $N_\allplayer$ owned by the universal player and the nonterminals $N_\explayer$ owned by the existential player.
+We usually write such a game grammar as $G = (N_\allplayer \dotcup N_\explayer,P,S)$.
+
+This partition of the nonterminals induces a partition of the sentential forms -- the configurations of the LTS -- based on the leftmost nonterminal.
+The terminal words have no outgoing transitions in the LTS;\@ we may arbitrarily assign them to one of players, say the existential one.
+Formally, we have $\configs_\explayer = \Sigma^*.N_\explayer.{(N \cup \Sigma)}^* \cup \Sigma^*$, $\configs_\allplayer = \Sigma^*.N_\allplayer.{(N \cup \Sigma)}^*$.
+The sentential forms being owned by the owner of the leftmost nonterminal corresponds to the fact that the transitions of the LTS are based on left-derivations.
+This means that we can think of a play in the game as a left-derivation process in which each player selects the production rules for the nonterminals that she owns.
+
+To equip the game arena with a winning condition, we assume that we are also given a regular target language $\lang{A} \subseteq \Sigma^*$ over the same alphabet, where $A$ is a finite automaton.
+A play is won by the existential player if and only if it produces a finite word that is not contained in $\lang{A}$.
+All other plays are won by the universal player, including all infinite plays.
+
+%
+\cheatpagebreak
+%
+
+\begin{definition}
+    A \emph{context-free (regular) inclusion game} is of the shape $(G,A)$, where $G = (N_\allplayer \dotcup N_\explayer,P,S)$ is a game grammar and $A$ is an NFA over the same alphabet $\Sigma$.
+    The plays are left-derivation processes in which each player picks the replacement rules for her nonterminals.
+    A maximal play is won by the existential player if and only if it is a finite play of the shape $S \to^* w$ with $w \not\in \lang{A}$.
+\end{definition}
+
+Most of this chapter is concerned with developing an algorithm that computes the winner of context-free (regular) inclusion games.
+This is a non-trivial task:
+While the game can be converted into a reachability game as described in \cref{Chapter:Games}, it is played on an infinite arena that we cannot explicitly store in memory and compute on.
+Hence, we face the challenge of having to design an algorithm that works with the finite syntax (the game grammar $G$ and the automaton $A$) describing the infinite game arena in order to solve the game.
+
+Other works in the literature have solved similar types of games, \eg games played on the transition systems of pushdown automata.
+We summarize all games in which the game arena is based on a type of system that corresponds to the class of context-free languages, \eg context-free grammar and pushdown automata, under the term \emph{context-free games}.
+We defer the discussion of the related work to \cref{Section:CFGamesRelWork}  in this chapter, after we have presented our algorithm.
+This will allow us to conduct an in-depth comparison of our solution to other approaches.
+
+\end{document}

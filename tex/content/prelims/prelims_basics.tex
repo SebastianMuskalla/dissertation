@@ -1,0 +1,136 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Basics}%
+\label{Section:PrelimsBasics}%
+
+We start by fixing some notation that will be used throughout the thesis.
+Whenever we use a symbol in the definition of a class of objects, \eg $\Sigma$ for alphabets, all later occurrences of that symbol shall denote an arbitrary object from that class, even if it is not explicitly stated, \eg $\Sigma$ always denotes some alphabet in the rest of this thesis.
+We provide additional explanation whenever it is needed to avoid ambiguity.
+
+\paragraph{Sets and functions}
+
+For a set $X$, we denote by $\powerset{X} = \Set{ Y }{Y \subseteq X}$ its \emph{powerset}, the set of its subsets.
+Its \emph{cardinality} is $\card{\powerset{X}} = 2^{\card{X}}$.
+We use $M \dotcup N$ to denote the \emph{disjoint union} of $M$ and $N$, \ie its value is $M \cup N$, but we additionally express that the sets are disjoint ($M \cap N = \emptyset$ holds).
+For sets $X, Y$, we see $X \to Y$ as the set of functions from $X$ to $Y$.
+Nevertheless, we write $f \colon X \to Y$ as usual to denote $f \in (X \to Y)$.
+If $f \colon X \to Y$ is a function and $X' \subseteq X$ is a subset, we denote by $f_{\restriction_{X'}} \colon X' \to Y$ its \emph{restriction} to $X'$.
+
+\paragraph{Numbers}
+
+We use $\Z = \set{ \ldots, -2, -1, 0, 1, 2, \ldots}$ to denote the \emph{integers} and $\N = \set{0, 1, 2, \ldots}$ to denote the \emph{natural numbers}, the non-negative integers (including $0$).
+For numbers $i,j \in \Z$, $\fromto{i}{j} = \Set{ k \in \Z  }{ k \geq i, k \leq j}$ is the \emph{(closed) interval} from $i$ to $j$.
+
+% \paragraph{Numbers as sets and truth values}
+
+Whenever convenient, we see $n \in \N$ as the set $\set{0, \ldots, n-1}$ of cardinality $n$.
+For the set with two elements, we also write $\B = \set{0,1}$ and identify its elements $0$ and $1$ with the truth values $\false$ and $\true$, respectively.
+We may see an element of the powerset $\powerset{X}$ as a function with \nb{signature $X \to \B$}, the so-called \emph{characteristic function} that specifies for each element of $X$ whether it is contained in the subset.
+
+% \paragraph{Vectors}
+
+For a set $X$ and $k \in \N$, $X^k$ is the $k$-fold Cartesian product of $X$ with itself, and its element are tuples $(x_1, \ldots, x_k)$ of dimension $k$.
+The special case of $k = 0$ yields the singleton set $X^0 = \set{\raise0.15ex\hbox{$\scriptstyle()$}} $ that only consists of the empty tuple.
+We call such tuples \emph{vectors} (of dimension $k$), even if $X^k$ is not a vector space.
+We sometimes write $\vec{v}$ to make clear that symbol $v$ denotes a vector.
+In particular, we use $\vec{0} \in \Z^k$ for the vector of suitable dimension with all components $0$.
+We may see vectors~$v \in \N^k$ as functions $v \colon \oneto{k} \to \N$.
+Similarly, we may denote by $X^Y$ the set of functions with signature $Y \to X$ whenever we want to see such functions as vectors.
+
+% \paragraph{Norms}
+
+For a finite set $M \subseteq \Z$ of numbers, we use
+\(
+    \norminf{M} = \max_{m \in M} \card{m}
+\)
+for the \emph{infinity norm}~of~$M$, the maximum of the absolute values of the numbers in $M$.
+We extend this notation to vectors by seeing them as a set of their entries.
+Similarly, if $f \colon N \to \Z$ is a function whose \emph{range}~$f (N) = \Set{f(n)}{n \in N} \subseteq \Z$ is a finite set of numbers, we use $\norminf{f}$ to denote $\norminf{f(N)}$.
+
+For a finite set $M \subseteq \Z$ of numbers, we use
+\(
+    \normone{M} = \sum_{m \in M} \card{m}
+\)
+for the \emph{$\ell_1$-norm} of $M$, the sum of the absolute values of its elements.
+Similarly, the $\ell_1$-norm of a vector $v \in \Z^k$ is $\normone{v} = \sum_{i \in \oneto{k}} \card{v_i}$.
+
+\paragraph{Orders}
+
+For a relation $\leq \ \subseteq X \times X$ we denote by $\leq^{-1}$ its \emph{opposite}, the relation with $x \leq^{-1} y$ iff $y \leq x$.
+Whenever suitable, we simply use the inverted symbol for the opposite, \eg $\geq$ and $>$ for the opposites of $\leq$ and $<$, respectively.
+
+Recall that a \emph{quasi-order} $\leq$ on some set $X$ is a relation $\leq \ \subseteq X \times X$ that is reflexive and transitive.
+It is called a \emph{partial order} if it also is antisymmetric.
+
+For a quasi-order $\leq$ we use $<$ to denote the irreflexive order defined by
+% \[
+%     x < y
+%     \quad \textiff \quad
+%     x \leq y \textand y \not\leq x
+%     \ .
+% \]
+\(
+    x < y
+    \textiff
+    x \leq y \textand y \not\leq x
+    \ .
+\)
+Note that if $\leq$ is a partial order, this definition of $<$ coincides with the usual one: $x < y$ iff $x \leq y$ and $x \neq y$.
+
+% \paragraph{The product order}
+
+Given two ordered sets $(X_1,\leq_1), (X_2,\leq_2)$, we denote by $\leq_\times$ the \emph{product order} on $X_1 \times X_2$ in which a tuple is bigger if it is bigger in each component:
+\[
+    (x_1,x_2) \leq_\times (y_1,y_2)
+    \quad \textiff \quad
+    x_1 \leq_1 y_1 \textand x_2 \leq y_2
+    \ .
+\]
+If $\leq_1$ and $\leq_2$ are quasi-orders \resp partial orders, then so is $\leq_\times$.
+
+The most common use case will be that we take the product of multiple copies of the same ordered set $(X,\leq)$, \eg in the case of $\N^k$.
+In this case, we simply denote the product order by $\leq$.
+This means we implicitly generalize the order on a set to vectors over that set.
+We do the same for other operations on the set, \eg we generalize the addition and subtraction of numbers to (component-wise) addition and subtraction of vectors.
+
+% \paragraph{Chains}
+
+A subset $Y$ of a quasi-ordered set $(X,\leq)$ is a \emph{chain} if its elements are pairwise comparable.
+It is an \emph{antichain} if its elements are pairwise incomparable.
+An infinite \emph{ascending chain} is a \nb{sequence ${(x_i)}_{i \in \N}$} of elements of $X$ such that $x_i \leq x_{i+1}$ for all $i \in \N$.
+As the name suggests, the set of elements $\Set{ x_i }{i \in \N}$ occurring in such a sequence is indeed a chain.
+\emph{Infinite strictly ascending}, \emph{infinite descending}, and \emph{infinite strictly descending chains} as well as their finite versions are defined similarly in the expected way.
+
+\paragraph{Finite words}
+
+An \emph{alphabet} $\Sigma$ is a finite set, its elements are called \emph{letters} or \emph{symbols}.
+In the case of an alphabet, we write tuples $w \in \Sigma^k$ as $w_1 \ldots w_k$ and call them \emph{(finite) words} of \emph{length} $\card{w} = k$.
+The empty tuple is called the \emph{empty word} $\eps \in \Sigma^0$; it is the unique word of length $\card{\eps} = 0$.
+The set $\Sigma^* = \bigcup_{i \in \N} \Sigma^i$ is the \emph{set of all finite words}.
+A \emph{(formal) language (of finite words)} is a subset $\lang \subseteq \Sigma^*$.
+
+%
+Finite words $w,v$ can be \emph{concatenated} in the expected way, which we denote by $w.v$ or simply $wv$.
+Concatenation is lifted to languages by applying it element-wise.
+For a language $\calL$, we inductively define $\calL^0 = \set{\eps}$, $\calL^{i+1} = \calL.\calL^{i}$.
+The \emph{Kleene star} $\calL^* = \bigcup_{i \in \N} \calL^i$, the positive hull $\calL^+ = \bigcup_{i > 0} \calL^i$, and the complement (relative to $\Sigma^*$) $\overline{\calL} = \Sigma^* \setminus \calL$ are defined as usual.
+
+\paragraph{Infinite words}
+
+We define $\omega = (\N,\leq)$ as the standard order $\leq$ on the natural numbers $\N$.
+% It occurs as the limit of the natural numbers (\ie it is the least ordinal number larger than all naturals).
+%
+The set $\Sigma^\omega$ is the set of all functions $f \,\colon \N \to \Sigma$.
+We represent such a function by the infinite sequence of its function values, \ie we write $w = w_1 w_2 w_3 \ldots$ to denote the function $f$ defined by $i \mapsto w_{i-1}$.
+Accordingly, we call such functions \emph{infinite words} and subsets of $\Sigma^\omega$ \emph{(formal) languages of infinite words}, or \emph{$\omega$-languages} for short.
+
+A finite word on the left and an infinite word on the right can be concatenated to obtain an infinite word, similar for the corresponding types of languages.
+For a language $\calL \subseteq \Sigma^*$ of finite words, we define its \emph{$\omega$-iteration} $\calL^\omega$ to be the set of all infinite concatenations $\itr{w}{1}.\itr{w}{2}\ldots \in \Sigma^\omega$ with $\itr{w}{i} \in \calL \setminus \set{ \eps }$ for all $i \in \N$.
+Note that we exclude $\eps$ to ensure that the result is an infinite~word.
+\paragraph{Notation}
+
+We mostly use $w = w_1 \ldots w_n$ for the decomposition of a word into its letters, \ie $w_i \in \Sigma$; we resort to using different notation, \eg $w = \itr{w}{1} \ldots \itr{w}{n}$ with $\itr{w}{n} \in \Sigma^*$, for a decomposition into infixes.
+We often use $w$ to denote the singleton language $\set{w}$, and write \eg $w^\omega$ for $\set{w}^\omega$.
+
+\end{document}

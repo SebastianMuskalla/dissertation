@@ -1,0 +1,12 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[initial,state,transform shape, initial text={}] (A) {$q_0$};
+\node[state, accepting, transform shape] (B) [right of=A] {$q_1$};
+
+\path
+    (A) edge [loop above] node [above] {$a,b$} (A)
+    (A) edge node [above] {$b$} (B)
+    (B) edge [loop above] node [above] {$b$} (B)
+;
+
+\end{tikzpicture}

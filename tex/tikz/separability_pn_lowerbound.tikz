@@ -1,0 +1,119 @@
+\begin{tikzpicture}[->,>=latex,node distance=10em,semithick]
+
+\node (p1) [place,minimum size=3em,tokens=1] {};
+\node (p2) [place,minimum size=3em,right of=p1] {};
+\node (p3) [place,minimum size=3em,right of=p2] {};
+\node (p4) [place,minimum size=3em,right of=p3] {};
+
+\node [below of=p1, node distance=2em] {$p_1$};
+\node [below of=p2, node distance=2em] {$p_2$};
+\node [below of=p3, node distance=2em] {$p_3$};
+\node [below of=p4, node distance=2em] {$p_4$};
+
+
+\node (Ninc) [draw, minimum width=8em, minimum height=6.5em, inner sep=0em, outer sep=0em, above of=p1, node distance=5em, anchor=south]
+    {$\Ninc$};
+
+\node (Ndec) [draw, minimum width=8em, minimum height=6.5em, inner sep=0em, outer sep=0em, above of=p4, node distance=5em, anchor=south]
+    {$\Ndec$};
+
+\node [above of=Ninc,node distance=4em] {$a$};
+\node [above of=Ndec,node distance=4em] {$a$};
+
+\path
+    (Ninc.south west)
+    --
+    coordinate [pos=0.15] (Ninc1)
+    coordinate [pos=0.4] (Ninc2)
+    coordinate [pos=0.6] (Ninc3)
+    coordinate [pos=0.85] (Ninc4)
+    (Ninc.south east);
+
+\path
+    (Ndec.south west)
+    --
+    coordinate [pos=0.15] (Ndec1)
+    coordinate [pos=0.4] (Ndec2)
+    coordinate [pos=0.6] (Ndec3)
+    coordinate [pos=0.85] (Ndec4)
+    (Ndec.south east);
+
+\path [ <-> ] (Ninc1) edge (p1);
+\path [ <-> ] (Ninc2) edge (p1);
+\path [ <-> ] (Ninc3) edge (p1);
+\path [ <-> ] (Ninc4) edge (p1);
+
+\path [ <-> ] (Ndec1) edge (p4);
+\path [ <-> ] (Ndec2) edge (p4);
+\path [ <-> ] (Ndec3) edge (p4);
+\path [ <-> ] (Ndec4) edge (p4);
+
+\node (poutinc) at (Ninc.east) [place,fill=white,yshift=+1.5em] {};
+\node [above of=poutinc, node distance=2em, xshift=+1.5em] {$p_\outinc$};
+
+\node (phaltinc) at (Ninc.east) [place,fill=white,yshift=-1.5em] {};
+\node [above of=phaltinc, node distance=1.5em, xshift=+1.5em] {$p_\haltinc$};
+
+\node (pindec) at (Ndec.west) [place,fill=white,yshift=+1.5em] {};
+\node [above of=pindec, node distance=2em, xshift=-2em] {$p_\indec$};
+
+\node (t12) [transition,right of=p1, node distance=5em,inner sep=0.25em] {$\mathstrut$}
+    edge [pre] (p1)
+    edge [post] (p2)
+;
+
+\path [->]
+    (phaltinc) edge [in=90,out=-60] (t12)
+;
+
+\node (t23) [transition,right of=p2, node distance=5em,inner sep=0.25em] {$\mathstrut$}
+    edge [pre] (p2)
+    edge [post] (p3)
+;
+
+\node (t34) [transition,right of=p3, node distance=5em,inner sep=0.25em] {$\mathstrut$}
+    edge [pre] (p3)
+    edge [post] (p4)
+;
+
+\node [below of=t12,node distance=1.5em] {$b$};
+\node [below of=t23,node distance=1.5em] {$x$};
+\node [below of=t34,node distance=1.5em] {$b$};
+
+\node (t20) [transition,above of=p2,node distance=4em,xshift=-1em,inner sep=0.25em] {$\mathstrut$}
+    edge [<->] (p2)
+;
+\node (t21) [transition,above of=p2,node distance=4em,xshift=+1em,inner sep=0.25em] {$\mathstrut$}
+    edge [<->] (p2)
+;
+
+\node [above of=t20,node distance=1.5em] {$0$};
+\node [above of=t21,node distance=1.5em] {$1$};
+
+\node (t30) [transition,above of=p3,node distance=4em,xshift=-1em,inner sep=0.25em] {$\mathstrut$}
+    edge [<->] (p3)
+    % edge [pre, bend right,in=210] (poutinc)
+    % edge [post, bend left,in=125] (pindec)
+;
+\node (t31) [transition,above of=p3,node distance=4em,xshift=+1em,inner sep=0.25em] {$\mathstrut$}
+    edge [<->] (p3)
+    % edge [pre, bend right,in=220] (poutinc)
+    % edge [post, bend left,in=140] (pindec)
+;
+
+\path [->]
+    (t23.north east) edge [in=180,out=75] (pindec)
+    (t30.north east) edge [in=200,out=75] (pindec)
+    (t31.north east) edge [in=220,out=75] (pindec)
+;
+
+\path [<-]
+    (t23.north west) edge [in=-28,out=105,looseness=1.4] (poutinc)
+    (t30.north west) edge [in=-15,out=105] (poutinc)
+    (t31.north west) edge [in=0,out=105] (poutinc)
+;
+
+\node [above of=t30,node distance=1.5em] {$0$};
+\node [above of=t31,node distance=1.5em] {$1$};
+
+\end{tikzpicture}

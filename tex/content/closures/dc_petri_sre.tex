@@ -1,0 +1,303 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{SRE inclusion in the downward closures for Petri nets}%
+\label{Section:PNSREDC}%
+
+Similar to \cref{Section:PNSREUC}, we study the problem of checking whether a given SRE is contained in the downward closure of a given Petri net coverability language.
+
+\begin{problem}
+    \problemtitle{SRE inclusion in the downward closure}
+    \problemshort{($\SREDC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$, an SRE $\sre$.}
+    \problemquestion{$\lang{\sre} \subseteq \dc{\lang{N,\Minit,\Mfinal}} $?}
+\end{problem}
+
+The goal of this section is to show that the problem is complete for $\EXPSPACE$, the class of problems solvable with exponential space.
+This matches the $\EXPSPACE$-completeness of $\SREUC$, and is a huge improvement over the non-primitive recursive complexity of computing the downward closure.
+
+\begin{theorem}%
+\label{Theorem:PNSREDC}%
+    $\SREDC$ is $\EXPSPACE$-complete.
+\end{theorem}
+
+We first briefly comment on the lower bound, before we turn to developing some techniques needed for proving $\EXPSPACE$-membership.
+
+\paragraph{Lower bound}
+
+Similar to the $\EXPSPACE$-hardness of the problem $\SREUC$, \cref{Lemma:PNSREUChardness}, the hardness of $\SREDC$ directly follows from the hardness of coverability.
+We briefly recall the idea of the proof, but refer to \cref{Lemma:PNSREUChardness} for the technical details.
+
+If we modify an unlabeled Petri net instance $(N,\Minit,\Mfinal)$ by labeling all transitions by $\eps$, we have $\lang{N,\Minit,\Mfinal} = \set{\eps}$ if $\Mfinal$ is coverable from $\Minit$.
+If this is not the case, we have $\lang{N,\Minit,\Mfinal} = \emptyset$.
+Both these languages are already downward closed.
+Hence, we have that $\emptyset^* = \set{\eps} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ holds if and only if $(N,\Minit,\Mfinal)$ is a yes-instance of coverability.
+
+
+\paragraph{Upper bound}
+
+It remains to prove $\EXPSPACE$ membership.
+
+\begin{theorem}%
+\label{Theorem:PNSREDCMembership}%
+    $\SREDC$ can be solved using exponential space.
+\end{theorem}
+
+Let $(N,\Minit,\Mfinal)$ be the Petri net instance of interest, and let $\sre = \product_1 \cup \ldots \cup \product_k$ be the given SRE.\@
+Our goal is to check whether the inclusion $\lang{\sre} \subseteq \dc{\lang{N,\Minit,\Mfinal}}$ holds.
+
+In \cref{Section:PNSREUC}, we did proceed as follows to solve the problem in the case of the upward closure:
+Firstly, we observed that the inclusion holds if and only if $\lang{\product_i} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ holds for each product $\product_i$.
+Secondly, we specified an operation that computes for each product $\product_i$ the unique minimal word of $\uc{\lang{\product_i}}$.
+Checking the inclusion then amounts to checking whether this minimal word is contained in the downward closure of the net.
+Altogether, we reduced the problem $\SREUC$ to a polynomial number of membership queries.
+
+The first observation still holds true in the case of $\SREDC$:  $\lang{\sre} \subseteq \dc{\lang{N,\Minit,\Mfinal}}$ holds if and only if $\lang{\product_i} \subseteq \dc{\lang{N,\Minit,\Mfinal}}$ for all products $\product_i$.
+Since the number of products is polynomial in the size of the SRE $\sre$, this will allow us to focus on the simpler problem of checking whether the language of a single product $\product$ is contained in the downward closure.
+
+Unfortunately, the second observation does not carry over.
+Unlike upward-closed languages, downward-closed languages cannot be represented by a single word in general.
+Consider for example the product $\Sigma^*$ (whose language is already downward closed).
+A priori, there is no reason why there should be a single word such that inclusion of the product and the membership problem for that word are equivalent.
+This means that checking whether a product is contained in the downward closure is much more involved.
+
+Nevertheless, we can provide a syntactic transformation of the product that will later simplify solving the problem.
+Intuitively, our goal is to replace each occurrence of the iteration of a subalphabet by the iteration of a single word.
+To this end, we fix some total order on the alphabet, \eg $a_1 < a_2 < \ldots < a_m$, where $\Sigma = \set{a_1, \ldots, a_m}$.
+We obtain a word $w_\Sigma = a_1 a_2 \ldots a_m$ by concatenating the letters in ascending order.
+To each subalphabet $\Gamma \subseteq \Sigma$, we assign the word $w_\Gamma = \proj{\Gamma}{w}$ that is obtained from $w_\Sigma$ by removing all letters not present in $\Sigma$.
+
+We can now define a linearization operation that turns a product into a regular expression.
+%
+\begin{definition}%
+\label{Definition:Linearization}%
+    The \emph{linearization} of a product is inductively defined as follows.
+    \begin{align*}
+        \linof{a \cup \varepsilon} &=a
+        &\linof{a}&=a\\
+        \linof{\Gamma^*}&={w_\Gamma}^*
+        &\linof{\product_1.\product_2} &= \linof{\product_1}.\linof{\product_2}\ .
+    \end{align*}
+\end{definition}
+
+\begin{example}%
+\label{Example:PNLinearization}%
+    For example, if $\Sigma=\set{a, b, c}$ and we take $w_{\Sigma}=abc$, then $\product={(a\cup c)}^*(a\cup\eps){(b\cup c)}^*$ is turned into $\linof{\product}={(ac)}^*a{(bc)}^*$.
+\end{example}
+
+The following lemma states that the linearization indeed allows us to simplify the problem:
+The language of a product is contained in the downward closure if and only if the language of its linearization is.
+
+\begin{lemma}%
+\label{Lemma:Linearization}%
+    For a product $\product$, we have
+    $\lang{\product} \subseteq \dc{\lang{N, \Minit, \Mfinal}}$
+    if and only if
+    $\lang{\linof{\product}}\subseteq \dc{\lang{N, \Minit, \Mfinal}}$.
+\end{lemma}
+
+\begin{proof}
+    We claim that $\dc{\lang{\product}} = \dc{\lang{\linof{\product}}}$, which implies the desired statement.
+    We proceed by induction on the structure of the product.
+    We have $\dc{\lang{a \cup \eps}} = \set{a,\eps} = \dc{\lang{a}} = \dc{\lang{\linof{a}}} = \dc{\lang{\linof{a \cup \eps}}}$, which proves two of the base cases.
+
+    Consider $\Gamma^*$.
+    We have $\dc{\lang{\Gamma^*}} = \Gamma^*$.
+    It remains to show that $\dc{\lang{{w_\Gamma}^*}} = \Gamma^*$.
+    One direction, $\dc{\lang{{w_\Gamma}^*}} \subseteq \Gamma^*$ is clear since $w_\Gamma$ only contains letters from $\Gamma$.
+    For the other direction, consider $v \in \Gamma^*$.
+    We claim that $v$ is a subword of ${(w_\Gamma)}^{\card{v}}$: Each letter of $v$ is from $\Gamma$, so it occurs in $w_\Gamma$.
+    Dropping all other letters in each iteration of ${(w_\Gamma)}^{\card{v}}$ proves the statement.
+    Hence, $v \in \dc{\lang{{w_\Gamma}^*}}$ as desired.
+
+    Finally, for the induction step, assume that $\dc{\lang{\product_i}} = \dc{\lang{\linof{\product_i}}}$ for $i \in \set{1,2}$.
+    We have
+    \begin{align*}
+    \dc{\lang{\product_1.\product_2}}
+    &= \dc{\paren{\lang{\product_1}.\ \lang{\product_2}}}
+    = \dc{\lang{\product_1}}.\ \dc{\lang{\product_2}}
+    \\
+    &= \dc{\lang{\linof{\product_1}}}.\dc{\lang{\linof{\product_2}}}
+    = \dc{\paren{\lang{\linof{\product_1}}.\lang{\linof{\product_2}}}}
+    \\
+    &= \dc{\lang{\linof{\product_1}.\linof{\product_2}}}
+    = \dc{\lang{\linof{\product_1.\product_2}}}
+    \ .
+    \end{align*}
+    Here, we have used induction, the fact that the downward closure distributes over concatenation, and the definition of the linearization.
+\end{proof}
+
+With the lemma at hand, the remaining task is the following:
+For each infix ${w_\Gamma}^*$ occurring in the linearization of the product, we need to check whether arbitrarily long instantiations lead to a word contained in the downward closure.
+Intuitively, this means that we need to count the number of instantiations of each ${w_\Gamma}^*$.
+Formally, we reduce checking the inclusion to an unboundedness problem.
+
+The specific type of unboundedness that we require is \emph{simultaneous unboundedness}, formally defined in the following.
+
+\begin{problem}
+    \problemtitle{Simultaneous unboundedness for Petri nets}
+    \problemshort{($\PNSU$)}
+    \probleminput{Petri net $N$, initial marking $\Minit$, set of places $X$ of $N$.}
+    \problemquestion{Are the places in $X$ \emph{simultaneously unbounded}, \ie is there for each $m \in \N$\newline
+    a computation $\Minit \fire{\sigma} M$ with $M(p) \geq m$ for all $p \in X$?}
+\end{problem}
+
+Simultaneous unboundedness has been introduced by \citea{Demri13} as a generalization of several classical notions of unboundedness, \ie the questions whether a given net Petri is unbounded in some arbitrary \resp a specified component.
+Indeed, we need this simultaneous unboundedness to encode our problem:
+It is not sufficient to separately check that for each infix ${w_\Gamma}^*$, arbitrarily long instantiations lead to a word in the downward closure.
+Rather, we need that even if we combine arbitrarily long instantiations of each of the infixes, we still obtain a word in the downward closure.
+
+All aforementioned unboundedness problems could be solved using the Karp-Miller tree.
+For example, the places in $X$ are simultaneously unbounded if the Karp-Miller tree contains a node labeled by a generalized marking in which all places $p \in X$ attain value $\omega$.
+However, this procedure would inherit the non-primitive recursive complexity of constructing the \nb{Karp-Miller tree}.
+
+Luckily, Demri~\cite{Demri13} has shown that the complexity of $\PNSU$ is in fact $\EXPSPACE$.
+
+\begin{theorem}[(\citea{Demri13})]%
+\label{Theorem:PNSU}%
+    $\PNSU$ is $\EXPSPACE$-complete.
+\end{theorem}
+
+The proof of this result is an extension of Rackoff's technique~\cite{Rackoff78}.
+Demri shows that if a set of places is simultaneously unbounded, then there are specific computations that witness this fact.
+With a Rackoff-like argumentation, one obtains a doubly exponential bound on the length of these computations.
+This finally allows for checking all such computations using only exponential space by using counters encoded in binary and Savitch's theorem~\cite{Savitch70}.
+
+With the $\EXPSPACE$ membership of $\PNSU$ at hand, it remains to reduce the inclusion $\lang{\linof{\product}}\subseteq \dc{\lang{N, \Minit, \Mfinal}}$ to an instance of $\PNSU$ in polynomial time.
+The first step is to consider the net $\dc{N}$ with $\dc{\lang{N, \Minit, \Mfinal}} = \lang{\dc{N}, \Minit, \Mfinal}$, see \cref{Section:PNRelwork}.
+
+As explained above, we need to check whether for each infix ${w_\Gamma}^*$, arbitrarily long instantiations still lead to words in the language of $\dc{N}$
+We encode this by introducing for each infix ${w_\Gamma}^*$ a place that tracks that $w_\Gamma$ has been seen.
+The instance of the unboundedness problem that we construct requires all such places to be simultaneously unbounded.
+We will make this formal in the following.
+Afterwards, the minor problem of also encoding the final marking of the net into the unboundedness problem remains to be solved.
+
+To make the construction formal, we see $\linof{\product}$ as a Petri net.
+To be precise, we construct an NFA that is language-equivalent to $\linof{\product}$, \eg using the construction by \citea{McNaughtonY60}.
+Then, we see this NFA as a Petri net.
+We have given a construction in \cref{Example:RegularPNCOV}, but here, it will be important that we obtain a net with no $\eps$-labeled transitions.
+To this end, we assume that the NFA has a unique final state, a condition that is easy to enforce, especially for the NFAs with language $\linof{\product}$.
+Then, we construct a Petri net instance $(N_\product,M_{\init,\product},M_{\final,\product})$.
+Net $N_\product$ has one place per state of the NFA and one transition per transition of the NFA.\@
+The labeling and effect of the transitions is as expected.
+The initial marking $M_{\init,\product}$ puts one token on the place corresponding to the initial state of the NFA and no tokens elsewhere.
+The final marking $M_{\final,\product}$ just requires one token on the place corresponding to the unique final state of the NFA.
+We obtain $\lang{\linof{\product}} = \lang{N_\product,M_{\init,\product},M_{\final,\product}}$ as desired.
+
+It remains to modify the net so that for each infix ${w_\Gamma}^*$ of $\linof{\product}$, it counts how many iterations of ${w_\Gamma}^*$ have occurred.
+For such an infix, net $N_\product$ has a transition that correspond to the last letter of $w_\Gamma$.
+We add a new place $p_\Gamma$ and modify the transition so that it additionally creates a token on $p_\Gamma$.
+The desired result is that if a computation produces $m$ tokens on $p_\Gamma$, then ${w_\Gamma}^m$ was the instantiations of ${w_\Gamma}^*$ that has been read.
+
+Note that the notation is intentionally a bit sloppy here:
+The linearization may contain several occurrences of ${w_\Gamma}^*$ for the same subalphabet $\Gamma$.
+In this case, each occurrence gets its own \nb{place $p_\Gamma$}.
+To improve readability, we forgo introducing additional indices
+
+\begin{example}%
+\label{Example:PNLinearizationNet}%
+    Consider $\linof{ {(a\cup c)}^*(a\cup\varepsilon){(b\cup c)}^* } = {(ac)}^*a{(bc)}^*$ from \cref{Example:PNLinearization}.
+    The net $N_\product$ for this product is depicted in \cref{Figure:PNLinearizationNet}, including the two places $p_{\set{a,c}}$ and $p_{\set{b,c}}$ that count the iterations.
+    To improve readability, some names of places and transitions have been omitted.
+    % The initial marking puts one token on $p_\init$, the final marking requires one token on $p_\final$.
+\end{example}
+
+\begin{figure}[t]
+    \centering%
+    \input{tikz/pn_linearization.tikz}%
+    \caption{A net $N_\product$ with language ${(ac)}^*a{(bc)}^*$ that also counts the number of iterations.}%
+    \label{Figure:PNLinearizationNet}%
+\end{figure}
+
+We now construct the synchronized product of $\mathmbox{\dc{N}}$ and $N_\product$, which we will denote by $(N',\Minit',\Mfinal')$.
+Recall that its set of places is the disjoint union of the places of $\dc{N}$ and $N_\product$.
+Transitions labeled by $\eps$ can be fired freely, while transitions labeled by $a \in \Sigma$ are synchronized in that we can only fire an $a$-labeled transition of $\dc{N}$ and an $a$-labeled transition of $N_\product$ together.
+For the correctness of the construction, it will be crucial that the synchronized product acts as a one-sided synchronized product in the special case at hand:
+(1)~$N_\product$ has no $\eps$-labeled transitions, so all transitions of $N_\product$ have to be synchronized with an appropriate transition of $\dc{N}$, while
+(2)~$\dc{N}$ has an $\eps$-labeled version of each transition, so each transition can be fired freely.
+
+We would like to have that the desired inclusion holds if and only if the set of places $\Set{ p_{\Gamma}}{ {w_{\Gamma}}^* \text{ infix of } \linof{\product}}$ is simultaneously unbounded in $N'$ from $\Minit'$
+However, we still have to take the final marking into account.
+To achieve this, we add a new place to $N'$ that can only become unbounded as soon as the final marking has been covered.
+Formally, we add a new place $p_\final$ to $N'$.
+We add a transition $t_\final$ with $\i(t_\final) = \Mfinal'$ that consumes tokens from all places as specified by the final marking and that produces one token on $p_\final$ (and no token elsewhere).
+Finally, we add a transition $t_\pump$ that consumes one token on $p_\final$, but produces two tokens on $p_\final$.
+Let $N''$ denote the resulting net, and let $\Minit''$ be the initial marking for $N''$ that coincides with $\Minit'$ on the places of $N'$ and assigns no token to $p_\final$.
+The problem $\PNSU$ works on unlabeled nets, but for the proof of correctness later, it will be helpful to consider both $t_\final$ and $t_\pump$ to be labeled by $\eps$.
+
+As desired, we obtain that the inclusion holds if and only if the set of places $\Set{ p_{\Gamma}}{ {w_{\Gamma}}^* \text{ infix of } \linof{\product}} \cup \set{p_\final}$ is simultaneously unbounded in $N''$.
+To formally prove the statement, let us assume that $\linof{\product} = \dtr{w}{0} {w_{\Gamma_1}}^* \dtr{w}{1} \ldots w_{k-1} {w_{\Gamma_k}}^* \dtr{w}{k}$ for some words $\dtr{w}{i} \in \Sigma^*$ and subalphabets $\Gamma_i\subseteq \Sigma$ for all $i$.
+
+\begin{proposition}%
+\label{Proposition:PNSREDCReduction}%
+    The inclusion
+    $\lang{\linof{\product}} \subseteq \lang{\mathmbox{\dc{N}}, \Minit, \Mfinal}$
+    holds iff the places in
+    $X = \set{ p_\final } \cup \Set{ p_{\Gamma_i}}{i \in \oneto{k}}$
+    are simultaneously unbounded in $N''$ from $\Minit''$.
+\end{proposition}
+
+\begin{proof}
+    Assume that the inclusion holds, and let $m \in \N$ be arbitrary.
+    We have to show that there is a marking $M$ with $\Minit \fire{\sigma} M$ in $N''$ and $M(p_{\Gamma_i}) \geq m$ for all $i$ and $M(p_\final) \geq m$.
+    Consider the word $w = \dtr{w}{0} {w_{\Gamma_1}}^m \dtr{w}{1} \ldots w_{k-1} {w_{\Gamma_k}}^m \dtr{w}{k}$ obtained by taking $m$ iterations of each $w_\Gamma$.
+    We have $w \in \lang{\linof{\product}}$ by construction, and since we assume that the inclusion holds also $w \in \lang{\dc{N}, \Minit, \Mfinal}$.
+    Recall that the language of the synchronized product is the intersection of the languages of the original nets.
+    Hence, we have $w \in \lang{N'',\Minit'',\Mfinal''}$, where $\Mfinal''$ coincides with $\Mfinal'$ on the places of $N'$ and requires no token on $p_\final$.
+    Let us consider a corresponding computation $\Minit'' \fire{\sigma} M \geq \Mfinal''$ of $N''$ with $\lambda(\sigma) = w$.
+    Since the non-$\eps$-labeled transitions in $N'$ can only be fired in a synchronized fashion, for each infix ${w_{\Gamma_i}}^m$ the transition that corresponds to the last letter of $w_{\Gamma_i}$ is fired $m$ times.
+    Hence, we have $m$ tokens on each place $p_{\Gamma_i}$ that will not be consumed by other transitions, and for each $i$, $M(p_{\Gamma_i}) \geq m$ as desired.
+    To also obtain $m$ tokens on $p_\final$, we extend the run and consider the firing sequence $\sigma.t_\final.{t_\pump}^m$.
+    Note that $t_\final$ is indeed enabled in $M$ since $M \geq \Mfinal''$, and that firing ${t_\pump}^m$ creates $m$ tokens on $p_\final$.
+    The marking reached by firing this sequence has the desired properties.
+
+    For the other direction, assume that the places in $X$ are simultaneously unbounded.
+    Consider a word $w \in \lang{\linof{\product}}$, say $w = \dtr{w}{0} {w_{\Gamma_1}}^{m_1} \dtr{w}{1} \ldots {w_{\Gamma_k}}^{m_k} \dtr{w}{k}$.
+    To prove that $w \in \lang{\mathmbox{\dc{N}}, \Minit, \Mfinal}$, we first show that $w$ is in the language of the product net $N'$.
+
+    To this end, we use the assumption that the places in $X$ are simultaneously unbounded.
+    We define $m = \max \set{1,\max_{i \in \oneto{k}} m_i}$, and obtain a computation $\Minit \fire{\sigma} M$ of $N''$ such that $M(p) \geq m$ for all $p \in X$.
+    We may assume \wolog that $\sigma$ is of the shape $\sigma = \sigma'.t_\final.{t_\pump}^{m_\pump}$, where $\sigma'$ does not contain $t_\final$ and $t_\pump$.
+    Indeed, any sequence that is not of this shape can be reordered while preserving its validity (since executing $t_\final$ later yields greater intermediary markings) and the word that is generated (since $t_\final$ and $t_\pump$ are labeled by $\eps$).
+    Note that $\sigma$ needs to contain occurrences of $t_\final$ and $t_\pump$ because we had $M(p_\final) \geq m$.
+    If $t_\final$ occurs multiple times in $\sigma$, we simply drop all occurrences but one.
+
+    Consider the computation $\Minit \fire{\sigma\lowerprime} M'$, which we may see as a computation of the product net $N'$.
+    It produces the same word, and we have $M' \geq \Mfinal'$ since $t_\final$ was enabled in $M'$.
+    Hence,
+    \[
+        \lambda(\sigma) = \lambda(\sigma') \in  \lang{N',\Minit,\Mfinal'} = \lang{\linof{\product}} \cap \lang{\dc{N},\Minit,\Mfinal}
+        \ ,
+    \]
+    using that the language of the synchronized product is the intersection of the languages.
+
+    Since we have $M'(p_{\Gamma_i}) \geq m$ for all $i$, each infix $w_{\Gamma_i}$ occurs at least $m$ times in $\lambda(\sigma)$.
+    We have that $\lambda(\sigma) = \dtr{w}{0} {w_{\Gamma_1}}^{m_1'} \dtr{w}{1} \ldots {w_{\Gamma_k}}^{m_k'} \dtr{w}{k}$, where $m_i' \geq m \geq m_i$ for each $i$.
+    Hence, the word $w \in \lang{\linof{\product}}$ that we started with is a subword of $\lambda(\sigma)$.
+    We obtain that $\lambda(\sigma) \in \lang{\dc{N},\Minit,\Mfinal}$ implies $w \in \lang{\dc{N},\Minit,\Mfinal}$, which we wanted to show.
+\end{proof}
+
+
+With the proposition at hand, it only remains to combine all ingredients.
+
+\begin{proof}[Proof of \cref{Theorem:PNSREDCMembership}]
+    The inclusion $\lang{\sre} \subseteq \dc{\lang{N,\Minit,\Mfinal}}$ holds if and only if $\lang{\product} \subseteq \dc{\lang{N,\Minit,\Mfinal}}$ holds for each product $\product$ of the SRE $\sre$.
+    The number of products is polynomial in the size of the SRE.\@
+
+    For each product $\product$, it is easy to construct $\linof{\product}$ in polynomial time.
+    In general, an automaton representing a regular expression can be substantially larger than the expression~\cite{GruberH15}.
+    For the expression $\linof{\product}$ which has nesting-depth at most $2$, however, it is easy to construct first an automaton and then a Petri net instance $(N_\product,M_{\init,\product},M_{\final,\product})$.
+    This net is of size polynomial in the size of $\product$, and it has the same language as $\linof{\product}$.
+    By definition, the net $\dc{N}$ is of size polynomial in the size of $N$.
+    Combining the two facts yields that the size of the product net $N'$ and also the size of the net $N''$ are polynomial in the input size.
+
+    Altogether, we obtain that to decide the inclusion, we need to invoke a polynomial number of queries for instances of the problem $\PNSU$ of polynomial size.
+    We use that $\PNSU$ can be solved in $\EXPSPACE$, \cref{Theorem:PNSU}, and that the calling polynomially many exponential space algorithms still results in an exponential space algorithm to deduce that the overall procedure runs using exponential space.
+
+    The correctness results directly from \cref{Lemma:Linearization} and \cref{Proposition:PNSREDCReduction}.
+\end{proof}
+
+With the proof of \cref{Theorem:PNSREDCMembership} completed and the matching lower bound, we have shown that $\SREDC$ is $\EXPSPACE$-complete as stated in \cref{Theorem:PNSREDC}.
+Note that since the lower bound is based on the lower bound for coverability, the result also holds if we consider Petri nets to be encoded in unary.
+
+\end{document}

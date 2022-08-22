@@ -1,0 +1,33 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node (origin) [coordinate] at (0,0) {};
+
+\node (abstr) at (1,0) [minimum width=5em, minimum height=4em, anchor=west,draw] {};
+
+
+\node (rect) at (6,0) [minimum width=6.5em,minimum height=6.5em, anchor=west,draw] {};
+
+\node (yes) [coordinate] at (9.2,0.75) {};
+\node (no) [coordinate] at (9.2,-0.75) {};
+\path [->]
+    (origin) edge (abstr.west)
+    (abstr.east) edge (rect.west)
+    (rect.east) edge (yes)
+    (rect.east) edge (no)
+;
+
+\node at (-0.3,0.4) [anchor=west] {$P$};
+\node at (-0.3,-0.4) [anchor=west] {$S$};
+
+\node at (3.2,0) [anchor=west, align=center, text width=6em] {Automaton $A$ \newline from class $\calC$};
+
+\node (yes2) [right of=yes, node distance=0em, anchor=west] {yes, $A \models S$};
+\node (no2) [right of=no, node distance=0em, anchor=west] {no, $A \not\models S$};
+
+\node [align=center, font=\small] at (abstr) {Abstraction};
+\node [align=center, text width=5em,font=\small] at (rect) {Decision procedure for class $\calC$};
+
+\node (yes3) at (10.8,0.75) [anchor=west] {$\implies$ yes, $P \models S$};
+\node (no3) at (10.8,-0.75) [anchor=west]  {$\implies$  no, $P \not\models S$};
+
+\end{tikzpicture}

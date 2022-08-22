@@ -1,0 +1,21 @@
+\begin{tikzpicture}[>=,->,semithick,scale=0.5]
+
+\pic  (fid) [transform shape] {tbox={2}{1/1/,2/2/}};
+\node [below = 1.5em] {$\id = \tbox{\varepsilon}$};
+
+\pic (a) at (3.5,0) [transform shape] {tbox={2}{1/2/}};
+\node [below = 1.5em] at (3.5,0) {$\tbox{a}$};
+
+\pic (b) at (7,0) [transform shape] {tbox={2}{2/1/}};
+\node [below = 1.5em] at (7,0) {$\tbox{b}$};
+
+\pic (ab) at (10.5,0) [transform shape] {tbox={2}{1/1/}};
+\node [below = 1.5em] at (10.5,0) {$\tbox{ab}$};
+
+\pic (ba) at (14, 0) [transform shape] {tbox={2}{2/2/}};
+\node [below = 1.5em] at (14, 0) {$\tbox{ba}$};
+
+\pic (aa) at (17.5, 0) [transform shape] {tbox={2}{}};
+\node [below = 1.5em] at (17.5,0) {$\tbox{aa} = \tbox{bb}$};
+
+\end{tikzpicture}

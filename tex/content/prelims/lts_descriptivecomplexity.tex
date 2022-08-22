@@ -1,0 +1,100 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Descriptive complexity}%
+\label{Section:DescriptiveComplexity}%
+
+We introduce some notions regarding the descriptive complexity of regular languages.
+Unlike computational complexity (see \cref{Section:Complexity}) which studies the amount of resources needed to decide membership in a language, descriptive complexity studies the size of descriptions of languages.
+However, many interconnections between the two areas exist in the form of results that show that languages for which the membership problem has a certain complexity admit descriptions of a certain shape and size and vice versa~\cite{Immerman98}.
+Descriptive complexity theory considers several types of objects to represent languages, including logical formulas and circuits.
+In this thesis, we are exclusively interested in the descriptive complexity of regular languages, for which we use finite automata as descriptions.
+
+The well-known fact that DFAs and NFAs are equally expressive results in two measures of complexity for regular languages.
+We will introduce and use both in the following.
+For a regular language $\calL$, its \emph{state complexity} is the minimum number of states that an NFA $A$ with $\lang{A} = \calL$ has.
+Its \emph{index} is the minimum number of states that a DFA $A$ with $\lang{A} = \calL$ has.
+The latter notion comes from the fact that this number is indeed the index, the number of equivalence classes, of the Nerode right-congruence~\cite{Nerode58}.
+It is well-known that every regular language has a unique minimum DFA defining it (up to isomorphism), see \eg~\cite{HopcroftU79}; the same is not true for NFAs~\cite{JiangR93}.
+
+There are languages for which state complexity and index coincide.
+
+\begin{example}%
+\label{Example:StateComplexityEqualsIndex}%
+    For each $k \in \N$, the language $\set{ a^k } \subseteq a^*$ has state complexity and index $k+1$.
+    Obviously, a DFA with states $q_0, q_1, \ldots, q_k$ and transitions $q_{i} \tow{a} q_{i+1}$ for all $i$ accepts the language with the desired number of states.
+    Any smaller automaton would necessarily see a state repetition while processing $a^k$.
+    This loop could be repeated to accept a word $a^{k+\ell}$ for $\ell > 0$, a contradiction to the assumption that $a^k$ is the only word in the language.
+
+    The same is true for the languages
+    \begin{align*}
+        \calL_{\leq k} &= \Set{ a^\ell }{\ell \leq k}
+        \ ,
+        &
+        \calL_{\geq k} &= \Set{ a^\ell }{\ell \geq k}
+        \ .
+    \end{align*}
+\end{example}
+
+
+In general, the index is at most exponentially higher than the state complexity.
+The \emph{Rabin-Scott powerset construction}~\cite{RabinS59} turns an NFA with states $Q$ into a language-equivalent DFA with states $Q^{\det} \subseteq \powerset{Q}$, and $\card{\powerset{Q}} = 2^{\card{Q}}$.
+This is in fact also used when proving that regular languages are closed under complement: Given an NFA for a language, we transform it into a DFA, which can be complemented by making the final states non-final and vice versa.
+In particular, a regular language and its complement always have the same index.
+This method of complementation is not sound for NFAs, and we will see in \cref{Section:UCBPP} a language for which the state complexity of its complement is exponentially larger than its state complexity.
+
+In the following, we consider an example for a family of languages in which the worst-case-behavior of an exponential gap between state complexity and index occurs.
+% As we have seen above, the gap between state complexity and index does not need to occur.
+% The following example presents a c but there are examples in which it happens.
+
+\begin{example}%
+\label{Example:StateComplexityVsIndex}%
+    For each $k$, the language $\Set{ w \in \B^{\geq k}}{\text{the $k$-last letter of $w$ is $0$}}$ has state complexity $k+1$ but index $2^k$.
+    It is not hard to construct automata with the desired number of states:
+    An NFA can guess when the $k$-last letter occurs, verify that it is $0$ and then verify that it was indeed the $k$-last letter.
+    A DFA can store the $k$-last letters so that when the end of the word occurs, it can check that the $k$-last letter is $0$ as desired.
+    Both constructions are optimal.
+
+    The example is mentioned without proof in~\cite{Kozen97}.
+    We give a proof in \cref{Section:PNSeparabilityLowerBound} when we use the example to establish a lower bound on the descriptive complexity of separators.
+\end{example}
+
+\paragraph{Descriptive complexity for families of languages}
+
+As in the Examples~\ref{Example:StateComplexityEqualsIndex} and~\ref{Example:StateComplexityVsIndex}, we are usually not interested in the state complexity of a single language, but rather in the state complexity of a family of languages.
+In the case where we have a family of languages ${(\calL_k)}_{k \in \N}$ consisting of one language per natural number, the meaning of a statement like \enquote{the state complexity is exponential} is obvious.
+It could be formalized using the notation that we have introduced in \cref{Section:Complexity}: The state complexity of a family is exponential if there is a constant $\ell$ such that there is a function contained in $2^{\bigO{n^\ell}}$ that maps each number $n$ to an upper bound for the state complexity of $\calL_n$.
+When we say that the state complexity is exponential and that this is optimal, we mean that there is no such function that can be bounded by a polynomial.
+
+Sometimes, we will consider families of languages that are not indexed by natural numbers, but by more complex objects.
+For example, when we make a statement like \enquote{the languages of NFAs have polynomial state complexity}, we are considering the family of language $\Set{ \lang{A} }{ A \text{ NFA}}$.
+In this family of languages, each language $\lang{A}$ is indexed by the NFA $A$ that generates it.
+By the above statement, we mean that if we measure the size $\card{A}$ as defined previously, we obtain that the state complexity of each language $\lang{A}$ is polynomial in $\card{A}$.
+Luckily, we will only need to consider examples where the index set and the size assignment is clear from the context.
+
+The \emph{index} of a family of languages -- not to be confused with the indexing of languages mentioned above -- can be defined similarly to the state complexity.
+
+\paragraph{$\eps$-Transitions}
+
+We also consider NFAs with internal transitions, \ie NFAs where we allow labels from $\Sigma_\eps = \Sigma \dotcup \set{\eps}$.
+Intuitively, transitions labeled by $\eps$ can be taken without generating a letter.
+Sometimes it is convenient to allow such transitions to be able to give easier and more intuitive constructions.
+
+It is well-known that given an automaton with $\eps$-transitions, it is possible to compute an NFA without such transitions that has the same set of states.
+Hence, we may use NFAs and NFAs with internal transitions interchangeably when talking about the state complexity of languages.
+
+\paragraph{Multiple initial states}
+
+Similar to the case of $\eps$-transitions, constructions may be simpler if we allow multiple initial states.
+Such an NFA can be converted to an NFA with a unique initial state as follows: We insert a fresh initial state, and $\eps$-labeled transitions from the fresh state to all former initial states.
+As mentioned above, this NFA with $\eps$-transitions can be converted to a normal NFA.\@
+Hence, the existence of an NFA with multiple initial states and $k$ control states for a language proves that the language has state complexity at most $k+1$.
+
+In this thesis, we will be exclusively interested in whether the state complexity of a family of languages is polynomial, exponential, and so on.
+These classes of functions are closed under the operation of adding $1$, so we may freely use multiple initial states.
+
+Note that both constructions -- $\eps$-transition and multiple initial states -- can be seen as a form of nondeterminism.
+For example, the language $\calL_k$ from \cref{Example:StateComplexityVsIndex} can easily be expressed using automata with $k+1$ states that are deterministic but for the existence of $\eps$-transitions or multiple initial states.
+Hence, the state complexity is only preserved under these constructions in the case of NFAs.
+
+\end{document}

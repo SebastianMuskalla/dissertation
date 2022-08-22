@@ -1,0 +1,13 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[initial above,state,accepting,above,initial text={}] (A) {$q_0$};
+\node[state] (B) [right of=A] {$q_1$};
+
+\path
+    (A) edge [bend left ] node [above]  {$r$} (B)
+    (B) edge [bend left] node [below] {$a$} (A)
+;
+\path (A) edge [loop left] node [left] {$a, s, t$} (A);
+\path (B) edge [loop right] node [right] {$r, s, t$} (B);
+
+\end{tikzpicture}

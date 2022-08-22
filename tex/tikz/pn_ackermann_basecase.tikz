@@ -1,0 +1,28 @@
+\begin{tikzpicture}[->,semithick,>=latex,node distance=4em]
+
+\node[place] (A1) [minimum size=3em] {$\pin^0$};
+
+\node[transition] (B1) [right of=A1, node distance=9em, inner sep = 0.25em] {$\tcopy^0$}
+    edge [pre] (A1);
+
+\node[place] (A4) [ right of=B1, minimum size=3em, node distance=9em] {$\pout^0$}
+    edge [pre] (B1);
+
+\node[place] (A2) [ below of=A1, minimum size=3em,  node distance = 4em] {$\pstart^0$};
+
+\node[transition] (B2) [right of=A2, xshift=0.5em, inner sep = 0.25em] {$\tstart^0$}
+    edge [pre] (A2);
+
+\node[place] (A3) [below of=B1, minimum size=3em, node distance = 4em] {$\pcopy^0$}
+    edge [pre] (B2)
+    edge [pre, bend left] (B1)
+    edge [post,bend right] (B1);
+
+\node[transition] (B3) [right of=A3, xshift=0.5em, inner sep = 0.25em] {$\tstop^0$}
+    edge [pre] (A3)
+    edge [post] (A4) ;
+
+\node[place] (A5) [ below of=A4, minimum size=3em, node distance = 4em] {$\pstop^0$}
+    edge [pre] (B3);
+
+\end{tikzpicture}

@@ -1,0 +1,176 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Unreliable communication and language closures}%
+\label{Section:IntroClosures}%
+
+In this section, we pick up one of our earlier examples and discuss it in detail.
+The setting we consider is the verification of a system that we communicate with over an unreliable communication channel.
+Firstly, we elaborate on what we mean by unreliable communication.
+Secondly, we present a theoretical model that allows us to make this notion precise.
+This will lead us to formalizing two computational problems that are crucial for the verification tasks.
+Finally, we also explain how the environment and certificates come into play.
+
+\paragraph{Examples of gainy and lossy communication}
+
+Assume we have a system $S$ that we are communicating with.
+The communication is conducted via a communication channel $C$, \eg a network connection.
+What we observe is not the messages sent by system $S$, but the messages we receive via channel $C$.
+If we assume that $C$ is \emph{perfect}, these two things coincide and we can simply omit $C$.
+The case that we are interested in is that $C$ is unreliable.
+We consider two settings: a \emph{lossy} channel and a \emph{gainy} channel.
+
+If the channel is lossy, a message that is sent by $S$ may not appear at the other end of $C$.
+The visible behavior of $S$ that we observe through $C$ is only a fragment of the real behavior of $S$.
+This setting can occur under various circumstances.
+The most obvious case is communication via network infrastructure.
+Assume that $C$ is a network connection over which $S$ sends messages in the form of packets.
+% We observe the messages we receive from $S$.
+It is common that packets can be lost, \eg as the result of an outage in the network infrastructure.
+This infrastructure is typically not part of our model of $S$.
+We assume that we are dealing with a system that is so low-level that we cannot simply rely on a protocol like TCP~\cite{TCP} to ensure that all packets arrive at the destination eventually.
+In other words, we verify the transportation layer of the system and not just the application layer.
+In our model, each packet sent by $S$ either arrives or it does not.
+(Note that the model we present here cannot deal with packets not being received in the correct order. We will comment on this aspect later.)
+We may want to verify that the behavior of $S$ is correct, even under the assumption that some packets are lost.
+
+In the following, we give a second example in which lossiness plays a role even though the communication is perfect.
+Assume that $S$ is a component of a concurrent system that writes to shared memory.
+We assume that the memory accesses are perfect: All write accesses to memory executed by $S$ actually take place, and they do so in the correct order.
+However, we assume that we observe this memory location from the perspective of another component of the concurrent system.
+If we poll the memory location without synchronizing with $S$ in some way, we may not see all writes that have been executed by $S$.
+If between reading the memory location twice, two write accesses of $S$ take place, we will only see the second write access; the first one will be lost.
+Similarly, if we start and stop polling the memory at some point in time, we will not see any write accesses by $S$ that happen outside this time interval.
+In summary, this type of communication shows the same lossy behavior as in the first example.
+
+Gainy communication works in the opposite way:
+Instead of just seeing the messages sent by $S$, we potentially observe more messages.
+We observe a sequence of messages that contains the messages sent by $S$, but also additional ones.
+Such a setting can occur if we observe a network endpoint with which several systems communicate.
+Usually, these systems are distinguishable, but they may not be, \eg if an attacker tries to impersonate $S$.
+Similarly, we might observe a memory location to which several other threads write, but we are only provided with a model for one of these threads.
+Note that in order to avoid having both lossy and gainy effects at the same time, we will have to assume that we synchronize with the writing threads so that we are notified of every write access.
+
+In all of these examples, we face the same challenge:
+We are given a description of $S$ which allows us to deduce properties of the behavior of $S$.
+But the goal is to verify the behavior of $S$ that is visible through $C$, \ie we should decide a property of the behavior of $C$.
+For now, we will assume that the only information about $C$ that is available to us is whether $C$ is lossy or gainy.
+
+\paragraph{Language closures}
+
+Our goal is to devise a method to compute a description of the behavior of $C$ given a description of $S$.
+In order to tackle this problem, we start by presenting a theoretical model for lossy and gainy behavior.
+We use a language-theoretic approach.
+We assume that all messages that we observe are from some message alphabet $\Sigma$.
+The sequence of messages sent by $S$ in an execution corresponds to a word $w \in \Sigma^*$ of messages, and there is a language $\lang{S} \subseteq \Sigma^*$ of all such possible sequences.
+What we observe is not $\lang{S}$, but rather $\lang{C}$, the possible sequences of messages we receive via the communication channel $C$.
+In the case of lossiness, we have that every sequence in $\lang{C}$ is obtained from a sequence in $\lang{S}$ by losing messages.
+To formalize this, we introduce the well-known subword ordering:
+A word $v$ is a subword of $w$ if $v$ is obtained from $w$ by deleting letters.
+% For example, $\mathit{RADAR}$ is a subword of $\mathit{AB\underline{RA}CA\underline{DA}B\underline{R}A}$.
+For example, $\mathit{radar}$ is a subword of $\mathit{ab\underline{ra}ca\underline{da}b\underline{r}a}$.
+
+If $C$ is a lossy communication channel, then every word in $\lang{C}$ is a subword of a word from~$\lang{S}$.
+To obtain the behavior of $C$, one can form the \emph{language closure} of $\lang{S}$ with respect to the subword ordering.
+This means we consider all words that are subwords of words from $\lang{S}$.
+The resulting set is denoted as the \emph{downward closure} $\dc{\lang{S}}$.
+Note that as the notion of closure suggests, this set is indeed a superset of $\lang{S}$, $\lang{S} \subseteq \dc{\lang{S}}$, because every word is a subword of itself.
+Under the assumption of lossy communication, this set $\dc{\lang{S}}$ is exactly $\lang{C}$, the set of possible sequences of messages that we observe via the communication channel.
+
+In a gainy setting, we simply flip the direction of the subword order:
+Word $w$ is a superword of~$v$ if $v$ is a subword of $w$, or equivalently, if $w$ is obtained from $v$ by inserting letters.
+The \emph{upward closure} $\uc{\lang{S}}$ of $\lang{S}$ is obtained as the set of words that are a superword of a word from $\lang{S}$.
+As with the downward closure, we have that the upward closure is a superset, $\lang{S} \subseteq \uc{\lang{S}}$.
+If the communication is gainy, $\uc{\lang{S}}$ is exactly the set of possible channel contents of $C$.
+
+Note that we cannot deal with a channel that is both lossy and gainy at the same time.
+Both the downward closure of the upward closure $\dc{\uc{\lang{S}}\,}$ and the upward closure of the downward closure $\uc{\dc{\lang{S}}\,}$ equal the set $\Sigma^*$ of all possible sequences of messages if $\lang{S}$ is non-empty.
+We also require that the messages appear in the communication channel in the same order in which they have been sent by $S$.
+If we assume that the messages appear in an arbitrary order, we would need to modify the model.
+One possibility would be to apply a commutative closure to $S$, an operation that we will briefly discuss in \cref{Section:PNBPP}.
+
+The theoretical model leads to two computational problems that can be formalized easily:
+Given $S$ (and hence a description of $\lang{S}$), compute a description of $\dc{\lang{S}}$ \resp $\uc{\lang{S}}$.
+In order to decide a property of the visible behavior of $S$ through $C$, solving one of these two problems should be the first step.
+After a description of the appropriate language closure has been obtained, it can serve as the input for decision procedures that settle the answer to the original verification problem.
+The latter is beyond our scope here, we focus on the computation of the language closures.
+
+There is a well-known theoretical result that comes to our aid with respect to these language closures:
+For any language $\lang{S}$, both the downward and the upward closure are always regular~\cite{Haines69}, meaning they can be represented by a finite automaton.
+Not only are finite automata a very simple way of representing a language, but that also means that once we obtain a description, it is easy to apply decision procedures.
+Also, regular languages are very well-behaved with respect to closure properties, \eg intersections.
+This means if we have more information about $C$ beyond the property of it being lossy or gainy, it should be easy to incorporate this information after a finite automaton representing the closure has been computed.
+In summary, if we are able to obtain a finite automaton as a description for a language closure, we will have a good basis for the rest of the verification task.
+
+The fact that the closures are always regular means that closures also have another use case:
+The downward \resp upward closure of a language is a regular overapproximation of that language.
+This means when we want to abstract a system (\resp its language) to a simpler class of automata (\resp the corresponding class of languages), then choosing these closures as abstraction is a possibility.
+For example, approximations based on the downward closure have been used in~\cite{LongCMM12} to design an iterative procedure that can solve the undecidable problem of intersection-emptiness for context-free languages in some cases.
+
+The approach of abstracting a system into its downward or upward closure is particularly useful if the system that we start with already incorporates lossy or gainy aspects as detailed in the earlier examples.
+In this case, we can hope that the closure is either equal to the language of the system itself or at least the difference is rather small.
+The latter means that if the original system is indeed correct, then it should be very likely that proving the correctness by considering a language closure as overapproximation will succeed.
+
+Unfortunately, the proof of the regularity of the language closures is non-constructive.
+This means that we know that a finite automaton representing the closure exists, but we do not have a way to compute it in general.
+Given the undecidability results that we mentioned earlier, this should not be surprising.
+By Rice's theorem~\cite{Rice53}, deciding any non-trivial property of Turing machine languages is impossible, including their emptiness.
+Assume we start with a system~$S$ that is given as a Turing machine.
+The language of $S$ is empty if and only if its downward closure is.
+If there were a way to compute a finite automaton representing $\dc{\lang{S}}$, we could check the emptiness of $\lang{S}$ by checking whether $\dc{\lang{S}}$ is empty.
+The latter boils down to checking the emptiness of the language of a finite automaton, which is a simple task.
+This approach would decide the emptiness problem for Turing-machine languages, a contradiction to Rice's undecidability result.
+The same line of argumentation works for any \nb{Turing-complete model}.
+
+Luckily, for many types of automata that are not Turing-complete, effective procedures for the computability of the upward and downward closures have been found.
+For example, it is possible to transform a given pushdown automaton into finite automata whose languages are the downward \resp upward closures of the pushdown automaton.
+However, there are also models that are not Turing-complete and for which \eg safety verification is decidable, but the closures cannot be computed~\cite{Mayr03}.
+We will give an overview of the related work in \cref{Section:PNRelwork}.
+
+\paragraph{Outlook}
+
+In this thesis, we will focus on Petri nets and BPP nets, a restricted subclass thereof.
+As mentioned earlier, these models are very useful when it comes to modelling concurrent systems.
+Given a Petri net $S$, it is obvious how to construct Petri nets whose languages are the downward \resp upward closures of $\lang{S}$.
+However, we would like to obtain not a Petri net, but rather a finite automaton as a representation for the downward \resp upward closure.
+The computation of the language closures for Petri nets has not received much attention in the literature yet.
+There has been work by \citea{HabermehlMW10} that resulted in a procedure that computes the downward closure.
+We will present algorithms for the computation of the upward closure of Petri net languages as well as for the computation of both the upward and the downward closure of BPP net languages.
+While the general algorithm for Petri nets could be applied to compute the closures of BPP nets, our specialized procedures exploit the properties of BPP nets to achieve a much better running time.
+
+Our proposed algorithms for the computation of the closures extend various well-known techniques from the literature.
+For example, we tweak the definitions used by \citea{Rackoff78} in his proof that Petri net coverability is $\EXPSPACE$-hard in order to obtain a bound on the length of the computations that are needed to generate all minimal words in the language of the net.
+With this bound at hand, we can construct an automaton whose language is equal to the upward closure of the Petri net language.
+In the case of BPP nets, we use a similar approach, but the required bound on the length of computations results from using unfoldings~\cite{EsparzaH08}.
+On the one hand, the results in \cref{Part:Closures}.~of the thesis often rely on the versatility of results from the literature.
+On the other hand, in order to be able to use these results for the computation of the closures, we have to extend them and incorporate fresh ideas.
+
+We conclude this section by explaining how both the environment and certificates come into play in the setting that we consider.
+At the beginning, we have argued that the challenging aspect is that we are given a description of just the system, but our goal is to decide a property of the behavior of the system including the communication channel.
+This means that the communication channel itself forms an environment according to our definition:
+It is the difference between the real system behavior that we should verify and the model of the system that we are given.
+The theory that we have presented allows us to deal with this environment, even with no information about the channel beyond the fact that it is lossy or gainy.
+
+It remains to show which role certificates play.
+As we have seen, deciding a property of the behavior of a system that we interact with via an unreliable communication channel boils down to deciding a property of a downward or upward closure.
+For a downward- or upward-closed language having or not having a certain property, the finite automaton representing that regular language can serve as a certificate.
+Finite automata are indeed good certificates in principle, as it is typically rather simple to check properties of their languages.
+Unfortunately, the latter task scales with the size of the automaton, \ie it becomes harder the larger the automaton is.
+The procedures that we will provide later to compute automata describing the language closures can result in very large automata, \eg automata that are doubly exponentially larger than the initial system.
+Unfortunately, this cannot be avoided:
+We will prove results in the areas of descriptive complexity showing that the size of the automata yielded by our algorithms is optimal.
+%
+To circumvent this problem, we suggest an approach that is based on using so-called \emph{simple-regular expressions (SREs)} as certificates for properties of the language closures.
+SREs are particularly simple representations for certain regular languages.
+While not every regular language can be represented by an SRE, SREs are expressive enough to represent downward- and upward-closed languages~\cite{AbdullaCBJ04}.
+It turns our that proving that the language of an SRE is included in the downward or upward closure of a Petri net language is much easier than computing a representation of the language closure itself.
+Hence, SREs can serve as a certificate for properties of downward- or upward-closed languages, since both checking that the SRE is included in the language closure and checking properties of the SRE is relatively easy.
+The latter comes from the fact that SREs represent regular languages, but an SRE representing just a part of the downward or upward closure is hopefully much smaller than a full \nb{representation of the closure}.
+
+Finally, we will also consider the problem of checking whether the language of a given Petri net is downward or upward closed.
+To settle this problem, we will in particular show how to check whether the language of a Petri net contains the language of a finite automaton.
+The decidability of this \emph{regular containment problem} is not only of independent interest, but it also means that we can solve the following task:
+Given a Petri net and an automaton whose language should be equal to the language of the net, we can check that this equality indeed holds.
+In particular, when we are given a Petri net modelling a system that incorporates gainy or lossy aspects and we want to verify that its language is downward or upward closed, then we can compute a finite automaton representing the language closure using the aforementioned results and use the decidability of regular containment to verify that the two languages are equal.
+
+\end{document}

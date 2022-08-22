@@ -1,0 +1,107 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Unlabeled Petri nets}%
+\label{Section:PNUnlabeled}%
+
+We start by defining the syntax and semantics of unlabeled Petri nets.
+
+% \begin{definition}
+    A \emph{Petri net} $N$ is a tuple $N = (P, T, \i, \o)$.\footnote[1]{In the literature, $\i$ and $\o$ are commonly combined into a single \emph{flow matrix} $F \colon (P \dotcup T) \times (T \dotcup P) \to \N$, where $F(x,y)$ can only be non-zero if $x$ is a transition and $y$ is a place or vice versa.
+        The functions $\i$ and $\o$ can be recovered by defining $\i(t) = F(-,t)$ and $\o(t) = F(t,-)$ for each transition $t$.
+        Sometimes, $\i(t)$ and $\o(t)$ are called the \emph{pre-set} and \emph{post-set} of transition $t$, respectively (often denoted by ${}^\bullet t$ and $t^\bullet$).
+    }
+    Here, $P$ is a finite set \emph{places}, $T$ is a finite set of \emph{transitions} with $T \cap P = \emptyset$, and $\i, \o \colon T \times P \to \N$ assign each place and transition the incoming \resp outgoing multiplicity.
+% \end{definition}
+
+We may see $\i$ and $\o$ as a function taking two arguments (\eg $\i(p,t) \in \N$) or as a function that assigns to each transition a vector of multiplicities (\eg $\i(t) \in \N^P$).
+Here, we will usually write $\N^P$ instead of $\N^{\card{P}}$ to denote the set of vectors with one tuple per place.
+
+The \emph{effect} $\e(t) \in \Z^P$ of a transition $t$ is defined to be $\e(t) = \o(t) - \i(t)$.
+We lift operations like addition, subtraction, and comparison from numbers to such vectors by applying them component-wise, \eg $\e(t)$ is the vector that has entry $\o(t,p) - \i(t,p)$ for each place $p$.
+
+% In the following, let $N = (P,T,\i,\o)$ be some fixed Petri net.
+With the syntax at hand, we can define the semantics of Petri nets.
+A Petri net $N = (P,T,\i,\o)$ induces an infinite transition system:
+The configurations are \emph{markings} $M \in \N^P$, vectors that associate to each place $p$ a number $M(p)$ of \emph{tokens} carried by that place.
+
+In a marking, a transition can be executed, consuming tokens depending on the incoming multiplicities and producing tokens depending on the outgoing multiplicities.
+Taking a transition is only possible if there are enough tokens that can be consumed.
+Formally, in marking $M$, transition $t$ is enabled if $M \geq \i(t)$.
+In this case, it can be \emph{fired}, leading to the new marking $M'$ with $M' = M + \e(t)$.
+We write $M \fire{t} M'$.\footnote{In the literature, the notation $M [t\rangle M'$ is commonly used.
+    The author of this thesis is convinced that $[t\rangle$ is a stylized version of \, $\fire{t}$ \, -- the technology just was not there yet.
+}
+This defines the transition relation of the transition system.
+If we want to express that $t$ can be fired from $M$, but we do not care about the marking that is reached, we write $M \fire{t}$.
+
+We extend the notion of firing to sequences of transitions $\sigma \in T^*$.
+We say that $\sigma$ is a valid \emph{firing sequence} from marking $M$, reaching marking $M'$ and write $M \fire{\sigma} M'$ if $\sigma = t_1 \ldots t_n$ and there are intermediary markings $M_1, \ldots, M_{n-1}$ such that
+\[
+    M \fire{t_1} M_1 \fire{t_2} \ldots \fire{t_{n-1}} M_{n-1} \fire{t_n} M'
+    \ .
+\]
+The combination of the markings and transitions is called a \emph{computation} of $M$.
+
+We can extend the definition of the effect to transition sequences by $e(\sigma) = \sum_{i = 1}^n \e(t_i)$.
+Note that $M \fire{\sigma} M'$ implies $M' = M + \e(\sigma)$.
+
+\paragraph{Petri nets as graphs}
+
+Sometimes it will be useful to see a Petri net as a directed graph in which the set of nodes is the union of the set of transitions and the set of places.
+This graph has an edge from a place $p$ to a transition $t$ if $\i(t,p) > 0$, and an edge $t$ to $p$ if $\o(t,p) > 0$.
+Note that the graph is bipartite: There are no edges among places or transitions.
+
+\paragraph{Alternative models}
+
+Petri nets are equally expressive to \emph{vector addition systems (VASes)} and \emph{vector addition systems with states (VASSes)}:
+A Petri net can be converted in polynomial time into a VAS or VASS that essentially has the same algorithmic properties.
+While Petri nets are particularly useful to model concurrent systems, VASSes can be understood as a restricted version of \emph{counter machines}, a Turing-complete model.
+
+\paragraph{Counter machines}
+
+We start by giving the definition of counter machines.
+The syntax of a counter machine with counters $x_1, \ldots, x_k$ is a finite LTS with transitions labels from $\Set{ \incop{x_i}, \decop{x_i}, \zeroop{x_i}, \nonzeroop{x_i}}{i \in \oneto{k}}$.
+The induced semantics is an infinite transition system with configurations from $Q \times \N^k$ consisting of a control state of the finite LTS and a marking that stores one value for each counter.
+The effect of the transitions is as expected: Transitions labeled by $\incop{x_i}$ increment the $\nth{i}$ counter by one while leaving the other counter values unchanged, transitions labeled by $\decop{x_i}$ decrement it.
+Transitions labeled by $\zeroop{x_i}$ or $\nonzeroop{x_i}$ do not change the counter values, but they can only be executed if the value of the $\nth{i}$ counter is currently zero or non-zero, respectively.
+
+The decrements $\decop{x_i}$ are usually defined to be \emph{blocking}: Such a transition can only be executed if the value of counter $i$ is currently strictly positive.
+With this assumption, one could actually eliminate the occurrences of non-zero tests by replacing them with the sequence $\tow{\decop{x_i}} \tow{\incop{x_i}}$ of a blocking decrement and of an increment that reverts the effect of the decrement
+
+One can show that counter machines are a Turing-powerful model:
+A (nondeterministic or deterministic) Turing machine can be converted in polynomial time into a counter machine that essentially has the same algorithmic properties.
+To be precise, the existence of two counters is sufficient for the conversion.
+It is not too hard to see that a counter machine with three counters can simulate a Turing-machine: We assume that the tape uses tape alphabet $\set{0,1,\blank}$ and use one counter to encode the tape content from the start to the current head position (seen as binary number from left-to-right) and a second counter to encode the rest of the tape (seen as binary number from right-to-left).
+To simulate the tape-manipulating transitions of the Turing machine, the counter values are modified.
+For example, checking whether the tape content at the current head position is $1$ amounts to checking whether the value of the first counter is odd.
+To preserve the original counter values while conducting such a check, the third counter~is~used.
+
+To get from three counters down to two counters, one can use Minsky's famous \emph{prime encoding trick}~\cite{Minsky67} which allows us to store the three counter values $x_1, x_2, x_3$ as the single \nb{number $2^{x_1} \cdot 3^{x_2} \cdot 5^{x_3}$}.
+Operations on the counters $x_1, x_2, x_3$ translate into a sequence of operations on this number, for which the second counter of the two-counter machine is needed as intermediary storage.
+Counter machines with just one counter are not Turing-powerful:
+They can be simulated by a pushdown system with a binary stack alphabet: one symbol to store the unary encoding of the current counter value, another symbol that represents the bottom of the stack; the latter is needed for the zero tests.
+
+The above discussion in fact shows a stronger statement:
+The acceptance problem for Turing-machines with space consumption bounded by $n$ translates into the control-state reachability problem for counter machines with three counters and counter values bounded by $2^n$.
+This complexity-theoretic result does not extend to two-counter machines, since the prime encoding introduces an exponential blowup of the counter values.
+
+\paragraph{Vector addition systems}
+
+With the notation at hand, we can define a VASS as a counter machine in which the \nb{operations $\zeroop{x_i}$} and $\nonzeroop{x_i}$ do not occur.
+Unlike a counter machine, a VASS has only limited access to its counter values during runtime.
+While it is still possible to assert non-zeroness of a counter value by using a blocking decrement, we cannot assert that a counter is zero.
+We say that the counters of a VASS are \emph{partially blind}.
+
+Similarly, a Petri net can check for the presence of tokens, but it cannot check the absence of tokens on a place.
+It is not hard to translate a VASS into a Petri net and vice versa.
+With our definition of VASSes, a transition $t$ of a Petri net would be translated into a sequence of $\normone{\i(t)} + \normone{\o(t)}$ transitions of the VASS, one transition per token that is consumed or produced by $t$.
+To obtain a more efficient translation, we could consider VASSes in which transitions can increment or decrement a counter by an arbitrary number in a single step.
+Since we will not need this construction, we forgo giving the formal definition.
+
+A VAS is a VASS with a unique state.
+A VASS can be encoded as a VAS with two additional counters that store the current control state.
+To be precise, to store control state $q_i$ with $i \in \zeroto{k}$, we would have one counter with value $i$ and another \emph{complement counter} with value $k-i$.
+Just storing $i$ would be insufficient, because then a transition that should be enabled only in control state $q_i$ would also be enabled in any $q_j$ with $j > i$.
+
+\end{document}

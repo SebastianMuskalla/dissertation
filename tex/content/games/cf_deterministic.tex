@@ -1,0 +1,119 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Deterministic target languages}%
+\label{Section:CFGamesDeterministic}%
+
+We consider the special case of context-free regular inclusion games where the regular target language is given by a deterministic automaton.
+It can be show that solving such games is $\EXPTIME$-complete, instead of $2\EXPTIME$-complete as in the case of an NFA representing the target language.
+We modify our algorithm to achieve a matching \nb{running time}.
+
+To show $\EXPTIME$-completeness, on can for example use that the context-free games on the configuration graphs of pushdown automata that were considered by \citea{Walukiewicz01} and \citea{Cachat02} can be translated into a grammar-based context-free game with a DFA target language within polynomial time.
+Hence, \Walus proof of $\EXPTIME$-completeness for this type of game applies.
+
+One also can immediately see that our proof of $2\EXPTIME$-hardness, \cref{Theorem:CFGamesComplexityHardness}, does not work.
+Dealing with configurations of an alternating Turing machine with exponential space consumption requires dealing with binary strings of polynomial length.
+An automaton of polynomial size for this task is necessarily nondeterministic.
+One could adapt the proof to the case of a deterministic target language as follows:
+We assume that the given alternating Turing machine has polynomial space consumption, using that $\APSPACE = \EXPTIME$.
+Hence, the binary strings indexing cells on the tape are only of logarithmic size.
+The logarithmic nondeterministic automaton dealing with these strings can be transformed into a polynomially sized deterministic one to complete the proof.
+
+Unfortunately, the algorithm that we have outlined in this chapter cannot exploit the fact that the target language is deterministic to achieve a better running time.
+The crucial factor in the running time of the algorithm is the size of transition monoid $\nfatransmonoid{A}$, the number of boxes.
+If automaton $A$ is a DFA, then there are fewer potential boxes:
+For each of states, there is only a single successor state along each word.
+Hence, there are at most $\card{Q}^{\card{Q}} = 2^{\log \card{Q} \cdot \card{Q}}$ different boxes in  $\nfatransmonoid{A}$.
+This number is substantially smaller than $2^{\card{Q}^2}$, the number of boxes in the general case, but it still is exponential.
+
+To overcome this problem, we propose a variation of the algorithm that uses $\pBF(Q)$ as domain.
+Instead of formulas over the transition monoid, where the atoms track the full behavior of words in the automaton, we have formulas over $Q$, where each atom corresponds to a target state.
+To make this approach work, we also need to fix the source state.
+Formally, we have a system of equations with variables of the shape $qX$, where $q$ is a (source) state and $X$ is a nonterminal.
+An atom $p$ in the formula $\sol{qX}$, taken from the least solution to the system, corresponds to a word $w$ derivable from $X$ with $q \tow{w} p$ in $A$.
+
+However, this introduces a new challenge.
+Recall that the composition of two formulas $\sol{Y} \comp \sol{Z}$ is defined so that it captures the structure of words derivable from $Y.Z$:
+Each such word is a word derivable from $Y$ followed by a word derivable from $Z$.
+When using formulas over the transition monoid, we can simply compose the atoms corresponding to these words using relational composition.
+With the modified system of equations, $\sol{qY} \comp \sol{pZ}$ only makes sense if we derive from $Y$ a word that indeed leads to target state $p$.
+However, the words derivable from $Y$ can lead to many different target states, and a priori it is not clear to which ones.
+
+The solution to this problem is to compose $\sol{qY}$ not with a single $\sol{pZ}$, but with the family of formulas ${(\sol{pZ})}_{p \in Q}$ for all $p \in Q$ simultaneously.
+The composition will be defined so that it first resolves the operators in $\sol{qX}$ until arriving at an atom $p$.
+It then selects the appropriate formula $\sol{pZ}$ from the family to complete the composition.
+
+Formally, we define a new composition operator $\supercomp$\ .
+It is $(\card{Q} + 1)$-ary, but for the sake of readability we write the last $\card{Q}$ arguments as a family of formulas.
+This means we write $F \supercomp {(H_q)}_{q \in Q}$ where $F$ and $H_q$ for every $q \in Q$ are formulas.
+The definition is as follows:
+%
+\begin{align*}
+    (F \wedgevee F') \supercomp {(H_q)}_{q \in Q} &= F \supercomp {(H_q)}_{q \in Q} \wedgevee F' \supercomp {(H_q)}_{q \in Q}
+    \\
+    p \supercomp {(H_q)}_{q \in Q} &= H_p
+    \ .
+\end{align*}
+%
+The operation essentially replaces each atom $p$ in the first formula by $H_p$.
+
+With this definition at hand, we can formally define the system of equations.
+As variables, we use expressions of the shape $qX$ where $q \in Q$ and $X \in N$.
+Assume that $X \to \itr{\beta}{1} \mid \ldots \mid \itr{\beta}{k}$ are all production rules for nonterminal $X$.
+For each state $q$, the defining equality for $qX$ is
+\[
+    qX = \text{preprocess}_q(\itr{\beta}{1}) \wedgevee \ldots \wedgevee \text{preprocess}_q(\itr{\beta}{k})
+    \ .
+\]
+As usual, $\wedgevee$ is disjunction if the owner of $X$ is the existential player and conjunction otherwise.
+The operation $\text{preprocess}_q$ is defined on sentential forms $\beta$ as follows:
+If $\beta$ consists of a single symbol, $\beta \in \N \cup \Sigma \cup \set{\eps}$, we have
+\[
+    \text{preprocess}_q(\beta) = q\,\beta
+    \ .
+\]
+If $\beta = \beta_1.\beta_2 \ldots \beta_m$, we prefix the first symbol with $q$, replace the rest of the symbols with the corresponding families, and connect the results using the new composition operator,
+\[
+    \text{preprocess}_q(\beta_1.\beta_2 \ldots \beta_m) = q\,\beta_1 \supercomp {(p \, \beta_2)}_{p \in Q} \supercomp \ldots \supercomp {(p \, \beta_m)}_{p \in Q}
+    \ .
+\]
+
+The system of equations uses disjunction, conjunction, the new composition operator and constants of the shape $q \, a$ for $q \in Q$ and $a \in \Sigma \cup \set{\eps}$ as function symbols.
+We provide a model over which the system can be interpreted.
+The domain is $\pBF(Q)$ factored by logical equivalence, \ie equivalence classes of positive Boolean formulas over states of the DFA, ordered by implication.
+The interpretation of conjunction, disjunction, and the new composition operator is as expected.
+For each state $q$, the interpretation of $q \eps$ is $q \in \pBF(Q)$.
+For state $q$ and terminal $a \in \Sigma$, $q \,  a$ is $p \in \pBF(Q)$, where $p$ is the unique state of the DFA with $q \tow{a} p$.
+
+Given an instance $(G,A)$ of a context-free regular inclusion game with a DFA $A$ representing the target language, one solves the game as follows.
+We first construct the system of equations, and then compute its least solution using the above interpretation.
+The least solution provides us with a formula $\sol{ \qinit S} \in \pBF(Q)$ for the initial state of $A$ and the initial symbol of $G$.
+We consider the variable assignment $Q_{\text{rej}} = Q \setminus \QF \subseteq Q$ that sets to true the non-final states.
+The existential player has a winning strategy for the game iff $\sol{ \qinit S}(Q_{\text{rej}})$ \nb{evaluates to true}.
+
+To show this, one can prove a correspondence between variable assignments $Q' \subseteq Q$ that satisfy a formula $\sol{qX}$ and strategies for the existential player that enforce the derivation of a word $w$ from $X$ such that $q \tow{w} q'$ with $q' \in Q'$.
+To make this formal, the theory that we have developed in \cref{Section:CFGamesSoundness} can be adapted easily.
+
+The resulting algorithm solves the game in exponential time, which is the optimal complexity.
+The new system of equations is substantially larger as it features one equation per state and nonterminal, but its size remains polynomial.
+For solving the interpreted system of equations, using $Q$ as the set of atoms is the determining factor for the complexity.
+This means that the height of the domain as well as the maximum size of a single formula in conjunctive normal form are singly exponential.
+This can be made formal by adapting the proof of \cref{Proposition:CFGamesComplexityMembership}.
+
+Altogether, we have shown the following.
+
+\begin{theorem}
+    Context-free regular inclusion games with the target language represented by a DFA are $\EXPTIME$-complete,
+    and an algorithm based on effective denotational semantics solves them in exponential time.
+\end{theorem}
+
+When we are given a context-free regular inclusion game $(G,A)$ where $A$ is an NFA, we now have two procedures with doubly exponential running time for solving it.
+The first is the algorithm that we have discussed earlier in this the chapter.
+The second procedure  starts by determinizing the automaton, obtaining a new instance $(G,A^{\text{det}})$ that is potentially exponentially larger.
+However, we can now apply the algorithm described in this section to solve this larger instance in singly exponential time (in its size), resulting in doubly exponential time overall.
+
+While both algorithms solve the problem, we expect the first approach to be much more efficient for the same reasons that we have discussed in \cref{Section:CFGamesAlgorithmics}.
+An upfront determinization of the automaton introduces a guaranteed blowup, even if some parts of the automaton may actually never be used by words that can be derived in the grammar.
+The first approach uses an on-the-fly determinization that may avoid this blowup.
+
+\end{document}

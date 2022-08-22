@@ -1,0 +1,40 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{SRE inclusion in the upward closures for BPP nets}%
+\label{Section:BPPSREUC}%
+
+We complete the chapter by combining the two restrictions:
+We consider the problem of deciding whether a given SRE defines a language that is included in the upward closure of the language of a given BPP net.
+
+\begin{problem}
+    \problemtitle{SRE inclusion in the upward closure for BPP nets}
+    \problemshort{($\SREBPPUC$)}
+    \probleminput{A labeled BPP net instance $(N,\Minit,\Mfinal)$, an SRE $\sre$.}
+    \problemquestion{$\lang{\sre} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$?}
+\end{problem}
+
+We show that this decision problem is complete for the class $\NPTIME$.
+As in the case of general Petri nets, this means that the complexity matches the complexity of the coverability problem.
+
+\begin{theorem}%
+\label{Theorem:BPPSREUC}%
+    $\SREBPPUC$ is $\NPTIME$-complete.
+\end{theorem}
+
+The proofs of membership and hardness are extremely similar to the proofs in the case of general Petri nets.
+To show the upper bound, we proceed as in \cref{Proposition:SREUCMembership}.
+We compute in polynomial time the minimal word of each product and check membership in the upward closure of the language of the given BPP net.
+The latter is represented by the net $\uc{N}$ which is a BPP net if $N$ is.
+Since the word problem for BPP nets can be solved in $\NPTIME$, \cref{Proposition:BPPWordproblem}, this completes the proof.
+
+The lower bound can be proven analogous to \cref{Lemma:PNSREUChardness}.
+The coverability problem for BPP nets is $\NPTIME$-hard, \cref{Lemma:BPPCOVhardness}, and $\emptyset^* \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ holds if and only if $(N,\Minit,\Mfinal)$ is a yes-instance of coverability.
+
+The result holds even if we consider the net to be encoded in unary.
+The $\NPTIME$-hardness of coverability constructs a net with transition multiplicities in $\set{0,1}$.
+
+Altogether, this finishes our study of the upward closure of Petri net coverability languages.
+We have proven all results regarding upward closures that we mentioned in \cref{Section:PNResults}.
+
+\end{document}

@@ -1,0 +1,471 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Systems of equations and domains}%
+\label{Section:EDSEqSys}%
+
+We start by formally introducing systems of equations, their interpretations and solutions.
+We then consider ordered domains, which results in the notion of the least solution to a system of equation.
+The material presented in this section is standard and can be found \eg in~\cite{NielsonNH99}.
+
+\paragraph{Systems of equations}
+
+Let $\vars = \set{X_1, \ldots, X_n}$ be a finite set of \emph{variables}.
+Let $\funs = \set{f_1\arity{a_1}, \ldots, f_k\arity{a_m}}$ be a set of \emph{function symbols}, each symbol $f_i$ annotated with its \emph{arity} $a_i \in \N$.
+The set of \emph{terms} over $\vars$ and $\funs$ is defined by the following BNF,\@
+\[
+    \term \bnfdef X \bnf f \left( \term, \ldots, \term \right)
+    \ ,
+\]
+where $X \in \vars$, $f \in \funs$, and the number of parameter terms matches the arity of $f$.
+For a term $\term$, we call the variables that were used to build $\term$ the \emph{free variables} of $\term$.
+
+
+A system of equations provides for each variable one defining term.
+
+\begin{definition}
+    A \emph{system of equations} for the set of variables $\vars$ and the set of function symbols $\funs$ is an assignment of one term $\term_i$ for each variable $X_i \in \vars$.
+    We commonly write it as
+    \begin{align*}
+        X_1 &= \term_1,
+        \\
+        \vdots
+        \\
+        X_n &= \term_n
+        \ ,
+    \end{align*}
+    or simply as $\vec{X} = \vec{\term}$.
+    We call the term $\term_i$ the \emph{right-hand side} for variable $X_i$.
+\end{definition}
+
+Before we can solve a system of equations, we first need to associate a meaning to its syntax.
+Let $\domain$ be a \emph{domain}, which at this point should just mean that it is a set of values.
+An \emph{interpretation} $\interpretation$ of the function symbols over $\domain$ is a function that assigns to each function symbol $f$, say with arity $k$, a function
+\[
+    f^\interpretation \colon \domain^k \to \domain
+    \ .
+\]
+A \emph{model} is a tuple $\model = (\domain,\interpretation)$ consisting of a domain and an interpretation over that domain.
+
+A \emph{(variable) assignment} is a function $\sigma \colon \domain \to \vars$.
+We often see such an assignment as a $\card{\vars}$-dimensional vector over $\domain$ and write $\sigma \in \domain^\vars$.
+
+Given a model, we can lift the interpretation from function symbols to arbitrary terms.
+For each term $\term$, we obtain a function
+\[
+    \sem{\model}{\term} \colon \domain^\vars \to \domain
+    \ ,
+\]
+called the \emph{semantics} of term $\term$.
+It takes a variable assignment $\sigma \in \domain^\vars$ and returns the value $\sem{\model}{\term}{\sigma}$ obtained by evaluating $t$ after all variables $X$ have been replaced by $\sigma(X)$ and all function symbols $f$ have been replaced by $f^\interpretation$.
+Note that it is customary to omit the parentheses around the argument $\sigma$.
+Formally, the function is defined by induction over the structure \nb{of the term},
+\begin{align*}
+    \sem{\model}{X}{\sigma} & = \sigma_X
+    \ ,
+    \\
+    \sem{\model}{f(\term_1, \ldots, \term_k)}{\sigma} & =
+        f^\interpretation
+        \paren{%
+            \sem{\model}{\term_1}{\sigma},
+            \ldots,
+            \sem{\model}{\term_1}{\sigma}
+        }%
+        \ .
+\end{align*}
+%
+We may see $\sem{\model}{-} \colon \terms \times \domain^\vars \to \domain$ as a function that takes both a term $\term$ and an assignment $\sigma$ and returns $\sem{\model}{\term}{\sigma}$.
+
+Let $\vec{X} = \vec{\term}$ be a system of equations and let $\model$ be a model for the set of terms used in that system.
+Applying the lifted interpretation to the defining terms $\term_i$ yields for each variable a function $\sem{\model}{\term_i} \colon \domain^\vars \to \domain$.
+We can combine these into a single function
+\[
+    \rhs \colon \domain^\vars \to \domain^\vars
+\]
+such that $\rhs(\sigma)(X_i) = \sem{\model}{\term_i}{\sigma} \in \domain$.
+The function $\rhs$ takes an assignment of the variables and produces a new assignment by evaluating the defining term for each variable using the given values.
+We call this function the \emph{interpreted system of equations} defined by $\vec{X} = \vec{\term}$ and $\model$.
+
+In the rest of this thesis, we will often drop the distinction between an uninterpreted system of equations and its interpreted version when the interpretation is clear from the context.
+Nevertheless, we sometimes make use of the fact that we can interpret a system of equations over various domains: We start by interpreting it over a domain where the soundness of the verification approach outlined at the start of this chapter is obvious.
+Later, we then move to a domain where the soundness is less obvious, but that is optimized \eg in the sense that it is smaller.
+
+For an interpreted system of equations, we can now define what it means to solve the system of equations.
+A \emph{solution} for an interpreted system of equations $\rhs$ is an assignment $\sigma \in \domain^\vars$ such that $\sigma = \rhs(\sigma)$.
+In other words, $\sigma$ actually satisfies the equations given by the system.
+
+The definition makes clear the correspondence between solutions of systems of equations and fixed points:
+A solution to a system of equations is defined to be a fixed point of the function~$\rhs$.
+Hence, the task of computing a solution to a system of equations is equivalent to the task of computing a fixed point of a certain function.
+
+\paragraph{Context-free grammars as systems of equations}
+
+We give an example for the basic definitions.
+Let $G = (N,P,S)$ be a context-free grammar over the terminal alphabet $\Sigma$.
+There is a natural way to see $G$ as a system of equations.
+We see $N$ as the set of variables.
+The function symbols consist of one constant $a$ for each $a \in \Sigma \cup \set{\eps}$ and of the binary symbols $\mid$ for choice and $.$ for concatenation.
+The term $\term_X$ for each nonterminal $X$ is obtained by collecting all rules $X \to \eta_{X,i}$ for $X$, seeing each $\eta_{X,i}$ as a term involving constants (terminals), variables (nonterminals), and concatenation.
+Then, we conjoin these using choice.
+We obtain for each nonterminal $X$ the equation
+\[
+    X = \eta_{X,1} \mid \ldots \mid \eta_{X,\ell_X}
+    \ .
+\]
+
+One possible interpretation of this system of equations is over the so-called \emph{language semi\-ring}.
+The language semiring is a model with domain $\powerset{\Sigma^*}$, \ie its elements are languages over $\Sigma$, and the function symbols are interpreted in the expected way: Constants are interpreted as singleton languages containing the corresponding one-letter words \resp the empty word, concatenation is the concatenation of languages, and choice is the union of languages.
+
+A solution $\sigma$ for a context-free grammar, seen as a system of equations interpreted over the language semiring, assigns to each nonterminal a language.
+In particular, it assigns a language to the initial symbol $S$, so we might expect $\sigma(S)$ to be the language of the grammar.
+We will see in the following example that while the language of the grammar is a solution, it is not necessarily unique.
+
+\begin{example}%
+\label{Example:EDSSysOfEqCFG}%
+    Consider the grammar $G$ with terminals $\Sigma = \set{a ,b, c}$, the single nonterminal $X$ and \nb{the rules}
+    \begin{align*}
+        S &\to aX \mid bX
+        \ ,
+        &
+        X &\to S
+        \ .
+    \end{align*}
+    We have $\lang{G} = \emptyset$, as there is no terminating derivation process.
+    It is easy to verify that the assignment $\sigma_1$ with $\sigma_1(X) = \sigma_1(S) = \emptyset$ satisfies the associated interpreted system of equations.
+
+    The assignment $\sigma_2$ with $\sigma_2(S) = a\Sigma^* \cup b\Sigma^* = \Sigma^*$ and $\sigma_2(X) = \Sigma^*$ is also a solution to the interpreted system of equations.
+    In fact, for any language $\calL$, we have that the assignment $\sigma_{\calL}$ with $\sigma_{\calL}(X) = \sigma_{\calL}(S) = a.\calL \cup b.\calL$ is a solution.
+    Unless we chose $\calL$ to be $\emptyset$ to recover the solution $\sigma_1$, $\sigma_{\calL}$~does not correspond to the language of the CFG.\@
+\end{example}
+
+The example shows that there can be many solutions to an interpreted system of equations.
+As also indicated in the example, we are usually interested in a solution that is \emph{precise} in a certain sense.
+To make the notion of being precise formal, we need to introduce \emph{ordered domains}.
+Formally, we equip the set of value with a partial order that satisfies certain properties.
+
+\paragraph{Complete Partial Orders.}
+
+
+Let $(\domain, \leq)$ be a \emph{partial order}, \ie a set $\domain$ of data elements and a partial ordering $\leq \ \subseteq \domain \times \domain$ on $\domain$.
+We call $(\domain, \leq)$ \emph{pointed} if there is a least element $\bot \in \domain$, called the \emph{bottom element}, satisfying $\bot \leq x$ for all $x \in \domain$.
+%
+Recall that an \emph{ascending chain} in $\domain$ is a sequence ${(d_i)}_{i \in \N}$ of elements in $\domain$ such that $d_i \leq d_{i+1}$ for all $i \in \N$.
+We call $(\domain, \leq)$ \emph{$\omega$-complete} if every ascending chain in $\domain$ has a least upper bound, called the \emph{join} or the \emph{supremum}, and denoted by $\bigsqcup_{i \in  \N} d_i$.
+Formally, we require that $\bigsqcup_{i \in  \N} d_i \geq d_j$ for all $j \in  \N$, and that for any element $d \in \domain$ that also satisfies this property, $\bigsqcup_{i \in  \N} d_i \leq d$ holds.
+
+If $(\domain, \leq)$ is pointed and $\omega$-complete, we call it an \emph{$\omega$-complete pointed partial order (CPPO)}.%
+\footnote{In the literature, the notion of CPPO is often used to denote the dual concept, \ie partial orders that have a greatest element and in which infima of descending chains exist.}
+In the context of solving system of equations, we will only consider partial orders that are CPPOs.
+When the order on the set $\domain$ that makes it a CPPO is clear, we simply say that $\domain$ is a CPPO.\@
+
+In the following, we want to solve systems of equations over models whose domains are CPPOs.
+However, requiring the domain to be a CPPO is insufficient to ensure the existence of a unique least solution.
+We also need to require the function to satisfy special properties.
+
+Let $\domain$ be a CPPO.\@
+A function $f \colon \domain \to \domain$ on $\domain$ is \emph{monotonic} if for all $d, d' \in \domain$, $d \leq d'$ implies $f(d) \leq f(d')$.
+A function $f \colon \domain \to \domain$ is \emph{join-continuous} if for all ascending chains ${(d_i)}_{i \in \N}$ we have $f(\bigsqcup_{i \in \N} d_i) = \bigsqcup_{i \in \N} f(d_i)$, \ie the function value of the join is equal to the join of the function values.
+Note that join-continuity implies monotonicity: If $d \leq d'$ and $f$ is join-continuous, then
+\[
+    f(d') = f (d \sqcup d') = f(d) \sqcup f(d') \geq f(d)
+    \ ,
+\]
+where the first equality holds since $d \leq d'$, the second is join-continuity, and the last inequality is the fact that the join is an upper bound.
+Formally, we have only defined joins for infinite ascending chains, but the definition can be extended to finite chains easily, \eg $d \sqcup d'$ can be defined as $\bigsqcup_{i \in \N} d_i$ with $d_0 = d$ and $d_i = d'$ for $i > 0$.
+
+Note that if $f$ is a monotonic function, then the chain
+\[
+    {(f^i(\bot))}_{i \in \N}
+    ,
+\]
+\ie the chain
+$
+    \bot \leq f(\bot) \leq f^2 (\bot) \leq f^3 (\bot) \leq \ldots
+$
+is an ascending chain, where $f^0$ is defined to be the identity and $f^{i+1}(d) = f(f^{i}(d))$ is the $(i+1)$-fold application of $f$.
+The following theorem shows that the join of this chain is the least fixed point of $f$.
+The theorem is often attributed to \citea{Kleene52}, but its actual origin seems to be unknown, see~\cite{LassezNS82} for a discussion.
+
+\begin{ntheorem}[Kleene's theorem]%
+\label{Theorem:EDSKleene}%
+    Let $f \colon D \to D$ be a join-continuous function over a CPPO $(\domain,\leq)$.
+    Then the join
+    \[
+        \bigsqcup_{i \in \N} f^i (\bot)
+    \]
+    is the least fixed point of $f$.
+\end{ntheorem}
+
+Formally, this means that it is a fixed point, \ie
+\[
+    f \paren{ \bigsqcup_{i \in \N} f^i (\bot) } = \bigsqcup_{i \in \N} f^i (\bot)
+\]
+holds, and for any other element $d \in \domain$ with $f(d) = d$, we have
+\[
+    \bigsqcup_{i \in \N} f^i (\bot) \leq d
+    \ .
+\]
+
+We argue that Kleene's theorem can be used to compute the fixed point of monotonic functions if the underlying CPPO satisfies an additional condition.
+A CPPO $(\domain,\leq)$ satisfies the \emph{ascending chain condition (ACC)} if every ascending chain in $\domain$ is stationary, \ie for every ${(d_i)}_{i \in \N}$, there is some $i_0 \in \N$ with $d_i = d_{i + k}$ for all $k \in \N$ and $i \geq i_0$.
+If this is the case, any monotonic function over~$\domain$ is already join-continuous (see below), and  the least fixed point
+\(
+    \bigsqcup_{i \in \N} f^i (\bot)
+\)
+is equal to $f^{i_0} (\bot)$ for some $i_0 \in \N$.
+Indeed, this chain is guaranteed to be stationary by the ACC.\@
+In fact, we obtain that the first index $i_0$ that satisfies $f^{i_0} (\bot) = f^{i_0 + 1}(\bot)$ is the desired index and $f^{i_0} (\bot) = f^{i_0 + k}(\bot)$ holds for all $k$.
+Hence, we can obtain the least fixed point of any computable monotonic function over a domain that satisfies the ACC:\@
+Starting with the least element $\bot$, iteratively apply $f$ until the result does not change anymore.
+
+In this thesis, we will usually consider domains that satisfy an even stronger property.
+We say that $(\domain,\leq)$ has \emph{bounded height} if there is some $j \in \N$ such that any \emph{strictly ascending chain} (an ascending chain ${(d_i)}_{0 \leq i \leq b}$ with $d_i < d_{i+1}$ for all $i < b$) has length at most $j$.
+Here, the length is defined to be the number of entries minus one.
+In this case, $(\domain,\leq)$ satisfies the ACC and the bound $i_0$ from the definition of ACC is at most $j$.
+Consequently, $f^{j} (\bot)$ is the least fixed point of any monotonic function over $\domain$.
+
+Note that $(\domain,\leq)$ having bounded height is a property strictly stronger than it satisfying the ACC.\@
+In theory, there are domains that satisfy the ACC but do not have bounded height, \eg a domain that consists of an infinite collection of arbitrarily long (but finite) strictly ascending chains.
+However, we will only need to consider domains that are of bounded height throughout this thesis.
+In most cases, we will even consider domains $(\domain,\leq)$ such that $\domain$ is finite.
+Such domains are trivially of bounded height, as $\card{\domain}$ is an upper bound for the length of any strictly ascending chain.
+Proving an upper bound tighter than $\card{\domain}$ will be crucial for some of the complexity-theoretic considerations in this part of the thesis.
+
+\begin{remark}%
+\label{Remark:EDSMonotonocityContinuity}%
+    We have argued before that join-continuity implies monotonicity.
+    If a domain $\domain$ satisfies the ACC, the other direction is also true and the two notions are equivalent.
+    Assume that $f \colon \domain \to \domain$ is a monotonic function.
+    Consider an ascending chain ${(d_i)}_{i \in \N}$ and note that this chain has to be stationary.
+    Hence, its join $\bigsqcup_{i \in \N} d_i$ is equal to $d_{i_0}$ for some $i_0$, and the function value of the join is simply $f (d_{i_0})$.
+    We claim that $f (d_{i_0})$ is also the join of the chain of function values ${\paren{f (d_{i})}}_{i \in \N}$.
+    Firstly, observe that $d_i \leq d_{i_0}$ holds so the monotonicity of $f$ yields $f (d_{i}) \leq f (d_{i_0})$ for all $i$.
+    Secondly, the value $f (d_{i_0})$ is an element of the chain of function values.
+    Thus, it is indeed the join, which proves that $f$ is join-continuous.
+\end{remark}
+
+\paragraph{Applying the theory}
+
+We discuss how to apply the theory of CPPOs and join-continuous functions to find the least solution to a system of equations.
+Assume that $\model = (\domain,\interpretation)$ is a model where $\domain$ is a CPPO and for each function symbol, $f^\interpretation$ is a join-continuous function.
+For functions with multiple arguments, we lift the definition of monotonicity and join-continuity by requiring it to hold for every argument.
+The key fact is that both monotonicity and join-continuity are preserved under compositions: If $f,g$ are monotonic \resp join-continuous, then so is $f \circ g$.
+Hence, the interpretation of any term in this setting is a join-continuous function.
+
+We need to argue that also the function $\rhs \colon \domain^\vars \to \domain^\vars$ associated to a system of equations interpreted over $\model$ is join-continuous.
+We first observe that the set $\domain^\vars$ is a CPPO.\@
+To this end, we may see $\domain^\vars$ as a product of $\card{\vars}$ copies of $\domain$.
+We have argued in \cref{Section:PrelimsBasics} that the product of partial orders is again a partial order.
+We extend this result and show that the product of CPPOs equipped with the product order is again a CPPO:\@
+The least element in the product is the tuple consisting of the least elements, \ie it is the assignment $\bot \in \domain^\vars$ with $\bot_X = \bot \in \domain$ for all $X$, where we intentionally use the same symbol $\bot$ in both cases.
+Joins in the product order can be obtained component-wise:
+If ${(\sigma_i)}_{i \in \N}$ is an ascending chain in $\domain^\vars$, then the sequence of values ${(\sigma_{i,X})}_{i \in \N}$ occurring in component $X$ is an ascending chain in $\domain$.
+The join $\bigsqcup_{i \in \N} \sigma_i$ in $\domain^\vars$ is the vector whose $X$ component is $\bigsqcup_{i \in \N} \sigma_{i,X}$.
+%
+Correspondingly, a function over $\domain^\vars$ is join-continuous if it is join-continuous in every component.
+We have argued before that if we assume that the interpretation of all function symbols is join-continuous, then so are the functions $\sem{\model}{\term}$.
+With the above observation, we obtain that also the function $\rhs \colon \domain^\vars \to \domain^\vars$ is join-continuous.
+This enables us to apply Kleene's theorem to it.
+
+We define the \emph{\nth{i}{\,th} approximant} $\soli{i}$ to be
+\[
+    \soli{i} = \rhs^i(\bot)
+\]
+the variable assignment obtained by an $i$-fold application of $\rhs$ to $\bot \in \domain^\vars$, the least element of the product domain.
+Using Kleene's theorem, the value
+\[
+    \sol = \bigsqcup_{i \in \N} \soli{i} = \bigsqcup_{i \in \N} \rhs^i(\bot)
+\]
+is the least fixed point of the function $\rhs$, and hence the least solution to the interpreted system of equations.
+For convenience, we lift the function $\sol \colon \vars \to \domain$ from variables to arbitrary terms by defining $\sol{\term} = \sem{\model}{\term}{\sol}$, similar for each $\soli{i}$.
+
+If the domain $\domain$ satisfies the ACC or is of bounded height, then the same holds true for $\domain^\vars$.
+To this end, observe that if $\domain$ has height $j$, then $\domain^\vars$ has height $\card{\vars} \cdot j$.
+In this case, there is some index $i_0$ so that $\sol = \soli{i_0}$.
+Hence, Kleene's theorem allows us to compute the least solution to a system of equations assuming that it is interpreted over a CPPO satisfying the ACC and that the interpretations of the functions are monotonic.
+Starting with the least element, we iteratively the function $\rhs$ until the value remains unchanged.
+This process is called \emph{Kleene iteration}.
+
+\paragraph{Systems of inequalities and lattices}
+
+Often, our goal is not to solve a system of equations.
+Instead, we are given a system of inequalities, where each variable has one or more defining constraints.
+It turns out that this setting, while arguably sounding more complicated, can in fact be solved more efficiently, as long as the underlying domain satisfies additional properties.
+
+Formally \emph{system of inequalities} for a set of variables $\vars$ and a set of function symbols $\funs$ is defined as a finite set of inequalities of the shape
+\[
+    X \geq \term
+    \ ,
+\]
+where $X \in \vars$ and $\term \in \terms$.
+The key difference to systems of equations is that we allow  multiple inequalities for the same variable.
+We interpret systems of inequalities over a CPPO $\domain$ and using join-continuous functions in the expected way.
+A solution $\sol \in \domain^\vars$ to such a system has to satisfy $\sol{X} \geq \sol{\term}$ for all inequalities $X \geq \term$ in the system.
+
+To enforce the existence of a unique least solution to a system of inequalities, we need to impose additional restrictions on the domain.
+A \emph{join-semilattice} is a partial order $\domain$ so that any subset $X \subseteq \domain$ has a least upper  bound, the \emph{join} or \emph{supremum} $\bigsqcup X$ of $X$.
+The formal definition is a straightforward extension of the definition in the case of chains.
+We require that $\bigsqcup X$ is an upper bound, \ie $\bigsqcup X \geq x$ for all $x \in X$, and that is smaller than any other upper bound:
+If $y$ satisfies $y \geq x$ for all $x$, then $\bigsqcup X \leq y$.
+
+For the dual concept of a \emph{meet-semilattice}, we require the existence of the \emph{meet} or \emph{infimum} $\bigsqcap X$, the greatest lower bound, for any subset $X$.
+
+A partial order that is a join- or a meet-semilattice always has a least element $\bot$ and a greatest element $\top$.
+These elements can be obtained as both the join and the meet of a suitable~subset each,
+\[
+    \bot = \bigsqcup \emptyset = \bigsqcap \domain
+    \ ,
+    \qquad
+    \top = \bigsqcup \domain = \bigsqcap \emptyset
+    \ .
+\]
+A partial order that is both a join-semilattice and meet-semilattice is called \emph{complete lattice}.
+Every join-semilattice is a CPPO, so Kleene's theorem guarantees the existence of least fixed points for join-continuous functions.
+We can dualize this result to obtain that meet-continuous functions over meet-semilattices have greatest fixed points.
+
+To solve a system of inequalities that is interpreted over a complete lattice using monotonic functions, we convert it into a system of equations.
+We add a new binary function symbol $\sqcup$ that is interpreted as the join.
+Then, we obtain the defining equation for each variable $X$ as
+\[
+    X = \term_{X,1} \sqcup \ldots \sqcup \term_{X,\ell_X}
+    \ ,
+\]
+where $X \geq \term_{X,1}, \ldots, X \geq \term_{X,\ell_X}$ are all inequalities with $X$ as their left-hand side.
+One can show that the least solution to the resulting system of equations is exactly the least solution to the original system of inequalities.
+In particular, Kleene's theorem guarantees its existence if the interpretations of the functions are join-continuous (or the domain satisfies ACC, in which case monotonicity implies join-continuity).
+
+To formally show this, one uses a famous theorem by Knaster and Tarski~\cite{Knaster28,Tarski49,Tarski55}.
+
+\begin{theorem}[(Knaster \& Tarski)]
+    Let $f \colon \domain \to \domain$ be a monotonic function over a lattice $(\domain,\leq)$.
+    Then $f$ has a least fixed point, namely
+    \[
+        \bigsqcap \ \Set{ d \in \domain }{ d \geq f(d) }
+        \ .
+    \]
+\end{theorem}
+
+Consider the least solution $\sol = \bigsqcup_{i \in \N} \rhs^{i} (\bot)$ to the system of equations as specified by Kleene's theorem.
+First note that
+\(
+    \sol{X}
+    = \sem{\model}{\term_{X,1} \sqcup \ldots \sqcup \term_{X,\ell_X}}{\sol}
+    = \sem{\model}{\term_{X,1}}{\sol} \sqcup \ldots \sqcup \sem{\model}{\term_{X,\ell_X}}{\sol}
+\)
+implies $\sol{X} \geq \sem{\model}{\term_{X,i}}$ for all $X$ and $i$.
+All inequalities are satisfied by $\sol$.
+
+It remains to show that $\sol$ is the least solution to the system of inequalities.
+Assume that some assignment $\sigma$ satisfies all inequalities.
+Hence, $\sigma(X) \geq \sem{\model}{\term_{X,i}}{\sigma}$ for all $i$.
+Since the symbol $\sqcup$ is interpreted as the join, we have $\sigma(X) \geq \sem{\model}{\term_{X,1} \sqcup \ldots \sqcup \term_{X,\ell_X}}{\sigma}$ and thus $\sigma \geq \rhs(\sigma)$.
+We conclude that $\sigma$ satisfies the defining property of the set $\Set{ d \in \domain }{ d \geq \rhs(d) }$.
+The meet of this set is the least fixed point of $\rhs$ using Knaster's and Tarski's theorem.
+By Kleene's theorem, this least fixed point is $\sol$.
+Since the meet of a set is a lower bound for the elements of the set, we obtain $\sol \leq \sigma$.
+As proclaimed, $\sol$ is indeed the least solution to the system of inequalities.
+
+\paragraph{Chaotic iteration}
+
+We introduce \emph{chaotic iteration} as described \eg in~\cite{SeidlWH12}, an algorithm that solves systems of inequalities directly, \ie without taking the detour via converting it into a system of equations described above.
+Consider a system of inequalities $\vec{X} \geq \vec{\term}$ interpreted over a complete lattice using monotonic functions.
+If the lattice satisfies ACC, the least solution to the system can be found as follows.
+First initialize the candidate solution $\sol = \bot \in \domain^\vars$ as the least element of the product domain.
+While there is an inequality that is not satisfied by the current value of $\sol$ (\ie $\sol{X} \not\geq \sem{\model}{\term_X}{\sol}$), pick one such inequality $X \geq \term_X$ and redefine the $X$-component of sol,
+\[
+    \sol(X) \from \sol(X) \sqcup \sem{\model}{\term_X}{\sol}
+    \ .
+\]
+After performing this update, the inequality is satisfied.
+Once we have obtained a value for $\sol$ that satisfies all inequalities, we have arrived at the least solution.
+Under the assumptions outlined above, this is guaranteed to happen after finitely many steps.
+
+Because the algorithm allows the inequalities to be evaluated in an arbitrary order, it is called chaotic iteration.
+For termination, we only need to guarantee that if an unsatisfied inequality exists, we consider it after finite time.
+
+The key advantage of chaotic over Kleene iteration is the fact that it can be implemented using a \emph{worklist}, reducing unnecessary computations.
+Before solving the system, we analyze its dependencies:
+We store for each variable $X$ the set of inequalities $Y \geq \term_Y$ such that an occurrence of $X$ is contained in $\term_Y$.
+We then initialize the worklist, a queue, by adding all inequalities to it in arbitrary order.
+In each step, we remove the first inequality from the queue and evaluate it.
+If it does not hold, we update the corresponding variable $X$ as described above.
+Then, we enqueue all inequalities $Y \geq \term_Y$ that depend on~$X$.
+
+The result is an algorithm that re-evaluates inequalities only when there is a chance that they have become invalid by an update of the candidate solution.
+In contrast to this, Kleene iteration works over the product domain and evaluates all inequalities in each step.
+
+We finish this chapter by coming back to our earlier example of context-free grammars, see \eg \cref{Example:EDSSysOfEqCFG}.
+The language semiring $\powerset{\Sigma^*}$ can be turned into a complete lattice by equipping it with inclusion as the order.
+The join in this lattice is the union, the meet is the intersection of languages.
+The least and greatest elements are $\emptyset$ and $\Sigma^*$, respectively.
+All functions that we have considered earlier are join-continuous.
+
+Note that the interpretation of the symbol $\mid$ is the union of languages and hence the join in the lattice.
+Our earlier construction that gathered all rules for each nonterminal and combined them into a single equation is an instantiation of the approach to solving systems of inequalities by transforming them into a system of equations.
+
+The language semiring is a special case of a powerset lattice $(\powerset{M},\subseteq)$ for some set $M$.
+If $M$ is finite, then the height of $\powerset{M}$ is bounded by $\card{M}$:
+An ascending chain
+\[
+    M_0 \subseteq M_1 \subseteq M_2 \subseteq \ldots
+\]
+of subsets of $M$ can only be strictly ascending if each $M_i$ contains at least one element that was not contained in $M_{i-1}$.
+This is only possible $\card{M}$ times until all elements from $M$ has been added.
+Note that $\card{M}$ is a much better bound than the trivial bound $\card{\powerset{M}} = 2^{\card{M}}$.
+
+If $M$ is infinite, $\powerset{M}$ does neither have bounded height, nor does it satisfy the ACC.\@
+This in particular applies to the language semiring.
+While our theory works and we know that $\bigsqcup_{i \in \N} \soli{i} = \bigsqcup_{i \in \N} \rhs^i\paren{\bot}$ is the least fixed point, it is not guaranteed that we can reach this fixed point within finitely many iterations.
+
+In our example of a system of equations obtained from a context-free grammar, interpreted over the language semiring, we obtain the following correspondence.
+The least solution associates to each nonterminal the set of finite terminal words derivable from that nonterminal.
+In particular, it assigns the language of the grammar to the initial symbol.
+Considering the least solution instead of an arbitrary one allows us to recover the language of \nb{the grammar}.
+
+\begin{example}%
+    Consider again the grammar $G$ from \cref{Example:EDSSysOfEqCFG} with the production rules
+    \begin{align*}
+        S &\to aX \mid bX
+        \ ,
+        &
+        X &\to S
+        \ .
+    \end{align*}
+    We have that $\soli{0} = \rhs^0(\bot) = \bot$ is the tuple that assigns each nonterminal the empty language.
+    It is not hard to see that $\soli{1} = \soli{0}$, so $\soli{0} = \sol$ is the least solution.
+    Indeed, $\sol{S} = \emptyset$ is the language of the grammar.
+
+    Assume we add the production rule $S \to \eps$, and note that this changes the language of the grammar to be $\Sigma^*$.
+    If we start to solve the associated system of equations via Kleene iteration, we obtain the following values.
+%
+    \[
+        \begin{array}{c|c@{\hskip 2em}c}
+            \soli{i}\paren{-} & S & X
+            \\
+            \hline
+            i = 0 & \emptyset & \emptyset
+            \\
+            i = 1 & \set{\eps} & \emptyset
+            \\
+            i = 2 & \set{\eps} & \set{\eps}
+            \\
+            i = 3 & \set{a,b,\eps} & \set{\eps}
+            \\
+            i = 4 & \set{a,b,\eps} & \set{a,b,\eps}
+            \\
+            i = 5 & \{aa,ab,ba, bb,a,b,\eps \} & \set{a,b,\eps}
+        \end{array}
+    \]
+%
+    One can observe that for each $n$, we have that $\soli{2n+1}\paren{S} = \Sigma^{\leq n}$ is the set of all words of length at most~$n$.
+    In particular, the chain of the $\soli{i}$ does not get stationary and the least fixed point $\sol$ with $\sol{S} = \Sigma^*$ is not reached within finitely many steps.
+
+    This example may give the false impression that the $\nth{i}$ approximant $\soli{i}$ corresponds to words that can be derived within $i$ steps.
+    We will see in the next section that instead, $\soli{i}$ corresponds to words that can obtained from derivation trees of height at most $i$.
+\end{example}
+
+While the least solution to the system of equations associated to a context-free grammar is indeed the language of the grammar, it cannot be computed within finite time using Kleene iteration or chaotic iteration.
+In the next section, we will see how overcome this problem by using a finite domain.
+The corresponding least solution will not correspond to the language of the CFG, but it will characterize it precisely enough to be able to solve a specific verification problem.
+
+\end{document}

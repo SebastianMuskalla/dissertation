@@ -1,0 +1,59 @@
+\begin{tikzpicture}[->,semithick,>=latex,node distance=4em]
+
+\node[place] (A1) [minimum size=4em] {$\pin^{n+1}$};
+
+\node[place] (A2)  [below of=A1, node distance = 5em, minimum size=4em] {$\pstart^{n+1}$};
+
+\node[draw, thick, minimum width=7.5em, minimum height=7.5em, inner sep=0em, outer sep=0em, right of=A1, node distance=12em, yshift=-3em, ]{$\AckerNet{n}$};
+
+\node [place, fill=white, right of=A1, node distance=9em, minimum size=3em] (AA1){$\pin^{n}$};
+
+\node [place, fill=white, node distance=9em, minimum size=3em] (AA2) [right of=A2] {$\pstart^{n}$};
+
+\node [place, fill=white] (AB1) [right of=AA1, node distance = 6.5em, minimum size=3em] {$\pout^{n}$};
+
+\node [place, fill=white] (AB2) [right of=AA2, node distance = 6.5em, minimum size=3em] {$\pstop^{n}$};
+
+\node[transition] (B1) [right of=A2, xshift=1em, inner sep = 0.25em] {$\tstart^{n+1}$}
+    edge [pre] (A2)
+    edge [post] (AA1)
+    edge [post] (AA2);
+
+\node[transition] (B2) [above of=AA1, xshift=3em, inner sep = 0.25em] {$\tswap^{n+1}$}
+    edge [pre, bend left=40] (AB1)
+    edge [post, bend right=40] (AA1);
+
+\node[place] (A3) [above of=B2, node distance = 4em, minimum size=4em] {$\pswap^{n+1}$}
+    edge [pre, bend left] (B2)
+    edge [post, bend right] (B2);
+
+\node[transition] (B3) [left of=B2, node distance = 6.5em, inner sep = 0.25em] {$\trestart^{n+1}$}
+    edge [pre,bend left] (A3)
+    edge [post, bend right] (AA2);
+
+\node[transition] (B4) [above of=A3, node distance = 4em, inner sep = 0.25em] {$\tin^{n+1}$}
+    edge [pre, bend left=60] (AB2)
+    edge [pre, out=180,in=90] (A1)
+    edge [post] (A3);
+
+\node[transition] (B4) [right of=AB1, node distance=9em, inner sep = 0.25em] {$\tcopy^{n+1}$}
+    edge [pre] (AB1);
+
+\node[transition] (B5) [right of=AB2, xshift=1em, inner sep = 0.25em] {$\ttmp^{n+1}$}
+    edge [pre] (AB2);
+
+\node[place] (A4) [right of=AB2, node distance=9em, minimum size=4em] {$\ptmp^{n+1}$ }
+    edge [pre, bend left] (B4)
+    edge [pre] (B5)
+    edge [post, bend right] (B4);
+
+\node[transition] (B6) [right of=A4, xshift=1em, inner sep = 0.25em] {$\tstop^{n+1}$}
+    edge [pre] (A4);
+
+\node[place] (A5) [right of=A4, node distance=9em, minimum size=4em] {$\pstop^{n+1}$}
+    edge[pre] (B6);
+
+\node[place] (A6) [right of=B4, node distance=9em, minimum size=4em] {$\pout^{n+1}$}
+    edge [pre] (B4);
+
+\end{tikzpicture}

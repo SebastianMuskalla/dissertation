@@ -1,0 +1,14 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[initial below,state,transform shape, initial text={}] (q0) {$q_0$};
+\node[state, accepting, transform shape] (q1) [left of=q0] {$q_1$};
+\node[state, transform shape] (q2) [right of=q0] {$q_2$};
+
+\path
+    (q0) edge [bend right] node [above] {$a$} (q1)
+    (q1) edge [bend right] node [below] {$a$} (q0)
+    (q0) edge [bend left] node [above] {$b$} (q2)
+    (q2) edge [bend left] node [below] {$b$} (q0)
+;
+
+\end{tikzpicture}

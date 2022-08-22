@@ -1,0 +1,277 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Downward closures for Petri nets}%
+\label{Section:PNDC}%
+
+We first consider the problem of computing the downward closure of a given Petri net coverability language, formalized as follows.
+
+\begin{compproblem}
+    \problemtitle{Computing the downward closure}
+    \problemshort{($\PNDC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$.}
+    \problemquestion{An NFA $A$ with $\lang{A} = \dc{\lang{N,\Minit,\Mfinal}}$.}
+\end{compproblem}
+
+Our goal is to prove the following result.
+
+\begin{theorem}%
+\label{Theorem:PNDCGeneral}%
+    Downward closures of Petri net coverability languages have non-primitive-recursive state complexity, and the corresponding automata can be constructed in non-primitive recursive time.
+    These bounds are tight.
+\end{theorem}
+
+The computability has already been shown by~\citea{HabermehlMW10}.
+We will start by recalling the proof.
+Later, we give a matching lower bound.
+
+\paragraph{Computability / Upper bound}
+
+It has been shown in~\cite{HabermehlMW10} that the downward closure of Petri net languages is computable.
+In addition to the main result, which shows the computability for Petri net reachability languages, the paper also provides an algorithm specifically for coverability languages.
+The advantage of the latter is that the construction does not rely on techniques from the proof of the decidability of Petri net reachability~\cite{Lambert92}, but only on the coverability graph~\cite{KarpM69}.
+
+\begin{theorem}[(\citea{HabermehlMW10})]%
+\label{Theorem:PNComputeDC}%
+    The downward closures of Petri net languages are computable.
+\end{theorem}
+
+We briefly recall how, given a Petri net instance $(N,\Minit,\Mfinal)$, an NFA $A$ representing the downward closure, \ie $\lang{A} = \dc{\lang{N,\Minit,\Mfinal}}$, can be constructed.
+For the proof of correctness, we refer to~\cite{HabermehlMW10}.
+The construction relies on the \emph{Karp-Miller tree}~\cite{KarpM69} associated to the Petri net, a standard construction to represent all markings that can be covered from the initial one.
+
+To explain the construction, we will need the notion of \emph{generalized markings} that we have presented in \cref{Section:PNCovLang}.
+We briefly recall the definition.
+We define $\N_\omega = \N \cup \set{\omega}$, the natural numbers plus a new top element.
+The order and addition are extended from $\N$ to $\N_\omega$ by defining $n < \omega$ and $\omega + n = \omega - n = \omega$ for all numbers $n \in \N$.
+(In the following, we will never need to add $\omega$ to or subtract $\omega$ from itself.)
+A \emph{generalized marking} is a function $M \colon P \to \N_\omega$ that assigns to each place a finite number of tokens, or the special value $\omega$.
+Intuitively, $M(p) = \omega$ means that $p$ carries unboundedly many tokens.
+A transition $t$ is enabled in generalized marking $M$ if $M \geq \i(t)$ (which means that places $p$ with $M(p) = \omega$ are essentially ignored), and firing it then yields $M \fire{t} M + e(t)$.
+
+With these preliminaries at hand, we can specify the construction of the Karp-Miller tree.
+It is a finite tree in which the nodes are labeled by generalized markings, and in which the edges are labeled by transitions.
+During the construction, we store for each node of the graph whether it has been processed or not.
+The construction is set up so that all unprocessed nodes are leaves of the tree.
+
+Initially, we consider a tree that solely consists of the root node that is labeled by the initial marking $\Minit$ and not yet processed.
+While the tree contains an unprocessed leaf, we proceed as follows:
+Pick an unprocessed leaf $v$, say labeled by generalized marking $M$, and mark it as processed.
+For each transition $t$ that is enabled in $M$, compute $M'$ with $M \fire{t} M'$.
+For each place $p$, check whether on the unique path from the root of the tree to $v$, there is a marking $\hat{M}$ with $\hat{M} \leq M'$ and $\hat{M}(p) < M'(p)$.
+If so, we modify $M'$ by setting $M'(p) = \omega$.
+After iterating over all places, we insert a new leaf $v'$ into the tree, labeled by $M'$, and add a $t$-labeled edge from $v$ to $v'$.
+If the tree already contains a node labeled by $M'$, mark $v'$ as processed.
+Else, it is unprocessed.
+
+Intuitively, the construction explores the behavior of the Petri net while tracking \emph{accelerations} or \emph{pumps}, \ie infixes of the computation that lead from a marking $\hat{M}$ to a marking $M'$ that is strictly greater than $\hat{M}$.
+If such a pump has been discovered, it could be inserted as often as desired to obtain arbitrarily high token counts on the places $p$ with $\hat{M}(p) < M'(p)$.
+
+The termination of the algorithm relies on WQO arguments:
+$(\N_\omega,\leq)$ is a WQO, similar to $(\N,\leq)$, see Part~\ref{Example:WQONaturals}) of \cref{Example:WQO}.
+Hence, also the product order on $\N_\omega^P$ is a WQO.\@
+The WQO properties guarantee that each path in the tree is finite:
+After finitely many steps, for each place we have either discovered a pump that sets this place to $\omega$ in the successor, or we have explored all the finitely many values that $M(p)$ can obtain in reachable markings.
+Now observe that the out-degree of each node of the tree is bounded by the number of transitions.
+Both facts combined yield the finiteness of the Karp-Miller tree.
+
+One should mention that the Karp-Miller tree is not unique, as its construction depends on the order in which unprocessed leafs and transitions are considered.
+However, the interesting properties of the tree are independent of this order.
+In the literature, the Karp-Miller tree is often transformed into the so-called \emph{coverability graph} by merging all nodes that are labeled by the same generalized marking.
+For our purpose, we will keep the tree structure.
+
+The Karp-Miller tree is commonly used to represent the set \emph{coverability set} of a net $N$ together with an initial marking $\Minit$.
+A marking $\Mfinal$ is coverable in $N$ from $\Minit$ (\ie it is contained in the coverability set) if and only if the Karp-Miller tree contains some node labeled by a generalized marking $M$ with $\Mfinal \leq M$.
+% Phrased differently, the downward closure (with respect to the product order on $N_\omega^P$) of the set of generalized markings labeling nodes of the Karp-Miller tree intersected with $\N^P$ is exactly the coverability set.
+Since the tree is finite, this yields a simple procedure to decide coverability.
+Unlike Rackoff's procedure~\cite{Rackoff78}, its worst-case complexity is not optimal, as we will discuss below.
+
+\citea{HabermehlMW10} provide a procedure that constructs the downward closure of a Petri net language based on the Karp-Miller tree.
+Consider the NFA $A = (Q, \delta, v_\init, Q_F)$, where $Q$ is the set of nodes of the Karp-Miller tree, $v_\init$ is the root node, and $Q_F$ is the set of nodes labeled by generalized markings $M'$ with $\Mfinal \leq M'$.
+The transitions decompose into the transitions induced by the Karp-Miller tree and back edges.
+Each edge $v \to v'$ in the Karp-Miller tree, say labeled by transition $t$, induces the transition $v \tow{\lambda(t)} v'$ in $A$.
+If node $v$ is labeled by the generalized marking $M$, and $\hat{v}$ is a node on the unique path from the root to $v$, labeled by a marking $\hat{M}$ with $\hat{M} \leq M$, we add the transition $v \tow{\eps} \hat{v}$.
+
+NFA $A$ has the property that its downward closure coincides with the downward closure of the coverability language.
+
+\begin{lemma}[(\citea{HabermehlMW10})]%
+    $\dc{\lang{A}} = \dc{\lang{N,\Minit,\Mfinal}}$.
+\end{lemma}
+
+A representation for $\dc{\lang{A}}$ is easy to compute by inserting an $\eps$-labeled variant of each transition in $A$ downward \cref{Section:PNRelwork}.
+Hence, this proves \cref{Theorem:PNComputeDC}.
+
+The result is not accompanied by a statement on the complexity of the algorithm and the state complexity of the downward closure.
+An upper bound for the latter is the size of the Karp-Miller, which is well-known to be non-primitive recursive in the worst case.
+This fact can be shown similar to the proof of our lower bound below.
+
+\paragraph{Lower bound}
+
+Our lower bound will be based on the well-known fact that Petri nets can weakly compute fast-growing functions.
+We say that a Petri net weakly computes a function $f$ if for each number $m$ of tokens on a special input place in the initial marking, there is a computation that produces $f(m)$ tokens on a special output place, and no computation produces more than $f(m)$ tokens on the output place.
+More formally, consider a net $N$ with a designed input place $p_{\text{in}}$ and a designed output place $p_{\text{out}}$ and an initial marking $\Minit$.
+% and a final marking $\Mfinal$.
+We define by $\Minit(m)$ the marking that coincides with $\Minit$ but for $M(p_{\text{in}}) = m$.
+The net $N$ \emph{weakly computes} function $f \colon \N \to \N$ if for any $m \in \N$ and any marking $M$ reachable from $\Minit(m)$, $M(p_{\text{out}}) \leq m$ holds, and there is at least one reachable marking $M$ with $M(p_{\text{out}}) = m$.
+
+It has been observed by \citea{MayrM81} that a function closely related to the non-primitive recursive Ackermann function can be computed by a Petri net.
+We adapt their construction to show that for each number $n \in \N$ there is a Petri net of size linear in $n \in \N$ that weakly computes the function $\Acker{n}{-}$, \ie a version of the Ackermann function in which the first parameter is fixed.
+With this net at hand, we will be able to prove the following result.
+
+\begin{proposition}%
+\label{Proposition:PNAckermann}%
+     For all $n, m \in \N$, there is a Petri net instance $( N(n), \Minit(n,m), \Mfinal(n) )$ of size polynomial in $n + m$ such that
+     $\lang{ N(n), \Minit(n,m), \Mfinal(n) } = \set{ a^k \mid k \leq \Acker{n}{m} }$.
+\end{proposition}
+
+\begin{figure}[hb!]
+    \centering%
+    \input{tikz/pn_ackermann_basecase.tikz}%
+    \caption{The Petri net $\AckerNet{0}$.}%
+    \label{AckerNetBaseCase}%
+\end{figure}
+
+This language is already downward closed and any NFA for it needs at least $\Acker{n}{m}$ states, see \cref{Example:StateComplexityEqualsIndex}.
+Hence, it proves that the downward closure of a Petri net coverability language can have non-primitive recursive state complexity.
+This also implies that the time needed to construct the corresponding automaton may be non-primitive recursive.
+\cref{Proposition:PNAckermann} together with \cref{Theorem:PNComputeDC} prove the main result of this section, \cref{Theorem:PNDCGeneral}.
+
+The rest of this section is dedicated to the proof of \cref{Proposition:PNAckermann}.
+We first present an unlabeled family of Petri nets ${(\AckerNet{n})}_{n \in \N}$ such that $\AckerNet{n}$ weakly computes $\Acker{n}{-}$.
+Later, we show how to modify it to obtain the family of language required by the proposition.
+
+The definition of $\AckerNet{n}$ is inductive in $n$ and imitates the definition of the Ackermann function.
+
+\begin{figure*}[ht!]
+    \centering%
+    \input{tikz/pn_ackermann_step.tikz}%
+    \caption{The Petri net $\AckerNet{n+1}$.}%
+    \label{AckerNetStep}%
+\end{figure*}
+
+\begin{definition}%
+\label{Definition:PNAckermann}%
+    We define the Petri net $\AckerNet{0}$ to be
+    \begin{align*}
+        \AckerNet{0} &= (P^0,T^0,\i^0,\o^0) \quad \text{ with }\\
+        P^0 &= \set{ \pin^0, \pout^0, \pstart^0, \pstop^0, \pcopy^0 }\text{, and} \\
+        T^0 &= \set{ \tstart^0, \tstop^0, \tcopy^0 }.
+    \end{align*}
+    %
+    The transition multiplicities are given by Figure~\ref{AckerNetBaseCase}, where each edge has a weight of $1$.
+
+    For $n \in \N$, we define $\AckerNet{n+1}$ inductively by
+    \begin{align*}
+        \AckerNet{n+1}
+        &= (P^{n+1},T^{n+1},\i^{n+1},\o^{n+1})
+        \quad \text{ with }
+        \\
+        P^{n+1}
+        &= P^n \cup \set{ \pin^{n+1}, \pstart^{n+1}, \pcopy^{n+1}, \pout^{n+1}, \pstop^{n+1},\pswap^{n+1}, \ptmp^{n+1}}\text{, and}
+        \\
+        T^{n+1}
+        &= T^n \cup\set{ \tstart^{n+1}, \tcopy^{n+1}, \tstop^{n+1},\trestart^{n+1},\tin^{n+1}, \tswap^{n+1}, \ttmp^{n+1} }.
+    \end{align*}
+    %
+    The transition multiplicities are given by Figure~\ref{AckerNetStep}, where again each edge has a weight of $1$.
+
+    Let us furthermore define for each $m \in \N$ the marking $\Minit(n,m)$ of $\AckerNet{n}$ that places one token on $\pstart^{n}$, $m$ tokens on $\pin^{n}$ and no token elsewhere.
+\end{definition}
+
+We show that the family of nets ${(\AckerNet{n})}_{n \in \N}$ has the desired property.
+
+\begin{lemma}%
+\label{Lemma:PNWeaklyComputeAckermann}%
+    For all $n \in \N$, $\AckerNet{n}$ weakly computes $\Acker{n}{-}$:
+    For each $m \in \N$, there is a computation $\Minit(n,m) \fire{\sigma} M$ of $\AckerNet{n}$ such that $M(\pout^n) = \Acker{n}{m}$, $M(\pstop^n) = 1$, and there is no computation $\Minit(n,m) \fire{\sigma} M$ with $M(\pout^n) > \Acker{n}{m}$.
+\end{lemma}
+
+Before starting the proof, recall the recursive definition of the Ackermann function that we have already given in \cref{Section:Complexity}:
+$\Acker{0}{m} = m + 1 $,
+$\Acker{n+1}{0} = \Acker{n}{1}$, and
+$\Acker{n+1}{m+1} = \Acker{n}{\Acker{n+1}{m}}$.
+We will need the following two properties of the Ackermann function, which are easy to show using induction.
+For all $n, m, m' \in \N$, we~have
+\begin{align}
+    \label{Equation:AckerOne}\tag{A1}%
+    \Acker{n+1}{m}
+    &=
+    \underbrace{ \AckerT(n, \AckerT(n, \ldots \AckerT(n, }_{(m+1) \text{ times}} 1) \ldots ))
+\\
+    \label{Equation:AckerTwo}\tag{A2}%
+    \Acker{n}{m} + m' &\leq \Acker{n}{m + m'}
+\\[1em]
+    \label{Equation:AckerThree}\tag{A3}%
+    \Acker{n}{m} &\leq \Acker{n}{\Acker{n}{m}}
+    \ .
+\end{align}
+
+\begin{proof}[Proof of \cref{Lemma:PNWeaklyComputeAckermann}]
+    We proceed by an induction on $n$ that proves both statements simultaneously.
+
+    \subproof{Base case, $n = 0$}
+
+    All firing sequences that are enabled from $\Minit(n,m)$ and produce a token on $\pstop^0$ are of the shape $\tstart^0.{(\tcopy^0)}^k.\tstop^0$, where $k \in \zeroto{m}$.
+    Such a transition sequence creates between $1$ and $m+1 = \Acker{0}{m}$ tokens on $\pout^0$.
+    It is impossible to create more than $m+1$ tokens on $\pout^0$.
+
+    \subproof{Inductive step, $n \to n+1$}
+
+    We first demonstrate how to create a token on $\pstop^n$ and $\Acker{n}{1}$ tokens on $\pout^n$.
+    The only transition that is enabled in $\Minit(n,m)$ is $\tstart^{n+1}$.
+    Firing it creates one token on $\pin^n$ and one token on $\pstart^n$.
+    We can now execute the computation of $\AckerNet{n}$ that creates $\Acker{n}{1}$ tokens on $\pout^n$ and one token on $\pstop^n$, which exists by induction.
+
+    Next, we show how to create $\Acker{n}{\Acker{n}{1}}$ tokens on $\pout^n$.
+    Using $\tin^{n+1}$, we consume one token from $\pin^{n+1}$ and the token on $\pstop^n$ to create a token on $\pswap^{n+1}$.
+    This token allows us to swap all $\Acker{n}{1}$ tokens from $\pout^{n}$ to $\pin^{n}$ using $\tswap^{n+1}$.
+    After doing this, we move the token from $\pswap^{n+1}$ to $\tstart^n$ using the restart transition $\trestart^{n+1}$.
+    We are now able to execute the computation of $\AckerNet{n}$ that creates $\Acker{n}{\Acker{n}{1}}$ tokens on $\pout^n$ and one token on $\pstop^n$, which exists by induction.
+
+    The process described in the previous paragraph can be repeated for each of the $m$~tokens on place $\pin^{n+1}$.
+    After doing so, we end up with one token on $\pstop^n$ and
+    $\underbrace{ \AckerT(n, \AckerT(n, \ldots \AckerT(n, }_{(m+1) \text{ times}} 1) \ldots )) = \Acker{n+1}{m}$ tokens on $\pout^n$ using \cref{Equation:AckerOne}.
+
+    It remains to use $\ttmp^{n+1}$ once to get a token on $\ptmp^{n+1}$.
+    Then we can transfer all $\Acker{n+1}{m}$ tokens from $\pout^n$ to $\pout^{n+1}$ with $\tcopy^{n+1}$.
+    Finally, we use $\tstop^{n+1}$ to create a token on $\tstop^{n+1}$.
+
+    To prove the second part of the statement, we argue that it is not possible to create more than $\Acker{n+1}{m}$ tokens on $\pout^n$.
+    Obviously, the number of tokens on $\pout^n$ during the computation also limits the number of tokens on $\pout^{n+1}$ at the end.
+    Having $\ell$ tokens on $\pin^n$, we cannot create more than $\Acker{n}{\ell}$ tokens on $\pout^n$ by induction.
+    This in particular means that initially, with only one token on $\pin^n$, we cannot create more than $\Acker{n}{1}$ tokens on $\pout^{n}$.
+
+    Afterwards, if we do not execute $\tswap^{n+1}$ as often as possible, say we leave $\ell'$ out of $\ell$ tokens on $\pout^n$, we end up with $\Acker{n}{\ell - \ell'} + \ell' \leq \Acker{n}{\ell}$ tokens, using \cref{Equation:AckerTwo}.
+    This means that in each iteration, we maximize the number of tokens on $\pout^n$ by using $\tswap^{n+1}$ as often as possible, as in the previously described computation.
+
+    Finally, we use that $\Acker{n}{\ell} \leq \Acker{n}{\Acker{n}{\ell}}$, \cref{Equation:AckerThree}.
+    We obtain the maximum number of tokens on $\pout^n$ by conducting the maximum number of iterations consuming all tokens on $\pin^{n+1}$.
+
+    Altogether, the computation of $\AckerNet{n+1}$ as previously described maximizes the number of tokens on $\pout^{n+1}$; no computation can create more than $\Acker{n+1}{m}$ tokens.
+\end{proof}
+
+It remains to modify the unlabeled Petri net $\AckerNet{n}$ to obtain the Petri net instance $\big(N(n), \Minit(n,m), \Mfinal(n)\big)$ with $\lang{ N(n), \Minit(n,m), \Mfinal(n) } = \set{ a^k \mid k \leq \Acker{n}{m} }$.
+
+\begin{proof}[Proof of \cref{Proposition:PNAckermann}]
+    Let $n,m \in \N$.
+    Consider $\AckerNet{n}$, the net from \cref{Definition:PNAckermann}, as a labeled Petri net with all transitions labeled by $\eps$.
+    We define $N(n)$ to be the Petri net that is obtained from it by adding an $a$-labeled transition $t_a$ that consumes one token from $\pout^n$.
+    The initial marking is the marking $\Minit(n,m)$ of $\AckerNet{n}$, the final marking is the zero vector.
+
+    By \cref{Lemma:PNWeaklyComputeAckermann}, there is a computation creating $\Acker{n}{m}$ tokens on $\pout^n$, and no computation creates more than $\Acker{n}{m}$ tokens.
+    Hence, a computation of $N(n)$ can fire $t_a$ up to $\Acker{n}{m}$ times, producing the same number of $a$s in the process.
+    This proves $\lang{ N(n), \Minit(n,m), \Mfinal(n) } = \set{ a^k \mid k \leq \Acker{n}{m} }$.
+
+    Note that the size of $N(n)$ is polynomial in $\AckerNet{n}$, which has a number of places and transitions linear in $n$.
+    The binary encoding of the initial marking is linear in $n + \ceil{\log m}$.
+\end{proof}
+
+With the proof of \cref{Proposition:PNAckermann} completed, we have provided the lower bound matching the construction from \cref{Theorem:PNComputeDC}, showing \cref{Theorem:PNDCGeneral}.
+
+\paragraph{The unary case}
+
+\cref{Theorem:PNDCGeneral} also holds if we define the size of Petri nets based on their unary encoding.
+The upper bound obviously continues to hold.
+For the lower bound, observe that $\AckerNet{n}$ only uses transition multiplicities from the set $\set{0,1}$, and that the unary encoding of the initial marking is linear in $n + m$.
+
+\end{document}

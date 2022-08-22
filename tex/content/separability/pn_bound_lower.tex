@@ -1,0 +1,190 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Lower bound}%
+\label{Section:PNSeparabilityLowerBound}%
+
+We complement our findings on the regular separability of Petri net coverability languages by a lower bound.
+
+\begin{theorem}%
+\label{Theorem:PNSeparabilityLowerBound}%
+    Regular separators for Petri net coverability languages may have doubly exponential state complexity and triply exponential index.
+\end{theorem}
+
+The lower bound does not match the upper bound: \cref{Theorem:PNSeparabilityUpperBound} provides a separator with triply exponential state complexity (and hence quadruply exponential index).
+We have already commented on the fact that this additional exponent is caused by the construction that we have introduced for determinizing one of the nets.
+The author conjectures that using a suitable technique, this additional blowup can be avoided.
+This would imply that the lower bound that we are going to prove in this section is optimal.
+
+To prove the theorem, we show a proposition that provides for each $n \in \N$ two language-disjoint Petri nets of size polynomial in $n$.
+The regular separators of their coverability languages can be shown to have minimal state complexities and indices as required by the lower bound.
+
+\begin{proposition}%
+\label{Proposition:PNSeparabilityLowerBound}%
+    For all $n \in \N$, there are Petri nets $N_0(n), N_1(n)$ of size polynomial in $n$ with disjoint languages such that any regular separator for the coverability languages $\lang{N_0(n)}$ and $\lang{N_1(n)}$ has state complexity at least $2^{2^n}$ and index at least $2^{2^{2^n}}$.
+\end{proposition}
+
+The statement on the index is a strictly stronger statement than the one on the state complexity.
+If we show that any DFA separating the languages has at least $2^k$ states, this implies that any NFA with this property has at least $k$ states.
+Otherwise, we could take an NFA with less than $k$ states and determinize it to obtain a DFA with less than $2^k$ states.
+Hence, it will be sufficient to prove the statement on the index of a separator in the following.
+
+The proof consists of two ingredients.
+The first ingredient are two special Petri net instances $(\Ninc,\Minitinc,\vec{0})$ and $(\Ndec,\vec{0},\Mfinaldec)$ that come from Lipton's proof of the $\EXPSPACE$-hardness of coverability~\cite{Lipton76}.
+We have stated the properties of these nets in \cref{Proposition:Lipton}.
+
+With these two nets, it would be possible to show that the languages $\Set{a^m}{m < k}$ and $\Set{a^m}{m \geq k}$ for $k = 2^{2^n}$ are the coverability languages of Petri nets of size polynomial in $n$.
+These languages are regular languages that are the complement of each other and have state complexity $k$.
+Hence, they could be used to show the statement on the state \nb{complexity of separators.}
+
+To also show the stronger statement on the index of separators requires a second ingredient.
+It is the classical result that a language that can be represented by a \emph{small} NFA might need a \emph{large} DFA that we have briefly mentioned in \cref{Example:StateComplexityVsIndex}.
+We consider the binary alphabet $\set{0,1}$.
+For $x \in \set{0,1}$ and a number $k \in \N, k > 0$, the language $\calL_{x @ k}$ is the set of all words whose $k$-last letter is $x$,
+\[
+    \calL_{x @ k} = \Set{ w \in \set{0,1}^{\geq k}}{ w_{\card{w} - {(k-1)}} = x}
+    \ .
+\]
+It is well-known that this language has state complexity $k+1$, but index $2^k$.
+An NFA for the language can guess the occurrence of the $k$-last letter, check that it is indeed $x$, and then verify that it is followed by exactly $k-1$ letters.
+A DFA for the language, however, cannot the occurrence of the $k$-last letter.
+It needs to store at each point in time the $k$ last letters, which requires $2^k$ states.
+\citea{Kozen06} mentions this example without proof.
+We will formally prove it in the context of the proof of \cref{Proposition:PNSeparabilityLowerBound}.
+
+Combining the two ingredients yields two Petri nets $N_0(n), N_1(n)$ such that the language of $N_x(n)$ is essentially $\calL_{x @ k}$ for the doubly exponential number $k = 2^{2^n}$.
+This means that any DFA whose language separates the two coverability languages is a DFA for $\calL_{x @ k}$, which means that it needs at least $2^k$ states.
+
+By using $\eps$-transitions, we could enforce that the language of $N_x(n)$ equals $\calL_{x @ k}$.
+To show that the lower bound holds even if we do not allow $\eps$-transitions, we consider the extended alphabet $\set{0,1,a,b}$.
+The language of net $N_x(n)$ will be a subset of $a^*.b.\calL_{x @ k}.b.a^*$, where the prefix $a^*$ and the suffix $a^*$ correspond to a computation of $\Ninc$ and $\Ndec$, respectively.
+Since the prefix and the suffix are the same for $N_0(n)$ and $N_1(n)$, they do not influence the size of the separator.
+In the following, we will first explain the construction of the nets $N_x(n)$ and then prove that they satisfy the required properties.
+
+\paragraph{The construction of $N_x(n)$}
+
+We state the construction of the Petri net instance $(N_x(n),\Minit,\Mfinal)$.
+It is parametric in the size $n$ and in $x \in \set{0,1}$.
+Let $(\Ninc,\Minitinc,\vec{0})$ and $(\Ndec,\vec{0},\Mfinaldec)$ be the Petri net instances for the chosen $n$ whose properties are specified in \cref{Proposition:Lipton}.
+These nets are independent of $x$; the rest of the construction will be independent of $n$.
+The net $N_x(n)$ consists of the disjoint union of $\Ninc$, $\Ndec$, and a constant number of additional places and transitions.
+It is depicted schematically, \ie with the internal behavior of $\Ninc$ and $\Ndec$ hidden, in \cref{Figure:SeparabilityLowerBound}.
+
+The places of $N_x(n)$ are the places of $\Ninc$, the places of $\Ndec$, and four  places $p_1, \ldots, p_4$.
+These additional places act as control states:
+The computations of the net will proceed in four phases such that in phase $i$, place $p_i$ carries one token and the places $p_{j}$ for $j \neq i$ do not carry \nb{any tokens}.
+
+The initial marking assigns $\Minitinc$ to the places of $\Ninc$, one token to $p_1$ and no token elsewhere.
+The final marking that should be covered requires a token on $p_4$ and requires tokens as specified by $\Mfinaldec$ on the places of $\Ndec$.
+
+Instead of formally specifying the transitions of $N_x(n)$, we describe the phases that form its computations.
+The transitions that can be used in each phase are disjoint.
+Each transition $t$ that is used in phase $i$ checks that the control place $p_i$ carries a token, \ie $\i(t,p_i) = \o(t,p_i) = 1$.
+
+\begin{figure}[b]
+    \centering%
+    \input{tikz/separability_pn_lowerbound.tikz}%
+    \caption{A schematic representation of the Petri net $N_x(n)$.}%
+    \label{Figure:SeparabilityLowerBound}%
+\end{figure}
+
+\begin{enumerate}
+    \item[1.]
+        The first phase is a computation of $\Ninc$.
+        We assume that all transitions of $\Ninc$ are labeled by $a$ and that they check the existence of a token on $p_1$.
+
+        Recall that the copy of $\Ninc(n)$ is initialized with the correct initial marking.
+        From \cref{Proposition:Lipton} we get that $\Ninc$ has two special places $p_\haltinc, p_\outinc$ such that if the computation reaches a marking that assigns a token to $p_\haltinc$, $p_\outinc$ carries exactly $2^{2^n}$ tokens.
+    \item[]
+        A $b$-labeled transition signals the beginning of the second phase.
+        It moves a token from $p_1$ to $p_2$ and consumes a token from $p_\haltinc$.
+        This means that $p_\outinc$ carries $2^{2^n}$ tokens.
+    \item[2.]
+        The second phase uses two transitions that are labeled by $0$ and $1$, respectively.
+        Besides checking for the control token on $p_2$, they have no effect.
+
+        Intuitively, the second phase generates a prefix of a word from $\calL_{x @ k} \subseteq \set{0,1}^*$, namely all but the last $k$ letters of a word from this language.
+    \item[$x$.]
+        The second phase ends with an $x$-labeled transition that moves the control from $p_2$ to $p_3$.
+        It also moves one token from the place $p_\outinc$ of $\Ninc$ to the place $p_\indec$ of $\Ndec$.
+%
+        Note that this is the only transition that depends on $x \in \set{0,1}$, \ie it is the only part of the construction in which $N_0(n)$ and $N_1(n)$ differ.
+
+        Intuitively, firing this transition corresponds to the $k$-last letter of a word from $\calL_{x @ k}$.
+        % The transition being labeled $x$ ensures that the word will indeed by contained in the language.
+        % The rest of the net will ensure that the word ends with an arbitrary suffix of length $k-1$.
+    \item[3.]
+        The third phase consist of two transitions labeled by $0$ and $1$, respectively.
+        These transitions check for the control token on $p_3$ and move one token from $p_\outinc$ to $p_\indec$.
+
+        Intuitively, the third phase generates the suffix of length $k-1$ of a word from $\calL_{x @ k}$.
+    \item[]
+        The last phase starts with a $b$-labeled transition that moves the control from $p_3$ to $p_4$.
+    \item[4.]
+        The last phase is essentially a computation of $\Ndec$.
+        We assume that all transitions of $\Ndec$ are labeled by $a$ and that they check the existence of a token on $p_4$.
+
+        Recall that a computation of $\Ndec$ can only cover the final marking $\Mfinaldec$ if initially, we had at least $2^{2^n}$ tokens on $p_\indec$.
+\end{enumerate}
+
+We claim that the language of $N_x(n)$ is
+\[
+    \lang{N_x(n),\Minit,\Mfinal} = \calL_\textinc.b.\calL_{x @ 2^{2^n}}.b.\calL_\textdec
+\]
+where $\calL_\textinc, \calL_\textdec \subseteq a^*$ correspond to computations of $\Ninc,\Ndec$.
+
+By the description of the phases of $N_x(n)$ above, any word in the language of $N_x(n)$ has the shape $w_\textinc.b.w.b.w_\textdec$ where $w_\textinc,w_\textdec \in a^*$.
+To see that we also have $w \in \calL_{x @ k}$, we argue that the structure of the net ensures that the $k$-last letter of $w$ is $x$.
+We may write $w'.x.w''$, where $w',w'' \in \set{0,1}^*$ correspond to the letters generates by Phase~2 and Phase~3, respectively.
+To complete the argument, we show that $w''$ has length $k-1$.
+
+At the beginning of Phase~2, $p_\outinc$ carries $k = 2^{2^n}$ tokens and $p_\indec$ carries no token.
+At the beginning of Phase~3, \ie after generating $w'.x$, place $p_\outinc$ carries $k-1$ tokens and $p_\indec$ carries one token.
+The final marking of $\Ndec$, and hence the final marking of $N_x(n)$, can only be covered if $p_\indec$ carries $k$ token at the beginning of Phase~4.
+Thus, $w''$ needs to have length at least length $k-1$ to move at least $k-1$ tokens from $p_\outinc$ to $p_\indec$.
+Since there are only $k-1$ tokens on available on $p_\outinc$, this also limits the length of $w''$ by $k_1$.
+
+We have shown that any word from the language of $N_x(n)$ is of the shape $a^*.b.\calL_{x @ 2^{2^n}}.b.a^*$.
+For the other direction, one would need to argue that for any word $w \in \calL_{x @ 2^{2^n}}$, the word $w_\textinc.b.w.b.w_\textdec$ obtained by pre- and appending suitable pre- and suffixes is in the language of $N_x(n)$.
+This can be shown easily by picking suitable transitions in the Phases~2 and~3.
+
+To finish the proof of \cref{Proposition:PNSeparabilityLowerBound}, we have to show that the languages of $N_0(n)$ and $N_1(n)$ cannot be separated by the regular language of index less than triply exponentially.
+Since the languages share the prefix $a^*.b$ and the suffix $b.a^*$, this boils down to proving that $\calL_{1 @ {2^{2^n}}}$ and $\calL_{0 @ {2^{2^n}}}$ cannot be separated by a DFA with less than triply exponentially many states.
+We proceed to show this using the well-known fooling-set technique~\cite{Birget92,Birget93}.
+
+\begin{proof}[Proof of \cref{Proposition:PNSeparabilityLowerBound}]
+    Let $k = 2^{2^n}$ and assume that $\lang{A}$ is the language of a DFA with strictly less than~$2^k$ states that separates the given languages, \ie $\lang{N_0(n),\Minit,\Mfinal} \subseteq \lang{A}$ and $\lang{N_1(n),\Minit,\Mfinal} \cap \lang{A} = \emptyset$.
+    Towards a contradiction, we consider the set of words $\set{0,1}^k$.
+    Since its size is larger than the number of states of the DFA $A$, there are distinct words that lead to the same state, a fact that we will exploit later.
+
+    Let $w_\textinc \in a^*$ be a word generated by a computation of $\Ninc$ that creates a token on $p_\haltinc$.
+    Similarly, let $w_\textdec \in a^*$ be a word generated by a covering computation of $\Ndec$, assuming that it starts from a marking that places $k$ tokens on $p_\indec$.
+
+    We use the set of words $\set{ w_\textinc.b.w }{ w \in \set{0,1}^k}$ as the fooling set.
+    For each word $w_\textinc.b.w$, let $q_w$ be the unique state in which $A$ is after reading it.
+    Since $\card{\set{0,1}^k} = 2^k$ is strictly larger than the number of states of $A$, there are two distinct words $w,w'$ with $w \neq w'$ such that $q_{w} = q_{w'}$.
+    %
+    Since $w \neq w'$, there is some position $i$ with $w_i \neq w_i'$.
+    \Wolog, we assume $w_i = 0, w_i' = 1$.
+    We define $w_{\text{fill}} = 0^{i-1}$ as a suitable suffix such that the $\nth{i}$ position  of $w$ and $w'$ becomes the $k$-last position in $w.w_{\text{fill}}$ and $w'.w_{\text{fill}}$.
+    In particular, we have $w.w_{\text{fill}} \in \calL_{0 @ k}$, $w'.w_{\text{fill}} \in \calL_{1 @ k}$.
+%
+    This implies
+    \[
+        w_\textinc.b.w.w_{\text{fill}}.b.w_\textdec \in \lang{N_0(n),\Minit,\Mfinal} \subseteq \lang{A}
+        \ ,
+    \]
+    meaning that the unique run of $A$ on that word is accepting.
+    Since the state $q_w$ after reading $w_\textinc.b.w$ respectively $w_\text.b.w'$ is the same and the suffixes $w_{\text{fill}}.b.w_\textdec$ are equal,
+    \nb{we also get}
+    \[
+        w_\textinc.b.w'.w_{\text{fill}}.b.w_\textdec \in \lang{A}
+        \ .
+    \]
+    However, this word contained in $\lang{N_1(n),\Minit,\Mfinal}$, a contradiction to the assumption that $A$ is a separating automaton with $\lang{A} \cap \lang{N_1(n),\Minit,\Mfinal} = \emptyset$.
+\end{proof}
+
+With the proof of the lower bound completed, all results outlined in \cref{Separability:Results} have been shown.
+Our study of the regular separability of WSTS languages has been completed.
+
+\end{document}

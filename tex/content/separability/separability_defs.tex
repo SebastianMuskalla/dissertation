@@ -1,0 +1,87 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Basic definitions}
+
+The separability problem can be seen as an extended version of the intersection-emptiness problem.
+The intersection-emptiness problem asks whether two given languages are disjoint.
+Usually, we fix the classes from which the languages should come beforehand and expect that the languages are given in the form of an effective representation, \eg we expect context-free languages to be given as context-free grammars.
+
+\begin{problem}
+    \problemtitle{Intersection-emptiness for $\calF,\calF'$}
+    \probleminput{Language $\calL \subseteq \Sigma^*$ from $\calF$, Language $\calK \subseteq \Sigma^*$ from $\calF'$.}
+    \problemquestion{Are $\calL$ and $\calK$ disjoint, \ie $\calL \cap \calK = \emptyset$?}
+\end{problem}
+
+For their usage in verification, two variants of this problem are considered to be particularly interesting.
+The first is the case in which one of the classes is the class of regular languages and the other class is a class beyond the regular languages.
+This models the verification problem in which we have a system, represented by the potentially non-regular language consisting of its possible executions, and a specification, represented by the language of executions that violate it.
+The latter can be assumed to be regular because the expressive power of specification languages (\eg the logics LTL~\cite{Pnueli77} and S1S~\cite{Buechi62} on finite words) is typically at most equal to the regular languages.
+The system violates the specification if it has an execution violating the specification, \ie the intersection of the languages is non-empty.
+This variant of the intersection-emptiness problem is decidable for many classes of languages.
+Assuming that the class that we are considering is effectively closed under regular intersection, we can modify the given system.
+We obtain a system whose language is the intersection of the original language with the regular language.
+Then, we invoke a decider for the emptiness problem for that system.
+The assumptions that we have used here are met for example in the case of context-free languages and in the case of Petri net languages with both coverability and reachability as acceptance conditions.
+
+In the second interesting variant of the intersection-emptiness problem, we consider two languages coming from the same class of languages $\calF$; we speak of the intersection-emptiness problem for $\calF$.
+This problem can be used to model a setting in which we consider a concurrent system.
+Let us for the sake of simplicity assume that the system only has two components.
+We model each of the components by a language that contains all executions that (1) respect the behavior of the corresponding component, (2) are arbitrary with respect to the other component, and (3) violate the specification.
+See \cref{Section:IntroSeparability} for a more in-depth explanation of the latter two aspects.
+We obtain two languages whose intersection is non-empty if and only if there is an execution that respects the behavior of both components of the concurrent system but violates the specification.
+
+This version of the intersection-emptiness problem is typically much more complicated than the intersection-emptiness problem where one of the classes is the class of regular languages.
+As in the rest of this thesis, we are interested in an algorithm that does not only decide the problem, but also provides a certificate.
+In the case of the two languages not being disjoint, a natural candidate for this certificate is a word in the intersection of the languages.
+Consider for example the intersection-emptiness problem for context-free languages, which is well-known to be undecidable (see \eg \cite{HopcroftU79} for a proof).
+If we manage to identify a word that is in the intersection, it is easy to verify the output by one membership query for each of the languages.
+
+The problem of providing a certificate for the emptiness of the intersection of two languages is much more involved.
+To this end, the notion of a separator can be used.
+A \emph{separator} for two languages $\calL, \calK \subseteq \Sigma^*$ is a third language $\calR \subseteq \Sigma^*$ that fully contains $\calL$ and is disjoint from~$\calK$, \ie $\calL \subseteq \calR$, $\calK \cap \calR = \emptyset$.
+Obviously, the existence of a separator is equivalent to intersection-emptiness:
+If the languages are not disjoint, a separator cannot exist.
+Otherwise, $\calL$ is a separator.
+Hence, it only makes sense to study separators if we restrict them to come from a simpler class -- one with less expressive power -- than $\calL$ and $\calK$ do.
+We call a separator that comes from language class $\calS$ an \emph{$\calS$-separator}, and we say that $\calL$ and $\calK$ are \emph{$\calS$-separable} if an $\calS$-separator exists.
+The decision problem of checking the existence of such a separator is the following.
+
+\begin{problem}
+    \problemtitle{$\calS$-separability for $\calF, \calF'$}
+    \probleminput{Languages $\calL \subseteq \Sigma^*$ from $\calF$ and $\calK \subseteq \Sigma^*$ from $\calF'$.}
+    \problemquestion{Are $\calL, \calK$ $\calS$-separable, \ie is there $ \calR \subseteq \Sigma^*$ from $\calS$ with $\calL \subseteq \calR$ and $\calK \cap \calR = \emptyset$?}
+\end{problem}
+
+We are mostly interested in the case that both given languages come from the same class $\calF$, which we call the $\calS$-separability problem for $\calF$.
+A positive answer to intersection emptiness is necessary for a positive answer to $\calS$-separability, independent of the choice of~$\calS$.
+If we chose $\calS$ to be $\calF$, the two problems are equivalent as mentioned before.
+If we pick $\calS$ to be a simpler class, the problem becomes interesting.
+%
+Assume that we have an algorithm solving the $\calS$-separability problem for some class $\calF$ that is constructive in the sense that it outputs a representation of the separator if one exists.
+This algorithm can be seen as an algorithm for intersection-emptiness that produces a certificate in the case that the intersection is indeed empty.
+Here, we use that checking that a given language $\calR$ is a separator is typically~--~depending on the choice of class~$\calS$~--~much simpler than checking intersection-emptiness.
+%
+However, one has to be careful since intersection-emptiness does not imply the existence of a separator if the class~$\calS$ is too restrictive.
+Consider for example the context-free languages $\calL = \Set{a^n b^n}{n \in \N}$ and $\calK = \overline{\calL}$ that are complements of each other.
+The languages are obviously disjoint, but not $\calS$-separable if we choose $\calS$ to be a subclass of the context-free languages that does not contain $\calL$; the regular languages for example.
+
+From the perspective of verification, the most important variant of the separability problem is \emph{regular separability}, \ie checking the existence of a separator from the class of regular languages.
+In this case, we call the separators \emph{regular separators} and we call two languages that have such a separator \emph{regularly separable}.
+We formally state regular separability as a decision problem.
+
+\begin{problem}
+    \problemtitle{Regular separability of $\calF$}
+    \probleminput{Languages $\calL, \calK \subseteq \Sigma^*$ from $\calF$.}
+    \problemquestion{Are $\calL, \calK$ regularly separable,\newline\ie is there $\calR \subseteq \Sigma^*$ regular with $\calL \subseteq \calR$ and $\calK \cap \calR = \emptyset$?}
+\end{problem}
+
+Its importance stems from the fact that regular languages admit a plethora of representations and algorithms that work on these.
+On the theoretical side, this means that given a regular candidate language $\calR$, the problem of checking whether $\calR$ is indeed a regular separator is decidable for many language classes.
+We have argued above that the intersection-emptiness problem is decidable in many cases when one of the classes is the class of regular languages.
+This allows us to check $\calK \cap \calR = \emptyset$.
+We can then use that the class of regular languages is closed under complement and check $\calL \subseteq \calR$ by checking $\calL \cap \overline{\calR} = \emptyset$.
+Another nice property of the regular separability problem is that it is symmetric in the input: If $\calR$ is a regular separator for $\calL$ and $\calK$, then its complement $\overline{\calR}$ is a regular separator for $\calK$ and $\calL$.
+Most language classes beyond the regular languages do not satisfy these properties, a statement that we will make formal in the form of \cref{Corollary:WSTSSeparabilityClosedness}.
+
+\end{document}

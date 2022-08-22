@@ -1,0 +1,15 @@
+\begin{tikzpicture}[->,>=latex,node distance=6em,semithick]
+
+
+\node [initial,state, initial text={A}] (q0) {$q_0$};
+\node [state] (q1) [right of=q0] {$q_1$};
+\node [state,accepting] (q2b) [above right of=q1] {$q_{2b}$};
+\node [state,accepting] (q2c) [below right of=q1] {$q_{2c}$};
+
+\path
+    (q0) edge node [above] {$a$} (q1)
+    (q1) edge node [above] {$b$} (q2b)
+    (q1) edge node [above] {$c$} (q2c)
+;
+
+\end{tikzpicture}

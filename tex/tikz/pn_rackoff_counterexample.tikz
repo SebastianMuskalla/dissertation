@@ -1,0 +1,26 @@
+\begin{tikzpicture}[>=latex,semithick,->,node distance=5em]
+
+\node[place] (run)  at (0,1) {$\rprun$};
+
+\node[place] (temp) at (2,3) {$\rptemp$};
+
+\node[place] (stop) at (6,1) {$\rpstop$};
+
+\node[transition,square] (thelp) at (0,3) {$\rthelp$}
+    edge [pre, bend left] (run)
+    edge [post, bend right] (run)
+    edge [post] (temp)
+;
+
+\node[transition,square] (ta) at (4,0) {$\rta$}
+    edge [pre] (run)
+    edge [post, bend right] (stop)
+;
+
+\node[transition,square] (tb) at (4,2) {$\rtb$}
+    edge [pre] (temp)
+    edge [pre] (run)
+    edge [post, bend left] (stop)
+;
+
+\end{tikzpicture}

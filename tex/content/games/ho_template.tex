@@ -1,0 +1,614 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{A model template for deterministic schemes}%
+\label{Section:HORSTemplate}%
+
+Our goal is to solve HORS games using effective denotational semantics.
+In order to do so, we will design a system of equations, find a suitable model to interpret this system, and then argue that the least solution to the interpreted system allows us to determine the winner of the game.
+For now, however, we will not focus on HORS games.
+Instead, we develop a general framework for interpreting the systems of equations associated to HORSes.
+This framework is not only of independent interest, we will also instantiate it multiple times when we solve HORS games later.
+
+\paragraph{Associating equations to a deterministic HORS}
+
+We start with discussing on how to associate a system of equations to a HORS.\@
+We will provide this construction for an arbitrary deterministic HORS.\@
+% Later, we will determinize a game HORS so that we can apply the construction.
+
+Let $G = (V,N,T,R,S)$ be a deterministic HORS, \ie each nonterminal $F$ has a unique rule $F \to t$.
+We design a system of equations representing $G$.
+As in the case of context-free grammars, it has one variable for each nonterminal.
+In particular, the variables of the HORS do not become variables of the system of equations.
+Each rule $F \to t$ of the HORS yield one equation $F = t$ of the system.
+To this end, we need to introduce function symbols that allow us to see the HORS term $t$ as a term of the system of equations, where the syntactic fragments that build up the HORS term $t$ yield the syntactic fragments that build the term $t$ of the system of equations.
+
+Following the definition of HORS terms in \cref{Section:HORS}, each HORS term is obtained by composing three types of constructs:
+(1) HORS variables, terminals, and nonterminals,
+(2) function application, and
+(3) lambda abstraction.
+As already mentioned, the HORS nonterminals are simply the variables of the system of equations.
+For everything else, we introduce appropriate function symbols:
+We see terminals and HORS variables as constants, function symbols with arity zero.
+Function application is a binary function symbol: If $f$ and $t$ are terms in the system of equation, then $f\appl t$ is also a term.
+As usual for function application in the context of HORSes, we use infix notation and omit brackets.
+For each variable $x$, the lambda abstraction  $\lambda x$ is a unary function symbol, so if $t$ is a valid term in the system of equations, then so is $\lambda x. t$
+
+Choosing HORS terminals to have arity zero instead of assigning them their arity as specify by the kind might seem peculiar.
+The reason here is that a terminal in a HORS term does not always have all its parameter present.
+For example, a terminal $a \colon \ground \to \ground$ may occur in a term like $F\appl a$ without any parameter.
+Therefore, it makes sense to let terminals and variables be constants and encode function application as a separate function symbol.
+
+Introducing all of these function symbols allows us to see the set of production rules of the HORS as a system of equations.
+Note that an (interpreted) system of equations according to our definition from \cref{Section:EDSEqSys} is essentially a first-order construction, as it just deals with values and functions that transform these values.
+By associating a system of equations to a HORS, we have essentially turned a higher-order object into a first-order one.
+In order to recover the higher-order aspect, we will have to interpret the system of equations accordingly.
+
+\paragraph{The model template}
+
+Later, we will consider several interpretations of the same system of equations associated to the determinization of a game HORS.\@
+Each interpretation is of a similar shape.
+In order to make this formal, we define a \emph{model template} for the system of equations associated to a deterministic HORS.\@
+This model template can be instantiated using a very restricted amount of information, yielding a full model, \ie a domain and interpretations for all function symbols.
+
+Formally, the model template is $\modelt = (\domaint,\interpretationt)$ consisting of a domain $\domaint$ and the interpretation $\interpretationt$ of the function symbols.
+Instantiating the template requires a domain $\domain{\ground}$ for elements of kind ground and an interpretation for all terminals.
+The template then provides the rest of the model:
+The domain for all other kinds and the interpretation of the variables, function application, and lambda abstraction.
+
+\paragraph{The domain}
+
+We start by explaining the domain.
+Assume that a CPPO $\domain{\ground}$ has been chosen.
+For any other kind $\kappa_1 \to \kappa_2$, the domain $\domain{\kappa_1 \to \kappa_2}$ is then defined to be the set of join-continuous functions from $\domain{\kappa_1}$ to $\domain{\kappa_2}$.
+We will denote this domain by $\domain{\kappa_1} \cto \domain{\kappa_2}$ in the following.
+Note that any such function is monotonic since join-continuity implies monotonicity.
+(Here, we generalize the definitions of join-continuity and monotonicity from functions with signature $D \to D$ to arbitrary functions where source and target set do not have to coincide.)
+
+It is well-known that if $D,D'$ are CPPOs, then the set $D \cto D'$ of join-continuous functions from $D$ to $D'$ is also a CPPO.\@
+The ordering is component-wise, \ie $f \leq g$ iff $f(x) \leq g(x)$ for all $x$.
+The function $f \colon D \to D'$ that maps all elements of $D$ to the bottom-element of $D'$ is the bottom element of the function domain.
+The join of an ascending chain of functions is the function that takes a value and returns the join of the chain of function values,
+\[
+    \big(\bigsqcup_{i \in \N} f_i \big) (d) = \bigsqcup_{i \in \N} \paren{ f_i(d) }
+    \ .
+\]
+It is easy to verify that this is indeed the join of the chain.
+Let us briefly argue that $\bigsqcup_{i \in \N} f_i$ is join-continuous.
+Consider an ascending chain of values ${(d_j)}_{j \in \N}$.
+We need to prove that
+\(
+    \paren{ \bigsqcup_{i \in \N} f_i } \paren{\bigsqcup_{j \in \N} d_j}
+    =
+    \bigsqcup_{j \in \N} \paren{ \paren{ \bigsqcup_{i \in \N} f_i } \paren{d_j}}
+    .
+\)
+
+By the definition of the join, the left-hand side of the equality is
+\(
+    \bigsqcup_{i \in \N} \paren{ f_i \paren{ \bigsqcup_{j \in \N} d_j} }
+    =
+    \bigsqcup_{i \in \N} \bigsqcup_{j \in \N} f_i \paren{d_j}
+    ,
+\)
+using that each $f_i$ is join-continuous.
+We now observe that the two joins commute and use the definition of $\bigsqcup_{i \in \N} f_i$ to get the right-hand side of the desired equality.
+
+We have obtained a CPPO $\domain{\kappa}$ for every kind $\kappa \in \kinds$, and we define \( \domain = \bigcup_{\kappa \in \kinds } \domain{\kappa} \) to be their union.
+However, the domains of the shape $\domain{\kappa}$ are insufficient to evaluate terms of the kind $\kappa$ that contain free variables.
+The right-hand sides of all rules of the HORS are guaranteed to be closed in that each occurrence of a variable is bound by a preceding lambda abstraction, but when applying structural induction, we will encounter subterms that contain free variables.
+In order to handle free variables, the elements of our domain are functions that expect a \emph{valuation}, a partial function that assigns a value to each HORS variable that is free in the term of interest.
+Hence, the domain $\domaint$ that is used by our template is actually
+\[
+    \domaint = (V \pto \domain) \cto \domain
+    \ ,
+\]
+the set of join-continuous functions from valuations to $\domain$.
+Here $V \pto \domain$, denotes the set of partial functions from the variables to $\domain$, functions that may be undefined for some variables.
+
+In order for the notion of join-continuity to make sense here, we need to see $V \pto \domain$ itself as a CPPO.\@
+In order for this to succeed, we will need to restrict $(V \pto \domain)$ in the following way.
+For each variable $x$ of kind $\kappa$, we assume that a valuation either is undefined or it assigns a value from $\domain{\kappa}$.
+Whenever we write $V \pto \domain$ in the following, we implicitly assume that we only consider valuations that respect the kinds of the variables.
+With this restriction in place, we can define an order on valuations.
+We define $\val \leq \val'$ by requiring that for each HORS variable~$x$, either $\val(x)$ is undefined or both $\val(x)$ and $\val'(x)$ are defined and $\val(x) \leq \val'(x)$ holds (using the order $\leq$ on $\domain{\kappa}$, where $\kappa$ is the kind of $x$).
+The least element of this CPPO is the function that is undefined everywhere.
+The join of an ascending chain of valuations ${\paren{\val_i}}_{i \in \N}$ is the valuation $\bigsqcup_{i \in \N} \val_i$ with $\paren{ \bigsqcup_{i \in \N} \val_i} (x) = \bigsqcup_{i \in \N} \paren{ \val_i(x)}$.
+For the latter expression to make sense, we extend the order on $\domain{\kappa}$ to an order on $\domain{\kappa}$ together with the undefined value by seeing undefined as the new least element.
+In words, $\bigsqcup_{i \in \N} \val_i$ is the valuation that is undefined for a variable $x$ if all $\val_i$ are undefined for $x$ and that returns the join of the defined values $\val_i(x)$ otherwise.
+
+% We implicitly assume that the domain matches the kinds of the term:
+% If $x$ is a HORS variable of kind $\kappa$, then any valuation should assign a value from $\domain{\kappa}$ to $x$.
+% Similarly, our interpretation should interpret a term of kind $\kappa$ as a value from
+% \(
+%     (V \pto \domain) \to \domain{\kappa}
+%     \ ,
+% \)
+% which is a subset of $\domaint$.
+
+We summarize our definition of the domain.
+
+\begin{definition}
+    Let $\domain{\ground}$ be a CPPO.\@
+    We recursively define $\domain{\kappa_1 \to \kappa_2} = \domain{\kappa_1} \cto \domain{\kappa_2}$ for all kinds $\kappa_1, \kappa_2$ to be the CPPO of join-continuous functions from $\domain{\kappa_1}$ to $\domain{\kappa_2}$.
+    Let \( \domain = \bigcup_{\kappa \in \kinds } \domain{\kappa} \).
+
+    We define $\domaint = (V \pto \domain) \cto \domain$ to be the set of join-continuous functions from valuations $\val \colon V \pto \domain$ to domain elements $d \in \domain$.
+\end{definition}
+
+In order to enable Kleene iteration later, we need a domain that is a CPPO.\@
+Formally, we would need to argue that $\domaint = (V \pto \domain) \cto \domain$ is a CPPO.\@
+However, we will make sure that we interpret each term $t$ of kind $\kappa$ as a value from $(V \pto \domain) \cto \domain{\kappa}$.
+In particular, we will never need to compare a value from $(V \pto \domain) \cto \domain{\kappa}$ to a value from $(V \pto \domain) \cto \domain{\kappa'}$ for distinct kinds $\kappa \neq \kappa'$.
+Hence, it will suffice to make sure that $(V \pto \domain) \cto \domain{\kappa}$ is a CPPO for each kind $\kappa$.
+
+\begin{lemma}
+    For each kind $\kappa$, $(V \pto \domain) \cto \domain{\kappa}$ is a CPPO.\@
+\end{lemma}
+
+\begin{proof}
+    The set $V \pto \domain$ of valuations is a CPPO under the assumption that we only consider valuations that respect the kinds of the variables.
+    The set $\domain{\kappa}$ is either $\domain{\ground}$ which is a CPPO by assumption or it is a CPPO as the set of join-continuous functions from one CPPO to another.
+    Hence, $(V \pto \domain) \cto \domain{\kappa}$ is the CPPO of join-continuous functions from one CPPO to another.
+
+    Note that the least element of $(V \pto \domain) \cto \domain{\kappa}$ is the function that ignores the given valuation and returns the least element of $\domain{\kappa}$.
+    The join of a chain of functions is the function that returns the join of the chain of function values.
+\end{proof}
+
+\paragraph{The interpretations}
+
+After fixing the domain $\domaint$, it remains to provide interpretations for all function symbols.
+We assume that for each terminal $a$ of kind $\kappa$, an interpretation, $a^\interpretationt \in \domain{\kappa}$ has been provided.
+We can see $a^\interpretationt$ as a function with signature $(V \pto \domain) \cto \domain$ that ignores the provided valuation and always returns the same element.
+Indeed, in the term $a$ itself, no variable occurs freely.
+
+The template should provide the interpretations for all other types of function symbols: variables, function application, and lambda abstraction.
+A HORS variable $x$ is interpreted as $x^\interpretationt \colon (V \pto \domain) \cto \domain$, the function that takes a valuation $\val$ and returns $\val(x)$.
+This function is indeed join-continuous by the definition of the join on $V \pto \domain$.
+Note that if the valuation respects the kinds of the variables, $\val(x)$ will be an element of $\domain{\kappa}$, where $\kappa$ is the kind of variable~$x$.
+
+The interpretation of function application is a function with signature
+\[
+    {\domaint}^2 \to \domaint
+    \enspace
+    =
+    \enspace
+    {\paren{(V \pto \domain) \cto \domain}}^2 \to (V \pto \domain) \cto \domain
+    \ .
+\]
+It expects three parameters: two values $f^\interpretation,  t^\interpretation \in \domaint$ and a valuation $\val$.
+We define the interpretation ${(f^\interpretation \appl t^\interpretation)}^\interpretationt \val$ of function application to be $\paren{f^\interpretation} \val \appl (t^\interpretation \val)$.
+Intuitively, $f^\interpretation$ and $t^\interpretation$ are interpretations of terms and $\val$ specifies the values of variables that are free in $f$ or $t$.
+
+\begin{lemma}
+    The interpretation of function application has signature ${\domaint}^2 \to \domaint$:
+    For any $f^\interpretation, t^\interpretation \in \domaint$, the result of function application is the value ${(f^\interpretation \appl t^\interpretation)}^\interpretationt \in \domaint$.
+
+    If $\val \colon V \pto \domain$ respects the kinds of the variables, $f^\interpretation \val \in \domain{\kappa_1 \to \kappa_2}$, and $t^\interpretation \val \in \domain{\kappa_1}$, then ${(f^\interpretation \appl t^\interpretation)}^\interpretationt \val = (f^\interpretation \val) \appl (t^\interpretation \val) \in \domain{\kappa_2}$.
+\end{lemma}
+
+\begin{proof}
+    We prove the second part of the statement first.
+    We have that $f^\interpretation \val$ is a value from $\domain{\kappa_1 \to \kappa_2}$, which is a join-continuous function from $\domain{\kappa_1}$ to $\domain{\kappa_2}$.
+    Similarly, $t^\interpretation \val$ is in $\domain{\kappa_1}$.
+    Hence, $(f^\interpretationt \val) \appl (t^\interpretationt \val)$ is in $\domain{\kappa_2}$, and $\kappa_2$ is indeed the kind of $f \appl t$.
+
+    To show that the interpretation of function application has the required signature, we need to argue that ${(f^\interpretation \appl t^\interpretation)}^\interpretationt$ is join-continuous on the level of valuations.
+    Consider an ascending chain of valuations ${(\val_i)}_{i \in \N}$.
+    We need to prove
+    \[
+        {(f^\interpretation \appl t^\interpretation)}^\interpretationt (\bigsqcup_{i \in \N} \val_i)
+        =
+        \bigsqcup_{i \in \N}
+        {(f^\interpretation \appl t^\interpretation)}^\interpretationt (\val_i)
+        \ .
+    \]
+    By definition, we have
+    \(
+        {(f^\interpretation \appl t^\interpretation)}^\interpretationt (\bigsqcup_{i \in \N} \val_i)
+        = \paren{ f^\interpretation  \paren{\bigsqcup_{i \in \N} \val_i} } \paren{ t^\interpretation  \paren{\bigsqcup_{i \in \N} \val_i} }
+        \ .
+    \)
+    By assumption, $f^\interpretation$ and $t^\interpretation$ are elements of $\domaint$, so they are join-continuous.
+    We can rewrite the right-hand side of the equality as
+    \(
+        \paren{ \bigsqcup_{i \in \N} f^\interpretation \val_i }
+        \paren{ \bigsqcup_{i \in \N}  t^\interpretation \val_i }
+        \ .
+    \)
+    As mentioned before, each $f^\interpretation \val_i$ is a join-continuous function from $\domain{\kappa_1 \to \kappa_2}$.
+    The join on $\domain{\kappa_1 \to \kappa_2}$ is defined to be simply the function that returns the join of the function values, so we can rewrite this expression as
+    \(
+        \bigsqcup_{i \in \N} \ \paren{
+            \paren{ \ f^\interpretation \val_i }
+            \paren{ \bigsqcup_{i \in \N}  t^\interpretation \val_i }
+        }
+        \ .
+    \)
+    Because each $f^\interpretation \val_i$ is join-continuous, we finally obtain
+    \(
+        \bigsqcup_{i \in \N}
+        \bigsqcup_{i \in \N}
+        \paren{ \ f^\interpretation \val_i }
+        \paren{ \ t^\interpretation \val_i }
+        \ .
+    \)
+    Omitting one of the joins does not change the result and applying the definition of the interpretation of function application proves the desired equality.
+\end{proof}
+
+To complete the specification of the model, we have to define the interpretation of lambda abstraction.
+For each variable $x$, the interpretation ${(\lambda x)}^\interpretationt$ is a function with signature
+\[
+    \domaint \to \domaint
+    \enspace = \enspace
+    \paren{(V \pto \domain) \cto \domain} \to (V \pto \domain) \cto \domain
+    \ .
+\]
+It takes as parameters a value $t^\interpretation \colon (V \pto \domain) \cto \domain$, which intuitively is the interpretation of a term, and a valuation $\val$.
+% The latter does not have to assign a value to $x$, since $x$ is not free in $\lambda x . t$.
+It returns the function $d \mapsto t^\interpretation (\val[x \mapsto d])$ that expects a value $d$ for $x$ and evaluates $t^\interpretation$ at $\val$ with the value for $x$ replaced by $d$.
+
+\begin{lemma}
+    The interpretation of lambda abstraction has signature $\domaint \to \domaint$:
+    For any variable $x$ and any $t^\interpretation \in \domaint$, the result of lambda abstraction is ${(\lambda x)}^\interpretationt t^\interpretation \in \domaint$.
+
+    If $\val \colon V \pto \domain$ respects the kinds of the variables, $x$ has kind $\kappa_1$ and $t^\interpretation \val \in \domain{\kappa_2}$, then ${(\lambda x)}^\interpretationt t^\interpretation \val \in \domain{\kappa_1 \to \kappa_2}$.
+\end{lemma}
+
+\begin{proof}
+    We prove the second part of the statement first.
+    Assume that variable $x$ has kind $\kappa_1$, and that term $t$ has kind $\kappa_2$.
+    We have that $\paren{{(\lambda x)}^\interpretationt t^\interpretation} \val$ is a function that takes $d \in \domain{\kappa_1}$ and returns $t^\interpretation (\val[x \mapsto d]) \in \domain{\kappa_2}$.
+    Hence, it is indeed a function from $\domain{\kappa_1}$ to $\domain{\kappa_2}$.
+    This matches the kind $\kappa_1 \to \kappa_2$ of the term $\lambda x. t$.
+    To conclude that the function  $d \mapsto t^\interpretation (\val[x \mapsto d])$ is an element of $\domain{\kappa_1 \to \kappa_2}$, we need to argue that it is join-continuous.
+    Let ${\paren{d_i}}_{i \in \N}$ be an ascending chain in $\domain{\kappa_1}$.
+    We first observe that the valuation $\val [ x \mapsto \bigsqcup_{i \in \N} d_i]$ equals the join $\bigsqcup_{i \in \N} \val [ x \mapsto d_i]$ by the definition of the join on $V \pto \domain$.
+    We then note that $t^\interpretation \colon (V \pto \domain) \cto \domain$ is join-continuous, and obtain $t^\interpretation (\val[x \mapsto \bigsqcup_{i \in \N} d_i]) = \bigsqcup_{ i \in \N} t^\interpretation (\val[x \mapsto d_i])$ as desired.
+
+    To prove the first part of the statement, we need to argue that ${(\lambda x)}^\interpretationt t^\interpretation$ is join-continuous on the level of valuations.
+    Let ${\paren{\val_i}}_{i \in \N}$ be an ascending chain of valuations.
+    We need to show
+    \[
+        {(\lambda x)}^\interpretationt (t^\interpretation) ( \bigsqcup_{i \in \N} \val_i)
+        =
+        \bigsqcup_{i \in \N} {(\lambda x)}^\interpretationt (t^\interpretation) \val_i
+        \ .
+    \]
+    The left-hand side of the equality is the function
+    \(
+        d \mapsto t^\interpretation ( ( \bigsqcup_{i \in \N} \val_i ) [ x \mapsto d] )
+        \ .
+    \)
+    The valuation \( (\bigsqcup_{i \in \N} \val_i ) [ x \mapsto d] \) equals \( \bigsqcup_{i \in \N} \paren{ \val_i [x \mapsto d]} \) using the definition of the join on $V \pto \domain$.
+    Since $t^\interpretation \colon (V \pto \domain) \cto \domain$ is join-continuous, the function equals
+    \(
+        d \mapsto \bigsqcup_{i \in \N} t^\interpretation ( \val_i [ x \mapsto d] )
+        \ .
+    \)
+    By the definition of the join on the level of functions, this function is the join of the functions $d \mapsto t^\interpretation ( \val_i [ x \mapsto d] )$, which by the definition of the interpretation of lambda abstraction is the right-hand side of the equality we wanted to show.
+\end{proof}
+
+\paragraph{Join-continuity}
+
+We have fully specified our $\modelt = (\domaint,\interpretationt)$ by providing a domain and interpretations for all function symbols.
+In order to prove that the model satisfies the requirements for Kleene iteration as presented in \cref{Section:EDSEqSys}, we need to argue that the interpretation of all function symbols are join-continuous.
+
+When we have considered join-continuity in the proofs of the previous lemmas, we were discussion join-continuity on the level of valuations.
+We were merely arguing that for each term $t$, its interpretation is a value of $(V \pto \domain) \to \domain$, \ie a join-continuous function that expects a valuation.
+To satisfy the requirements of Kleene's theorem, we need to argue that the functions are also join-continuous with respect to their arguments from $\domaint$.
+
+\begin{remark*}
+In the previous chapter, it was sufficient to prove that the interpretations are monotonic by relying on finiteness of the domain and \cref{Remark:EDSMonotonocityContinuity}.
+In this chapter, we are interested in instantiating the model template for domains that are not necessarily finite and that do not necessarily satisfy the ACC.\@
+\end{remark*}
+
+For constants, function symbols without arguments, there is nothing to do.
+This applies to the interpretations of terminals and HORS variables.
+It remains to consider the unary interpretation of lambda abstraction and the binary interpretation of function \nb{application}.
+
+\begin{lemma}%
+\label{Lemma:HORSTemplateLambdaJoinCont}%
+    The interpretation of lambda abstraction is a join-continuous function with signature $\domaint \to \domaint$.
+\end{lemma}
+
+\begin{proof}
+    Let us consider a lambda abstraction $\lambda x$ where $x$ is of kind $\kappa_1$.
+    Let ${(t_i)}_{i \in \N}$ be an ascending chain of values in $(V \pto \domain) \to \domain{\kappa_2}$.
+    We have to show ${(\lambda x)}^\interpretationt (\bigsqcup_{i \in \N} t_i) = \bigsqcup_{i \in \N} {(\lambda x)}^\interpretationt (t_i)$.
+    The expression on the left-hand side is equal to
+    \[
+        (\nu, d) \mapsto \big( \bigsqcup_{i \in \N } t_i \big) (\nu [x \mapsto d])
+        \ ,
+    \]
+    a function that takes a valuation $\nu$ and a value $d$ for $x$ and evaluates $\bigsqcup_{i \in \N } t_i$ at $\nu [ x \mapsto d]$.
+    Similarly, the expression on the right-hand side equals,
+    \[
+        \bigsqcup_{i \in \N } \big( (\nu, d) \mapsto t_i (\nu [x \mapsto d]) \big)
+        \ .
+    \]
+    Using the definitions of the join on $(V \pto \domain) \cto \domain$ and the join on $\domain{\kappa_1 \to \kappa_2}$, this equals
+    \[
+        (\nu, d) \mapsto \bigsqcup_{i \in \N } \left( t_i (\nu [x \mapsto d]) \right)
+        \ .
+    \]
+    We use the definition of the join on $(V \pto \domain) \cto \domain$ again to establish
+    \[
+        \big( \bigsqcup_{i \in \N } t_i \big) (\nu [x \mapsto d]) = \bigsqcup_{i \in \N } \left( t_i (\nu [x \mapsto d]) \right)
+        \ ,
+    \]
+    which yields the desired equality.
+\end{proof}
+
+We proceed similarly for function application, which is a binary function.
+We need to prove join-continuity in both parameters, which we will do simultaneously.
+
+\begin{lemma}%
+\label{Lemma:HORSTemplateApplicationJoinCont}%
+    The interpretation of function application is a join-continuous function with signature ${\domaint}^2 \to \domaint$.
+\end{lemma}
+
+\begin{proof}
+    Let ${(f_i)}_{i \in \N}$ be an ascending chain in $(V \pto \domain) \cto \domain{\kappa_1 \to \kappa_2}$ and let ${(t_j)}_{j \in \N}$ be an ascending chain in $(V \pto \domain) \cto \domain{\kappa_1}$.
+    We need to prove the following equality
+    \[
+        {\Big(
+            \big( \bigsqcup_{i \in \N} f_i \big)
+            \appl
+            \big( \bigsqcup_{j \in \N} t_j \big)
+        \Big)}^\interpretationt
+        =
+        \bigsqcup_{i \in \N}
+        \bigsqcup_{j \in \N}
+        {\paren{ f_i \appl e_j}}^\interpretationt
+        \ .
+    \]
+    Both expressions are functions that expect a valuation $\val \colon V \pto \domain$ and return a value from $\domain{\kappa_2}$.
+    Evaluating the left-hand side at some valuation $\val$ yields
+    \[
+        \begin{array}{>{\displaystyle}r>{\displaystyle\enspace}l>{\displaystyle\enspace}l}
+        {\Big(
+            \big( \bigsqcup_{i \in \N} f_i \big)
+            \appl
+            \big( \bigsqcup_{j \in \N} t_j \big)
+        \Big)}^\interpretationt
+        \appl \val
+        &=
+        \Big( \big( \bigsqcup_{i \in \N} f_i \big) \appl \val \Big)
+        \appl
+        \Big(  \big( \bigsqcup_{j \in \N} t_j \big) \appl\val \Big)
+        &=
+        \bigsqcup_{i \in \N} \big( f_i \appl \val \big)
+        \appl
+        \bigsqcup_{j \in \N} \big( t_j \appl \val \big)
+        \\
+        &=
+        \bigsqcup_{i \in \N}
+        \Big(
+            \big( f_i \appl \val \big)
+            \appl
+            \bigsqcup_{j \in \N} \big( t_j \appl \val \big)
+        \Big)
+        &=
+        \bigsqcup_{i \in \N}
+        \bigsqcup_{j \in \N}
+        \Big(
+            \big( f_i \appl \val \big)
+            \appl
+            \big( t_j \appl \val \big)
+        \Big)
+        \ ,
+        \end{array}
+    \]
+    using the definition of the interpretation of function application,
+    the definition of the join on $(V \pto \domain) \to \domain{\kappa}$ for all kinds $\kappa$,
+    the definition of the join on $\domain{\kappa_1 \to \kappa_2}$
+    and the fact that each $f_i \appl \val$ is a join-continuous function.
+    %
+    Evaluating the right-hand side of the above expression at $\val$ gives us
+    \[
+        \big(
+            \bigsqcup_{i \in \N}
+            \bigsqcup_{j \in \N}
+            {\paren{ f_i \appl e_j}}^\interpretationt
+        \big)
+        \appl
+        \val
+        \enspace = \enspace
+        \bigsqcup_{i \in \N}
+        \bigsqcup_{j \in \N}
+        \paren{
+            {\paren{ f_i \appl e_j}}^\interpretationt
+            \appl
+            \val
+        }
+        \enspace = \enspace
+        \bigsqcup_{i \in \N}
+        \bigsqcup_{j \in \N}
+        \Big(
+            \big( f_i \appl \val \big)
+            \appl
+            \big( t_j \appl \val \big)
+        \Big)
+        \ ,
+    \]
+    using the definition of the join on $(V \pto \domain) \cto \domain{\kappa_2}$ and the definition of the interpretation of function application.
+    The desired equality holds.
+\end{proof}
+
+\paragraph{The semantics of terms}
+
+We have completed the definition of the model template $\modelt = \paren{ \domaint, \interpretationt}$.
+Each term of the HORS that does not contain nonterminals can be interpreted as a value from $\domain$.
+Furthermore, if the kind of term $t$ is $\kappa$ and $\val$ is a valuation that respects the kinds of the variables, then we get that the interpretation of $t$ evaluated at $\val$ is a value from $\domain{\kappa}$.
+
+It remains to consider terms that contain variables of the system of equations, \ie nonterminals of the HORS.\@
+The theory from \cref{Section:EDSEqSys} fixes a semantics
+\(
+    \sem{\modelt}{\term}
+\)
+for each term $t$.
+In particular, it does so for the terms that occur as the right-hand sides of the rules of the deterministic HORS, which are the right-hand sides of the equations in our system.
+Let us consider what the signature of $\sem{\model}{\term}$ is.
+Formally, it is a function that expects an assignment of the variables of the system of equations and then evaluates $\term$ at this assignment.
+The variables of the system of equations are the nonterminals of the HORS.\@
+We get the signature
+\[
+    \sem{\modelt}{\term} \colon (N \to \domaint) \cto \domaint
+    \ .
+\]
+Here, we have used the fact that the interpretation of each function symbol is join-continuous (\cref{Lemma:HORSTemplateLambdaJoinCont,Lemma:HORSTemplateApplicationJoinCont}) and join-continuity is preserved under composition.
+Hence, the interpretation of each term is also join-continuous.
+
+By substituting $\domaint$ using its definition, this signature equals
+\[
+    \paren{N \to \paren{\paren{V \pto \domain} \cto \domain}} \cto (V \pto \domain) \cto \domain
+    \ .
+\]
+Our first observation is that to evaluate the variables (nonterminals), a valuation of the HORS variables is not needed.
+A term that only consists of a nonterminal does not contain a free variable.
+Hence, we can simplify the expression to
+\[
+    \paren{N \to \domain} \cto (V \pto \domain) \cto \domain
+    \ .
+\]
+Intuitively, to evaluate a term in order to obtain an element of $\domain$, we need an assignment of values to the nonterminals and a valuation of the HORS variables.
+We merge the assignment and the valuation into a single valuation, a partial function with signature $N \dotcup V \pto \domain$.
+When evaluating a term $\term$, this valuation should be defined for all nonterminals and all HORS variables that are free in $t$.
+Furthermore, we will implicitly assume that we only consider valuations $\val$ that respect the kinds (of both HORS variables and nonterminals), \ie if $F$ \resp $x$ is of kind $\kappa$, then $\val(F)$ \resp $\val(x)$ is a value from $\domain{\kappa}$.
+Under this assumption, a term of kind $\kappa$ should evaluate to a value from $\domain{\kappa}$.
+
+Altogether, we have proven the following.
+
+\begin{lemma}%
+\label{Lemma:HORSTemplateSemantics}%
+    The semantics of a HORS term $t$ is a join-continuous function
+    \[
+        \sem{\modelt}{t} \colon (N \dotcup V \pto \domain) \cto \domain
+        \ .
+    \]
+    If $\val$ is a valuation that respects the kinds and $t$ is of kind $\kappa$, then $\sem{\modelt}{t}{\val} \in \domain{\kappa}$.
+\end{lemma}
+
+\paragraph{Applying Kleene's theorem}
+
+Consider the interpretation of the system of equations under a model that results from instantiating the model template.
+The least solution to the interpreted system is the least fixed point of the function that is obtained by combining the interpretations of the right-hand sides of the equations, \ie the rules of the deterministic HORS.\@
+Because the model satisfies the requirement of Kleene's theorem, the existence of this least fixed point is guaranteed.
+
+\begin{proposition}%
+\label{Proposition:HORSTemplateExistenceLeastSolution}%
+    The system of equations associated to a deterministic HORS interpreted under a model that results from instantiating the model template has a least solution.
+\end{proposition}
+
+%
+\clearpage
+%
+
+
+\begin{figure}
+    \onehalfspacing%
+    {%
+    \setlength{\fboxsep}{1em}
+    \fbox%
+    {%
+        \begin{minipage}{\textwidth-2.5em}
+            \vspace*{0.5em}
+            %
+            \paragraph{\large Overview: Model template}
+            %
+            \vspace{1em}
+
+            \paragraph{Domain}
+
+            \emph{Input:} CPPO $\domain{\ground}$ for kind ground (partially ordered; least element exists; ascending chains have a join).
+
+            Recursively define $\domain{\kappa_1 \to \kappa_2} = \domain{\kappa_1} \cto \domain{\kappa_2}$, the join-continuous functions from $\domain{\kappa_1}$ to $\domain{\kappa_2}$.
+            This is a CPPO with the component-wise order; the least element is the function that always returns the least element; the join of a chain is the function that, given an input, returns the join of the chain of function values.
+
+            We define the domain $\domaint = (V \pto \domain) \to \domain$ with $\domain = \bigcup_{\kappa} \domain{\kappa}$.
+            For each kind $\kappa$, $(V \pto \domain) \to \domain{\kappa}$ is a CPPO.\@
+            Elements of this domain are functions that take a valuation, an assignment of a value from $\domain{\kappa}$ to each variable of kind $\kappa$.
+
+            \vspace*{1em}
+
+            \paragraph{Interpretations}
+
+            \emph{Input:} For each terminal $s \colon \kappa$ of a deterministic HORS $G$ an interpretation $s^\interpretationt \in \domain{\kappa}$.
+
+            Specify $\interpretationt$ by defining the interpretation of variables ($\sem{\modelt}{x}{\val} = \val(x)$), function application ($\sem{\modelt}{t_1 \appl t_2}{\val} = \sem{\modelt}{t_1}{\val} \appl \sem{\modelt}{t_2}{\val}$), and lambda abstraction ($\sem{\modelt}{\lambda x . t}{\val} \ \colon \ d \mapsto \sem{\modelt}{t}{\paren{\val[x \mapsto d]}}$).
+            Altogether, we get a model $\modelt = \paren{\domaint,\interpretationt}$.
+
+            \vspace*{1em}
+
+            \paragraph{Semantics}
+
+            We obtain for each term $\term$ of kind $\kappa$ the semantics
+            \[
+                \sem{\modelt}{t} \colon (N \dotcup V \pto \domain) \cto \domain{\kappa}
+                \ ,
+            \]
+            a join-continuous function that expects a valuation of the nonterminals and the HORS variables that are free in $\term$.
+
+            \vspace*{1em}
+
+            \paragraph{Kleene iteration}
+
+            For each $i \in \N$, inductively define the valuation $\soli{i}$.\\
+            For $i = 0$ and each nonterminal $F$ of kind $\kappa$,\\
+            \hspace*{2em}$\sol{i}{F} = \bot_{\kappa}$, the least element of $\domain{\kappa}$.\\
+            For $i+1$ and a nonterminal $F$ whose unique rule in the HORS is $F \to t$,\\
+            \hspace*{2em}$\sol{i+1}{F} = \sem{\modelt}{t}{\soli{i}}$, the right-hand side for $F$ evaluated at $\soli{i}$.
+
+            The system of equations associated to $G$ interpreted with respect to $\modelt = \paren{\domaint,\interpretationt}$ has a least solution, namely
+            \[
+                \sol = \bigsqcup_{i \in \N} \soli{i}
+                \ .
+            \]
+            %
+            \vspace*{0.1em}
+        \end{minipage}
+    }
+    }
+    \caption{Overview: Model template.}%
+    \label{Figure:HORSTemplateCheatSheet}%
+\end{figure}
+
+\clearpage
+
+\begin{proof}
+    We may design a function
+    \[
+        \rhs \colon (N \to \domain) \cto (N \to \domain)
+    \]
+    with $\rhs(\val,F) = \sem{\modelt}{t}{\val}$ for each nonterminal $F$, where $F \to t$ is the unique rule of the HORS for $F$.
+    Note that since each such $t$ does not contain any free variables, we can omit the valuation for the HORS variables here.
+    We have argued that for each term $t$, $\sem{\modelt}{t}$ is a join-continuous function on a CPPO.\@
+    Hence, also $\rhs$ is a join-continuous function on a CPPO.\@
+    By Kleene's theorem, \cref{Theorem:EDSKleene}, the least fixed point of $\rhs$ is the join
+    \[
+        \sol = \bigsqcup_{i \in \N} \soli{i}
+        \ ,
+    \]
+    where the $\nth{i}$ approximant $\soli{i} = \rhs^{i} (\bot)$ is obtained by the $i$-fold application of $\rhs$ to the least element of $N \to \domain$.
+    This least element is the function that assigns to each nonterminal $F$ of kind $\kappa$ the least element of $\domain{\kappa}$.
+    Note that the definition of $\soli{i}$ implies $\sol{i+1}{F} = \sem{\modelt}{t}{\soli{i}}$ for each nonterminal $F$ whose unique rule is $F \to t$.
+
+    Using the theory from \cref{Section:EDSEqSys}, $\sol$ is the least solution to the interpreted system of equations.
+\end{proof}
+
+
+Note that the proposition guarantees the existence of the least solution as the join of an infinite ascending chain.
+Unlike in the previous chapter, our domain will not satisfy the ascending chain condition in general.
+Hence, we do not necessarily get that the solution equals $\soli{i}$ for some fixed $i$.
+Kleene iteration does not allow us to compute the fixed point in finite time.
+When we want to apply our theory to solve HORS games, this is a challenge that we will have to overcome.
+
+We conclude the section with an \emph{overview} in the form of \cref{Figure:HORSTemplateCheatSheet}.
+It specifies what a user of the template has to provide to instantiate it and what the result of the instantiation is.
+
+\begin{remark*}
+    The models that result from instantiating our model template are similar to what \citea{SalvatiW15b} call \emph{Scott models} for $\lambda Y$-calculus.
+\end{remark*}
+
+\end{document}

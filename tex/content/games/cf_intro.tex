@@ -1,0 +1,23 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+This chapter is dedicated to solving context-free inclusion games.
+Our goal is to use effective denotational semantics and extend the techniques introduced in the previous chapter.
+In \cref{Chapter:EDS}, we have solved regular inclusion problems (which correspond to verification problems).
+Here, we want to set up an interpreted system of equations so that its least solution describes the behavior of a game (which corresponds to a synthesis problem, see \cref{Section:IntroGames} of the introduction).
+The domain that we use for the fixed-point iteration will be so that the certificates, the winning strategies for the game, can be read off from the least solution.
+
+The structure of the chapter is as follows:
+After providing the formal definitions, we explain how context-free games can be solved using effective denotational semantics by providing the required system of equations and the model.
+We discuss the properties of algorithm in detail: its soundness, the fact that it has the optimal time complexity, how it can be used to compute winning strategies, and tricks that could be used to speed up an implementation in practice.
+We also provide an in-depth comparison of our approach to other algorithms that solve similar types of games.
+Finally, we show that the approach can be extended to the case of $\omega$-context-free games.
+
+\paragraph{Publications}
+
+The chapter mostly presents material that has been published in the form of the paper~\cite{HolikMM16} (\resp its full version~\cite{HolikMM16a}).
+Compared to the paper, the presentation in this thesis has been improved and extended.
+The last two sections of this chapter present material from the paper~\cite{MeyerMN17a}.
+The author's contributions to these publications are discussed in more detail in \cref{Chapter:Contributions}.
+
+\end{document}

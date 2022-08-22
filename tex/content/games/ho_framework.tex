@@ -1,0 +1,753 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Framework for exact fixed-point transfer}%
+\label{Section:HOGamesFramework}%
+
+Our goal in this section is to develop a framework for the exact transfer of the fixed point with respect to one model to the fixed point with respect to another model.
+Assume we are given two models $\modelc$ and $\modela$ and a function $\abs$ that maps values from one domain to the other.
+We want to provide a minimal set of criteria that will allow us to conclude that the function applied to the fixed point \wrt $\modelc$ is the fixed point \wrt $\modela$, $\abs{\solc} = \sola$.
+
+The following is a potential application for this framework.
+Assume the goal is solving a decision problem involving HORSes using effective denotational semantics.
+We have \emph{concrete} model $\modelc = (\domainc,\interpretationc)$, for which it is easy to prove that the associated fixed point $\solc$ captures the answer to the decision problem.
+In this model, it is hard or even impossible to compute the least solution (\eg because the domain is infinite and does not satisfy the ascending chain condition).
+We also have an \emph{abstract} model $\modela = (\domaina,\interpretationa)$ that is well-behaved with respect to the fixed-point computation, but proving that $\sola$ also captures the answer to the decision problem may be much harder.
+Using the framework, it is sufficient to provide an abstraction function $\abs$ from the concrete to the abstract domain that satisfies some properties.
+We get exact fixed-point transfer and have $\abs{\solc} = \sola$.
+If the property that allows us to read off the answer to the decision problem is preserved under $\abs$, we conclude that reading off the answer to the decision problem is indeed sound.
+Hence, we can replace a complicated proof, namely the proof that $\sola$ captures the solution to the decision problem, by several simpler proofs.
+
+In the next section, we will apply this approach to computing the winner of inclusion games with game arenas defined by game HORSes.
+Since we think that the framework for exact fixed-point transfer is of independent interest, we develop our theory for a general setting.
+
+Assume that a deterministic HORS $G$ and its associated system of equations are fixed.
+We consider two models $\modelc = (\domainc,\interpretationc)$ and $\modela = (\domaina,\interpretationa)$ that are instantiations of the model template described in \cref{Section:HORSTemplate}
+We call $\modelc$ and the associated semantics \emph{concrete} and $\modela$ \emph{abstract} to appeal to the intuition of the reader.
+However, these words have no formal meaning here; in particular, both models could be finite or infinite.
+Each of the models provides an interpretation $\interpretationc$ \resp $\interpretationa$ of all function symbols used in the system of equations, a domain $\domainc{\kappa}$ \resp $\domaina{\kappa}$ for each kind $\kappa$ and a signature $(N \cup V \pto \domainc) \cto \domainc$ \resp $(N \cup V \pto \domaina) \cto \domaina$ for the semantics of HORS terms.
+
+Assume that an \emph{abstraction function} $\abs \colon \domainc{\ground} \to \domaina{\ground}$ is given.
+Note that it acts on the domains for kind ground.
+The first step in the development of the framework will be to lift $\abs$ to the domains for other kinds.
+Intuitively, the abstraction $\abs{\fc}$ of a function $\fc \in \domainc{\kappa_1 \to \kappa_2}$ should be the function that takes an abstract value $\xa \in \domaina{\kappa_1}$, \emph{concretizes} it by taking a preimage $\xc \in \domainc{\kappa_1}$ with $\abs{\xc} = \xa$, applies $f$ to the preimage and abstracts the result, $\abs{\xc} \appl \xa = \abs{\fc \appl \xc}$.
+
+This definition has two problems:
+The abstract value $\xa$ might have no preimage under $\abs$, and even if it has one, the preimage may not be unique.
+To solve the second problem, we introduce the notion of \emph{compatibility}:
+A function is compatible (with $\abs$) if values with the same abstraction are evaluated to function values with the same abstraction.
+Hence, the value of the abstraction of such a function will not depend on which preimage is chosen.
+
+Furthermore, we define $\abs{f} \appl \xa$ to be the least element of the domain for the appropriate kind whenever $\xa$ has no $\abs$-preimage.
+This solves the first problem, but causes another one:
+We now cannot hope that $\abs{\solc} = \sola$ will hold for the components of the fixed-point that are functions.
+Instead, we will only get what is essentially equality on the image of $\abs$.
+We formalize this using an equivalence~$\approx$ on the abstract domain that is equality for kind ground and equality on the image of $\abs$ for function kinds.
+In the end, our exact fixed-point transfer result will prove $\abs{\solc} \approx \sola$ instead of the desired equality.
+Since $\approx$-equivalence is equality for kind ground, this will still give us equality, $\abs{\solc}(t) = \sola{t}$, whenever $t$ is a term of kind ground.
+
+\begin{remark*}
+    In our publication~\cite{HagueMM17}, we solved the problem of missing preimages differently, namely by simply requiring the abstraction function $\abs$ to be surjective.
+    This solves the problem, but it has a cost attached to it:
+    Showing surjectivity is an additional proof obligation for the user of the framework.
+    Indeed, it is often natural to use an abstraction that is not surjective.
+    For example, we will consider an abstraction function that is not surjective in \cref{Section:HORSSolving}.
+    Usually, it would be possible to restrict the abstract domain so that $\abs$ becomes surjective (and this is in fact the approach we took in the aforementioned publication), but this again is an additional step for the user of the framework.
+    The version of the framework we present in this thesis works without requiring surjectivity.
+\end{remark*}
+
+\paragraph{Basic definition}
+
+We formally define the notions that we have introduced before.
+For each kind $\kappa$, we provide
+(1)~a notion of compatibility of elements $\xc \in \domainc{\kappa}$,
+(2)~an extension of the abstraction function to kind $\kappa$, \ie
+        $\abs \colon \domainc{\kappa} \to \domaina{\kappa}$, and
+(3)~an equivalence relation $\approx$ on $\domaina{\kappa}$.
+
+These definitions are interleaved with each other, so we have to proceed using induction.
+We start with kind ground, where the abstraction function $\abs \colon \domainc{\ground} \to \domaina{\ground}$ is already fixed.
+
+\begin{definition}
+    We define every element of $\domainc{\ground}$ to be compatible.
+    We define the equivalence~$\approx$ on $\domaina{\ground}$ to be equality.
+\end{definition}
+
+Now consider kind $\kappa_1 \to \kappa_2$, where we assume that $\abs$, $\approx$ and compatibility have been defined for $\kappa_1$ and $\kappa_2$.
+Note that for each kind $\kappa$, we denote by $\botc{\kappa}$ and $\bota{\kappa}$  the least element of $\domainc{\kappa}$ and $\domaina{\kappa}$, respectively.
+
+\begin{definition}%
+\label{Definition:HORSEFPTBasics}%
+    \begin{thmenumerate}[(1)]%
+        \item
+            A function $\fc \in \domainc{\kappa_1 \to \kappa_2}$ is \emph{compatible} if for every compatible value $\xc \in \domainc{\kappa_1}$, $\fc \appl \xc$ is compatible, and
+                for every compatible $\xc, \xc' \in \domainc{\kappa_1}$ such that $\abs{\xc} \approx \abs{\xc'}$, we have $\abs{\fc \appl \xc} \approx \abs{\fc \appl \xc'}$.
+        \item
+            If $\fc  \in \domainc{\kappa_1 \to \kappa_2}$ is compatible, we define its \emph{abstraction} $\abs{\fc} \in \domaina{\kappa_1 \to \kappa_2}$ as follows:
+            Whenever $\xa \in \domaina{\kappa_1}$ is $\approx$-related to the $\abs$-image of a compatible element, \ie $\xa \approx \abs{\xc}$ for some $\xc \in \domainc{\kappa_1}$, we define the function value $\abs{\fc} \appl \xa = \abs{\fc \appl \xc}$.
+            If no such $\xc$ exists, we define $\abs{\fc} = \bota{\kappa_1}$ to be the least element of $\domaina{\kappa_1}$.
+
+            For non-compatible $\fc$, we define $\abs{\fc} = \bota{\kappa_1 \to \kappa_2}$ as the bottom function for kind $\kappa_1 \to \kappa_2$, the function that maps any value from $\domaina{\kappa_1}$ to $\bota{\kappa_2}$.
+        \item
+            The \emph{equivalence} $\approx$ on $\domaina{\kappa_1 \to \kappa_2}$ is defined as follows: For $\fa, \fa' \in \domaina{\kappa_1 \to \kappa_2}$, $\fa \approx \fa'$ holds if for any $\xa \in \domaina{\kappa_1}$ that is $\approx$-equivalent to the $\abs$-image of a compatible element, $\xa \cong \abs{\xc}$ for some $\xc \in \domainc{\kappa_1}$, we have $\fa \appl \xa \approx \fa' \appl \xa$.
+    \end{thmenumerate}
+\end{definition}
+
+Before studying the definition in more detail, we consider an example.
+
+\begin{example}%
+\label{Example:HORSEFPTBasicDefinitions}%
+    Consider kind $\ground \to \ground$.
+    A function $\fc \in \domainc{\ground \to \ground}$ is compatible if for any two $\xc,\xc \in \domainc{\ground}$, $\abs{\xc} = \abs{\xc}$ implies $\abs{\fc \appl \xc} = \abs{\fc \appl \xc'}$.
+    Note that this is just the second part of the definition of compatibility, since the first one is trivially satisfied.
+    Also, the fact that $\approx$ is just equality on $\domainc{\ground}$ and that every element of $\domainc{\ground}$ is compatible play a rule here.
+
+    Such a compatible function $\fc$ can be abstracted, obtaining $\abs{\fc}$, the function that takes a value $\xa \in \domaina{\ground}$ and returns $\abs{\fc \appl \xc}$, where $\xc \in \domainc{\ground}$ satisfies $\abs{\xc} = \xa$.
+    If no such $\xc$ exists, the return value is $\bota{\ground}$.
+    This in particular means that $\abs{\fc} \appl \abs{\xc} = \abs{\fc \appl \xc}$ holds for all $\xc \in \domainc{\ground}$.
+
+    Two functions $\fa,\fa \in \domaina{\ground \to \ground}$ are $\approx$-equivalent if for any $\abs{\xc}$, their function \nb{values coincide}.
+
+    This characterization can be generalized easily for any kind of order one with arbitrary arity.
+    A concrete function is compatible if swapping its arguments for ones that have the same image under $\abs$ does not change the $\abs$-image of the function value.
+    The abstraction of the function takes a preimage for each abstract value, applies the function, and abstracts the result.
+    Two abstract functions are $\approx$-equivalent if their function values coincide on the image of $\abs$.
+\end{example}
+
+We turn back to discussing the intricacies of \cref{Definition:HORSEFPTBasics}.
+It is not hard to verify using induction that $\approx$ is indeed an equivalence.
+However, it quickly turns our there is an issue with the well-definedness of $\abs$ for compatible functions $\fc$.
+The value of $\abs{\fc} \appl \xa$ depends on which preimage $\xc$ we chose.
+However, assume $\xc, \xc'$ are both compatible elements with $\abs{\xc} \approx \abs{\xc'} \approx \xa$.
+Because $\fc$ is compatible, we get $\abs{\fc \appl \xc} \approx \abs{\fc \appl \xc'}$.
+Even if we chose a different preimage for $\xa$, we end up with an $\approx$-equivalent result.
+While $\abs{\fc}$ is technically not well-defined, it is at least well-defined modulo applying the equivalence on the function domain.
+We will take care of this issue by making sure that we never compare the function values of $\abs{\fc}$ using equality.
+Instead, we always use $\approx$-equivalence in the following.
+
+There is another issue.
+Recall that $\domaina{\kappa_1 \to \kappa_2}$ is defined to be the set of join-continuous functions from $\domaina{\kappa_1}$ to $\domaina{\kappa_2}$.
+Hence, $\abs{\fc}$ should be join-continuous, which in particular implies that it should be monotonic.
+From the definition, it is obvious that monotonicity does not hold:
+If we feed $\abs{\fc}$ an abstract value $\xa$ that is not $\approx$-equivalent to some $\abs{\xc}$, then the result $\abs{\fc} \appl \xa$ will be the least element of $\domaina{\kappa_1}$.
+However, we will later show that $\abs{\fc}$ is indeed join-continuous and hence monotonic if we restrict ourselves to applying it to values of the shape $\abs{\xc}$ where $\xc$ is compatible.
+As in the above case, we will circumvent the issue by making sure that we never use the monotonicity or join-continuity of $\abs{\fc}$ for arguments that are not of this shape.
+
+One could solve both problems -- the well-definedness of $\abs{\fc}$ and its join-continuity -- by modifying the abstract domain.
+Instead of considering $\domaina{\kappa}$, we should only consider its subset $\abs{\Set{\xc \in \domainc{\kappa}}{\xc \text{ compatible}}}$, the image of $\abs$ on compatible elements, and we should additionally factorize modulo the equivalence relation~$\approx$.
+Not taking this approach will require us to be more careful, but it will also improve readability.
+
+\paragraph{Basic properties}
+
+Later, we will put additional requirements on $\abs$ to be able to prove  exact-fixed point transfer.
+For now, we will show some properties of the notions that we have introduced that do not require further restrictions.
+The first one is that the equivalence $\approx$ is well-behaved with respect to forming limits:
+The join of an ascending chain remains the same (modulo $\approx$) if we exchange the elements of the chain for $\approx$-equivalent ones.
+
+\begin{lemma}%
+\label{Lemma:HORSEFPTApproxLimits}%
+    If ${(\xai)}_{i \in \N}$ and ${(\xai')}_{i \in \N}$ are ascending chains in $\domaina{\kappa}$ for some $\kappa$ such that $\xai \approx \xai'$ for all $i$, then $\bigsqcup_{i \in \N } \xai \approx \bigsqcup_{i \in \N} \xai'$.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on the kind $\kappa$.
+    In the base case, the statement is trivial since $\approx$ is equality for kind ground.
+
+    Consider kind $\kappa_1 \to \kappa_2$, and let ${(\fai)}_{i \in \N}$ and ${(\fai')}_{i \in \N}$ be two ascending chains from $\domaina{\kappa_1 \to \kappa_2}$ such that $\fai \approx \fai'$ for all $i$.
+    The join of these chains is a function, and the definition of $\approx$ for functions requires us to consider $\xa \in \domaina{\kappa_1}$ such that $\xa \approx \abs{\xc}$ for some compatible $\xc$.
+    We have to argue that
+    \[
+        \big(\bigsqcup_{i \in \N } \fai\big) \appl \xa
+        \approx
+        \big(\bigsqcup_{i \in \N} \fai'\big) \appl \xa
+    \]
+    holds.
+    Using the definition of the join on the function domain, this simplifies to showing
+    \[
+        \bigsqcup_{i \in \N } \paren{\fai \appl \xa}
+        \approx
+        \bigsqcup_{i \in \N} \paren{\fai' \appl \xa}
+        \ .
+    \]
+    Since $\fai \approx \fai'$, we have $\fai \appl \xa \approx \fai' \appl \xa$ for all $i$.
+    Hence, we may apply induction to conclude the desired statement.
+\end{proof}
+
+The other result tackles the following problem:
+The definition of $\approx$ essentially guarantees that $\fa \approx \fa'$ implies $\fa \appl \xa \approx \fa' \appl \xa$.
+However, we will later also need that $\approx$ is a congruence, \ie that $\fa \appl \xa \approx \fa \appl \xa'$ if $\xa \approx \xa'$.
+We then get the congruence property that will be required: If $\fa \approx \fa'$ and $\xa \approx \xa'$, then $\fa \appl \xa \approx \fa' \appl \xa'$.
+
+Unfortunately, $\approx$ is not a congruence on $\domaina{\kappa}$ in general.
+Instead, we define the notion of \emph{permeable} elements of $\domaina{\kappa}$ such that $\approx$ is a congruence on these elements.
+Our definition of permeability is again by induction on the kind.
+
+For kind ground, an element $\xa \in \domaina{\ground}$ is permeable if $\xa = \abs{\xc}$ for some compatible $\xc \in \domainc{\ground}$.
+(Since $\approx$ is equality for ground kind, this is equivalent to requiring $\xa \approx \abs{\xc}$.)
+
+A function $\fa \in \domaina{\kappa_1 \to \kappa_2}$ is permeable if
+(1) $\fa \approx \abs{\fc}$ for some $\fc \in \domainc{\kappa_1 \to \kappa_2}$,
+(2) for any permeable $\xa \in \domain{\kappa_1}$, $\fa \appl \xa \in \domaina{\kappa_2}$ is permeable,
+and
+(3) for permeable $\xa, \xa' \in \domain{\kappa_1}$ with $\xa \approx \xa'$, we have $\fa \appl \xa \approx \fa \appl \xa'$.
+
+Part~(3) of the definition of permeability is exactly the congruence with respect to $\approx$ that we will need later.
+We show that permeability is well-behaved with respect to $\approx$.
+
+\begin{lemma}%
+\label{Lemma:HORSEFPTApproxCompatibleWellDef}%
+    If $\fa$ is permeable and $\fa \approx \fa'$, then so is $\fa'$.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on the kind, where the base case is trivial since $\approx$ is equality for ground kind.
+    Consider functions $\fa, \fa' \in \domaina{\kappa_1 \to \kappa_2}$ such that $\fa$ is permeable and $\fa \approx \fa'$.
+    We argue that $\fa'$ is permeable.
+    For~(1), we have $\fa' \approx \fa \approx \abs{\fc}$ for some compatible $\fc$ using the fact that $\fa$ is permeable and the transitivity of $\approx$.
+    For~(2), consider a permeable $\xa \in \domain{\kappa_1}$.
+    We have $\fa \appl \xa \approx \fa' \appl \xa$, where the former value is permeable by the assumption that $\fa$ is permeable.
+    We apply induction to get that also the latter value is permeable.
+    For~(3), consider permeable $\xa, \xa' \in \domain{\kappa_1}$ with $\xa \approx \xa'$.
+    We have $\fa' \appl \xa \approx \fa \appl \xa \approx \fa \appl \xa' \approx \fa' \appl \xa'$, where we use the definition of the equivalence~$\approx$ twice and the fact that $\fa$ is assumed to be permeable.
+\end{proof}
+
+The notion of permeability may give the impression that it introduces a new proof obligation on the user of the framework.
+However, this is not the case: We will show that any $\abs$-image $\abs{\xc}$ of a compatible $\xc$ is permeable.
+By \cref{Lemma:HORSEFPTApproxCompatibleWellDef}, this also means that any element that is $\approx$-equivalent to an $\abs$-image is permeable.
+Before we can formally prove this, we need to state some additional requirements on $\abs$ that we will need to make in the rest of this section.
+
+\paragraph{Precision}
+
+The exact fixed-point transfer will require $\abs$ to have some special properties.
+
+\begin{definition}%
+\label{Definition:HORSEFPTPrecise}%
+    We call an abstraction function $\abs \colon \domainc{\ground} \to \domaina{\ground}$ \emph{precise} if
+    \customlabel{Property:HORSPrecisionBottom}{(P1)} $\abs{\botc{\ground}} = \bota{\ground}$,
+    \customlabel{Property:HORSPrecisionCont}{(P2)} $\abs$ is join-continuous on $\domainc{\ground}$:
+            If ${(\xci)}_{i \in \N}$ is an ascending chain in $\domainc{\ground}$, then $\abs{\bigsqcup_{i \in \N} \xci} = \bigsqcup_{i \in \N} \abs{\xci}$,
+    \customlabel{Property:HORSPrecisionCompatibility}{(P3)} for each terminal $s$, $\interpretationc{s}$ is compatible,
+    \customlabel{Property:HORSPrecisionInterpretations}{(P4)} for each terminal $s$, $\abs{s^{\interpretationc}} \approx s^{\interpretationa}$.
+\end{definition}
+
+The first requirement is that $\abs$ maps the least element of the concrete domain to the least element of the abstract domain.
+The second is that $\abs$ is join-continuous.
+Since the least fixed point is, by Kleene's theorem, the join of an ascending chain that starts with the bottom element, requiring these properties is not unexpected.
+Note that we only require these properties for kind ground.
+We will show that this is sufficient to be able to lift them to arbitrary the domains for arbitrary kinds.
+
+The latter two requirements are that the concrete interpretation of the terminals are compatible and that under $\abs$, they are $\approx$-equivalent to the abstract interpretations.
+Recall that we have required terminals to be first order.
+This means that the definitions if $\abs$ and $\approx$ are simple, as we have explained in \cref{Example:HORSEFPTBasicDefinitions}.
+We lift the latter two properties from the terminals to arbitrary HORS terms later.
+This lifting result be the key ingredient for proving exact fixed-point transfer.
+At the end of the section, we will give an overview of what the user of the framework has to show to be able to use it.
+
+We start by considering the properties of $\botc{\kappa}$ and $\bota{\kappa}$, lifting Property~\ref{Property:HORSPrecisionBottom} in the process.
+
+\begin{lemma}%
+\label{Lemma:HORSEFPTLiftBottom}%
+    Assume that $\abs$ satisfies Property~\ref{Property:HORSPrecisionBottom}.
+    For each kind $\kappa$, $\botc{\kappa}$ is compatible and $\abs{\botc{\kappa}} = \bota{\kappa}$.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on the kind $\kappa$.
+    In the base case, compatibility of $\botc{\ground}$ is trivial.
+    Property~\ref{Property:HORSPrecisionBottom} guarantees $\abs{\botc{\ground}} = \bota{\ground}$.
+
+    Consider kind $\kappa_1 \to \kappa_2$.
+    For compatibility, consider any elements $\xc, \xc' \in \domainc{\kappa_1}$.
+    We have that $\botc{\kappa_1 \to \kappa_2} \appl \xc = \botc{\kappa_2}$ is compatible by induction.
+    Similarly, we have $\abs{\botc{\kappa_1 \to \kappa_2} \appl \xc} = \abs{\botc{\kappa_2}} = \abs{\botc{\kappa_1 \to \kappa_2} \appl \xc'}$ as required.
+
+    To see that $\abs{\botc{\kappa_1 \to \kappa_2}}$ is $\bota{\kappa_1 \to \kappa_2}$, the function that sends any element $\xa \in \domaina{\kappa_1}$ to $\bota{\kappa_2}$, consider such an $\xa$.
+    If $\xa$ is not $\approx$-equivalent to the $\abs$-image of some compatible $\xc \in \domainc{\kappa_1}$, $\abs{\botc{\kappa_1 \to \kappa_2}} \appl \xa = \bota{\kappa_2}$ holds by definition.
+    Otherwise, we have
+    \(
+        \abs{\botc{\kappa_1 \to \kappa_2}} \appl \xa
+        =
+        \abs{\botc{\kappa_1 \to \kappa_2} \appl \xc}
+        =
+        \abs{\botc{\kappa_2}}
+        =
+        \bota{\kappa_2}
+    \)
+    by induction.
+\end{proof}
+
+With this lemma, we can also tie up a loose end from earlier.
+It enables us to show that $\abs{\fc}$ is always permeable.
+Hence, permeability is not an additional proof obligation; we get it for free for any abstract element that is in the image of $\abs$.
+
+\begin{lemma}%
+\label{Lemma:HORSEFPTAbstractionApproxCompatible}%
+    Assume that $\abs$ satisfies Property~\ref{Property:HORSPrecisionBottom}.
+    For any $\fc \in \domainc{\kappa}$, $\abs{\fc} \in \domaina{\kappa}$ is permeable.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on the kind $\kappa$.
+    We additionally prove that $\bota{\kappa}$ is permeable.
+    For kind~$\ground$, permeability just means being in the $\abs$-image, which is satisfied by assumption.
+    The least element $\bota{\kappa}$ is in the image of $\abs$ by Property~\ref{Property:HORSPrecisionBottom}.
+
+    Consider kind $\kappa_1 \to \kappa_2$.
+    We first argue that $\bota{\kappa_1 \to \kappa_2}$ is permeable.
+    By \cref{Lemma:HORSEFPTLiftBottom}, it is in the image of $\abs$.
+    For Part~(2) of the definition of permeability, consider a permeable $\xa \in \domaina{\kappa_1}$ and note that $\bota{\kappa_1 \to \kappa_2} \appl \xa = \bota{\kappa_2}$, which is permeable by induction.
+    Similarly, for Part~(3), consider permeable $\xa, \xa' \in \domaina{\kappa_1}$ and we get $\bota{\kappa_1 \to \kappa_2} \appl \xa = \bota{\kappa_2} = \bota{\kappa_1 \to \kappa_2} \appl \xa'$.
+
+    Let us now consider $\fc \in \domainc{\kappa_1 \to \kappa_2}$.
+    We need to prove that $\abs{\fc}$ is permeable, where the first part of the definition is trivially satisfied.
+    If $\fc$ is not compatible, $\abs{\fc} = \bota{\kappa_1 \to \kappa_2}$, and we have just argued that this value is permeable.
+    Let us assume that $\fc$ is compatible, and let $\xa \approx \xa'$ be permeable values.
+    This in particular means $\xa \approx \xa' \approx \abs{\xc}$ for some compatible $\xc$.
+    Consider $\abs{\fc} \appl \xa \approx \abs{\fc \appl \xc}$, using the definition of $\abs{\fc}$.
+    The latter value is permeable by induction, and so is the former by \cref{Lemma:HORSEFPTApproxCompatibleWellDef}.
+    For Part~(3) of the definition, note that $\abs{\fc} \appl \xa \approx \abs{\fc \appl \xc} \approx \abs{\fc} \appl \xa'$ as required.
+\end{proof}
+
+As a next step, we lift Property~\ref{Property:HORSPrecisionCont}, the join-continuity of $\abs$, beyond kind ground.
+To be precise, we show a restricted version of join-continuity.
+We only consider ascending chains of compatible elements, and instead of showing that the join of the function value equals the function value of the join, we show that they are $\approx$-equivalent.
+For the proof by induction to work, we need to strengthen the induction hypothesis and also show that the limit of a chain of compatible elements is compatible.
+
+\begin{lemma}%
+\label{Lemma:HORSEFPTLiftJoinContinuity}%
+    Assume that $\abs$ satisfies the Properties~\ref{Property:HORSPrecisionBottom}~and~\ref{Property:HORSPrecisionCont}
+    For all $\kappa$:
+    The join $\bigsqcup_{i \in \N} \fci$ of an ascending chain of compatible elements ${(\fci)}_{i \in \N}$ from $\domainc{\kappa}$ is compatible, and $\abs$ is join-continuous on such chains:
+    $\abs{ \bigsqcup_{i \in \N} \fci } \approx \bigsqcup_{i \in \N} \abs{\fci}$.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on $\kappa$.
+    Any element of $\domainc{\ground}$ is compatible by definition, which in particular applies to the join of a chain.
+    The join continuity of $\abs$ is simply Property~{\ref{Property:HORSPrecisionCont}}.
+
+    Consider kind $\kappa_1 \to \kappa_2$, and let $\bigsqcup_{i \in \N} \fci$ be an ascending chain of compatible elements ${(\fci)}_{i \in \N}$ from $\domainc{\kappa_1 \to \kappa_2}$.
+
+    For the first part of the definition of compatibility, consider a compatible $\xc \in \domainc{\kappa_1}$
+    We have
+    \(
+        \paren{ \bigsqcup_{i \in \N} \fci } \appl \xc
+        =
+        \bigsqcup_{i \in \N} \paren{\fci \appl \xc}
+    \)
+    by the definition of the join on the function domain $\domainc{\kappa_1 \to \kappa_2}$.
+    Since $\xc$ is compatible and each $\fci$ is compatible, then so is each $\fci \appl \xc$.
+    Additionally, the $\fci$ forming an ascending chain implies their function values $\fci \appl \xc$ forming an ascending chain.
+    Induction proves that $\bigsqcup_{i \in \N} \paren{\fci \appl \xc}$ is compatible as desired.
+
+    For the second part, let $\xc, \xc' \in \domainc{\kappa_1}$ be compatible so that $\abs{\xc} \approx \abs{\xc'}$.
+    We need to prove
+    \[
+        \abs \Big( \big( \bigsqcup_{i \in \N} \fci \big) \appl \xc \Big)
+        \enspace
+        \approx
+        \enspace
+        \abs \Big( \big( \bigsqcup_{i \in \N} \fci \big) \appl \xc' \Big)
+        \ .
+    \]
+    Using the definition of the join on both sides, it would be sufficient to show
+    \[
+        \abs \Big( \bigsqcup_{i \in \N} \big(  \fci \appl \xc  \big) \Big)
+        \enspace
+        \approx
+        \enspace
+        \abs \Big( \bigsqcup_{i \in \N} \big(  \fci  \appl \xc' \big) \Big)
+        \ .
+    \]
+    As in the first part of the proof, both ${(\fci \appl \xc)}_{i \in \N}$ and ${(\fci \appl \xc')}_{i \in \N}$ are ascending chains of compatible elements in $\domainc{\kappa_2}$.
+    We apply induction and use the join-continuity of $\abs$ on $\domainc{\kappa_2}$ to get the desired statement.
+
+    For join-continuity, we need to show
+    \(
+        \abs { \bigsqcup_{i \in \N} \fci }
+        \approx
+        \bigsqcup_{i \in \N} \abs {\fci }
+    \).
+    By the definition of $\approx$, this means we need to consider some $\xa \in \domain{\kappa_1}$ such that $\xa \approx \abs{\xc}$ for some compatible $\xc$.
+    We prove
+    \(
+        \abs { \bigsqcup_{i \in \N} \fci } \appl \xa
+        \approx
+        \paren{\bigsqcup_{i \in \N} \abs {\fci }} \appl \xa
+        \ .
+    \)
+    By the definition of $\abs$ for functions, we have
+    $\abs { \bigsqcup_{i \in \N} \fci } \appl \xa \approx \abs{ ( \bigsqcup_{i \in \N} \fci ) \appl \xc  }$.
+    By the definition of the join, this value equals
+    $\abs{ \bigsqcup_{i \in \N} (\fci \appl \xc)  }$.
+    As before, ${(\fci \appl \xc)}_{i \in \N}$ is an ascending chain of compatible elements, so we apply induction to get
+    \(
+        \abs \big( \bigsqcup_{i \in \N} (\fci \appl \xc)  \big)
+        \approx
+        \bigsqcup_{i \in \N} \abs{ \fci \appl \xc }
+        \ .
+    \)
+    Starting from the other side of the desired equality we get
+    \(
+        \paren{\bigsqcup_{i \in \N} \abs {\fci }} \appl \xa
+        =
+        \bigsqcup_{i \in \N} \paren{ \abs {\fci } \appl \xa}
+    \) using the definition of the join.
+    By the definition of $\abs$, we have $\abs {\fci } \appl \xa \approx \abs{ \fci \appl \xc }$, which completes the proof.
+\end{proof}
+
+The previous lemma allows us to tie up another loose end.
+At the beginning of the section, we have claimed that $\abs{\fc}$ is join-continuous on the $\abs$-images of compatible elements.
+We can now prove this statement.
+
+Let $\fc \in \domainc{\kappa_1 \to \kappa_2}$ be a function.
+Consider an ascending chain ${(\xci)}_{i \in \N}$ in $\domainc{\kappa_1}$ of compatible elements.
+By \cref{Lemma:HORSEFPTLiftJoinContinuity}, $\abs$ is join-continuous and hence monotonic.
+We define $\xai = \abs{\xci}$ for each $i$ and obtain that ${(\xai)}_{i \in \N}$ is an ascending chain in $\domaina{\kappa_1}$.
+We prove that $\abs{\fc} \appl \paren{\bigsqcup_{i \in \N} \xai} \approx \bigsqcup_{i \in \N} \paren{ \abs{\fc} \appl \xai}$.
+By the join-continuity of $\abs$, we get that the join $\bigsqcup_{i \in \N} \xai$ of the $\xai$ is $\approx$-equivalent to the join of the $\xai$, $\bigsqcup_{i \in \N} \xai \approx \abs{\bigsqcup_{i \in \N} \xci}$.
+Hence, the definition of $\abs{\fc}$ gives us
+\(
+    \abs{\fc} \appl \paren{\bigsqcup_{i \in \N} \xai}
+    \approx
+    \abs{\fc \appl \paren{\bigsqcup_{i \in \N} \xci}}
+    \ .
+\)
+The function $\fc$ is join-continuous by our definition of $\domainc{\kappa_1 \to \kappa_2}$, so we can transform the latter expression to
+\(
+    \abs{\bigsqcup_{i \in \N} \fc \appl \xci}
+    \ .
+\)
+We use the join-continuity of $\abs$ and the definition of $\abs{\fc}$ to get
+\(
+    \bigsqcup_{i \in \N} \abs{\fc \appl \xci}
+    \approx
+    \bigsqcup_{i \in \N} \paren{\abs{\fc} \appl \xai}
+    \ ,
+\)
+which proves the desired statement.
+
+\paragraph{Exact fixed-point transfer}
+
+We hone in on proving exact fixed-point transfer.
+The key step is lifting the Properties~\ref{Property:HORSPrecisionCompatibility}~and~\ref{Property:HORSPrecisionInterpretations} from the definition of precision from the nonterminals to arbitrary HORS terms.
+
+Recall that the semantics $\sem{\model}{t}$ of a HORS term $t$ is a function with signature $(N \dotcup V \pto \domain) \to \domain$ that expects a valuation, an assignment of values to the nonterminals and the HORS variables that are free in $t$.
+We extend some of the notions that we have defined in this section to valuations in the expected way.
+A concrete valuation $\valc \colon N \dotcup V \pto \domainc$ is compatible if $\valc(x)$ is compatible for all $x$ on which $\valc$ is defined.
+For such a concrete valuation $\valc$, $\abs{\valc} \colon N \dotcup V \pto \domaina$ is the abstract valuation with $\abs{\valc}(x) = \abs{\valc{(x)}}$ for all $x$ on which $\valc$ is defined.
+
+We can now prove the proposition that shows that $\semc{t}{\val}$ is compatible and that its $\abs$-image is $\approx$-equivalent to $\sema{t}{\abs{\val}}$.
+We also prove that if we modify the valuation $\abs{\val}$ by exchanging its entries for $\approx$-equivalent ones, we obtain an $\approx$-equivalent result.
+
+
+\begin{proposition}%
+\label{Proposition:HORSEFPTLiftToSemantics}%
+    Assume $\abs$ to be precise.
+    Let $t$ be a term and $\valc$ be a compatible valuation.
+    \begin{enumerate}[a)]
+        \item $\semc{t}{\valc}$ is compatible.
+        \item $\abs{\semc{t}{\valc}} \approx \sema{t}{\abs{\valc}}$.
+        \item If an abstract valuation $\vala \colon N \dotcup V \pto \domaina$ satisfies $\vala \approx \abs{\valc}$, meaning $\vala(x) \approx \abs{\valc}(x)$ for all~$x$, then $\sema{t}{\abs{\valc}} \approx \sema{t}{\vala}$.
+    \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+    We proceed by induction on the structure of the term $t$ and prove all statements \nb{simultaneously}.
+
+    \subparagraph{Base case $t = s$ for a terminal $s$}
+    %
+    We have $\semc{t}{\valc} = s^{\interpretationa}$.
+    For Part~a), note that compatibility is simply Property~\ref{Property:HORSPrecisionCompatibility}.
+    %
+    For Part~b), we have $\abs{\semc{t}{\valc}} = \abs{s^{\interpretationa}} \approx s^{\interpretationa} = \sema{t}{\abs{\valc}}$ using Property~\ref{Property:HORSPrecisionInterpretations} and the fact that the valuation does not play a role when evaluating a terminal.
+    %
+    The latter fact also proves $\sema{s}{\abs{\valc}} \approx \sema{s}{\vala}$.
+
+    \subparagraph{Base case $t = F$ for a nonterminal $F$}
+    %
+    The value $\semc{F}{\valc} = \valc(F)$ is compatible since $\valc$ is compatible.
+    %
+    We have $\abs{\semc{F}{\valc}} = \abs{\valc(F)} = \abs{\valc}(F) = \sema{F}{\abs{\valc}}$ using the definition of $\abs{\valc}$.
+    %
+    Finally, $\sema{F}{\abs{\valc}} = \abs{\valc}(F) \approx \vala(F) = \sema{F}{\vala}$ since $\abs{\valc} \approx \vala$ by assumption.
+
+
+    \subparagraph{Base case $t = x$ for a HORS variable $x$}
+    %
+    The reasoning is exactly the same as for $t = F$.
+
+    \subparagraph{Inductive step, $t = \lambda x . t_1$}
+    %
+    Observe that $\semc{\lambda x . t_1}{\valc}$ is a function that takes $\xc$ and returns $\semc{t_1}{\paren{\valc[x \mapsto \xc]}}$.
+
+    For Part~a), we prove compatibility using its definition.
+    Let $\xc$ be compatible, then the value $\semc{\lambda x . t_1}{\valc} \appl \xc$ equals $\semc{t_1}{\paren{\valc[x \mapsto \xc]}}$.
+    Since both $\valc$ and $\xc$ are compatible, $\valc[x \mapsto \xc]$ is a compatible valuation.
+    We apply Part~a) of the proposition using induction and obtain that $\semc{t_1}{\paren{\valc[x \mapsto \xc]}}$ is compatible as required.
+    Consider compatible $\xc,\xc'$ with $\abs{\xc} \approx \abs{\xc'}$.
+    We have $\abs{\semc{\lambda x . t_1}{\valc} \appl \xc} = \abs{\semc{t_1}{\paren{\valc[x \mapsto \xc]}}} \approx \sema{t_1}{\abs{\valc[x \mapsto \xc]}}$ by using Part~b) of the induction hypothesis.
+    Similarly, $\abs{\semc{\lambda x . t_1}{\valc} \appl \xc'} \approx \sema{t_1}{\abs{\valc[x \mapsto \xc']}}$.
+    We have $\abs{\valc[x \mapsto \xc]} \approx \abs{\valc[x \mapsto \xc']}$ since $\abs{\xc} \approx \abs{\xc'}$ so we can use Part~c) of the induction hypothesis to conclude $\sema{t_1}{\abs{\valc[x \mapsto \xc]}} \approx \sema{t_1}{\abs{\valc[x \mapsto \xc']}}$ as desired.
+
+    For Part~b), consider $\abs{\semc{\lambda x . t_1}{\valc}}$.
+    We need to show that it is $\approx$-equivalent to $\sema{\lambda x . t_1}{\abs{\valc}}$.
+    The latter is a function that takes $\xa$ and returns $\sema{t_1}{\abs{\valc}[x \mapsto \xa]}$.
+    We check the definition of $\approx$ for functions by considering $\xa$ with $\xa \approx \abs{\xc}$ for some compatible $\xc$.
+    We have
+    \begin{align*}
+        \abs{\semc{\lambda x . t_1}{\valc}} \appl \xa
+        &\approx \abs{\semc{\lambda x . t_1}{\valc} \appl \xc}
+        \\
+        &= \abs{\semc{t_1}{\paren{\valc [x \mapsto \xc]}}}
+        \\
+        &\approx \sema{t_1}{\abs{\valc [x \mapsto \xc]}}
+        \\
+        &= \sema{t_1}{\paren{\abs{\valc} [x \mapsto \abs{\xc}]}}
+    \end{align*}
+    using the definition of $\abs$, the definition of the interpretation of lambda abstraction, and the induction hypothesis.
+    The last step is simply evaluating $\abs{\valc [x \mapsto \xc]}$.
+    We now observe that $\abs{\valc}[x \mapsto \abs{\xc}] \approx \abs{\valc}[x \mapsto \xa]$ since $\xa \approx \abs{\xc}$.
+    We use Part~c) of the induction hypothesis and get
+    \begin{align*}
+       \sema{t_1}{\paren{\abs{\valc} [x \mapsto \abs{\xc}]}}
+       &\approx  \sema{t_1}{\paren{\abs{\valc} [x \mapsto \xa]}}
+       = \sema{\lambda x. t_1}{\abs{\valc}} \appl \xa
+    \end{align*}
+    as desired.
+
+    For Part~c), we compare $\sema{\lambda x . t_1}{\abs{\valc}}$ and $\sema{\lambda x . t_1}{\vala}$.
+    Consider $\xa$ such that $\xa \approx \abs{\xc}$ for some compatible $\xc$.
+    We have $\sema{\lambda x .  t_1}{\vala} \appl \xa = \sema{t_1}{\paren{\vala[x \mapsto \xa]}}$
+    and similarly $\sema{\lambda x .  t_1}{\abs{\valc}} \appl \xa = \sema{t_1}{\paren{\abs{\valc}[x \mapsto \xa]}}$.
+    We have $\abs{\valc}[x \mapsto \xa] \approx \abs{\valc[x \mapsto \xc]}$, so we apply the induction hypothesis to get
+    $\sema{t_1}{\paren{\abs{\valc}[x \mapsto \xa]}} \approx \sema{t_1}{\abs{\valc[x \mapsto \xc]}}$.
+    We now use $\abs{\valc[x \mapsto \xc]} \approx \vala[x \mapsto \xa]$ and apply the induction hypothesis again to get
+    $\sema{t_1}{\abs{\valc[x \mapsto \xc]}} \approx \sema{t_1}{\paren{\vala[x \mapsto \xa]}}$ as desired.
+
+    \subparagraph{Inductive step, $t = t_1 \appl t_2$}
+    %
+    For Part~a), we have
+    \[
+        \semc{t_1 \appl t_2}{\valc} = \semc{t_1}{\valc} \appl \semc{t_2}{\valc}
+    \]
+    using the definition of the interpretation of function application.
+    Both $\semc{t_1}{\valc}$ and $\semc{t_2}{\valc}$ are compatible by induction.
+    The value $\semc{t_1}{\valc}$ is a function, and using the definition of compatibility for functions, the function value of a compatible function at a compatible argument is again compatible.
+    We obtain that $\semc{t_1}{\valc} \appl \semc{t_2}{\valc}$ is compatible.
+
+    For Part~b), we get
+    \begin{align*}
+        \abs{ \semc{t_1 \appl t_2}{\valc} }
+        &= \abs{ \semc{t_1}{\valc} \appl \semc{t_2}{\valc} }
+        \\
+        &\approx \abs{ \semc{t_1}{\valc} } \appl \sema{t_2}{\abs{\valc}}
+    \end{align*}
+    where the last transformation requires some explanation.
+    By induction, we have $\abs{\semc{t_2}{\valc}} \approx \sema{t_2}{\abs{\valc}}$.
+    Hence, $\semc{t_2}{\valc}$ is an $\abs$-preimage of $\sema{t_2}{\abs{\valc}}$ (modulo~$\approx$) and we may use the definition of $\abs$ for functions.
+    We have $\abs{ \semc{t_1}{\valc} } \approx \sema{t_1}{\abs{\valc}}$ by induction, so following the definition of $\approx$ for functions, we obtain
+    \begin{align*}
+        \abs{ \semc{t_1}{\valc} } \appl \sema{t_2}{\abs{\valc}}
+        & \approx \sema{t_1}{\abs{\valc}} \appl \sema{t_2}{\abs{\valc}}
+        \\
+        &= \sema{t_1 \appl t_2}{\abs{\valc}}
+        \ ,
+    \end{align*}
+    proving the desired statement.
+
+    Finally, we consider Part~c).
+    We have
+    \[
+        \sema{t_1 \appl t_2}{\abs{\valc}}
+        \ = \
+        \sema{t_1}{\abs{\valc}}
+        \appl
+        \sema{t_2}{\abs{\valc}}
+        \ .
+    \]
+    By induction $\sema{t_1}{\abs{\valc}} \approx \sema{t_1}{\vala}$ and
+    $\sema{t_2}{\abs{\valc}} \approx \sema{t_2}{\vala}$ hold.
+    Also by induction, we know that $\sema{t_2}{\abs{\valc}}$ is $\approx$ related to an element in the image of $\abs$ (namely $\semc{t_2}{\valc}$), so we can use the definition of $\approx$ for functions and get
+    \[
+        \sema{t_1}{\abs{\valc}} \appl \sema{t_2}{\abs{\valc}}
+        \ \approx \
+        \sema{t_1}{\vala} \appl \sema{t_2}{\abs{\valc}}
+        \ .
+    \]
+    Have you noticed that we have not used the concept of permeability yet?
+    The value $\abs{\semc{t_1}{\valc}}$ is permeable by \cref{Lemma:HORSEFPTAbstractionApproxCompatible}.
+    Since $\abs{\semc{t_1}{\valc}} \approx  \sema{t_1}{\abs{\valc}} \approx \sema{t_1}{\vala}$, so is $\sema{t_1}{\vala}$ by \cref{Lemma:HORSEFPTApproxCompatibleWellDef}.
+    Similarly, $\abs{\semc{t_2}{\valc}}$ is permeable by \cref{Lemma:HORSEFPTAbstractionApproxCompatible}, and both $\sema{t_2}{\abs{\valc}}$ and $\sema{t_2}{\vala}$ are permeable because they are $\approx$-equivalent to this value.
+    We use Property~(3) from the definition of permeability to conclude
+    \[
+        \sema{t_1}{\vala} \appl \sema{t_2}{\abs{\valc}}
+        \ \approx \
+        \sema{t_1}{\vala} \appl \sema{t_2}{\vala}
+        \ = \
+        \sema{t_1 \appl t_2}{\vala}
+        \ .
+    \]
+    This completes the proof.
+\end{proof}
+
+%
+\cheatpagebreak
+%
+
+The previous proposition enables us to prove our main result, exact fixed-point transfer.
+
+\begin{theorem}%
+\label{Theorem:HORSEFPT}%
+    If $\abs$ is precise, then $\sola \approx \abs{\solc}$.
+\end{theorem}
+
+Here, we use the notation for valuations, \ie  $\sola \approx \abs{\solc}$ means that for every nonterminal $F$, we have $\sola{F} \approx \abs{\solc}(F) = \abs{\solc{F}}$.
+This result also extends to arbitrary terms $t$: $\sola{t} \approx \abs{\solc{t}}$.
+If $t$ is variable-closed and of kind $\ground$, we even get $\sola{t} = \abs{\solc{t}}$ because $\approx$ is simply equality on $\domaina{\ground}$.
+We state this result as a corollary.
+
+\begin{corollary}%
+\label{Corollary:HORSEFPT}%
+    If $t$ is a variable-closed term of kind ground, then $\sola{t} = \abs{\solc{t}}$.
+\end{corollary}
+
+Note that the corollary in articular applies to the initial nonterminal $S$ of the scheme, which we have required to be of kind $\ground$.
+
+To finish this section, it remains to prove the theorem.
+
+
+\begin{figure}
+    \onehalfspacing%
+    {%
+    \setlength{\fboxsep}{1em}
+    \fbox%
+    {%
+        \begin{minipage}{\textwidth-2.5em}
+            \vspace*{0.5em}
+            %
+            \paragraph{\large Overview: Exact fixed-point transfer}
+            %
+            \vspace{1em}
+            %
+            Consider a deterministic HORS $G$, a concrete model $\modelc = (\domainc,\interpretationc)$, and an abstract model $\modela = (\domaina,\interpretationa)$, both instantiations of the model template described in \cref{Section:HORSTemplate} (see \cref{Figure:HORSTemplateCheatSheet}).
+            Note that these models in particular provide domains $\domainc{\ground}$ and $\domaina{\ground}$ for kind~$\ground$.
+
+            We get the existence of the least solution $\solc$ and $\sola$ of the interpreted system of equations associated to $G$ for these models.
+            %
+            \vspace*{1em}
+            %
+            \paragraph{Precision}
+            Assume we are given an abstraction function $\abs \colon \domainc{\ground} \to \domaina{\ground}$ satisfying the \nb{following properties}.
+            \begin{itemize}
+                \item
+                    $\abs$ maps the least element $\botc{\ground} \in \domainc{\ground}$ to the least element $\bota{\ground} \in \domaina{\ground}$, $\abs{\botc{\ground}} \ = \  \bota{\ground}$.
+                \item
+                    $\abs \colon \domainc{\ground} \to \domaina{\ground}$ is join-continuous.
+                \item
+                    For each terminal symbol $s$ of order one, say with arity $k$, consider $x_1, x_1', \ldots, x_k, x_k' \in \domainc{\ground}$ so that $\abs{x_i} = \abs{x_i'}$ for all $i \in \oneto{k}$.
+                    \\
+                    The concrete interpretation of $s$ should satisfy
+                    \[
+                        \abs{ s^{\interpretationc} \appl x_1 \ldots x_k }
+                        \ = \
+                        \abs{ s^{\interpretationc} \appl x_1' \ldots x_k' }
+                        \ .
+                    \]
+                \item
+                    For each terminal symbol $s$, say with arity $k$, consider $x_1, \ldots, x_k \in \domainc{\ground}$.
+                    \\
+                    The interpretations of $s$ should satisfy
+                    \[
+                        \abs{ s^{\interpretationc} \appl x_1 \ldots x_k }
+                        \ = \
+                        s^{\interpretationa} \appl \abs{x_1} \ldots \abs{x_k}
+                        \ .
+                    \]
+            \end{itemize}
+
+            \paragraph{Exact fixed-point transfer}
+            Then for each variable-closed term $t$ of kind ground, the abstraction of the value assigned to $t$ by the concrete least solution is the value of $t$ in the abstract least solution,
+            \[
+                \abs{\solc{t}} \ = \ \sola{t}
+                \ .
+            \]
+            \vspace*{0.1em}
+        \end{minipage}
+    }
+    }
+    \caption{Overview: Exact fixed-point transfer.}%
+    \label{Figure:HORSEFPTCheatSheet}%
+\end{figure}
+
+\begin{proof}[Proof of \cref{Theorem:HORSEFPT}.]
+    Firstly, we show
+    \[
+        \abs{\solci{i}} \approx \solai{i}
+    \]
+    for every $i \in \N$ using induction.
+    We also argue that each $\solci{i}$ is compatible.
+
+    In the base case, consider $i = 0$.
+    For a nonterminal $F$ of kind $\kappa$, $\sola{0}{F} = \bota{\kappa}$, as the $\nth{0}$ approximant is the least element in every component.
+    Similarly, $\abs{\solc{0}{F}} = \abs{\botc{\kappa}} = \bota{\kappa}$ using \cref{Lemma:HORSEFPTLiftBottom}.
+    Also by \cref{Lemma:HORSEFPTLiftBottom}, we get that $\solci{0}$ is compatible.
+
+    For the induction step, assume we have proven $\abs{\solci{i}} \approx \solai{i}$ and consider $i+1$.
+    Consider a nonterminal $F$ of kind $\kappa$ whose unique rule in the HORS is $F \to t$.
+    By the definition of the $\nth{(i + 1)}{st}$ approximant, we have
+    \( \solc{i+1}{F} = \semc{t}{\solci{i}} \), similar for $\sola$.
+    By induction, $\solci{i}$ is compatible, then so is $\semc{t}{\solci{i}}$ using Part~a) of \cref{Proposition:HORSEFPTLiftToSemantics}.
+    We get
+    \begin{align*}
+        \abs{\solc{i+1}{F}}
+        &=
+        \abs{\semc{t}{\solci{i}}}
+        \\
+        &\approx
+        \sema{t}{\abs{\solci{i}}}
+        \\
+        &\approx
+        \sema{t}{\solai{i}}
+        \\
+        &= \sola{i+1}{F}
+        \ .
+    \end{align*}
+    The first and the last equality are the above observation.
+    The second transformation is Part~b) of \cref{Proposition:HORSEFPTLiftToSemantics}, which we can apply because $\solci{i}$ is compatible by induction.
+    The penultimate transformation is $\abs{\solci{i}} \approx \solai{i}$ together with Part~c) of \cref{Proposition:HORSEFPTLiftToSemantics}.
+
+    Equipped with the knowledge that $\abs{\solci{i}} \approx \solai{i}$ for all $i$, we turn to proving $\abs{\solc} \approx \sola$.
+    Kleene's theorem, \cref{Theorem:EDSKleene}, gives us
+    \[
+        \solc \ = \ \bigsqcup_{i \in \N} \solci{i}
+        \qquad \text{and}
+        \qquad
+        \sola \ = \ \bigsqcup_{i \in \N} \solai{i}
+        \ ,
+    \]
+    see also \cref{Proposition:HORSTemplateExistenceLeastSolution}.
+    We get
+    \begin{align*}
+        \abs{\solc}
+        \ = \
+        \abs \big( \bigsqcup_{i \in \N} \solci{i} \big)
+        \ \approx \
+        \bigsqcup_{i \in \N} \abs{\solci{i}}
+        \ \approx \
+        \bigsqcup_{i \in \N} \solai{i}
+        =
+        \sola
+        \ .
+    \end{align*}
+    The first and the last equality are Kleene's theorem.
+    The second transformation is the join-continuity of $\abs$ on chains of compatible elements, \cref{Lemma:HORSEFPTLiftJoinContinuity}, together with our earlier observation that each $\solci{i}$ is compatible.
+    The penultimate transformation is the very first lemma in this section, \cref{Lemma:HORSEFPTApproxLimits}, together with $\abs{\solci{i}} \approx \solai{i}$ for all $i$.
+\end{proof}
+
+We conclude the section with an \emph{overview} in the form of \cref{Figure:HORSEFPTCheatSheet}.
+It lists what a potential user of the framework has to show to guarantee that \cref{Corollary:HORSEFPT} holds.
+The contents of the overview are based on the basic definition from \cref{Definition:HORSEFPTBasics}, the observation of what these definitions mean for order one in \cref{Example:HORSEFPTBasicDefinitions}, and the definition of precision in \cref{Definition:HORSEFPTPrecise}.
+
+
+\end{document}

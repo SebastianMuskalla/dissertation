@@ -1,0 +1,845 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Fixed-point semantics for higher-order games}%
+\label{Section:HORSFPSemantics}%
+
+We come back to the task of solving higher-order inclusion games.
+We want to take an approach based on effective denotational semantics.
+To this end, we instantiate the model template that we have introduced in the previous section.
+The result is the solution to a system of equations from which we can read off the winner of the game.
+However, \cref{Proposition:HORSTemplateExistenceLeastSolution} will only guarantee the existence of the solution.
+We will not be able to compute it in finite.
+This is a problem that we will tackle later.
+
+\paragraph{Determinizing HORSes}
+
+The first challenge that we have to overcome is that the theory from \cref{Section:HORSTemplate} only applies to deterministic HORSes.
+A game HORS is inherently nondeterministic.
+Hence, the system of equations that we consider will not represent the game HORS of interest, but rather its determinization.
+We have briefly mentioned that HORSes can be determinized in \cref{Section:HORS}; it is time to make this explicit.
+
+Let $F \to \lambda x_1 \ldots \lambda x_m . e_1, \ldots, F \to \lambda x_1 \ldots \lambda x_m . e_k$ be an exhaustive list of all rules for nonterminal $F$ in a HORS with $k > 1$.
+Note that we assume that the $e_i$ are $\lambda$-free terms of kind $\ground$ and that each right-hand side uses the same sequence of variables.
+The latter property can be enforced by an appropriate renaming of the variables.
+In order to determinize the HORS, we replace this collection of rules by the single rule
+\[
+    F \to \lambda x_1 \ldots \lambda x_m . \brancht_F\ e_1 \ldots e_k
+    \ .
+\]
+Here, $\brancht_F \colon \underbrace{\ground \to \ground \to \ldots \to \ground}_{k \text{ times}} \to \ground$ is a fresh terminal symbol whose arity corresponds to the number of rules for $F$.
+
+Applying this process to each nonterminal of the HORS with more than one rule results in a new HORS that is deterministic -- it has exactly one rule for each nonterminal.
+However, this process does not preserve the property of being word generating:
+The new terminal symbols that we have introduced have arity greater than one.
+
+One could formally establish the following correspondence between a word-generating HORS and its determinization:
+The unique (typically infinite) derivation process of the determinization generates an infinite tree as its limit.
+Each finite branch of that tree (with the occurrences of the terminals of the shape $\brancht_F$ removed) is a finite word in the language of the word-generating HORS and vice versa.
+Since we will not need this correspondence in the following, we forgo giving the formal proof.
+
+Working with the determinization of the game HORS has the advantage that we can encode the semantics of the choices of the two  players into the interpretation of the symbols of the shape $\brancht_F$ for their respective nonterminals.
+
+\paragraph{The concrete model}
+
+Assume we apply the determinization procedure to a game HORS.\@
+We consider the system of equations associated to the deterministic HORS as defined in \cref{Section:HORSTemplate}.
+In order to interpret it, we instantiate our model template.
+The resulting model is what we will call the \emph{concrete model}~$\modelc$.
+
+Instantiating the model requires us to provide a domain $\domainc{\ground}$ for kind ground.
+Intuitively, we want to use positive Boolean formulas over words.
+In contrast to the development in \cref{Chapter:ContextFreeGames}, this means that we consider an infinite set of atoms.
+As a consequence, it will easier to establish a correspondence between the winner of the game and the least solution to the interpreted system of equations, but we will not be able to compute the least solution in finite time.
+
+Let us consider the set of positive Boolean formulas over words as atoms, factorized by logical equivalence and ordered by implication.
+Because the set of atoms is infinite, the set of equivalence classes is not finite.
+Unfortunately, this also means that this domain is not a CPPO.\@
+Let $\Set{ \itr{w}{i} }{i \in \N}$ be an infinite set of distinct words.
+Then the sequence of formulas
+\[
+    \itr{w}{0},
+    \enspace
+    \itr{w}{0} \vee \itr{w}{1},
+    \enspace
+    \itr{w}{0} \vee \itr{w}{1} \vee \itr{w}{2},
+    \enspace
+    \ldots
+\]
+is a strictly ascending chain with respect to implication.
+If the proposed domain were a CPPO, its join $\bigsqcup_{i \in \N} \itr{w}{0} \vee \ldots \vee \itr{w}{i}$ would need to exist.
+Intuitively, this join should be $\bigvee_{i \in \N} \itr{w}{i}$, but this is an infinite disjunction and not a finite formula.
+
+To overcome the problem, we consider (potentially infinite) sets of formulas that we see as the (potentially infinite) disjunction of all formulas in the set\footnote{Note that this contrasts with the convention in logic to see sets of formulas as their (potentially infinite) conjunction.}.
+More formally, we define the domain $\domainc{\ground}$ associated to kind ground as
+\[
+    \domainc{\ground} =
+    \paren{ \paren{\powerset{\pBF\paren{\Sigma^*}} \setminus \emptyset}/_{\lequiv},\lleq }
+    \ ,
+\]
+non-empty sets of positive Boolean formulas over words, factorized by logical equivalence and ordered by implication.
+
+In order to formally define implication, we proceed as follows.
+Since the set of atoms is the set of words over $\Sigma$, variable assignments correspond to languages $\calL \subseteq \Sigma^*$ by setting $\calL(w) = \true$ iff $w \in \calL$.
+A language $\calL$ satisfies a formula $H$, $H(\calL) = \true$, if the formula evaluates to true under the standard evaluation semantics.
+A language $\calL$ satisfies a non-empty set of formulas $\sof$, $\sof(\calL) = \true$, if it satisfies at least one formula $H \in \sof$.
+A set of formulas $\sof$ implies another set of formulas $\sof'$, $\sof \lleq \sof'$, if any language that satisfies $\sof$ also satisfies $\sof'$.
+Two sets of formulas $\sof, \sof'$ are logically equivalent, $\sof \lequiv \sof'$, if both $\sof \lleq \sof'$ and $\sof' \lleq \sof$ hold.
+
+Note that our definition of implication extends the usual notion of implication for formulas to sets of formulas in a straightforward way by seeing them as (potentially) infinite disjunction.
+For example, the singleton $\set{H \vee H'}$ is logically equivalent to the set $\set{H, H'}$.
+In the following, we will proceed as in the previous chapter and work with formulas that represent the corresponding equivalence class.
+
+It remains to argue that $\domainc{\ground}$ is indeed a CPPO.\@
+Let ${(\sof_i)}_{i \in \N}$ be an ascending chain of sets of formulas.
+The join of this chain is simply its union, $\bigsqcup_{i \in \N} \sof_i = \bigcup_{i \in \N} \sof_i$.
+Using the definition of implication, it is not hard to verify that $\sof_i \lleq \bigcup_{i \in \N} \sof_i$ holds for all $i$ and that any formula that is implied by all $\sof_i$ is also implied by their union.
+The least element of $\domainc{\ground}$ is the equivalence class of the singleton set $\set{\false}$.
+
+With the definition of $\domainc{\ground}$ fixed, the model template defines $\domainc{\kappa}$ for all kinds $\kappa$ their union $\domainc = \bigcup_{\kappa} \domainc{\kappa}$.
+To complete the instantiation, we still need to provide the interpretation $\interpretationc$ of the terminals.
+
+Our HORS has three types of terminals.
+The first is the word-end marker $\wordend$ of kind $\ground$.
+We interpret it as the singleton set containing the atom $\eps$ as a formula, $\wordend^{\interpretationc} = \set{ \eps }$.
+This is an element of $\domainc{\ground}$ as expected.
+The second type are the letters $a \colon \ground \to \ground$.
+We define the interpretation to be $a^{\interpretationc} = \prepend{a}{-}$, a function that is defined as follows:
+Given a set of formulas, it distributes over that set, $\prepend{a}{\sof} = \Set{ \prepend{a}{H} }{H \in \sof}$.
+In a single formula, it distributes over conjunctions and disjunctions until it reaches an atom, where it prepends the word consisting of the letter $a$,
+\begin{align*}
+    \prepend{a}{H \wedgevee H'} &= \prepend{a}{H} \wedgevee \prepend{a}{H'}
+    \\
+    \prepend{a}{w} &= a.w
+    \ .
+\end{align*}
+The prepend-function is an element of $\domainc{\ground \to \ground}$, \ie a join-continuous function from $\domainc{\ground}$ to $\domainc{\ground}$.
+The definition makes it easy to verify join-continuity.
+
+Finally, there are terminals of the shape $\brancht_F$ (where $F$ is a nonterminal) that were introduced by the determinization.
+We interpret these symbols as disjunctions or conjunctions, depending on whether the owner of $F$ is the existential or the universal player.
+We give the definitions in the case that $\brancht_F$ has arity two.
+The general case can be easily derived.
+If $F$ is owned by the existential player, then $\brancht_F^{\interpretationc}$ is the function that takes two sets of formulas and returns their union, which corresponds to the disjunction of the sets:
+\[
+    \brancht_F^{\interpretationc} (\sof,\sof') = \sof \vee \sof' := \sof \cup \sof'
+    \ .
+\]
+If $F$ is owned by the universal player, then $\brancht_F^{\interpretationc}$ is the function that takes two sets $\sof$ and $\sof'$ and returns $\Set{ H \wedge H' }{H \in \sof, H' \in \sof'}$, which corresponds to the conjunction of the sets:
+\[
+    \brancht_F^{\interpretationc} (\sof,\sof') = \sof \wedge \sof' := \Set{ H \wedge H' }{H \in \sof, H' \in \sof' }
+    \ .
+\]
+Using distributivity, one can check that these definitions have the expected properties and satisfy join-continuity.
+
+The domain for kind ground and the interpretations of the terminals satisfy the requirements of the model template.
+Instantiating it yields the concrete model $\modelc = (\domainc,\interpretationc)$.
+By \cref{Lemma:HORSTemplateSemantics}, we get for each term $\term$ of kind $\kappa$ the \emph{concrete semantics} of term $t$ as a function
+\[
+    \semc{t} \colon (N \dotcup V \pto \domainc) \cto \domainc{\kappa}
+    \ .
+\]
+
+\paragraph{Soundness}
+
+Assume that we are given a higher-order inclusion game $(G,A)$.
+We construct the system of equations associated to the HORS and interpret it using the concrete model $\modelc$.
+\cref{Proposition:HORSTemplateExistenceLeastSolution} proves the existence of the \emph{concrete solution} $\solc$, the least value so that $\solc{F} = \semc{t}{\solc}$ for each nonterminals $F$, where $F \to t$ is its unique rule.
+We also get that the concrete solution is the join of the chain of approximants.
+We will deal with the issue of computing this least solution later.
+
+The following theorem tells us how the concrete solution yields the winner of the game.
+
+\begin{theorem}%
+\label{Theorem:HORSConcreteSol}%
+    The existential player wins the inclusion game iff $\solc{S}$ is satisfied by $\overline{\lang{A}}$.
+\end{theorem}
+
+The value of $\solc{S}$ is an (an equivalence class of) a set of formula over words, so the notation of being satisfied by a language makes sense.
+Note that the concrete solution associates elements of the domain to terms of the determinization of the game HORS.\@
+In the following proofs, we will apply $\solc$ to terms of the game HORS.\@
+Since every term of the game HORS is a valid term of its determinization, this is formally valid.
+In the proof of \cref{Theorem:HORSConcreteSol} we will have to bridge the gap between the two HORSes by showing that the information about the determinization that is captured by the concrete solution indeed characterizes the winner of the game.
+
+We first show that whenever $\solc{S}$ is not satisfied by $\overline{\lang{A}}$, then the universal player has a winning strategy.
+The strategy maintains the property that the solution associated to each term that occurs in the play is not satisfied by $\overline{\lang{A}}$.
+
+For the proof of this property, we will need the following \emph{substitution lemma}.
+
+\begin{lemma}%
+\label{Lemma:HORSFPSemanticsSubstitution}%
+    For any two terms $t, t'$ and a valuation $\val$, we have
+    \[
+        \semc{t[x \mapsto t']}{\val}
+        =
+        \semc{t}{(\val[x \mapsto \semc{t'}{\val}])}
+        \ .
+    \]
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on $t$.
+    If $t$ is a HORS variable other than $x$, a terminal, or a nonterminal, equality obviously holds.
+    If $t = x$ we get
+    \[
+        \semc{x[x \mapsto t']}{\val}
+        =
+        \semc{t'}{\val}
+        =
+        \semc{x}{(\val[x \mapsto \semc{t'}{\val}])}
+        \ .
+    \]
+
+    For the induction step, consider function application, \ie $t = t_1\ t_2$.
+    We have
+    \[
+        \semc{t_1\ t_2}{(\val[x \mapsto \semc{t'}{\val}])}
+        =
+        \left(
+            \semc{t_1}{(\val[x \mapsto \semc{t'}{\val}])}
+        \right)
+        \
+        \left(
+            \semc{t_2}{(\val[x \mapsto \semc{t'}{\val}])}
+        \right)
+        \ .
+    \]
+    We apply induction to $t_1$ and $t_2$, obtaining that the latter term is equal to
+    \[
+        \left(
+            \semc{t_1[x \mapsto t']}{\val}
+        \right)
+        \
+        \left(
+            \semc{t_2[x \mapsto t']}{\val}
+        \right)
+        =
+        \semc{t_1[x \mapsto t']\ t_2[x \mapsto t']}{\val}
+        =
+        \semc{(t_1\ t_2)[x \mapsto t']}{\val}
+        \ .
+    \]
+    %
+    Consider the case that $t = \lambda x. t_1$ starts with a lambda abstraction for variable $x$.
+    We have
+    \[
+        \semc{ \paren{\lambda x . t_1}[x \mapsto t']}{\val}
+        =
+        \semc{\lambda x . t_1}{\val}
+        =
+        \semc{\lambda x . t_1}{(\val[x \mapsto \semc{t'}{\val}])}
+        \ .
+    \]
+    The first equality is because the replacement $x \mapsto t'$ will only replace the free occurrences of $x$ in $t$.
+    Since $t$ starts with $\lambda x$, there are no free occurrences.
+    The second equality is because the interpretation of lambda abstraction will discard the value for $x$ that is present in $\val$.
+
+    Finally, consider $t = \lambda y . t_1$ where $y \neq x$.
+    We have that
+    \(
+        \semc{\lambda y . t_1}{(\val[x \mapsto \semc{t'}\ {\val}])}
+    \)
+    is a function that takes a value $d$ for $y$ and returns
+    \(
+        \semc{t_1}{(\val[x \mapsto \semc{t'}\ {\val}, y \mapsto d])}
+        \ .
+    \)
+    By induction, this return value is equal to
+    \(
+        \semc{t_1[x \mapsto t']}{(\val[y \mapsto d])}
+        \ .
+    \)
+    If we start from the other side of the desired equality, we obtain that
+    \(
+        \semc{ \paren{\lambda y . t_1}[x \mapsto t']}{\val}
+    \)
+    equals
+    \(
+        \semc{\lambda y . \paren{t_1[x \mapsto t']}}{\val}
+        \ ,
+    \)
+    which is a function that expects a value $d$ and returns
+    \(
+        \semc{t_1[x \mapsto t']}{(\val[y \mapsto d])}
+        \ .
+    \)
+    Equality holds and the proof is complete.
+\end{proof}
+
+With the lemma at hand, we can prove one direction of \cref{Theorem:HORSConcreteSol}.
+
+
+\begin{proposition}%
+\label{Proposition:HORSConcreteSolUniversal}%
+    If $\solc{S}$ is not satisfied by $\overline{\lang{A}}$, then the universal player has a winning strategy.
+\end{proposition}
+
+\begin{proof}
+    We construct a strategy for the universal player such that every play that starts in a (variable-free) term $t'$ with $\solc{t'}$ not satisfied by $\overline{\lang{A}}$, then for any term $t$ occurring the play, $\solc{t}$ not satisfied by $\overline{\lang{A}}$.
+
+    To see that this is indeed a winning strategy, note that if the play ends after finite time in a terminal word $w$, then we guarantee that $\solc{w} = w$ is not satisfied by $\overline{\lang{A}}$.
+    Hence, $w \in \lang{A}$, and the universal player wins this play.
+
+    Let us now show that whenever term $t$ is not a deadlock (\ie it contains a nonterminal), then the strategy can maintain the invariant.
+    Let $t = a_1(\ldots(a_n(F \appl t_1 \ldots t_m)) \ldots)$ be the current term.
+    If $F$ is owned by the universal player, the strategy can pick the next replacement step and it is sufficient so show that a suitable successor (whose associated solution is not satisfied by the complement language) exists.
+    If $F$, however, is owned by the existential player, we have to show that any applicable replacement step yields a successor that is not satisfied by $\overline{\lang{A}}$.
+
+    We assume that
+    \begin{align*}
+        \solc{t}
+        &=
+        \semc{t}{\solc}
+        \enspace = \enspace
+        \semc{a_1(\ldots(a_n(F \appl t_1 \ldots t_m)))}{\solc}
+        \\
+        &=\prepend{a_1 \ldots a_n}{
+            (\semc{F}{\solc})
+            \appl
+            (\semc{t_1}{\solc})%
+            \ldots
+            (\semc{t_m}{\solc})
+        }
+    \end{align*}
+    is not satisfied by $\lang{A}$.
+    Here, we have used that the composition of $\prepend{a_1}$, $\prepend{a_2}, \ldots\,$, $\prepend{a_n}$ equals $\prepend{a_1 \ldots a_n}$.
+    We have also evaluated the function applications in $F \appl t_1 \ldots t_m$ using the interpretation of function application.
+
+    Let $F \to \lambda x_1 \ldots \lambda x_m . e_1, \ldots, F \to \lambda x_1 \ldots \lambda x_m . e_k$ be an exhaustive list of all rewriting rules for $F$ in the game HORS.\@
+    Recall that the unique rule for $F$ in the determinization is
+    \[
+        F \to \lambda x_1 \ldots \lambda x_m . \brancht_F\ e_1 \ldots e_k
+        \ .
+    \]
+    The concrete solution satisfies $\solc{F} = \semc{F}{\solc}  =  \semc{\lambda x_1 \ldots \lambda x_m . \brancht_F\ e_1 \ldots e_k}{\solc}$\,.
+    Using the interpretation of lambda abstraction, we obtain that $\semc{F}{\solc}$ is a function that takes values $d_1, \ldots, d_m$ for the variables $x_1, \ldots, x_m$ and returns
+    \[
+        \semc{\brancht_F\ e_1 \ldots e_k}{ \paren{\solc [x_1 \mapsto d_1, \ldots x_m \mapsto d_m]} }
+        \ .
+    \]
+    Evaluating the function applications and using the interpretation of $\brancht_F$, this value equals
+    \[
+        {\brancht_F}^{\interpretationc}
+        \appl
+        \semc{e_1}{ \paren{\solc [x_1 \mapsto d_1, \ldots x_m \mapsto d_m]} }
+        \appl
+        \ldots
+        \appl
+        \semc{e_1}{ \paren{\solc [x_1 \mapsto d_1, \ldots x_m \mapsto d_m]} }
+        \ .
+    \]
+
+    Consider this case that $F$ is owned by the universal player.
+    This means the interpretation of $\brancht_F$ is conjunction and we get
+     that the above value equals
+    \[
+        \semc{e_1}{ \paren{\solc [x_1 \mapsto d_1, \ldots x_m \mapsto d_m]} }
+        \wedge
+        \ldots
+        \wedge
+        \semc{e_1}{ \paren{\solc [x_1 \mapsto d_1, \ldots x_m \mapsto d_m]} }
+        \ .
+    \]
+
+    We plug this definition of $\semc{F}{\solc}$ into the value we have obtained for $\solc{t}$ and get
+    \begin{align*}
+        \solc{t}
+        &=
+        \prepend{a_1 \ldots a_n}%
+        {%
+            (\semc{F}{\solc})
+            \appl
+            (\semc{t_1}{\solc})%
+            \ldots
+            (\semc{t_m}{\solc})
+        }%
+        \\
+        &=
+        \textprepend_{a_1 \ldots a_n}%
+        \big(%
+            \semc{e_1}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+        \\
+        & \qquad\qquad\qquad\quad
+            \wedge
+            \ldots
+            \wedge
+            \semc{e_1}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+        \big)%
+        \\
+        &=
+        \prepend{a_1 \ldots a_n}%
+        {%
+        \semc{e_1}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+        }
+        \\
+        & \quad
+            \wedge
+            \ldots
+            \wedge
+            \prepend{a_1 \ldots a_n}%
+            {%
+            \semc{e_1}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+            }
+        \ ,
+    \end{align*}
+    where the latter equality uses that the prepend function distributions over conjunctions.
+
+    Since $\solc{t}$ is not satisfied by $\overline{\lang{A}}$, there must be at least one $i$ such that the conjunct
+    \[
+        \prepend{a_1 \ldots a_n}%
+        {%
+        \semc{e_i}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+        }
+    \]
+    is not satisfied by $\overline{\lang{A}}$.
+    We define the strategy of the universal player to pick the rule
+    $F \to \lambda x_1 \ldots \lambda x_m . e_i$ in the game.
+
+    It remains to prove that the strategy maintains the invariant, \ie we have to argue that the solution associated to the term that results from picking this rule is not satisfied by $A$.
+    The rewriting rules of HORSes are defined so that replacing $F$ in $a_1(\ldots(a_n(F \appl t_1 \ldots t_m)) \ldots)$ yields the term
+    \[
+        t' = a_1(\ldots(a_n(e_i [x_1 \mapsto t_1,  \ldots, x_m \mapsto t_m])) \ldots)
+        \ .
+    \]
+    The solution associated to this term is
+    \begin{align*}
+        \solc{t'}
+        &=
+        \prepend{a_1 \ldots a_n}%
+        {%
+        \semc{e_i [x_1 \mapsto t_1,  \ldots, x_m \mapsto t_m ] }{ \solc }
+        }
+        \ .
+    \end{align*}
+
+    We apply the substitution lemma, \cref{Lemma:HORSFPSemanticsSubstitution}, $m$ times to obtain the equality
+    \[
+        \semc{e_i [x_1 \mapsto t_1,  \ldots, x_m \mapsto t_m ] }{ \solc }
+        =
+        \semc{e_i}{ \paren{\solc [x_1 \mapsto \semc{t_1}{\solc}, \ldots x_m \mapsto \semc{t_m}{\solc}]} }
+        \ .
+    \]
+    Plugging this equality into the expression for $\solc{t'}$ shows that this value equals the value for the conjunct $e_i$ in $\solc{t}$.
+    We have argued before that the value for the conjunct is not satisfied by $\overline{\lang{A}}$, so $\solc{t'}$ is not satisfied by $\overline{\lang{A}}$ as desired.
+
+    The argumentation is similar in the case that the existential player owns $F$.
+    In this case, $\brancht_{F}$ is interpreted as disjunction, and $\solc{t}$ is a disjunction with one disjunct for each $e_i$.
+    Since $\solc{t}$ is not satisfied by $\overline{\lang{A}}$, none of the disjuncts is.
+    No matter which rule $F \to \lambda x_1 \ldots \lambda x_m . e_i$ is picked by the existential player, the resulting term $t'$ has an associated solution $\solc{t'}$ that is not satisfied by $\overline{\lang{A}}$ since it corresponds to one of the disjuncts.
+    The strategy maintains the invariant as desired.
+\end{proof}
+
+We consider the case of the existential player.
+While the result looks very similar, its proof is much more involved.
+This is because a winning strategy for the existential player needs to enforce that all plays that conform to it terminate after finite many steps.
+
+\begin{proposition}%
+\label{Proposition:HORSConcreteSolExistential}%
+    If $\solc{S}$ is satisfied by $\overline{\lang{A}}$, then the existential player has a winning strategy.
+\end{proposition}
+
+\begin{proof}
+    We introduce some notation to simplify the rest of the proof.
+    For a domain element
+    $\judgmentground \in \domainc{\ground}$
+    and a variable-closed term $t$ of kind $\ground$, we define \emph{$\judgmentground$ to be sound for $t$}, denoted by $\judgmentground \gamesound t$, if for all words $w = w_1 \ldots w_k \in \Sigma^*$ such that
+    $\prepend{w}{\judgmentground}$
+    is satisfied by $\overline{\lang{A}}$, the existential player has a winning strategy from term $w(t)$, where $w(t)$ is the term $w_1 ( \ldots w_k (t) \ldots )$.
+    For $w=\eps$, we set $\prepend{\eps}{\judgmentground}=\judgmentground$ and let $\eps(t)=t$.
+
+    We claim that in order to prove the proposition, it is sufficient to show that
+    \begin{align*}
+        % \label{sound}
+        \solc{S} \gamesound S
+        \ ,
+    \end{align*}
+    \ie $\solc{S}$ is sound for $S$.
+    Indeed, by choosing $w$ as $\eps$ and using the fact that $\solc{S} =  \prepend{\eps}{\solc{S}}$ is satisfied by $\overline{\lang{A}}$, establishing soundness implies showing that the existential player has a winning strategy from $\eps(S) = S$.
+
+    In the proof, we will also need the notion of soundness for terms of higher order.
+    For a variable-closed term $t$ of kind
+    $\kappa_1 \to \kappa_2$
+    and a function
+    $\judgment \in \domainc{\kappa_1 \to \kappa_2}$,
+    we define
+    $\judgment \gamesound t$
+    to hold whenever for all variable-closed terms $t'$ of kind $\kappa_1$ and
+    $\judgment' \in \domainc{\kappa_1}$
+    such that
+    $\judgment' \gamesound t'$
+    we have
+    $\judgment \appl \judgment' \gamesound t \appl t'$;
+     written as formula
+    \[
+        \judgment \gamesound t
+        \quad
+        \textiff
+        \quad
+        \forall \appl \judgment', t'
+            \text{ such that }
+            \judgment' \gamesound t' \colon
+            \enspace
+                \judgment \appl \judgment' \gamesound t \appl t'
+        \ .
+    \]
+    Note that this is an inductive definition that defines the notion of soundness for kind $\kappa_1 \to \kappa_2$ assuming that it has already been defined for $\kappa_1$ and $\kappa_2$.
+
+    We will also need to extend the notion of soundness to terms $t$ with free variables.
+    Assume that the variables $x_1 \ldots x_m$ are free in $t$.
+    For $\judgment : (V\pto \domainc) \cto \domainc$, we define
+    $\judgment \gamesound t$
+    by requiring that for any variable-closed terms
+    $t_1, \ldots, t_m$
+    and any
+    $\judgment_1, \ldots, \judgment_m \in \domainc$
+    with $\judgment_j \gamesound t_j$ for all $j \in \oneto{m}$,
+    we have
+    $\judgment [\forall j \colon x_j \mapsto \judgment_j]
+    \gamesound
+    t [\forall j \colon x_j \mapsto t_j]$.
+    Here, we use $[\forall j \colon x_j \mapsto \judgment_j]$ as a shorthand for $[x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]$, similar for $[\forall j \colon x_j \mapsto t_j]$.
+
+    Our goal is to prove $\solc{S} \gamesound S$.
+    We first show that each approximant that occurs during the fixed-point iteration is sound for the respective term, \ie $\semc{t}{\solc^i} \gamesound t$ for all $i$ and all terms $t$ of the game HORS.\@
+    Since the domain is infinite, this is not sufficient to prove $\solc{S} \gamesound S$.
+    We will also need to show that soundness holds for the least fixed point.
+
+    Let us prove that for any term $t$ that may occur in a play of the game and every $i \in \N$, $\semc{t}{\solc^i}$ is sound for $t$, $\semc{t}{\solc^i} \gamesound t$.
+    Note that terms $t$ that occur in the game are terms of the game HORS.\@
+    They do not contain the terminals of the shape $\brancht_F$.
+    Additionally, these terms do not contain lambda abstraction.
+    Indeed, the initial position $S$ does not contain lambda abstraction and the rewriting rules of the HORS maintain this property.
+    Whenever we replace a redex $F \appl t_1 \ldots t_m$ in the current position using a rule $F \to \lambda x_1 \ldots \lambda x_m . e$, we obtain $e [ x \mapsto t_1, \ldots, x_m \mapsto t_m]$ where $e$ does not contain lambda abstraction.
+
+    To prove $\semc{t}{\solc^i} \gamesound t$, we proceed with a nested induction:
+    The outer induction is on the iteration count $i$, the inner is on the structure of the term $t$.
+    Since we will need to consider non-variable-closed terms during the induction, we need to consider valuations that assign values to the free HORS variables.
+    We use $\val^i$ to denote any valuation that coincides with $\solc^i$ on the nonterminals, \ie $\val^i(F) = \solc^i(F)$ for all nonterminals $F$.
+
+    \paragraph{Base of the outer induction, $i=0$:}
+
+        In the base case, we have $i=0$ and $\val^i(F)=\bot$ for all nonterminals~$F$.
+        We show $\semc{t}{\val^i} \gamesound t$ for all terms $t$, proceeding by induction on the structure of terms.
+        We emphasize that in almost all cases, the reasoning is independent of $i$, which will enable us to reuse it later.
+
+        The following base cases of the inner induction are independent of the iteration count.
+
+        \subparagraph{Base case $t = \wordend$}
+            For all $i$, we have
+            $\semc{\wordend}{\val^i} = \eps$.
+            Take any word $w$ such that
+            $\prepend{w}{\eps} = w$
+            is satisfied by $\overline{\lang{A}}$.
+            This means that $w \in \overline{\lang{A}}$, and the existential player has won the play from $w(\wordend)$.
+
+        \subparagraph{Base case $t = a$}
+            Terminal $a$ has kind $\ground \to \ground$, so we need to consider an arbitrary variable-closed term $t$ of kind ground and $\judgment \in \domainc{\ground}$ so that $\judgment \gamesound t$ and show
+            \[
+                \semc{a}{\val^i} \appl \judgment =
+                \prepend{a}(\judgment) \gamesound a(t)
+                \ .
+            \]
+            Take any word $w$ such that
+            $\prepend{w}{\prepend{a}{\judgment}} = \prepend{w.a}{\judgment}$
+            is satisfied by $\overline{\lang{A}}$.
+            By
+            $\judgment \gamesound t$,
+            the existential player has a winning strategy from $wa(t) = w(a(t))$ as required.
+
+        \subparagraph{Base case $t = x$}
+            For all $i$ and all extensions $\val^i$ of $\solc^i$, we have
+            \[
+                \semc{x}{\val^i}
+                \ =
+                \val^i(x).
+            \]
+            Take any $\val^i(x)=\judgment$ and any variable-closed term $t'$ with $\judgment \gamesound t'$; $\val^i(x) \gamesound x[x \mapsto t']$ is immediate.
+
+        The only base case of the inner induction that depends on the iteration count is $t=F$.
+
+        \subparagraph{Base case $t = F$ (and $i=0$)}
+            Assume that $F \colon \kappa$ has arity $m$.
+            Consider variable-closed terms $t_1, \ldots, t_m$ with corresponding $\judgment_1, \ldots, \judgment_m$ such that $\judgment_j \gamesound t_j$ for all $j$.
+            Note that $F \appl t_1 \ldots t_m$ is of kind $\ground$.
+            We have
+            \begin{align*}
+            \semc{F}{\val^0} \appl \judgment_1  \ldots  \judgment_m =
+            \solc{0}{F} \appl \judgment_1 \ldots \judgment_m =
+            \set{\false}
+            \ ,
+            \end{align*}
+            since $\val^0(F) = \sol{0}{F} = \bot$ is the least element of $\domainc{\kappa}$, the function that takes a suitable number of arguments and returns $\set{\false}$, the least element of $\domainc{\ground}$.
+            Hence, the premise of the statement, $\semc{F}{\val^0} \appl \judgment_1  \ldots  \judgment_m$ being satisfied by some language, cannot be true, and the implication that we wanted to prove trivially holds.
+
+        We come to the induction step of the inner induction.
+        As we have discussed, the terms of interest never contain lambda abstraction.
+        We only need to consider function application.
+        Our argumentation is independent of the iteration count $i$.
+
+        \subparagraph{Induction step, $t = t' \appl t''$}
+            Using induction, we can assume
+            \[
+                \semc{t'}{\val^i} \gamesound t'
+                \quad
+                \text{ and }
+                \quad
+                \semc{t''}{\val^i} \gamesound t''
+                \ .
+            \]
+            We need to prove
+            \[
+                \semc{t'\appl t''}{\val^i} =
+                (\semc{t'}{\val^i}) \appl (\semc{t''}\ {\val^i})
+                \gamesound t' \appl t''
+                \ .
+            \]
+            Assume that $x_1, \ldots, x_n$ are all free variables in $t' \appl t''$ and consider terms $t_1, \ldots, t_n$ and $\judgment_1, \ldots \judgment_n$ so that $\judgment_j\gamesound t_j$ for all $j$.
+            Let $\val^i$ map $x_j$ to $\judgment_j$ for all $j \in \oneto{n}$.
+            By the definition of $\gamesound$ for terms with free variables, we have
+            $\semc{t'}{\val^i} \gamesound t' [\forall j: x_j \mapsto t_j]$
+            and
+            $\semc{t''}{\val^i} \gamesound t'' [\forall j: x_j \mapsto t_j]$.
+            Then, by the definition of $\gamesound$ for functions, we obtain
+            \begin{align*}
+                \semc{t'\appl t''}{\val^i} =&\
+                (\semc{t'}{\val^i})\appl (\semc{t''}{\val^i})\\
+                \gamesound&\
+                (t'[\forall j: x_j \mapsto t_j]) \appl (t''[\forall j: x_j \mapsto t_j]) =
+                (t'\appl t'')[\forall j: x_j \mapsto t_j]
+                \ .
+            \end{align*}
+            This means
+            $\semc{t'\appl t''}{\val^i} \gamesound t'\appl t''$
+            as required.
+
+    \paragraph{Induction step of the outer induction, $i \to i+1$:}
+
+        We again proceed by induction on structure of the term $t$.
+        All cases but $t = F$ have already been treated in full
+        generality in the base case of the outer induction.
+        We have to show $\semc{F}{\val^{i+1}}\gamesound F$.
+
+        We first observe that
+        \[
+            \semc{F}{\val^{i+1}}
+            =
+            \semc{t_F}{\val^{i}}
+        \]
+        where $F \to t_F$ is the unique rule for $F$ in the determinization of the game HORS.\@
+        For the sake often simplicity, we assume that there are only two rules with left-hand side $F$, \ie we have the rules
+        $F \to \lambda x_1 \ldots \lambda x_m.e_1$ and $F \to \lambda x_1 \ldots \lambda x_m.e_2$ in the game HORS.\@
+        (Proving the general case with an arbitrary number of right-hand sides for $F$ is analogous.)
+        Hence, the unique rule for $F$ in the determinization is $F \to \lambda x_1 \ldots \lambda x_m. \brancht_F \appl e_1 \appl e_2$.
+        Consequently,
+        \[
+            \semc{F}{\val^{i+1}}
+            =
+            \semc{\lambda x_1 \ldots \lambda x_m. \brancht_F \appl e_1 \appl e_2}{\val^{i}}
+            \ .
+        \]
+        Using the interpretation of lambda abstraction, the latter value is a function that takes values $d_1, \ldots, d_m$ and returns
+        \[
+            \semc{\brancht_F \appl e_1 \appl e_2}{\val^{i} [x_1 \mapsto d_1, \ldots, x_m \mapsto d_m]}
+            \ .
+        \]
+        By evaluating the interpretation of function application, this return value equals
+        \[
+            {\brancht_F}^{\interpretationc}
+            \appl
+            \semc{e_1}{\val^{i} [x_1 \mapsto d_1, \ldots, x_m \mapsto d_m]}
+            \appl
+            \semc{e_2}{\val^{i} [x_1 \mapsto d_1, \ldots, x_m \mapsto d_m]}
+            \ .
+        \]
+
+        In order to show $\semc{F}{\val^{i+1}}\gamesound F$, consider terms $t_1, \ldots, t_m$ and $\judgment_1, \ldots, \judgment_m$ so that $\judgment_j \gamesound t_j$ for all $j \in \oneto{m}$.
+        We need to prove
+        \[
+            \semc{F}{\val^{i+1}} \appl \judgment_1  \ldots \judgment_m
+            \gamesound
+            F \appl t_1 \ldots t_m
+            \ .
+        \]
+        By substituting the definition of $\semc{F}{\val^{i+1}}$ that we have obtained above, the left-hand side of this expression equals $d$ where
+        \[
+            d =
+            {\brancht_F}^{\interpretationc}
+            \appl
+            \semc{e_1}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}
+            \appl
+            \semc{e_2}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}
+            \ .
+        \]
+
+        Consider a word $w \in \Sigma^*$.
+        We need to show that if
+        \(
+            \prepend{w}{d}
+        \)
+        is satisfied by $\overline{\lang{A}}$, then the existential player has a winning strategy from $w ( F \appl t_1 \ldots t_m)$.
+
+        Assume that the existential player owns $F$.
+        In this case, the interpretation ${\brancht_F}^{\interpretationc}$ of $\brancht_F$ is disjunction.
+        We have
+        \begin{align*}
+            \prepend{w}{d}
+            &= \textprepend_{w}
+            \big(
+            \semc{e_1}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}
+            \\
+            & \qquad\qquad\qquad
+            \vee
+            \semc{e_2}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}
+            \big)
+            \\
+            &=
+            \prepend{w}{
+            \semc{e_1}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}}
+            \\
+            & \qquad
+            \vee
+            \prepend{w}{
+            \semc{e_2}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}}
+            \ ,
+        \end{align*}
+        using that the prepend function distributes over disjunctions.
+        If $\prepend{w}{d}$ is satisfied by $\overline{\lang{A}}$, then at least one of the disjuncts is satisfied by $\overline{\lang{A}}$.
+        \Wolog, we will assume that the first disjunct $\prepend{w}{
+            \semc{e_1}{\val^{i} [x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}}$ is satisfied by $\overline{\lang{A}}$ in the following.
+
+        We claim that we obtain a winning strategy from $w ( F \appl t_1 \ldots t_m)$ for the existential player by first applying the move associated to the rule $F \to \lambda x_1 \ldots \lambda x_m . e_1$ and then using the winning strategy from the resulting term.
+        The resulting term is $w (t')$ where
+        \[
+            t' = e_1 [ x_1 \mapsto t_1, \ldots, x_m \mapsto t_m ]
+            \ .
+        \]
+        In order to complete the argument, we need to show that there is a winning strategy from $w(t')$.
+        Using the induction hypothesis of the outer induction, we have that $\solc{i}{e_i}$ is sound for~$e_i$, $\solc{i}{e_i} \gamesound e_i$.
+        Consider the terms $t_j$ and the $\judgment_j$ for $j \in \oneto{m}$.
+        The definition of soundness for terms with free variables means that $\solc{i}{e_i} \gamesound e_i$ implies
+        \[
+            \solc{i}{e_i}[x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m] \gamesound e_1[x_1 \mapsto t_1, \ldots, x_m \mapsto t_m]
+            \ ,
+        \]
+        and note that the right-hand side of this expression is $t'$.
+        Consider the word $w$ as before.
+        Applying $\prepend{w}{-}$ to the left-hand side yields
+        \[
+            \prepend{w}{\solc{i}{e_i}[x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}
+        \]
+        \[
+            \qquad =
+            \prepend{w}{\semc{e_i}{\paren{\val^i[x_1 \mapsto \judgment_1, \ldots, x_m \mapsto \judgment_m]}}}
+            \ ,
+        \]
+        which is the same value that we have obtained for the disjunct associated to $e_1$ above.
+        We already know that this value is satisfied by $\overline{\lang{A}}$, so we obtain that there is a winning strategy for the existential player from $w(t')$.
+
+
+
+        If $F$ is owned by the universal player, $\prepend{w}{d}$ is a conjunction.
+        We can argue similarly:
+        The value associated to both conjuncts must be satisfied by $\overline{\lang{A}}$.
+        No matter which rule $F \to \lambda x_1 \ldots \lambda x_m. e_i$ is picked by the universal player, we can apply the induction hypothesis to $e_i$.
+        We obtain that the existential player has a winning strategy from both positions that result from applying one of the rules.
+        By using one of these winning strategies, depending on which rule is used by the universal player, we obtain a winning strategy from $w (F \appl t_1 \ldots t_m)$ \nb{as required}.
+
+    \paragraph{From $\solci{i}$ to $\solc$}
+
+        With both inductions finished, we have shown $\semc{t}{\solc^i} \gamesound t$ for all terms $t$ and all $i \in \N$.
+        It remains to show $\semc{t}{\solc} \gamesound t$.
+        Since the CPPO under consideration is not finite, this needs to be proven separately (since we do not necessarily have $\solc = \solc^i$ for some $i$.)
+
+        To this end, we proceed by induction on kinds.
+        Let $t$ be a variable-closed term of kind $\kappa$, and let ${(\judgment_i)}_{i \in \N}$ be an ascending chain in $\domainc{\kappa}$ so that each $\judgment_i$ is sound for $t$, $\judgment_i \gamesound t$.
+        We prove that then the join $\bigsqcup_{i \in \N} \judgment_i$ is sound for $t$, $\bigsqcup_{i \in \N} \judgment_i \gamesound t$.
+
+        \subparagraph{Base case $t \colon \ground$}
+
+            Let ${(\judgment_i)}_{i \in \N}$ be an ascending chain in $\domainc{\ground}$ so that $\judgment_i \gamesound t$ for all $i$.
+            We prove
+            $\bigsqcup_{i \in \N} \judgment_i \gamesound t$.
+
+            Take any word $w \in \Sigma^*$ and assume that
+            $\prepend{w}{\bigsqcup_{i \in \N} \judgment_i}$
+            is satisfied by $\overline{\lang{A}}$, then we need to show by the definition of $\gamesound$ that the existential player
+            has a winning strategy from $w(t)$.
+            The prepend function is join-continuous, so we obtain
+            \[
+                \prepend{w} \big( \bigsqcup_{i \in \N} \judgment_i \big)
+                =
+                \bigsqcup_{i \in N} \prepend{w}{\judgment_i}
+                \ .
+            \]
+            Recall that the join on $\domainc{\ground}$ is union, which corresponds to an (infinite) disjunction, this value being satisfied by $\overline{\lang{A}}$ means that $\prepend{w}{\judgment_i}$ is satisfied by $\overline{\lang{A}}$ for at least one $i$.
+            By assumption $\judgment_i \gamesound t$ holds, so there is a winning strategy for the existential player from $w(t)$.
+            This proves $\bigsqcup_{i \in \N} \judgment_i \gamesound t$ as desired.
+
+        \subparagraph{Induction step, $t \colon \kappa_1 \to \kappa_2$}
+
+            Let ${(\judgment_i)}_{i \in \N}$ be an ascending chain in $\domainc{\kappa_1 \to \kappa_2}$ so that $\judgment_i \gamesound t$ for all~$i$.
+            We prove
+            $\bigsqcup_{i \in \N} \judgment_i \gamesound t$.
+
+            Consider a term $t'$ and $\judgment'$ so that $\judgment' \gamesound t'$.
+            We need to show
+            $(\bigsqcup_{i \in \N} \judgment_i) \appl \judgment \gamesound t \appl t'$.
+            Consider the left-hand side of this expression.
+            Each $\judgment_i$ is a function from $\domainc{\kappa_1 \to \kappa_2}$ and by the definition of the join on  $\domainc{\kappa_1 \to \kappa_2}$ we get
+            \[
+                (\bigsqcup\limits_{i \in \N} \judgment_i) \appl \judgment
+                \ = \
+                \bigsqcup\limits_{i \in \N} (\judgment_i \appl \judgment)
+                \ .
+            \]
+            By assumption, $\judgment_i \gamesound t$ holds for all $i$.
+            By the definition of soundness, this means $\judgment_i \appl \judgment \gamesound t \appl t'$ for all $i$.
+            The sequence ${(\judgment_i \appl \judgment)}_{i \in \N}$ is an ascending chain in $\domainc{\kappa_2}$.
+            (Indeed, $\judgment_i \in \domainc{\kappa_1 \to \kappa_2}$ is join-continuous and hence monotonic.)
+            We can apply induction and obtain
+            \[
+                \bigsqcup\limits_{i \in \N} (\judgment_i \appl \judgment)
+                \gamesound
+                t \appl t'\
+                 .
+            \]
+            This is what we wanted to show and the induction has been completed.
+
+
+            Let $t$ be some term.
+            Our goal is to show that $\sol{t}$ is sound for $t$.
+            Consider the chain ${(\solc{i}{t})}_{i \in \N}$.
+            Using the first half of the proof, each $\solc{i}{t}$ is sound for $t$.
+            Using the second half of the proof, then also $\bigsqcup_{i \in \N} \solc{i}{t}$ is sound for $t$.
+            We have
+            \[
+                \solc{t}
+                = \semc{t}{\solc}
+                = \semc{t}{\bigsqcup_{i \in \N} \solci{i}}
+                = \bigsqcup_{i \in \N} \semc{t}{\solci{i}}
+                = \bigsqcup_{i \in \N} \solc{i}{t}
+                \ ,
+            \]
+            using the definition of $\solc{t}$,
+            the fact that $\solc = \bigsqcup_{i \in \N} \solci{i}$,
+            the join-continuity of $\semc{t}$,
+            and the definition of $\solc{i}{t}$.
+            Hence, $\solc{t}$ is sound for $t$.
+
+            In particular, $\solc{S}$ is sound for $S$.
+            As argued at the beginning of the proof, this means that $\solc{S}$ being satisfied by $\overline{\lang{A}}$ implies the existential player having a winning strategy from $S$.
+            This is what we wanted to show, finishing the proof of the proposition.
+\end{proof}
+
+A winning strategy for the existential player needs to enforce that all plays that conform to it terminate.
+In the proof, this fact is hidden in the form of the outer induction on $i$.
+If $\prepend{w}{\solc{i}{t}}$ is satisfied by $\overline{\lang{A}}$, then the existential player can enforce a terminating play that leads to a terminal word in $\overline{\lang{A}}$.
+The play corresponds to a derivation tree, a notion that we have formally defined for context-free grammars, but not for higher-order recursion schemes, whose height is at most $i$ and whose width is bound by the size of the given game HORS.\@
+Once we replace a nonterminal $F$ in the proof using a rule $F \to t'$, we go from considering $\solc{i}{F}$ to considering $\solc{i-1}{t''}$, where $t''$ is the term resulting from replacing $F$.
+This yields the aforementioned bound on the height.
+
+Together, \cref{Proposition:HORSConcreteSolUniversal} and \cref{Proposition:HORSConcreteSolExistential} prove \cref{Theorem:HORSConcreteSol}.
+The winner of the inclusion game induced by the HORS can be read off from the concrete solution.
+We are left with the problem that we cannot compute this solution in finite time.
+
+\end{document}

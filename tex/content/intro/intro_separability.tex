@@ -1,0 +1,259 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Compositional verification and separability}%
+\label{Section:IntroSeparability}%
+
+In this section, we continue to consider the compositional verification of concurrent systems.
+We have already explained why the verification of concurrent system is essential, but also rather difficult.
+We came to the conclusion that in order to tame the complexity of the problem, a compositional approach is necessary.
+In the following, we make our explanation more formal.
+We will then explain how separability problems are related to the theoretic foundations of compositional verification.
+
+\paragraph{A language-theoretic approach to compositional verification}
+
+We start by explaining how the language of a concurrent system can be constructed, given the languages of its components.
+Let $A = A_1 \parcomp A_2 \parcomp \ldots \parcomp A_k$ be a concurrent system that is obtained as the result of the parallel composition of the components $A_1$ to $A_k$.
+We assume that each component $A_i$ has an associated alphabet $\Sigma_i$, a set of letters or atomic commands that this component may execute.
+We consider a simple model in which two components $A_i, A_j$ synchronize on the actions in the shared alphabet $\Sigma_i \cap \Sigma_j$, while actions that are not shared can be executed independently.
+We mimic this model by defining the parallel composition $\calL_i \parcomp \calL_j$ of two languages $\calL_i$ and $\calL_j$ over $\Sigma_i$ and $\Sigma_j$ as the set of words over $\Sigma_i \cup \Sigma_j$ such that if we project a word to one of the alphabets (by removing all letters not contained in that alphabet), we obtain a word in the corresponding language.
+% We write this formally as
+% \[
+%     \calL_i \parcomp \calL_j = \Set{ w \in \paren{\Sigma_i \cup \Sigma_j}^*}{ \proj{\Sigma_i}{w} \in \calL_i, \proj{\Sigma_j}{w} \in \calL_j }
+%     \ ,
+% \]
+% where the function $\proj{\Sigma}{w}$ removes from a word $w$ all letters not in alphabet $\Sigma$.
+With this definition, the language of the parallel composition of components is the parallel composition of the languages of the components, $\lang{A_1 \parcomp A_2} = \lang{A_1} \parcomp \lang{A_2}$.
+Given that the parallel composition operator is both associative and commutative, extending this to systems with more than two components is straightforward.
+
+There are two special cases of the parallel composition of languages that are noteworthy.
+The first is the case that the alphabets are equal, $\Sigma_1 = \Sigma_2$.
+In this case, the projections leave the words unchanged, and the parallel composition is equal to the intersection $\calL_1 \cap \calL_2$.
+The second interesting case is that the two alphabets are disjoint, $\Sigma_1 \cap \Sigma_2 = \emptyset$.
+Then, the parallel composition is equal to the so-called shuffle of the languages, the set of all interleavings of words from $\calL_1$ and $\calL_2$, where two words from each of the languages are interleaved in an arbitrary order, but the order of letters within each of the two words is preserved.
+
+One popular approach to composition verification is assume-guarantee reasoning~\cite{Lamport77,Jones83}.
+Our presentation follows~\cite{GiannakopoulouNP18}, but we have adapted it to take a more language-theoretic approach.
+Assume-guarantee reasoning is based on triples of the form $\agtriple{\psi}{A}{\varphi}$, where $A$ is a system and $\psi$ and $\varphi$ are specifications.
+Such a triple is valid if any concurrent system containing $A$ as a component that satisfies $\psi$ also satisfies $\varphi$.
+The name comes from the fact that under the assumption of $\psi$, one can guarantee $\varphi$.
+
+To express an assume-guarantee triple on the level of languages, we make use of the fact that the language of a system containing $A$ as a component can be written as $\calL \parcomp \lang{A}$ for some suitable language $\calL$.
+As explained above, satisfying a specification can be expressed as an inclusion.
+We have to deal with the problem that the specification and the system may not use the same alphabet.
+Under the assumption that $\Sigma_\varphi \subseteq \Sigma_A$, \ie the alphabet associated to the system is an extension of the alphabet used by the specification, we write $\lang{A} \sqsubseteq \lang{\varphi}$ to denote the inclusion $\proj{\Sigma_\varphi}{\lang{A}} \subseteq \lang{\varphi}$, where $\proj{\Sigma_\varphi}{-}$ is the projection that removes from a word all letters not contained in $\Sigma_\varphi$
+With this notation at hand, we obtain that the triple $\agtriple{\psi}{A}{\varphi}$ is valid if and only if for every language $\calL$, $\calL \parcomp \lang{A} \ \sqsubseteq  \ \lang{\psi}$ implies $\calL \parcomp \lang{A} \ \sqsubseteq \ \lang{\varphi}$.
+
+One can check whether a triple $\agtriple{\psi}{A}{\varphi}$ is valid by checking if the language $\lang{\psi} \parcomp \lang{A} \parcomp \overline{\lang{\varphi}}$ is empty~\cite{PasareanuGBCB08}.
+Here, $\overline{\lang{\varphi}}$ is the complement of $\lang{\varphi}$, \ie the set of all words over $\Sigma_\varphi$ not contained in $\lang{\varphi}$.
+As a start, we will assume that both the specifications and the systems under consideration are given as finite-state automata \resp regular languages.
+For specifications, this makes sense: Regular languages are not only the class of languages associated to finite automata, but also expressive enough to model common specification logics like MSO and LTL~\cite{Pnueli77}.
+For systems, limiting ourselves to finite automata is a heavy restriction.
+We will come back to this aspect later.
+%
+Under the assumption that all components of a triple $\agtriple{\psi}{A}{\varphi}$ are given as finite-state automata, checking the validity of a triple can be automated.
+To this end, one can compute an automaton for $\lang{\psi} \parcomp \lang{A} \parcomp \overline{\lang{\varphi}}$ and verify that its language is empty by conducting a reachability check.
+However, computing this automaton may be very expensive.
+Recall that the system $A$ is typically a concurrent system that is not given explicitly, but as a collection of its components.
+If we construct a finite automaton representing~$A$, the whole procedure will suffer from the state explosion problem detailed in the \nb{previous section}.
+
+\paragraph{A proof rule for compositional verification}
+
+This is where compositional verification comes to our aid.
+The compositional approach to checking the validity of assume-guarantee triples is based on proof rules.
+The goal is to establish the validity of an assume-guarantee triple for a complex system under the premise that the validity of assume-guarantee triples for simpler systems have already been shown.
+Here, we focus on the following simple but powerful proof rule:
+\[
+    \begin{array}{l}
+        \agtriple{\true}{A}{\psi}
+        \\
+        \agtriple{\psi}{B}{\varphi}
+        \\
+        \hline
+        \agtriple{\true}{A \parcomp B}{\varphi}
+        \ .
+    \end{array}
+\]
+This rule states that if the two premises, namely the validity of the triples $\agtriple{\true}{A}{\psi}$ and $\agtriple{\psi}{B}{\varphi}$ have been proven, then we obtain the validity of the triple $\agtriple{\true}{A \parcomp B}{\varphi}$.
+Phrased differently, in order to establish that $A \parcomp B$ satisfies $\varphi$ in any environment and without precondition\footnote{%
+        We see $\true$ as the specification with respect to which every execution is legal, \ie as the language of all words over a suitable alphabet \resp a finite automaton generating this language.
+    }%
+    , it is sufficient to show that $A$ satisfies $\psi$ in any environment and that $B$ satisfies $\varphi$ in any environment in which it satisfies $\psi$.
+The rule enables compositional verification: It decomposes checking the validity of a triple for a parallel composition into two triples, one for each of the two components.
+It is not hard to see that the rule is sound, meaning that the premises indeed imply the conclusion.
+Assume that the two premises hold, and let $\calL$ be any language. We have to show that $\calL \parcomp \lang{A \parcomp B} \ \sqsubseteq \ \lang{\varphi}$.
+We use the first premise, instantiating the environment for $A$ with $\calL \parcomp \lang{B}$, and obtain that the composition satisfies $\psi$, $\paren { \calL \parcomp \lang{B}} \parcomp  \lang{A}  \ \sqsubseteq \ \lang{\psi}$.
+Using the associativity and commutativity of parallel composition, the language $\paren { \calL \parcomp \lang{B}} \parcomp  \lang{A}$ can be rewritten as $\paren { \calL \parcomp \lang{A}} \parcomp  \lang{B}$.
+We may see $\calL \parcomp \lang{A}$ as an environment for $B$ with which together it satisfies $\psi$.
+This allows us to apply the second premise, yielding that the composition also satisfies $\varphi$.
+Finally, we rewrite $\paren { \calL \parcomp \lang{A}} \parcomp  \lang{B}$ as $\calL \parcomp \lang{A \parcomp B}$, using commutativity and the correspondence between the parallel composition of languages and the parallel composition of automata.
+We obtain $\calL \parcomp \lang{A \parcomp B} \ \sqsubseteq  \ \lang{\varphi}$ as desired.
+
+Surprisingly, the rule is not just sound, but also complete.
+To make this notion precise, note that the specification $\psi$ occurring in the premises does not occur in the conclusion.
+Hence, if we start with the goal of proving $\agtriple{\true}{A \parcomp B}{\varphi}$, we are free to choose the specification $\psi$.
+As long as our choice of $\psi$ leads to the triples in the premises being valid, it is suitable for instantiating the proof rule.
+This means that $\psi$ plays the role of a certificate.
+Given an appropriate $\psi$, it is easier to check $\agtriple{\true}{A \parcomp B}{\varphi}$ by using the proof rule and checking the triples $\agtriple{\true}{A}{\psi}$ and $\agtriple{\psi}{B}{\varphi}$ than it would be to check the triple for the composition itself.
+Also note that conceptually, $\psi$ is an abstraction of the behavior of $A$ in an arbitrary environment.
+On the one hand, this abstraction should be coarse in the sense that the finite automaton representing it is smaller than $A$.
+The difficulty of automatically checking the validity of a triple as explained above does not only scale with the size of the system, but also with the size of the two specifications.
+Hence, the smaller the representation of $\psi$ is, the easier it will be to check the triples $\agtriple{\true}{A}{\psi}$ and $\agtriple{\psi}{B}{\varphi}$.
+On the other hand, the abstraction has to be precise enough so that the two triples are actually valid.
+In a sense, $\psi$ is the abstract description of $A$ that we use to \nb{verify $B$}.
+If it is too imprecise, we will not be able to complete our goal of establishing the property~$\varphi$.
+
+When we say that a proof rule is complete, we mean that whenever the conclusion is true, then there is an instantiation of the premises that allows us to apply the rule.
+In our example, this means that if $\agtriple{\true}{A \parcomp B}{\varphi}$ is true, then there is a specification $\psi$ so that the triples $\agtriple{\true}{A}{\psi}$ and $\agtriple{\psi}{B}{\varphi}$ from the premises are valid.
+In fact, this specification can be chosen to be simply~$A$.\footnote{%
+    Assume that $\agtriple{\true}{A \parcomp B}{\varphi}$ is valid.
+    We claim that then $\agtriple{\true}{A}{A}$ and $\agtriple{A}{B}{\varphi}$ are valid.
+    For the validity of $\agtriple{\true}{A}{A}$, note that the composition $\calL \parcomp \lang{A}$ of $A$ with any language $\calL$ will satisfy $\calL \parcomp \lang{A} \ \sqsubseteq \ \lang{A}$ by the definition of the parallel composition.
+    For the validity of $\agtriple{A}{B}{\varphi}$, let $\calL$ be any language so that $\calL \parcomp \lang{B} \ \sqsubseteq \ \lang{A}$.
+    Take any word $w \in \calL \parcomp \lang{B}$ and note that we have both $\proj{\Sigma_B}{w} \in \lang{B}$ and $\proj{\Sigma_A}{w} \in \lang{A}$.
+    Hence, $\proj{\Sigma_B \cup \Sigma_A}{w}$ is an element of $\lang{A \parcomp B}$.
+    Since we assumed $\agtriple{\true}{A \parcomp B}{\varphi}$ to be valid, this implies $\proj{\Sigma_\varphi}{\proj{\Sigma_B \cup \Sigma_A}{w}} = \proj{\Sigma_\varphi}{w} \in \lang{\varphi}$.%
+}
+Note that this completeness only applies under the assumption that both the components and the specifications are given in the form of finite automata.
+The fact that our simple proof rule is complete means that conceptually, compositional verification is always possible.
+However, the existence of an appropriate specification $\psi$ does not mean that it is easy to find one that is not unsuitably large.
+Recall that the validity of a triple $\agtriple{\psi}{B}{\varphi}$ is equivalent to the emptiness of $\lang{\psi} \parcomp \lang{B} \parcomp \overline{\lang{\varphi}}$.
+Instantiating this result for $\agtriple{\psi}{B}{\varphi}$ and for $\agtriple{\true}{A \parcomp B}{\varphi}$ yields that if $\psi$ is similar in size to $A$, then checking $\agtriple{\psi}{B}{\varphi}$ is not easier than checking $\agtriple{\true}{A \parcomp B}{\varphi}$.
+Hence, the proof rule only leads to a substantial reduction in running time if we are able to find a specification $\psi$ that is substantially smaller than $A$.
+While the existence of a specification $\psi$ that leads to the premises becoming true is guaranteed, the existence of a small representation for a suitable $\psi$ is not guaranteed.
+In fact, complexity-theoretic reasons have led us to believe that it cannot exist in some cases.
+
+The commonly held belief is that the more loosely two components are coupled in a concurrent system, the easier it is to find a specification for their interface that is sufficient for verification.
+In the literature, numerous approaches to compositional verification based on assume-guarantee reasoning have been developed.
+Notably, there is a learning algorithm that tries to compute the certificate $\psi$ on the fly~\cite{CobleighGP03,PasareanuGBCB08}.
+If the triple that should ultimately be proved is indeed valid, this algorithm is guaranteed to terminate with the smallest deterministic automaton representing $\psi$ so that the above proof rule can be applied.
+Additionally, there is research on proof rules that work \eg for more than just two components~\cite{PasareanuGBCB08}.
+
+\paragraph{Compositional verification and separability}
+
+All the aforementioned results focus on the simple case that the components and specifications are given as finite automata.
+Our goal in the following will be to go beyond finite automata and regular languages.
+Fundamentally, the question we want to answer is whether compositional verification is possible for more general types of systems.
+To this end, we apply a sequence of simplifications to the problem at hand.
+The result is a theory that allows us to clearly formulate the question of whether compositional verification is possible.
+While the resulting theory will not immediately lead to an approach to compositional verification that is usable in practice, it can hopefully be extended towards one in the future.
+
+We focus on a triple $\agtriple{\true}{A \parcomp B}{\varphi}$.
+The first simplification that we apply is that we discard the idea of having an arbitrary environment.
+We are interested in the system $A \parcomp B$, and whenever we focus on one of the two components, the other one will be the environment.
+Consequently, we can discard the universal quantification over a language in the definition of the validity of a triple.
+Instead of asking whether $\calL \parcomp \lang{A} \parcomp \lang{B} \ \sqsubseteq \ \lang{\varphi}$ for all languages $\calL$, we simply want to check $\lang{A} \parcomp \lang{B} \ \sqsubseteq \ \lang{\varphi}$.
+
+The second simplification is that we assume that $A$, $B$, and $\varphi$ all use the same alphabet $\Sigma$.
+This means that $A$ and $B$ synchronize on every action, and not just on the actions represented by letters in a subset of their alphabets.
+Luckily, this property can usually be enforced rather easily without changing the behavior of the system.
+For each letter of $B$ that was not in the shared alphabet, we introduce appropriate transitions in $A$ that correspond to this letter without actually changing the internal state of $A$.
+The resulting system behaves as $A$ does, even when composed with $B$, but uses an extended alphabet.
+We apply the same procedure to $B$ and $\varphi$ to make sure that all three objects use the same alphabet.
+As mentioned before, the parallel composition of the languages of systems that use the same alphabet is simply the intersection of these languages.
+Hence, $\lang{A} \parcomp \lang{B}$ equals $\lang{A} \cap \lang{B}$.
+Additionally, we can replace our variant $\sqsubseteq$ of the subset relation that involves a projection by the normal inclusion relation $\subseteq$.
+In total, our goal is now checking $\lang{A} \cap \lang{B} \ \subseteq \ \lang{\varphi}$.
+
+Finally, we transform this expression into a form that is even simpler.
+The inclusion $\lang{A} \cap \lang{B} \subseteq \lang{\varphi}$ holds if and only if $\paren{ \lang{A} \cap \lang{B} } \cap \overline{\lang{\varphi}}$ is empty, where $\overline{\lang{\varphi}}$ is the complement language of $\lang{\varphi}$.
+We rewrite this to $\paren{ \lang{A} \cap \overline{\lang{\varphi}}} \cap \lang{B}$.
+Recall that the \nb{language $\lang{\varphi}$} is \nb{regular -- while} we are interested in systems that are more expressive than finite automata, regular languages are usually sufficient to represent the specifications we are interested in.
+By the closure properties of regular languages, also the complement language $\overline{\lang{\varphi}}$ is regular.
+Additionally, most other language classes are well-behaved when it comes to intersections with regular languages:
+Intersecting a language from such a class with a regular language leads to a language that is again in that class.\footnote{%
+    Using the nomenclature from the theory of abstract families of languages (AFLs)~\cite{Berstel79}, many classes of languages are \emph{trios}, which in particular means that they are closed under intersection with regular languages.
+    This applies to both the context-free~\cite{Berstel79} and the Petri net languages~\cite{Jantzen87}.%
+}
+For example, given a pushdown automaton and a finite automaton, it is easy to construct a pushdown automaton whose language is the intersection of the two associated languages.
+The same is true for Petri nets.
+Ultimately, this means that we can construct a system $A'$ whose language is $\lang{A} \cap \overline{\lang{\varphi}}$.
+After applying this construction, checking $\lang{A} \cap \lang{B} \subseteq \lang{\varphi}$ amounts to checking $\lang{A'} \cap \lang{B} = \emptyset$.
+
+We have argued before that checking whether a system satisfies a specification means checking whether the intersection of the possible and the illegal executions is empty.
+In that case, we usually consider the intersection of a complicated language, the language of possible executions of a system, with a simple language, the language of illegal executions according to a specification.
+In the case of checking $\lang{A'} \cap \lang{B} = \emptyset$, we are dealing with a setting that is more involved.
+The language of $A'$ is the set of executions that are possible with respect to component $A$ while being illegal with respect to specification $\varphi$.
+Both $\lang{A'}$ and $\lang{B}$ are languages of systems that are more complicated than finite automata.
+
+How can we check $\lang{A} \cap \lang{B} = \emptyset$?
+(Here and in the following, we drop the notation $A'$ for the sake of simplicity, since $\lang{A}$ and $\lang{A'}$ come from the same class of languages.)
+Explicitly constructing an automaton whose language is $\lang{A} \cap \lang{B}$ is not a good idea.
+In some cases, it may not even be possible.
+For example, the intersection of two languages of pushdown automata is not the language of a pushdown automaton in general.
+Even if it is possible, it will suffer from the same state explosion problem that we have explained in the case of finite automata.
+To solve this problem, we need a compositional approach.
+
+We propose the following \emph{separability proof rule} as a possible solution:
+\[
+    \begin{array}{l}
+        \lang{A} \subseteq \calR
+        \\
+        \calR \cap \lang{B} = \emptyset
+        \\
+        \hline
+        \lang{A} \cap \lang{B} = \emptyset
+        \ .
+    \end{array}
+\]
+Let us first argue that this rule is analogous to the compositional proof rule for assume-guarantee triples.
+In the conclusion, the validity of the triple $\agtriple{\true}{A \parcomp B}{\varphi}$ has been replaced by $\lang{A} \cap \lang{B} = \emptyset$ as explained.
+Similarly, in the second premise the property of satisfying a specification $\varphi$ has been replaced with the emptiness of a language.
+The most interesting part is the language $\calR$, which replaces the specification $\psi$ in both the first and the second premise.
+
+In order to understand the role of $\calR$, we prove the soundness of the proof rule.
+Assume there is a language $\calR$ so that both premises are true.
+This means that by the first premise, $\calR$ is bigger than $\lang{A}$.
+Additionally, $\calR$ and $\lang{B}$ are disjoint by the second premises.
+But if $\lang{B}$ has an empty intersection with a language that is bigger than $\lang{A}$, then also $\lang{A}$ and $\lang{B}$ need to be disjoint and the conclusion is true.
+A language $\calR$ that makes the premises become true is called a \emph{separator}.
+It is a certificate for the disjointness of $\lang{A}$ and $\lang{B}$.
+
+The question that remains is whether the separability proof rule is complete.
+Is it true that whenever two languages are disjoint, a separator has to exist?
+The answer to this question depends on the language classes that we consider.
+If $\lang{A}$, $\lang{B}$, and $\calR$ come from the same class of languages, completeness obviously holds.
+If $\lang{A}$ and $\lang{B}$ are disjoint, then $\lang{A}$ itself is a separator.
+However, in that case, we have gained nothing.
+While the first premise trivially holds, checking the second premise simply amounts to checking the desired conclusion.
+Even in the case that all languages come from the same class, however, it would be interesting to ask whether there is a separator that has a smaller description than $A$.
+This is closely related to the observations we made in the case of finite automata.
+
+\paragraph{Regular separability}
+
+We will focus on the case that the separator is required to come from a class that is less expressive than the languages $\lang{A}$ and $\lang{B}$.
+To be precise, we will exclusively consider regular separators in this thesis.
+This is motivated by two facts.
+The first fact is the aforementioned correspondence of regular languages to specification logics.
+Secondly, regular languages are very well-behaved when it comes to closure properties and algorithmics.
+This means that for a candidate separator that is a regular language, it is highly likely that the two premises of the separability proof rule can indeed be automatically checked.
+This goes along with our theme of being interested in certificates that are easier to verify than the initial problem is to solve.
+
+In the following, we consider \emph{regular separability}.
+Is it true for a class of languages that whenever two languages are disjoint, a regular separator exists?
+If that is not true, can one decide whether a separator exists?
+If a separator exists, can it be computed?
+For context-free languages, the class of languages defined by pushdown automata, it turns out that separability is difficult.
+Given two languages and a regular candidate separator, we can automatically check whether the two premises of the separability proof rule hold.
+In that case, the soundness of the rules implies that the two given context-free languages are disjoint.
+However, it is easy to construct two context-free languages so that no regular separator can exist.
+Additionally, the problem of deciding whether a separator exists has turned out to be undecidable~\cite{SzymanskiW76}.
+In the literature, it has been established that this behavior does not only apply to context-free languages, but also to restricted versions of context-free languages that are only minor extensions of the regular languages, \eg the languages of one-counter automata~\cite{CzerwinskiL17} and visibly pushdown automata~\cite{Kopczynski16}.
+
+\paragraph{Outlook}
+
+In Part~\ref{Part:Separability}.~of this thesis, we focus on languages of well-structured transition systems (WSTSes).
+This class of languages is a superclass of the class of Petri net languages.
+We will show that under mild conditions, the separability proof rule is complete for WSTS languages.
+Whenever two WSTS languages are disjoint, there is a regular separator as a certificate for this disjointness.
+
+To be more precise, our main result is that any two disjoint WSTS languages, one of them the language of a deterministic WSTS, are regularly separable.
+Requiring one of the WSTSes to be deterministic seems like a substantial restriction.
+However, we will establish a hierarchy of subclasses of languages within the class of WSTS languages and show that any WSTS whose transition relation is finitely branching or whose underlying order is $\omega^2$ can be determinized.
+Almost all WSTSes that are of practical relevance satisfy at least one of these two requirements.
+Hence, our result on the separability of WSTS languages can be applied to almost all WSTSes.
+
+Additionally, one can extract from the proof of the main result an algorithm for computing a finite automaton representing the regular separator.
+We will demonstrate this in the case of Petri net languages, obtaining a construction for the separator and an upper bound on its size, which we will accompany by a lower bound.
+
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\chapter*{Part II.\newline Models of computation}
+
+This part contains some preliminaries:
+We formally define the models of computation on which the problems that we will study in the rest of this thesis are based.
+
+\paragraph{Outline}
+
+We start by introducing some basic notation.
+Then, we define Turing machines and formulas in propositional logic and Presburger arithmetic; while they are not a main object of study in this thesis, they are needed for proving some complexity results.
+
+In \cref{Chapter:LTSNFAs}, we define labeled transition systems as state-based language-generating mechanisms.
+In particular, we focus on the class of finite automata.
+
+\cref{Chapter:Grammars} is concerned with context-free grammars and higher-order recursion schemes as  grammar-based language-generating mechanisms.
+
+Finally, \cref{Chapter:PetriNets} introduces Petri nets, a model for concurrent systems, and an extension thereof in the form of well-structured transition systems.
+
+Some concepts that are only used in a single part of the thesis will be defined later: board games with perfect information in \cref{Chapter:Games}, fixed-point based techniques for systems of equations in \cref{Chapter:EDS}, and valence systems in \cref{Chapter:ValenceGames}.
+
+\paragraph{Sources and publications}
+
+This part contains almost no contributions by the author of the thesis; it merely presents commonly used models following standard textbooks.
+References will be given in the main text.
+There are two exceptions:
+In \cref{Section:CFGOmega}, we present a novel way in which context-free grammars can be used to define languages of infinite words.
+This is taken from the publication~\cite{MeyerMN17a}.
+In \cref{Section:PNBPP}, we show that the word problem for BPP nets is $\NPTIME$-complete.
+This result is not contained in the publication~\cite{AtigMMS17}, but its proof is an adaption of the proof of Theorem~24 from the full version~\cite{AtigMMS17a} of the paper.
+We will discuss the contributions to these publications by the author of the thesis in more detail in \cref{Chapter:Contributions}.
+
+\end{document}

@@ -1,0 +1,55 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Finite-state automata}
+
+We introduce finite-state automata, which are simply LTSes with finitely many configurations.
+However, one usually uses modified notation in this case.
+We also follow the convention of having a single initial state.
+The material is standard and can be found \eg in~\cite{KhoussainovN01,Kozen97}.
+
+Formally, a \emph{(nondeterministic) finite(-state) automaton (NFA)} over alphabet $\Sigma$ is a tuple
+\(
+    A = (Q, \delta, \qinit, \QF)
+    ,
+\)
+where
+    $Q$ is a finite set of \emph{control states},
+    $\delta \subseteq Q \times \Sigma \times Q$ is the transition relation,
+    $\qinit \in Q$ is the unique initial state, and
+    $\QF \subseteq Q$ is a set of final states.
+
+Apart from the different naming of the components, the notation and definitions for LTSes carry over.
+For example, we call an NFA a \emph{deterministic finite automaton (DFA)} if it is deterministic.
+
+The size of an automaton $A$ is $\card{A} = \card{Q} + \card{\delta}$.
+Since $\card{\delta} \leq \card{Q}^2 \cdot \card{\Sigma}$, to show that an automaton is \eg of size polynomial in $n$, it is sufficient to show that $\card{Q}$ is polynomial in $n$ (assuming that the alphabet is fixed).
+
+A language $\calL \subseteq \Sigma^*$ is called \emph{regular} if there is a finite automaton $A$ over $\Sigma$ with $\lang{A} = \calL$.
+The class of all regular languages is denoted by $\REG$.
+
+To decide the word problem of a regular language, we do not need the capabilities of an unrestricted Turing machine, a finite automaton is sufficient.
+
+\begin{example}%
+\label{Example:NFAForABStar}%
+    The language ${(ab)}^* \subseteq \set{a,b}^*$ is regular: It is the language of the NFA given by \cref{Figure:NFAForABStar}.
+\end{example}
+
+\begin{figure}
+    \centering%
+    \input{tikz/automaton_ab.tikz}%
+    \caption{An NFA with language ${(ab)}^*$.}%
+    \label{Figure:NFAForABStar}%
+\end{figure}
+
+The class of regular languages can also be defined by \emph{regular expressions}, finite expressions that may contain the empty language $\emptyset$, the singleton languages $\set{\eps}$, and $\set{a}$ for each letter $a$ of the underlying alphabet and unions, concatenations, and the Kleene star.
+From this, we immediately obtain that every language consisting of finitely many words is regular, and if $\calL, \calL' \subseteq \Sigma^*$ are regular, then so are their union $\calL \cup \calL'$, their concatenation, $\calL.\calL'$, and the Kleene star $\calL^*$.
+It can also be shown that the intersection $\calL \cap \calL'$ of two regular languages and that the complement $\overline{\calL}$ of a regular language are regular.
+All these closure properties are effective:
+Given automata for $\calL$ and $\calL'$, we can construct an automaton for each of the aforementioned languages.
+In the case of the intersection, we have explicitly stated the construction in \cref{Section:LTS}.
+
+In addition to the definitions based on automata or closure properties, the regular languages can also be characterized as the solution to closed formulas in the logic $\mathsf{S1S}$, (weak) monadic second order logic with one successor, see \eg \cite{KhoussainovN01}.
+Discussing the details is beyond the scope of this thesis.
+
+\end{document}

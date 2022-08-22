@@ -1,0 +1,129 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Formulas in propositional logic and Presburger arithmetic}%
+\label{Section:Formulas}%
+
+We introduce formulas in propositional logic and in (existential) Presburger arithmetic.
+Both concepts are used in some complexity proofs throughout the thesis.
+Positive Boolean formulas additionally play an important role as representations for the semantics of games.
+Both topics are standard, see \eg~\cite{Enderton72}.
+
+\paragraph{Propositional logic}
+
+For a set $\vars$ of variables, the formulas in \emph{propositional logic} over $\vars$, also called \emph{Boolean formulas}~$\BF(\vars)$, are defined by the following grammar:
+\[
+    F \bnfdef \true \bnf \false \bnf x \bnf \neg F \bnf F \wedge F \bnf F \vee F
+    \ ,
+\]
+where $x \in \vars$ is a variable.
+Given a variable assignment $M \subseteq \vars$ (which represents the function~$\chi_M \colon \vars \to \B$ that evaluates a variable $x$ to $\true$ iff $x \in M$), we obtain a map $-(M) \colon \BF(\vars) \to \B$ that assigns each formula $F$ the truth value $F(M)$ under evaluation at $M$.
+Evaluation is defined inductively in the expected way.
+Vice versa, each formula defines a map $F(-) \colon \powerset{\vars} \to \B$ that evaluates it at the given variable assignment.
+
+The most important algorithmic problem in this area is satisfiability, given a formula, is there a variable assignment such that the formula evaluates to true.
+The well-known Cook-Levin theorem, see \eg~\cite{Kozen06}, states that this problem is $\NPTIME$-complete, even if we restrict the formulas to be in conjunctive normal form.
+
+% \paragraph{Conjunctive normal form}
+
+A \emph{literal} is a variable $x$ or a negated variable $\neg x$, a \emph{clause} is a disjunction of literals $K = L_1 \vee \ldots \vee L_n$, and a formula in \emph{conjunctive normal form (CNF)} is a conjunction of clauses, $F = K_1 \wedge \ldots \wedge K_m$.
+For any formula $F \in \BF(\vars)$, there is a satisfiability-equivalent formula $F'$ in CNF that can be computed in polynomial time using the Tseytin transformation~\cite{Tseytin68}.
+The problem $\SAT$ is the task of checking whether a formula in CNF is satisfiable.
+
+\begin{problem}
+    \problemtitle{Satisfiability in propositional logic}
+    \problemshort{($\SAT$)}
+    \probleminput{Formula $F \in \BF(\vars)$.}
+    \problemquestion{Is $F$ satisfiable?}
+\end{problem}
+
+\begin{ntheorem}[Cook-Levin~\cite{Cook71,Levin73}]
+    $\SAT$ is $\NPTIME$-complete.
+\end{ntheorem}
+
+% \paragraph{Implication}
+
+For two formulas $F,G \in \BF(\vars)$ we write $F \implies G$ and say that $F$ implies $G$ if for any variable assignment $M \subseteq \vars$ such that $F(M) = \true$, $G(M) = \true$ holds.
+
+% \paragraph{Positive Boolean formulas}
+
+A formula is \emph{positive} if it does not contain negation.
+The set of \emph{positive Boolean formulas} $\pBF(\vars)$ consists of all positive formulas, including the constants $\true$ and $\false$.
+
+Sometimes, we may assume that $\true$ and $\false$ do not occur as operands of $\vee$ and $\wedge$ by using the syntactic elimination rules
+%
+\begin{align*}
+    &F \vee \false = \false \vee F = F
+    &
+    &F \wedge \false = \false \wedge F = \false
+    \\
+    &F \vee \true = \true \vee F = \true
+    &
+    &F \wedge \true = \true \wedge F = F
+    \ .
+\end{align*}
+%
+This leaves $\false$ as the unique unsatisfiable formula in $\pBF(\vars)$ and $\true$ as the unique tautology, \ie a formula that is satisfied by all variable assignments.
+Hence, satisfiability is trivial for positive Boolean formulas.
+We comment on the complexity of the implication problem (given two formulas, does one imply the other) in \cref{Section:CFGamesAlgorithmics}.
+% Therefore, we will use a modified definition of $\pBF(\vars)$ that does not contain $\true$.
+
+\paragraph{Presburger arithmetic}
+
+Presburger arithmetic~\cite{Presburger31} is the first order logic over natural numbers with addition and comparison.
+In contrast to (Peano) arithmetic, which also considers multiplication, Presburger arithmetic enjoys numerous decidability results.
+
+Formally, a \emph{Presburger term} over the set of variables $\vars$ is defined by the grammar
+\begin{align*}
+    t & \bnfdef n \bnf x \bnf t+t
+    \ ,
+\end{align*}
+where $n$ ranges over the natural numbers and $x \in \vars$.
+Note that while multiplication is not available, we may rewrite multiplication with constants as addition, \eg $5 \cdot t$ can be expressed as $t + t + t + t +t$.
+Instead of allowing all natural numbers as terms, it would be sufficient to consider $0$ and $1$ as any other number can be constructed by repeated addition.
+While this restriction to $0$ and $1$ would not limit the expressiveness, the complexity results that we are going to state below hold even if the formula contains arbitrary constant numbers (which are assumed to be encoded in~binary).
+
+A \emph{quantifier-free Presburger formula} is defined by the grammar
+\begin{align*}
+    \psi \bnfdef t\leq t \bnf \neg \psi \bnf \psi \wedge \psi \bnf \psi \vee \psi
+    \ ,
+\end{align*}
+    where $t$ ranges over the terms as defined above.
+A \emph{Presburger formula (in prenex normal form)} is of the shape $Q_1 x_1 \ldots Q_k x_k \colon \psi$, where $Q_i \in \set{ \forall, \exists}$ for all $i$, the $x_i$ are variables and $\psi$ is a quantifier-free formula.
+As usual, assuming prenex normal form does not limit the expressiveness.
+An \emph{existential Presburger formula} is a Presburger formula in prenex normal form in which all quantifiers are existential, \ie a formula of the shape $\exists x_1 \ldots \exists x_k \colon \psi$ with $\psi$ quantifier-free.
+
+The variables that occur in a Presburger formula $\varphi$ which are not bound by a preceding quantifier (i.e., referencing the notation introduced above, are not among the $x_1, \ldots, x_k$), are called the \emph{free variables} of the formula.
+We sometimes write $\varphi(y_1, \ldots, y_m)$ to highlight that the \nb{variables $y_1, \ldots, y_m$} are free in a formula.
+Such a formula can be \emph{evaluated} at a vector $\vec{y} \in \N^m$ to obtain the truth value $\varphi(\vec{y})$.
+The evaluation semantics of Presburger formulas is as expected.
+
+To a formula $\varphi(y_1, \ldots, y_m)$, we can associate its \emph{set of solutions}
+$\Sol{\varphi} = \Set{ \vec{y} \in \N^m}{ \varphi(\vec{y}) = \true}$ as the set of all vectors for which the formula evaluates to true.
+We call a set $M \subseteq \N^k$ that occurs as $\Sol{\varphi}$ for some Presburger formula \emph{semi-linear}.
+The semi-linear sets enjoy a rich theory and admit several characterizations.
+For example, they occur as the Parikh images (sets of vectors that count the occurrences of each symbol in a word) of regular and context-free languages~\cite{Parikh66}.
+
+Again, satisfiability is the crucial algorithmic problem.
+We state the \emph{satisfiability problem} for formulas in \emph{existential Presburger arithmetic (EPA)}.
+
+\begin{problem}
+    \problemtitle{Satisfiability in existential Presburger arithmetic}
+    \problemshort{($\EPASAT$)}
+    \probleminput{An existential Presburger formula $\varphi$.}
+    \problemquestion{Is $\varphi$ satisfiable?}
+\end{problem}
+
+\begin{theorem}[(\citea{Scarpellini83})]%
+\label{Theorem:SatisfiabilityEPA}%
+    $\EPASAT$ is $\NPTIME$-complete.
+\end{theorem}
+
+Surprisingly, satisfiability for the existential fragment of Presburger arithmetic is not harder than satisfiability in propositional logic.
+When considering expressiveness, the restriction to EPA is not problematic:
+For any Presburger formula, there is an existential one such that the solution sets and satisfiability coincide.
+However, this \emph{quantifier elimination} leads to a blowup in the formula size.
+Indeed, the satisfiability problem for arbitrary Presburger formulas is in $2\EXPSPACE$ and $2\NEXPTIME$-hard.
+Even if the number of alternation between universal and existential quantifiers is bounded, the problem remains $\NEXPTIME$-hard, see~\cite{Haase14} for detailed information.
+
+\end{document}

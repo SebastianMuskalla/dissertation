@@ -1,0 +1,52 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\chapter*{\centering Abstract}%
+\addcontentsline{toc}{part}{Abstract}%
+
+The automated verification of the runtime behavior of a program with respect to a specification is a difficult problem, as demonstrated by undecidability results due to Turing, Rice, and others.
+The automata-theoretic approach to verification consists of abstracting the program into an automaton, a restricted model of computation, while preserving the part of the program behavior that is relevant to the specification.
+The field of automata theory provides various classes of such \emph{automata} and studies the trade-off between their expressiveness and the decidability and computational complexity of their algorithmic problems.
+When taking a language-theoretic approach, one associates to an automaton the sets of words it can generate and studies algorithmic problems in which the task is to decide properties of \nb{these languages}.
+
+Decision procedures for automata \resp their languages can be used in verification by seeing the input automaton in isolation as a perfect model of the system that should be verified.
+This view, however, has two shortcomings.
+The first one is that because an automaton is an abstraction of the real system, one call to a decision procedure is oftentimes insufficient.
+Typically, a multitude of such procedure calls is needed, e.g.~when using a refinement loop that improves the abstraction in each iteration, or when dealing with the verification of a concurrent system in which each component is considered separately.
+Overcoming this deficiency requires procedures that in addition to the Boolean answer to a decision problem also return a \emph{certificate}, an easily verifiable proof justifying the yes/no answer.
+In a setting in which a decision procedure is invoked multiple times, the certificates produced by earlier calls can serve as an additional input for subsequent calls of the procedure, facilitating the verification process.
+%
+The second shortcoming is that in many cases, the automaton under consideration is not isolated.
+It interacts with an \emph{environment} that is \emph{hostile} with respect to our goal of verifying the system.
+This hostile environment may stem from user input, communication with components not modeled as part of the system, unreliable network communication, or it may simply be the result of discarding some parts of the system when abstracting it into an automaton.
+
+Our claim is that in order to enable the automata-theoretic approach to verification, decision procedures for \emph{automata} should provide \emph{certificates} and take the \emph{hostile environment} into account.
+This thesis provides such procedures for three different settings.
+
+In the first setting, we assume that communication with the system under consideration is done using an unreliable network that is either lossy or gainy.
+The observable output of the system is a subsequence \resp supersequence of the real output, which can be modeled as the downward \resp upward  of the language of the system.
+It is known that such a \emph{language closure} always stems from the simple class of regular languages, which in particular means that a representation for it can serve as a certificate.
+However, computing this representation is not trivial depending on the class of automata the initial system stems from.
+In this thesis, we consider Petri nets with coverability as the acceptance condition, a model that is well-known to be suitable as a representation for concurrent systems.
+We prove a collection of results that show how to construct representations of the downward and upward closures with optimal size and within optimal time for both Petri nets and restrictions thereof.
+
+The second setting is the compositional verification of a concurrent system.
+This approach tries to verify each component of the system on its own, avoiding the state explosion problem that plagues the verification of concurrent systems.
+When focusing on a single component, the rest of the components form an environment that has to be taken into account.
+We argue that the assume-guarantee approach to compositional verification is closely related to the problem of \emph{regular separability}.
+Two languages are regularly separable if there is a regular language containing one and being disjoint from the other.
+This regular separator serves as a certificate for intersection-emptiness and it can be used as an overapproximation of the language it contains.
+We show that in the case of languages of well-structured transition system (WSTSes), a generalization of the aforementioned class of Petri net coverability languages, any two disjoint WSTS languages are regularly separable.
+From our proof, we obtain a construction of the separator.
+
+Finally, we consider \emph{games} played on game arenas induced by automata.
+These games model situations in which two kinds of nondeterminism influence the behavior of the system.
+Usually, one type of nondeterminism is favorable to the goal of verifying the system, while the other type represents the hostile environment.
+This situation comes up \eg when verifying branching systems or when solving synthesis problems.
+We present an approach to solving such games that is based on effective denotational semantics.
+That is, we turn the automaton into a system of equations whose least solution provides the winner of the game.
+Additionally, the winning strategy for the game, which can be seen as a certificate, can also be read off from the least solution.
+We design algorithms that are based on effective denotational semantics for various kinds of games induced by automata, including games defined by context-free grammars and higher-order recursion schemes.
+Lastly, we study the frontier of the decidability of games on arenas induced by valence systems over graph monoids and establish that context-free games are the only type of these games that can be solved.
+
+\end{document}

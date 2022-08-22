@@ -1,0 +1,51 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+% \label{Chapter:BeingUCDC}
+
+We complement our study of computing the upward/downward closure of Petri net coverability languages by considering the problems of checking whether such a language is upward \resp downward closed.
+If this is the case, the regular downward \resp upward closure, a representation of which we are able to compute, is actually the language of the Petri net.
+
+In \cref{Section:IntroClosures}, we have motivated our interest in the upward and downward closures of languages by situations in which we want to take the lossy or gainy behavior of a system into account.
+Let us assume a situation in which we have incorporated this lossiness or gaininess into the model.
+For example, we may have constructed a Petri net that models a lossy network, where the fact that messages can be dropped is already integrated into the model.
+In this case, one part of verifying the model could consist of checking that the language of the Petri net is indeed downward closed, which means that it is equal to its downward closure.
+
+We start by formally defining the problems $\PNCOVUC$ and $\PNCOVUC$.
+
+\begin{problem}
+    \problemtitle{Being upward closed}
+    \problemshort{($\PNCOVUC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$.}
+    \problemquestion{$\lang{N,\Minit,\Mfinal} = \uc{\lang{N,\Minit,\Mfinal}}$? }
+\end{problem}
+
+\begin{problem}
+    \problemtitle{Being downward closed}
+    \problemshort{($\PNCOVDC$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$.}
+    \problemquestion{$\lang{N,\Minit,\Mfinal} = \dc{\lang{N,\Minit,\Mfinal}}$? }
+\end{problem}
+
+The goal of this chapter is to prove that both problems are decidable.
+For the proof of decidability, we consider \emph{regular containment}, the problem of checking whether a given regular language is contained in given Petri net language.
+This problem is of independent interest:
+One the practical side, it allows us to solve verification tasks in which the goal is to show that a given set of behaviors can actually occur.
+On the theoretical side, other interesting problems like universality can be reduced to regular containment.
+Proving its decidability will imply the decidability of $\PNCOVUC$ and $\PNCOVDC$.
+
+
+\begin{theorem}%
+\label{Theorem:PNCOVUCDCDecidable}%
+    $\PNCOVUC$ and $\PNCOVDC$ are decidable.
+\end{theorem}
+
+Assume that we want to check $\lang{N,\Minit,\Mfinal} = \uc{\lang{N,\Minit,\Mfinal}}$ for some given Petri net instance $(N,\Minit,\Mfinal)$.
+Note that the inclusion $\lang{N,\Minit,\Mfinal} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ always holds.
+It remains to check whether $\uc{\lang{N,\Minit,\Mfinal}} \subseteq \lang{N,\Minit,\Mfinal}$ is true.
+Here, the language $\uc{\lang{N,\Minit,\Mfinal}}$ is effectively regular, \ie it is regular and \cref{Theorem:PNUC} allows us to compute an NFA representing it.
+The situation is similar in the case of $\PNCOVDC$: \cref{Theorem:PNComputeDC} yields computability of the downward closure.
+
+Therefore, once we prove that checking whether $\lang{A} \subseteq \lang{N,\Minit,\Mfinal}$ holds for some arbitrary NFA $A$ is decidable, the decidability of $\PNCOVUC$ immediately follows.
+
+\end{document}

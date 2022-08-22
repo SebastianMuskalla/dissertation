@@ -1,0 +1,18 @@
+\begin{tikzpicture}[->,>=latex,node distance=1em,semithick]
+
+\node (a) at (0,0) {$\bullet$};
+\node (b) at (1,0) {$\bullet$};
+\node (c) at (2,0) {$\bullet$};
+\node (d) at (3,0) {$\bullet$};
+
+\node at (0.5,-0.4) {};
+
+
+\path [draw,-]
+    (a.center) -- (b.center)
+    (b.center) -- (c.center)
+    (c.center) -- (d.center)
+;
+
+
+\end{tikzpicture}

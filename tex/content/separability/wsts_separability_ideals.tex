@@ -1,0 +1,356 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Ideals and the ideal completion}%
+\label{Section:SeparabilityIdeals}%
+
+The goal of this section is proving \cref{Theorem:WSTSSeparability}.
+We want to apply our technical core result, \cref{Theorem:WSTSSeparabilityCore}, but we have to overcome the problem that the existence of a finitely represented invariant is not guaranteed.
+To this end, we introduce ideals and the ideal completion of a WSTS, well-known techniques that have been proven to be very useful in the forward analysis of WSTSes~\cite{FinkelG09,FinkelG12,Finkel16}.
+
+Consider a WQO $(\configs,\leq)$.
+An \emph{ideal} is a non-empty downward-closed subset $\ideal \subseteq \configs$ that is \emph{directed}.
+Being directed means that every pair of elements has an upper bound within the set, \ie $\forall x,x' \in \ideal \, \exists y \in \ideal\colon x \leq y, x' \leq y$.
+
+Sets of the shape $\dc{y}$ are special cases of ideals.
+These sets are necessarily directed because they have \emph{global} upper bound.
+In particular, $y$ is an upper bound for any pair of elements in the set~$\dc{y}$.
+In a sense, the notion of ideals replaces the requirement of the existence of such a global upper bound within the set by requiring the existence of \emph{local} upper bounds within the set for each pair of elements.
+Hence, while any set of the shape $\dc{y}$ is an ideal, there can be ideals that are not of this shape.
+
+We briefly consider the shape of ideals in some of the WQOs that we have introduced.
+
+\begin{example}
+    \begin{thmenumerate}[a)]
+        \item
+            Because $(\N,\leq)$ is a total order, any non-empty downward closed subset of $\N$ is an ideal.
+            This means that the ideals are precisely the sets of the shape $\dc{n}$ for some $n \in \N$ and the set $\N$ itself.
+            The latter is commonly written as $\dc{\omega}$.
+        \item
+            The ideals in $(\Sigma^*,\leq)$, where $\leq$ is the subword ordering are precisely the languages that can be expressed by regular expressions that consist only of concatenations of expressions of the shape $(a + \eps)$ (where $a \in \Sigma$) and ${\Sigma'}^*$ (where $\Sigma' \subseteq \Sigma$ is a subalphabet)~\cite{FinkelG09}.
+            Note that this is in fact the original definition of a product in a simple regular expression~\cite{AbdullaCBJ04}.
+    \end{thmenumerate}
+\end{example}
+
+To determine the ideals in \eg $\N^k$, one observes that ideals in the product of two WQOs are products of ideals in the original WQOs.
+This property will also turn out to be very helpful later when we are considering the product of two WSTSes.
+
+\begin{lemma}[(see \eg \citea{FinkelG09})]%
+\label{Lemma:WSTSIdealsProduct}%
+    Let $(\configs,\leq)$ and $(\configs',\leq')$ be WQOs, and let $(\configs_\times,\leq_\times)$ be their product.
+    The ideals in $(\configs_\times,\leq_\times)$ are precisely the sets of the shape $\ideal \times \ideal'$ where $\ideal$ and $\ideal'$ are ideals of $(\configs,\leq)$ and $(\configs',\leq')$, respectively.
+\end{lemma}
+
+\begin{example}
+    The ideals of $\N^k$ can be represented as sets of the shape $\dc{M}$, where $M \in {(\N_\omega)}^k$ is a generalized marking.
+    More formally, we define
+    \[
+        \dc{M} = \Set{ M' \in \N^k }{ \forall i \in \oneto{k} \colon M'(i) \leq M(i)}
+    \]
+    where $n \leq \omega$ holds for all natural numbers $n$.
+\end{example}
+
+The usefulness of ideals comes from the property that any downward closed set is a finite union of ideals.
+This crucial property has been observed and used many times in the past in various contexts.
+We refer to Section~3.2~of~\cite{BlondinFM17} for a more detailed discussion and further references.
+Here, we restrict ourselves to mentioning that in the recent years, ideals have been used by Finkel and others to design techniques for the forward analysis of WSTSes.
+Many well-known algorithmic techniques for WSTSes are backward analyses, based on the fact that an upward-closed set can be represented by a basis, \ie as a finite union of sets of the shape $\uc{c}$.
+Similarly, designing forward analyses requires an effective representation for downward closed sets.
+With the following lemma, finite sets of ideals can be used as such a representation.
+
+\begin{lemma}[(see \eg~\citea{BlondinFM17})]%
+\label{Lemma:WSTSIdealsDecomposition}%
+    In a WQO, every downward-closed set is a finite union of its inclusion-maximal ideals.
+\end{lemma}
+
+For a WQO $(\configs,\leq)$ and a downward-closed set $X \subseteq \configs$, we write $\idealdecomp{\configs}{X}$ for the \emph{ideal decomposition}, the set of inclusion-maximal ideals $\ideal \subseteq X$,
+\[
+    \idealdecomp{\configs}{X} = \Set{ \ideal \subseteq \configs}{ \ideal \text{ ideal of } (\configs,\leq), \ideal \subseteq X, \nexists \, \ideal' \text{ ideal with } \ideal \subsetneq \ideal' \subseteq X}
+    \ .
+\]
+Using the above lemma, $\idealdecomp{\configs}{X}$ is always finite, and we have
+\[
+    X = \bigcup \idealdecomp{\configs}{X}
+    \ .
+\]
+
+Ideals are irreducible in the sense that any ideal contained in a downward-closed subset is contained in an ideal that occurs in the ideal decomposition.
+
+\begin{lemma}[(\citea{KabilP92})]%
+\label{Lemma:WSTSIdealsIrreducible}%
+    If $\ideal \subseteq X$ is an ideal, then $\ideal \subseteq \ideal'$ for some $\ideal' \in \idealdecomp{\configs}{X}$.
+\end{lemma}
+
+
+Given a WQO $(\configs,\leq)$, we may consider its \emph{ideal completion} $(\ideals{\configs},\subseteq)$, the quasi order of ideals ordered by inclusion.
+Calling this order a \emph{completion} is justified since the elements $x$ of the original WQO can be identified with their downward closure $\dc{x}$, which is always an ideal as discussed above (and indeed $x \leq y$ if and only if $\dc{x} \subseteq  \dc{y}$).
+The ideal completion is not a WQO in general.
+Just as the order $(\pwrsetdown{\configs},\leq)$, it is a WQO if and only if the original WQO was $\omega^2$~\cite{FinkelG12}.
+
+For some set $X \subseteq \configs$, $\idealdecomp{\configs}{X}$ is the set of inclusion-maximal ideals contained in $X$.
+We may consider the downward closure $\dc{\idealdecomp{\configs}{X}}$ in the order  $(\ideals{\configs},\subseteq)$ to obtain the set of all ideals $\calI \subseteq X$ that are contained in $X$.
+Unlike $\idealdecomp{\configs}{X}$, this downward closure is not necessarily a finite set of ideals.
+We have $X = \bigcup \idealdecomp{\configs}{X} = \bigcup \dc{\idealdecomp{\configs}{X}}$.
+
+In~\cite{FinkelG12,BlondinFM17}, the notion of the ideal completion has been lifted from orders to WSTSes.
+Given a WSTS, one constructs an ordered LTS whose configurations are ideals of the original underlying order.
+Its runs approximate runs of the original WSTS in the sense that at each point in time, the ideal that forms the current configuration in the ideal completion contains a configuration of the original WSTS that can be reached by the same word.
+Due to upward-compatibility, taking the ideal completion of an WSTS does not change the language.
+
+The ideal completion can be seen as an alternative to the construction from \cref{Lemma:Expressiveness1} that we have used to show that an $\omega^2$-WSTS can be transformed into a deterministic WSTS with the same language.
+The drawback that using $(\ideals{\configs},\subseteq)$ has compared to using $(\pwrsetdown{\configs},\leq)$ is that we can only ensure that the new LTS is finitely branching, but not that it is deterministic.
+The fundamental advantage is that the ideal completion will guarantee that any downward-closed set of configurations of the original WSTS induces a finitely represented downward-closed set in the ideal completion.
+
+The formal definition of the ideal completion is as follows.
+
+\begin{definition}%[\cite{FGII,DBLP:conf/icalp/BlondinFM14}]
+    Let $\wsts = (\configs, \leq, T, \configs_\init,\configs_\final)$ be a WSTS.\@
+    Its \emph{ideal completion}
+    \[
+        \idealcompletion{\wsts} = (\ideals{\configs}, \subseteq, T', \ideals{\configs}_\init, \ideals{\configs}_\final)
+    \]
+    is the ordered LTS
+    whose configurations are ideals of $(\configs,\leq)$,
+    whose initial ideals are the inclusion-maximal ideals in $\configs_\init$, $\ideals{\configs}_\init = \idealdecomp{\dc{\configs_\init}}$,
+    and whose final ideals are those that contain a final configuration of $\wsts$,
+    $\ideals{\configs}_\final = \Set{ \ideal }{ \ideal \cap \configs_\final \neq \emptyset}$.
+    The transition relation is defined by applying the post-operation of $\wsts$ and then considering the ideal decomposition.
+    If the ideal decomposition of a post-set consists of multiple ideals, the ideal completion is nondeterministic in that it has a transition to each of them.
+    Formally, we have
+    \[
+        \post{\idealcompletion{\wsts}}{a}{\ideal} = \idealdecomp{\configs}{\dc{\post{\wsts}{a}{\ideal}}}
+        \ ,
+    \]
+    \ie $\ideal \tow{a} \ideal'$ if $\ideal'$ is an inclusion-maximal ideal of $\dc{\post{\wsts}{a}{\ideal}}$.
+\end{definition}
+
+Note that for the initial configurations and the post-sets, we need to apply the downward closure in $(\configs,\leq)$ since we have not required these sets to be downward closed.
+We have, however, already exploited in the proof of \cref{Theorem:WSTSExpressiveness} that we could make this assumption without changing the language of the WSTS.\@
+
+The following lemma summarizes the properties of the ideal completion that we will need in the following.
+Even though this is not original work, we will give the proof to emphasize the importance of the lemma and to show how the properties of ideals come into play.
+
+\begin{lemma}[(\citea{FinkelG12};~\citea{BlondinFM17})]%
+\label{Lemma:WSTSIdealcompletionProperties}%
+    \begin{thmenumerate}[a)]
+        \item
+            The ideal completion $\idealcompletion{\wsts}$ of a WSTS $\wsts$ is a finitely branching ordered LTS.\@
+        \item $\lang{\wsts} = \lang{\idealcompletion{\wsts}}$.
+        \item If WSTS $\wsts$ is $\omega^2$, then $\idealcompletion{\wsts}$ is a WSTS.\@
+        \item If WSTS $\wsts$ is deterministic, then so is $\idealcompletion{\wsts}$.
+    \end{thmenumerate}
+\end{lemma}
+
+\begin{proof}[Proof of L3MM4 1337]
+    We first show Part~a), \ie that $\idealcompletion{\wsts}$ is an ordered LTS.\@
+    We have to argue that $\ideals{\configs}_\final$ is upward closed with respect to $\subseteq$: If $\ideal \cap \configs_\final \neq \emptyset$ and $\ideal \subseteq \ideal'$, then $\ideal' \cap \configs_\final \supseteq \ideal \cap \configs_\final \neq \emptyset$.
+    Upward compatibility follows from \cref{Lemma:WSTSIdealsIrreducible}:
+    Assume $\ideal \subseteq \ideal'$ and $\ideal \tow{a} \calJ$ in $\idealcompletion{\wsts}$.
+    This means $\calJ \in \idealdecomp{\dc{\post{\wsts}{a}{\ideal}}}$, which also means that $\calJ \subseteq \dc{\post{\wsts}{a}{\ideal'}}$ since $\post{\wsts}{a}{\ideal'} \supseteq \post{\wsts}{a}{\ideal}$.
+    Using \cref{Lemma:WSTSIdealsIrreducible}, there is some ideal $\calJ' \in \idealdecomp{\dc{\post{\wsts}{a}{\ideal'}}}$ with $\calJ \subseteq \calJ'$.
+    Hence, $\ideal' \tow{a} \calJ'$ as required.
+    The ideal completion is finitely branching since $\idealdecomp{X}$ is finite for any set and so for $\dc{\post{\wsts}{a}{\ideal}}$ \nb{in particular}.
+
+    For Part~c), observe that if the original WSTS is $\omega^2$, then the ideal completion of the underlying order on configurations is a WQO~\cite{FinkelG12}.
+    Hence, the ideal completion of $\wsts$ is a WSTS.\@
+
+    To show Part~d), that $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ being deterministic implies $\idealcompletion{\wsts}$ being deterministic, we prove that after reading word $w$, $\idealcompletion{\wsts}$ is in the unique configuration $\dc{ \reach{\wsts}{w} }$.
+    We prove this claim by induction.
+    In the base case, we consider an ideal in $\idealdecomp{\dc{\configs_\init}}$.
+    Since $\wsts$ is assumed to be deterministic, we have $\configs_\init = \set{ c_\init }$ for some configuration $c_\init$.
+    Hence, $\dc{c_\init}$ is the unique inclusion-maximal ideal of $\dc{\configs_\init}$ and $\reach{\idealcompletion{\wsts}}{\eps} = \idealdecomp{\dc{\configs_\init}} = \set{ \dc{c_\init} } = \set{ \reach{\wsts}{\eps}}$.
+    For the inductive step, consider $w.a$.
+    By induction, $\reach{\idealcompletion{\wsts}}{w}$ is the unique ideal $\ideal = \dc{\reach{\wsts}{w}}$.
+    We have that  $\reach{\idealcompletion{\wsts}}{w.a}$ is an element of $\idealdecomp{\dc{\post{\wsts}{a}{\ideal}}}$.
+    We claim that $\dc{\post{\wsts}{a}{\ideal}}$ is the ideal $\dc{ \reach{\wsts}{w.a} }$, and hence its ideal decomposition only consists of this single ideal.
+    It is clear by definition that $\dc{ \reach{\wsts}{w.a}}$ is a subset of $\dc{\post{\wsts}{a}{\ideal}}$.
+    For the other direction, consider $d \in \dc{\post{\wsts}{a}{\ideal}}$.
+    This means there is some $c' \in \ideal$ so that $c' \tow{a} d'$ for some $d'$ with $d \leq d'$.
+    Since $\ideal = \dc{\reach{\wsts}{w}}$, we in turn have $c' \leq c''$ with $c'' = \reach{\wsts}{w}$.
+    Using upward compatibility, there are some $d''$ with $c'' \tow{a} d''$, $d' \leq d''$.
+    We conclude $d'' = \reach{\wsts}{w.a}$ and $d \leq d' \leq d''$, so $d \in \dc{\reach{\wsts}{w.a}}$ as required.
+
+    To complete the proof, it remains to show Part~b), \ie that the language is preserved.
+    We claim that for each word $w \in \Sigma^*$, the union of the ideals reachable along $w$ in the ideal completion is the set of configurations reachable along $w$ in the original WSTS.\@
+    Formally, we claim
+    \[
+        \bigcup \reach{\idealcompletion{\wsts}}{w} \ = \ \dc{\reach{\wsts}{w}}
+        \ .
+    \]
+    We prove this claim using induction
+
+    In the base case, we have
+    \[
+        \bigcup \reach{\idealcompletion{\wsts}}{\eps}
+        \, = \, \bigcup \ideals{\configs}_\init
+        \, = \,  \bigcup \idealdecomp{\dc{\configs_\init}}
+        \, = \, \dc{\configs_\init}
+        \, = \, \dc{ \reach{\wsts}{\eps}}
+    \]
+    as required.
+
+    For the inductive step, consider $w.a$.
+    Using upward compatibility, induction, and the fact that unions commute with the post-operation, we obtain
+    \begin{align*}
+        \dc{\reach{\wsts}{w.a}}
+        &= \dc{\post{\wsts}{a}{\reach{\wsts}{w}}}
+        \\
+        &= \dc{
+            \post{\wsts}{a}{\dc{\reach{\wsts}{w}}}
+        }
+        \\
+        &= \dc{
+            \post{\wsts}{a}{\bigcup \reach{\idealcompletion{\wsts}}{w}}
+        }
+        \\
+        &= \dc{
+            \post{\wsts}{a}{\bigcup_{\ideal \, \in \, \reach{\idealcompletion{\wsts}}{w}} \ideal}
+        }
+        \\
+        &=
+        \bigcup_{\ideal \, \in \, \reach{\idealcompletion{\wsts}}{w}}
+        \dc{
+            \post{\wsts}{a}{\ideal}
+        }
+        \ .
+    \end{align*}
+    Using Lemma~\cref{Lemma:WSTSIdealsDecomposition}, $\dc{ \post{\wsts}{a}{\ideal} }$
+    is equal to $\bigcup \idealdecomp{  \dc{     \post{\wsts}{a}{\ideal} }}$.
+    With this equality, the definition of the transition relation in $\idealcompletion{\wsts}$, the fact that the post-operation commutes with unions, and the definition of reach, we obtain
+    \begin{align*}
+        \bigcup_{\ideal \, \in \, \reach{\idealcompletion{\wsts}}{w}}
+        \dc{
+            \post{\wsts}{a}{\ideal}
+        }
+        &=
+        \bigcup_{\ideal \, \in \, \reach{\idealcompletion{\wsts}}{w}}
+        \bigcup \idealdecomp{  \dc{     \post{\wsts}{a}{\ideal} }}
+        \\
+        &=
+        \bigcup_{\ideal \, \in \, \reach{\idealcompletion{\wsts}}{w}}
+        \bigcup \post{\idealcompletion{\wsts}}{a}{\ideal}
+        \\
+        &=
+        \bigcup \post{\idealcompletion{\wsts}}{a}{\reach{\idealcompletion{\wsts}}{w}}
+        \\
+        &=
+        \bigcup
+        \reach{\idealcompletion{\wsts}}{w.a}
+    \end{align*}
+    as desired.
+
+    Using the claim that we just have established, proving language equivalence is easy.
+    For any word $w$, the condition $w \in \lang{\wsts}$ is equivalent to the existence of a configuration $c \in \reach{\wsts}{w} \cap \configs_\final$.
+    Since $\configs_\final$ is upward closed, this is equivalent to $\dc{\reach{\wsts}{w}} \cap \configs_\final \neq \emptyset$.
+    Using the claim, this is equivalent to the existence of an ideal $\ideal \in \reach{\idealcompletion{\wsts}}{w}$ such that $\ideal \cap \configs_\final \neq \emptyset$, which means $\ideal \in \ideals{\configs}_\final$.
+    This in turn means $w \in \lang{\idealcompletion{\wsts}}$.
+\end{proof}
+
+Recall that the advantage of the ideal completion of a WSTS, in comparison to its determinization using the operator $\pwrsetdown{-}$, is that it guarantees the existence of finite representations of downward-closed sets.
+We formalize this is in the following by showing that any inductive invariant $X$ of a WSTS induces a finitely represented inductive invariant in the ideal completion.
+This will enable us to apply the technical core result \cref{Theorem:WSTSSeparabilityCore} to prove \cref{Theorem:WSTSSeparability}.
+
+\begin{proposition}%
+\label{Proposition:WSTSIdealInductiveInvariant}%
+    If $X \subseteq \configs$ is an inductive invariant of WSTS $\wsts$, then $\dc{\idealdecomp{X}}$ is a finitely represented inductive invariant for the ideal completion $\idealcompletion{\wsts}$.
+\end{proposition}
+
+\begin{proof}
+    Assume $X$ to be an inductive invariant for $\wsts$.
+    Recall that this implies (1)~$\configs_\init \subseteq X$, (2)~$\configs_\final \cap X = \emptyset$, and (3)~$\post{\wsts}{\Sigma}{X} \subseteq X$.
+%
+    We claim that $\dc{\idealdecomp{X}}$ is a finitely represented inductive invariant for $\idealcompletion{\wsts}$.
+    Observe that $\dc{\idealdecomp{X}}$ is finitely represented since $\idealdecomp{X}$ is finite by \cref{Lemma:WSTSIdealsDecomposition}
+    It remains to verify the properties of being an invariant.
+
+    (1)~First, we show $\ideals{\configs}_\init \subseteq \dc{\idealdecomp{X}}$.
+    For any ideal $\ideal \in \ideals{\configs}_\init$, we have $\ideal \subseteq \configs_\init$ by definition.
+    Since $\configs_\init \subseteq X$ by Property~(1) of $X$ being an inductive invariant, we conclude that $\ideal$ is an ideal in $X$, and hence $\ideal \in \dc{\idealdecomp{X}}$ since  $\dc{\idealdecomp{X}}$ is the set of all such ideals.
+
+    (2)~Towards a contradiction, assume that there is an ideal $\ideal \in \ideals{\configs}_\final \cap \dc{\idealdecomp{X}}$.
+    This means that $\ideal \subseteq X$ and that $\ideal \cap \configs_\final \neq \emptyset$.
+    We conclude $X \cap \configs_\final \neq \emptyset$, a contradiction to the safety of $X$.
+
+    (3)~We need to check the inclusion $\post{\idealcompletion{\wsts}}{\Sigma}{\dc{\idealdecomp{X}}} \subseteq \dc{\idealdecomp{X}}$.
+    Pick any $\calJ \in \post{\idealcompletion{\wsts}}{\Sigma}{\dc{\idealdecomp{X}}}$.
+    By definition, there is some $\ideal \in \dc{\idealdecomp{X}}$ and some letter $a \in \Sigma$ such that $\ideal \tow{a} \calJ$ in $\idealcompletion{\wsts}$.
+    This means that $\calJ \in \idealdecomp{\dc{\post{\wsts}{a}{\ideal}}}$, so in particular $\calJ \subseteq \dc{\post{\wsts}{a}{\ideal}}$.
+    Since we have $\ideal \subseteq X$ and $\post{\wsts}{\Sigma}{X} \subseteq X$ holds by assumption, we get $\calJ \subseteq X$.
+    Hence, $\calJ$ is contained in $\dc{\idealdecomp{X}}$ as required.
+\end{proof}
+
+Before we can finally prove our main result for WSTSes, we need to overcome a minor challenge.
+\cref{Theorem:WSTSSeparabilityCore}, our technical core results, expects a finitely represented invariant for the product of two ordered LTSes.
+Our intention is to use the products of the ideal completions of the given WSTSes.
+\cref{Proposition:WSTSIdealInductiveInvariant}, however, guarantees the existence of a finitely represented invariant in the ideal completion of a single WSTS.\@
+Luckily, the operations of taking the product and taking the ideal completion commute: The product of the ideal completions is the ideal completion of the product.
+
+\begin{lemma}%
+\label{Lemma:WSTSIdealsCompletionProduct}%
+    Let $\wsts,\wstsprime$ be two WSTSes.
+    The ideal completion of their product $\idealcompletion{\wsts \times \wstsprime}$ is the product of their ideal completions $\idealcompletion{\wsts} \times \idealcompletion{\wstsprime}$.
+\end{lemma}
+
+\begin{proof}
+    The proof essentially follows from the fact that every ideal in the product domain is a product of ideals and vice versa, see \cref{Lemma:WSTSIdealsProduct}.
+    Hence, the configuration sets of $\idealcompletion{\wsts \times \wstsprime}$ and $\idealcompletion{\wsts} \times \idealcompletion{\wstsprime}$ are equal.
+    Using the definition of the synchronized product, it is straightforward to check that the identity also preserves the order and the initial and final sets of configurations.
+    It remains to show that the transition relation is preserved.
+    Consider a product of ideals $\ideal \times \ideal'$.
+    The $a$-successors of this product in $\idealcompletion{\wsts \times \wstsprime}$ are the ideals (which themselves are products) in $\idealdecomp{\dc{\post{\wsts \times \wstsprime}{a}{\ideal \times \ideal'}}}$;
+    the $a$-successors of $\ideal \in \ideal'$ in $\ideal \times \ideal'$ are the products of ideals in $\idealdecomp{\dc{\post{\wsts}{a}{\ideal}}} \times \idealdecomp{\dc{\post{\wstsprime}{a}{\ideal'}}}$.
+    Using the definition of the transition relation of the synchronized product and the fact that taking the downward closure and taking the ideal decomposition both commute with the product operation, we can prove the equality of these sets:
+    \begin{align*}
+        \idealdecomp{\dc{\post{\wsts \times \wstsprime}{a}{\ideal \times \ideal'}}}
+        &= \idealdecomp{\dc{\paren{\post{\wsts}{a}{\ideal} \times \post{\wstsprime}{a}{\ideal'}}}}
+        \\
+        &= \idealdecomp{\dc{\post{\wsts}{a}{\ideal}} \times \, \dc{\post{\wstsprime}{a}{\ideal'}}}
+        \\
+        &=\idealdecomp{\dc{\post{\wsts}{a}{\ideal}}} \times \idealdecomp{\dc{\post{\wstsprime}{a}{\ideal'}}}
+        \ .
+        \\
+    \end{align*}
+    This completes the proof.
+\end{proof}
+
+We can now finally prove the main result.
+Recall that \cref{Theorem:WSTSSeparability} states that two disjoint WSTS languages, at least one of them the language of a deterministic WSTS, are regularly separable.
+
+\begin{proof}[Proof of \cref{Theorem:WSTSSeparability}]
+    Assume that $\wsts,\wstsprime$ are WSTSes with disjoint languages, $\lang{\wsts} \cap \lang{\wstsprime} = \emptyset$, and $\wstsprime$ is deterministic.
+    We consider their ideal completions $\idealcompletion{\wsts}$ and $\idealcompletion{\wstsprime}$.
+    Using \cref{Lemma:WSTSIdealcompletionProperties}, $\idealcompletion{\wstsprime}$ is guaranteed to be deterministic.
+    Furthermore, $\lang{\wsts} = \lang{\idealcompletion{\wsts}}$ and $\lang{\wstsprime} = \lang{\idealcompletion{\wstsprime}}$.
+
+    Since the languages of $\wsts$ and $\wstsprime$ are disjoint, the language of their product $\wsts \times \wstsprime$ is empty.
+    Hence, there is an inductive invariant for $\wsts \times \wstsprime$, \eg $\dc{\reach{\wsts \times \wstsprime}}$, that is not necessarily finitely represented.
+    With \cref{Proposition:WSTSIdealInductiveInvariant}, the ideal completion of the product $\idealcompletion{\wsts \times \wstsprime}$ has a finitely represented inductive invariant, \eg $\dcwrt{\idealcompletion{\dc{\reach{\wsts \times \wstsprime}}}}{\subseteq}$.
+    With \cref{Lemma:WSTSIdealsCompletionProduct}, the ideal completion of the product is equal to the product of the ideal completions.
+    Hence, we have found finitely represented inductive invariant for the product of the ideal completions.
+
+    By applying the technical core result \cref{Theorem:WSTSSeparabilityCore}, we obtain that the languages of the ideal completions -- which are equal to the languages of the original WSTSes -- are regularly separable as desired.
+\end{proof}
+
+We conclude this section by demonstrating that with the concepts that we have introduced in this thesis, it does not seem possible to get rid of the assumption that one of the two WSTSes is deterministic.
+The above proof combines various state-of-the-art techniques, ones from the literature and freshly developed ones, in a specific order.
+It is assembled with care to achieve the intended result.
+Various ways to re-arrange the ingredients of the proof that might seem promising at first glance turn out to be incorrect.
+
+Consider for example the idea of first using \eg the operator $\pwrsetdown{-}$ to make one of the WSTSes deterministic before applying the development detailed in this section.
+This might seem promising since our technical core result only requires ordered LTSes instead of WSTSes.
+However, this approach makes the given systems lose the WQO property \emph{too early}:
+After applying the operator $\pwrsetdown{-}$ as in \cref{Lemma:Expressiveness1} to a WSTS that is not guaranteed to be $\omega^2$ will yield an ordered LTS that may not be a WSTS.\@
+However, \cref{Lemma:WSTSIdealsDecomposition}, the fact that all downward-closed sets decompose into finitely many ideals, is reliant on the finite antichain property of WQOs, Property~\cref{Property:WQOAntichain} in \cref{Lemma:WQOProperties}.
+Hence, applying the ideal completion to an LTS that is not a WSTS may yield a system which sets of the shape $\idealdecomp{X}$ can be infinite and \cref{Proposition:WSTSIdealInductiveInvariant} breaks.
+A similar problem occurs if we try to start by making one of the given systems finitely branching, \eg using the ideal completion.
+
+Another idea that comes to mind is replacing the ideal completion by the operator $\pwrsetdown{-}$ throughout this section.
+The resulting system shares many of the properties with the ideal completion:
+It preserves the language and ensures the existence of finitely represented invariants: If $X \subseteq \configs$ is a downward-closed inductive invariant, then so is $\dcwrt{X}{\subseteq} \ \, \subseteq \pwrsetdown{\configs}$.
+The problem here is that an equivalent of \cref{Lemma:WSTSIdealsCompletionProduct} does not hold in this case:
+The downward closed subsets in $\pwrsetdown{\configs \times \configs'}$ are not simply products of downward closed subsets in $\pwrsetdown{\configs}$ and $\pwrsetdown{\configs'}$, but rather unions of such products.
+
+The author conjectures that the key to overcoming the requirement of one of the given systems having to be deterministic, or realizing that the requirement is in fact necessary, is understanding whether the inclusions in our result on WSTS expressiveness, \cref{Theorem:WSTSExpressiveness}, are strict.
+This would require a deeper understanding of the expressive power of WSTSes that are neither $\omega^2$ nor finitely branching.
+
+\end{document}

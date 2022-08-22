@@ -1,0 +1,335 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+% \chapter{Games with perfect information}
+% \label{Chapter:Games}
+
+The goal of this part of the thesis is studying certificate-generating algorithms for solving games.
+We will use this chapter to give some basic definitions regarding games and to introduce the corresponding notation.
+Most of the material is standard, it can be found \eg in~\cite{KhoussainovN01}, but the presentation does not follow any particular source.
+
+\paragraph{Games with perfect information}
+
+A \emph{game} is a system whose behavior is influenced by several independent entities, called \emph{players}.
+Games can be divided into two categories, namely games with perfect and games with imperfect information.
+In a game with perfect information, each of the players knows the rules of the game, and, whenever it is their turn to pick a move, they know the history and the current state of the game.
+We also require perfect-information games to be sequential; we do not allow concurrent games in which multiple players have to make a choice simultaneously like in the well-known \emph{prisoner's dilemma}~\cite{Poundstone92}.
+We will exclusively consider perfect-information games in this thesis since they provide a sufficiently expressive model for the problems in verification and synthesis that we are interested in.
+Games with imperfect information, which are predominantly studied in economic sciences for their capability of modeling a market, and the corresponding notions like equilibria are beyond the scope of this thesis.
+
+A consequence of the players having perfect information is that it is typically sufficient to consider at most two players.
+Assume that in a $k$-player game, there is a global winning condition that a coalition of players tries to satisfy, while the opposition, the rest of players, is trying to prevent this from happening.
+This game is equivalent to the two-player game in which all players in the coalition and opposition have been merged into a single player each.
+Here, it is crucial that the players do not have any private information that is hidden from the other players in the same group.
+
+Finally, we require games to be discrete in the sense that they are turn-based.
+This allows us to model games as \emph{board games}, \ie based on directed graphs.
+The nodes of the graph represent states of the game and the choices of a player in a certain state are represented by the choice among the outgoing edges of the corresponding node.
+
+In \cref{Section:IntroGames} of the introduction, we have already given several examples of where such games play a role in computer science.
+We have discussed a proof of Rabin's tree theorem that relies on games, we have briefly mentioned game semantics, and we have talked extensively about how games can be used to model synthesis problems.
+
+\paragraph{Basic definitions}
+
+We turn to providing formal definitions for the aforementioned concepts.
+A \emph{sequential two-player board game with perfect information}, shortly referred to as \emph{game}, consists of a \emph{game arena} and a \emph{winning condition}.
+A \emph{game arena} is a transition system $\lts = (\configs,\transitions)$ together with a function
+\[
+    \owner \colon \configs \to \players
+    \
+\]
+that assigns each configuration its owner, either the \emph{universal player}~$\allplayer$ or the \emph{existential player}~$\explayer$.
+In the context of games, we often refer to configurations $c \in \configs$ as \emph{positions} and to transitions $t \in \transitions \subseteq \configs \times \configs$ as \emph{moves} of the game.
+
+The owner function induces a partitioning of the positions $\configs = \configs_\allplayer \dotcup \configs_\explayer$ into the sets $\configs_\allplayer = \Set{ c \in \configs}{ \owner(c) = \allplayer}$ and  $\configs_\explayer = \Set{ c \in \configs}{ \owner(c) = \explayer}$.
+We usually write a game arena as $\lts = (\configs_\allplayer \dotcup \configs_\explayer, \transitions)$, where the owner function is implicitly given by the partitioning of the set of all positions $\configs = \configs_\allplayer \dotcup \configs_\explayer$.
+
+Before we can formally define winning conditions, we need to understand how a game is played.
+A \emph{play} (from position $c_\init$) is a finite or infinite path in the game arena that starts with $c_\init$.
+Formally, an infinite play is a sequence of positions $p = p_0 p_1 \ldots$ such $p_i \in \configs$ for all $i$, $p_0 = c_\init$, and for each $i \in \N$, $(p_i,p_{i+1}) \in T$ is a valid move in the game.
+For finite plays, the definition is adapted accordingly.
+%
+Intuitively, we think of a token that is initially placed on position $c_\init$.
+The game then proceeds in sequential steps.
+In each step, the owner of the current position $c$ is active and can move the token from $c$ to a new position by picking a move of the game that originates in $c$.
+
+We call a play \emph{maximal} if it is either infinite or it is finite and ends in a position that is a \emph{deadlock}, \ie it has no successors in the arena.
+The set $\PlaysMax \subseteq \configs^* \cup \configs^\omega$ is the set of all such plays.
+Note that here, we use $\configs^*$ and $\configs^\omega$ to refer to the set of finite and infinite sequences of positions, respectively, even if $\configs$ is not finite.
+For a finite play $p$, we use the notation $p_\last$ to denote the position $p_{\card{p} - 1}$.
+
+A \emph{winning condition} is a function \( \winningcond \colon \PlaysMax \to \players \) that assign to each maximal play a winner.
+A \emph{game} is of the shape $(G,\winningcond)$ where $G$ is a game arena and $\winningcond$ is a winning condition for plays on that arena.
+
+The winning condition allows us to determine the winner of a play.
+Our main interest, however, is to determine whether one of the players has a systematic way of playing so that she wins all resulting plays, independent of the choices of her opponent.
+If so, we say that this player \emph{wins} the game.
+To formalize this idea of playing systematically, we introduce the notion of strategies.
+A \emph{strategy} for player~$\player \in \players$ is a function $\strat_\player$ that takes a finite play $p$ that ends in an active position of player~$\player$ and assigns a successor of the current position.
+Formally, we can see it as a function $\strat_\player \colon \configs^*\configs_{\player} \to \configs$ such that if $p$ is a finite play where $p_\last \in \configs_\player$ is not a deadlock, then $(p_\last,\strat_\player(p)) \in \transitions$ is a valid move.
+Intuitively, a strategy tells a player whenever she is active which move she should make.
+Accordingly, we say that a play $p$ \emph{conforms} to strategy $\strat_\player$ if for all $p_i$ with $p_i \in \configs_\player$, $p_i \neq p_\last$, we have $p_{i+1} = \strat_\player (p_0 \ldots p_i)$.
+
+A strategy $\strat_\player$ is called a \emph{winning strategy} for a game from position $c_\init$ if any play that starts in $c_\init$ and conforms to $\strat_\player$ is won by player $\player$.
+The set of positions $c$ from which player~$\player$ has a winning strategy is called the \emph{winning region} $W_\player$ of that player.
+
+It is easy to see that the winning regions of the two players have to be disjoint.
+Assume both players have a winning strategy from the same position.
+We can inductively construct the unique maximal play that conforms to both strategies by querying after each move the strategy for the active player.
+If both strategies are winning, the resulting play has to be winning for both players.
+This is a contradiction to the winning condition assigning a unique winner to all maximal plays.
+The question arises whether the set of positions is partitioned into the winning regions.
+A game that has this property, \ie a game with $\configs = W_\allplayer \dotcup W_\explayer$, is called \emph{determined}.
+In theory, it is possible to construct undetermined games in which positions exist from which none of the players has a winning strategy~\cite{MycielskiS62}.
+However, all the games that we will consider in this thesis are determined, which can be proven using the Borel determinacy theorem~\cite{Martin75}.
+
+Hence, we can turn from the theoretical question of determinacy to more practical questions.
+Given a game and an initial position in that game, can we compute which player wins the game?
+When we talk about \emph{solving} or \emph{deciding} a game, we are interested in an algorithm that takes (a description of) the game arena and the winning condition.
+It should either also take a given initial position and return the winner from that position, \ie the player who has a winning strategy, or it should produce a description of the winning regions of one or both of the players.
+
+In addition to just computing the winner, we also want to compute the corresponding winning strategies.
+These strategies serve as certificates as explained in \cref{Section:IntroGames}.
+This also means that we are interested in \emph{simple} winning strategies.
+One particularly simple type of strategies are \emph{positional strategies} that assign the next move only depending on the current position and not on the history.
+Formally, a strategy $s_\player$ is positional if for any two plays $p,p'$ that end in the same position, $p_\last = p'_\last$, we have $s_\player(p) = s_\player(p')$.
+Note that we may see a positional strategy as a function with signature $s_\player \colon \configs_\player \to \configs$.
+A~game is called \emph{positionally determined} if for each initial position, exactly one of the players has a positional winning strategy.
+We will elaborate on other types of simple strategies at the end of this chapter.
+
+\paragraph{Reachability games}
+
+We consider the two types of winning conditions that are most commonly considered in the literature and will play a large role in the rest of this part of the thesis, starting with the reachability winning condition.
+
+A \emph{reachability game} is given by a game arena together with a subset $\configs_\final \subseteq \configs$ of the position, the so-called \emph{target set}.
+A play $p$ is won by the existential player if and only if it visits a position from that set, $\winningcond(p) = \explayer$ if there is $i \in \N$ such that $p_i \in \configs_\final$.
+Reachability games are the game-theoretic analogue of the usual acceptance condition in an automaton that processes finite words.
+However, infinite plays are allowed here, although any play that is won by $\explayer$ can already be identified as such after a finite prefix.
+
+Reachability games are well-known to be positionally determined.
+In fact, both the winning regions and the positional winning strategies can be constructed using the well-known attractor construction.
+
+
+The attractor of the target set $\configs_\final$ is the smallest subset of $\configs$ that contains $\configs_\final$ and satisfies the following property.
+If a position owned by the existential player has a successor contained in the attractor, it is also contained in the attractor.
+The same is true for a position owned by the universal player that is not a deadlock and has all its successor contained in the attractor.
+For games with finite out-degree, the attractor can be constructed as the fixed point of an inductive backwards construction that starts with $\configs_\final$ and adds in each step all positions owned by $\explayer$ that have some successor in the set and all positions owned by $\allplayer$ that are not deadlocks and have all their successors in the set.
+
+The attractor is exactly the set of positions from which the existential player can enforce visiting the target set within finitely many steps.
+Hence, it is her winning region and its complement is the winning region of the universal player.
+The corresponding winning strategy for the universal player simply picks for each position that is not in the attractor a successor that is also not in it.
+The definition of the attractor ensures that this is possible.
+The winning strategy for the existential player is more involved since it needs to ensure that $\configs_\final$ is reached after finitely many steps.
+To this end, if the play is currently in a position that was added to the attractor in the $\nth{i}$ step of the aforementioned inductive construction, the strategy needs to pick a successor that was added in the $\nth{(i-1)}{st}$ step of the construction or earlier.
+This ensures that the play eventually reaches a position that is contained in the zero-step attractor, which is the target set.
+
+\paragraph{Parity games}
+
+In the same way that reaching a final state is an acceptance condition that is insufficiently expressive for automata that process infinite words, the reachability winning conditions is not useful whenever a winner should be assigned to an infinite play.
+Most of the acceptance conditions that have been defined for automata on infinite words have been used to define analogue winning conditions for games, including the Büchi, parity, and Muller conditions.
+Here, we exclusively consider the parity condition since it is very commonly used in the literature and in tools (see \eg the seminal paper by \citea{Zielonka98}).
+Oftentimes, games with other winning conditions can be transformed into parity games.
+(However, the transformation may introduce a blowup. For example, Muller games can be converted into equivalent parity games with exponentially more positions~\cite{DziembowskiJW97}.)
+
+A \emph{parity game} is given by a game arena and a \emph{priority function} $\Omega \colon \configs \to \N$ that assigns to each position of the game one of finitely many priorities.
+For the sake of simplicity, we assume that the game arena is deadlock-free, which means that every maximal play is infinite.
+Such a play~$p$ is won by the existential player if and only if the largest priority that occurs infinitely often in the sequence $\Omega(p) = \Omega(p_1) \Omega(p_2) \ldots$ is odd.
+
+If we only allow finitely many priorities, choosing smaller or larger priorities to be dominating is arbitrary.
+Considering a more general setting is beyond the scope of this thesis.
+
+Similar to reachability games, parity games are positionally determined~\cite{Mostowski91,EmersonJ91}.
+However, the proof is much more involved.
+Zielonka~\cite{Zielonka98} observed that from the proof of positional determinacy, one can extract an algorithm that constructs the winning regions and corresponding positional strategies.
+This improves an earlier algorithm by \citea{McNaughton93} that was based on the weaker result that parity games admit finite-memory winning strategies~\cite{GurevichH82} which we will define below.
+
+Zielonka's algorithm is well known to consume exponential time in the worst case.
+Determining the precise complexity of solving parity games is one of the most important unsolved problems in theoretical computer science.
+The problem is known to be in (a subclass of) $\NPTIME \cap \co\NPTIME$, since one can guess a positional strategy for one of the players and verify whether it is winning in polynomial time~\cite{EmersonJS01,Jurdzinski98}.
+The membership in this intersection strongly suggests that the problem is not $\NPTIME$-complete for complexity-theoretic reasons.
+To this date, no polynomial-time algorithm is known.
+A recent breakthrough~\cite{CaludeJKLS17} has provided the first algorithm that is both quasi-polynomial and fixed-parameter tractable.
+The former property means that the algorithm solves parity games in time $\log (2^{n^k})$, where $n$ is the size of the input and $k$ is a constant.
+The latter means that the algorithm is exponential only in the highest occurring priority, but not in size of the game arena.
+
+\paragraph{Games on the transitions systems induced by automata}
+
+In general, it is impossible to compute the winner of a game on an infinite game arena within finite time.
+However, games on infinite arenas occur in some applications like the synthesis problem for programs that we mentioned in the introduction.
+To overcome the problem, we use the concept of automata.
+
+In \cref{Section:LTS}, we have defined automata as finite descriptions for potentially infinite transition systems.
+More precisely, we have considered transition systems whose configurations are of the shape $(q,m)$, consisting of one of finitely many control states and a potentially unbounded memory value.
+The transitions of the systems are induced by a finite set of rules whose applicability is depending only on a bounded amount of information on the current memory value.
+We apply this concept to games and define \emph{games on the transitions systems induced by automata}.
+Consider the finite syntax of an automaton together with a partitioning $Q = Q_\allplayer \dotcup Q_\explayer$ of its control states.
+The partition turns the semantics of the automaton, \ie the transition system induced by it, into a game arena.
+The owner of some position $(q,m)$ in that arena is induced by the partitioning of the control states and independent of the memory value.
+This concept gives us a chance of computing the winner of a game that is played on such an arena by working with the finite description.
+
+Similar to the definition of the arena, one can define winning conditions based on the control state:
+In a control-state reachability game, one specifies a target set of control states that should be reached with arbitrary memory value.
+In a parity game on the transition system induced by an automaton, one typically assumes a priority assignment to the control states that then induces a priority assignment to all configurations based on their control states.
+However, we will later also consider games in which the goal is reaching a specified configuration, \ie we fix both the target control state and the target memory value.
+
+For each type of automaton, solving games with a certain type of winning condition is harder than solving verification problems with the same type of acceptance condition.
+We may see a deterministic automaton as a special case of a nondeterministic automaton, and a nondeterministic automaton as a special case of a game in which all control states are owned by the existential player.
+Consequently, there is no hope of solving reachability games on the transition systems induced by Turing machines.
+We will later see that context-free games, games whose arenas are induced by pushdown automata or by context-free grammars, can be solved.
+Petri nets form an interesting case: While coverability and reachability are decidable, we will prove that games defined by Petri nets with the corresponding winning conditions \nb{are undecidable}.
+
+\begin{remark*}
+    In \cref{Section:ATMs} we have provided a definition of alternating Turing machines and later introduced nondeterministic Turing machines as special cases.
+    With the notions introduced in this section, we could take the opposite approach: An alternating Turing machine is a nondeterministic Turing machine with a partitioning of the control states, and its semantics is the corresponding control-state reachability game.
+\end{remark*}
+
+\paragraph{Inclusion games}
+
+We have argued before, \eg in \cref{Section:LTS}, that it is beneficial to consider labeled systems instead of unlabeled ones.
+By taking this approach, properties of the behavior of a system translate into properties of its language.
+Correspondingly, instead of checking properties of the behavior of a system, solving a verification problem amounts to checking properties of a language.
+For example, solving the reachability problem for a system typically translates into checking language-emptiness.
+Additionally, the language-theoretic approach allows us to compare different systems by considering problems like language inclusion and intersection-emptiness as long as the systems are labeled over the same alphabet.
+It seems like an obvious choice to also do this for games for exactly the same reasons, although this approach to games is less common in the literature.
+
+Formally, we assume that the game arena under consideration is equipped with a labeling function $\lambda \colon T \to \Sigma^*$ that assigns to each transition a finite word.
+Note that we do not allow multiple transitions that differ only in their label for the sake of simplicity.
+The labeling of the transitions induces a labeling of plays:
+If $p = p_0 p_1 p_2 \ldots$ is a play, then $\lambda(p) = \lambda(p_0,p_1) \lambda(p_1,p_2) \ldots$ is the word obtained by concatenating the labels of the transitions used in the play.
+This word is finite if $p$ is finite or if $p$ is infinite, but only finitely many transitions are not labeled by $\eps$.
+Otherwise, $\lambda(p)$ is an infinite word.
+
+In the case of a game arena based on the transition system induced by an automaton, the transition labels in the game come from the labeling of the transitions of the automaton \nb{as expected}.
+
+We will be mostly interested in \emph{inclusion games}.
+Their winning condition is specified by a \emph{target language} $\calL$ over the same alphabet that is used by transition labels.
+For now, let us consider the case that $\calL \subseteq \Sigma^*$ is a language of finite words.
+A maximal play $p$ of the inclusion game is won by the existential player if its label $\lambda(p)$ is a finite word not contained in~$\calL$.
+Otherwise, the play is won the universal player.
+The motivation for this definition is that we think of the existential player as a representation of the demonic nondeterminism and of the language $\calL$ to represent valid behavior.
+To prove that the system is incorrect, the existential player has to enforce a play that exhibits illegal behavior.
+
+If the target language $\calL \subseteq \Sigma^\omega$ is a language of infinite words, we follow a similar convention.
+The existential player wins a play if it generates an infinite word not in the language.
+If a play generates a finite word or an infinite one contained in $\calL$, the universal player wins.
+
+In \cref{Section:IntroGames} of the introduction, we had considered synthesis as one application for perfect-information games.
+If we model the game representing a synthesis problem according to the definitions in this section, the roles of the players are as follows.
+The universal player is the synthesis players.
+Her goal is to ensure that all executions that are terminating or non-terminating~--~depending on which type of program we consider~--~are valid with respect to the specification.
+An execution being valid with respect to the specification means that the corresponding play generates a word that is in the target language.
+The existential player represents the environment.
+She wins  plays that generate words that are of the required shape (\ie finite or infinite) but not in the target language.
+On the level of executions, this means that an illegal execution exists.
+In general, which player represents the controllable, angelic nondeterminism, \ie the type of nondeterminism that helps us meet the objective\footnote{In this thesis, we assume that angelic means good -- this is not \emph{a cruel angel's thesis.}}, and which player represents uncontrollable, demonic nondeterminism will depend on the application.
+
+\paragraph{Succinctness}
+
+Solving an inclusion game generalizes the problem of deciding inclusions among languages in the same way that solving reachability games generalized the reachability problem for nondeterministic systems.
+This in particular means that whenever we allow non-regular target languages, solving inclusion games typically becomes undecidable:
+Inclusion games with a context-free target language are undecidable because already the problem of checking whether a regular language  is contained in a context-free one is undecidable (see \eg \cite{HopcroftU79} for a proof).
+In \cref{Section:ValenceGames}, we will show a result that implies that games with a Petri net coverability target language are undecidable, although the corresponding verification problem is decidable (as we have mentioned in \cref{Section:PNRegularContainment}).
+For these reasons, we will limit ourselves to regular inclusion games, where the target language is regular or $\omega$-regular.
+In this case, inclusion games can be reduced to reachability games that are simultaneously played on the game arena and the automaton.
+However, we argue in the following that inclusion games provides a more succinct representation.
+We demonstrate this for a target language of \nb{finite words}.
+
+Consider an inclusion game played on the game arena induced by some automaton $A$ that is not necessarily finite state and with regular target language $\lang{B}$, where $B$ is an NFA.\@
+One might think that equivalently, one can consider the reachability game on the game arena induced by $A \times B$, the product of the automata $A$ and $B$.
+The goal in this new game is to reach a position in which the $A$-component is a deadlock and the $B$-component is a non-accepting.
+This reasoning is valid if $B$ is deterministic: If we reach such a position, we have produced a maximal finite play of $A$ defining a word that is not in the language of $\lang{B}$.
+However, it does not work if $B$ is nondeterministic.
+In this case, we need to prevent the selection of a non-accepting run of the automaton~$B$ on a word for which an accepting run exists.
+There are three types of nondeterminism at play here: The two types of nondeterminism in the automaton~$A$ represented by the players of the game, and the nondeterminism of the automaton~$B$ that generates the target language.
+Unfortunately, it is impossible to merge the nondeterminism in the automaton with the nondeterminism in the game by letting one of the players control the automaton.
+%
+Obviously, we cannot let the existential player control the automaton.
+The goal of the existential player is to enforce a play generating an illegal word, but for a word to be illegal, all its runs in the automaton need to be non-accepting.
+If we give the existential player control of the automaton, we modify the semantics of the game in her favor, making it too easy for her to win.
+
+Seeing that letting the universal player control the automaton also does not yield the desired result is more involved.
+To demonstrate this, we give a brief example without giving the formal definitions.
+Consider the finite automata depicted in \cref{Figure:GamesNotBisimilar}.
+They are well-known examples that are commonly used to show that language equality does not imply \emph{bisimilarity} in the case of nondeterministic automata.
+(This is in contrast to the case of deterministic automata, where bisimilarity and language equality are equivalent, which can be used \eg for the minimization of automata~\cite{HopcroftK71}.)
+Consider $A$ as a game arena in which all positions are owned by the existential player on which we play an inclusion game with target language $\lang{B}$.
+Both automata have the same language, $\lang{A} = \lang{B} = \set{ab,ac}$.
+Hence, the existential player is unable to win the inclusion game starting from position $q_0$: Both maximal plays that she can choose from yield words in the language of $B$.
+
+\begin{figure}[t]
+    % \centering%
+    \subcaptionbox{Automaton $A$ with a unique transition relation.\label{Figure:GamesNotBisimilarCorrect}}[0.49\textwidth][c]%
+    {%
+        \input{tikz/game_notbisimilar_correct.tikz}%
+    }%
+    \subcaptionbox{Automaton $B$ with a nondeterministic transition relation.\label{Figure:GamesNotBisimilarBroken}}[0.49\textwidth][c]%
+    {%
+        \input{tikz/game_notbisimilar_broken.tikz}%
+    }%
+    \caption{Two automata with language $\set{ab,ac}$.}%
+    \label{Figure:GamesNotBisimilar}
+\end{figure}
+
+Let us consider the product $A \times B$ in which we give the universal player the control over the automaton~$B$.
+A play from $(q_0,p_0)$ starts with the existential player picking a move in the game, but her only choice is to use the transition $q_0 \tow{a} q_1$ of~$A$.
+Now, the universal player has to pick among the two $a$-labeled transitions of $B$.
+The result is either the \nb{position $(q_1,p_{1b})$ or $(q_1,p_{1c})$}.
+In both positions, the existential player can win by picking a transition in $A$ which cannot be simulated in the state of $B$ that the universal player has selected.
+We see that the existential player wins the reachability game on the product although she did not win the inclusion game.
+The reason for the invalidity of the construction is twofold:
+The universal player has to resolve the nondeterminism of the automaton during the run without knowing the full word that will be generated.
+When she picks the first transition in $B$, she does not know whether $c$ or $b$ will follow.
+Additionally, she makes her choices visible to the existential player, \eg if she has picked the transition to $p_{1b}$, the existential player can react by using the $c$-labeled transition.
+
+To avoid the problem, there are several possibilities.
+We could construct a game arena in which each play consists of two parts: The first is a play of $A$ that derives some finite word $w$; the second part is a run of automaton $B$ on $w$.
+Here, we can let the universal player control the automaton because she knows the full word that has been generated in the first part.
+The drawback of this concept is that it introduces an infinite number of positions required for storing the word of unbounded length that is produced in the first part of the game.
+A more reasonable choice is to determinize automaton $B$.
+When we consider a determinized version of $B$, the product construction becomes valid.
+However, applying the construction may introduce an exponential blowup.
+Actually, it would be sufficient to compute a so-called good-for-games automaton~\cite{HenzingerP06} that may be nondeterministic, but in which the nondeterminism can always be resolved based on prefixes of the word.
+Unfortunately, such automata may be just as large as deterministic ones~\cite{KuperbergS15}.
+
+In any case, the pair $(A,B)$ consisting of the game automaton $A$ and the NFA $B$ is a representation of the inclusion game on the arena induced by $A$ with target language $\lang{B}$ that is more succinct than any of the other choices.
+We will make this formal in the case of context-free inclusion games by showing that solving such games is exponentially harder if the target language is given by a nondeterministic instead of a deterministic automaton.
+Our procedure to solve such games will mitigate this problem by using an on-the-fly determinization that, instead of computing a determinization of $B$ upfront, determinizes $B$ along the words that actually occur as \nb{labels of plays}.
+
+It might seem that the fact that the nondeterminism in $B$ cannot be resolved by one of the players contradicts our earlier statement that a $k$-player perfect information game can always be transformed into a two player game by merging players.
+However, if we want the nondeterminism in the automaton to be resolved during the play (instead of resolving it after the play is complete as proposed above), this has to be done in a way that is not visible to the existential player.
+Hence, we are not dealing with a perfect-information game anymore.
+% , and we do not pursue this path any further.
+
+
+\paragraph{Strategy automata}
+
+To conclude this chapter, we come back to the notion of a simple strategy that we mentioned earlier.
+In the case of games on finite graphs, positional strategies are sufficiently simple.
+Such a strategy can be stored using space linear in the size of the game arena by storing for each position of a player its designated successor.
+
+The case of games on infinite graphs is more complicated.
+The results on the positional determinacy of reachability and parity games still hold, but a positional strategy for such a game cannot be represented using finite space.
+To overcome this problem, we consider strategies that can be finitely represented by automata.
+To make this concept formal, we assume that the game arena is induced by some automaton whose finite set of transition rules is $\delta$, meaning that each of the (potentially infinitely many) transitions in the game arena is induced by one of the finitely many transition rules $t \in \delta$.
+We assume that for each position $c$ of the game and each transition rule $t \in \delta$, there is at most one successor that can be reached from $c$ using a transition induced by rule $t$.
+A \emph{strategy automaton} is a deterministic automaton with $\delta$ as the input alphabet together with an output function $\o \colon Q \to \delta$ that assigns to each control state a designated move.
+It induces a strategy $s_\player$ as follows.
+Given a play $p$, we consider the unique control state $q$ in which the automaton is after reading the sequence of transition rules that induce the sequence of moves that has been used in $p$.
+If play $p$ ends with a position of player~$\player$, the strategy selects the successor that is reached by the move induced by the transition rule $\o(q)$ that is the output of the automaton for the current control state.
+
+
+\enlargethispage*{2\baselineskip}
+
+
+Different types of automata induce different types of strategies, \eg deterministic pushdown automata induce \emph{pushdown strategies}, DFAs induce \emph{finite-memory strategies}.
+The latter type of strategies can be classified further by considering the number of states of the automaton.
+For games on infinite game arenas, these types of strategies are incomparable to positional strategies.
+Without imposing further restrictions, the strategies induced by strategy automata depend on the history of the play and are not positional.
+However, unlike positional strategies, they can be represented in a finite way using the syntax of the defining automaton.
+In the case of games on finite arenas, strategies defined by automata are strictly weaker (and thus more general) than positional ones.
+They can be used for some types of games where positional determinacy does not hold.
+For example, it has been shown that Muller games are not positionally determined, but each player can win on her winning region by using a finite-memory strategy defined by a DFA with at most $n!$ states, where $n$ is the size of the \nb{game arena~\cite{DziembowskiJW97}.}
+%
+We will come back to the concept of strategies induced by various types of automata when we study winning strategies for context-free games in \cref{Section:CFGamesStrategies}.
+
+\end{document}

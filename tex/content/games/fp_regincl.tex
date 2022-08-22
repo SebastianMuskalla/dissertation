@@ -1,0 +1,211 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Effective denotational semantics for regular inclusion}%
+\label{Section:EDSRegIncl}%
+
+In this section, we want to demonstrate effective denotational semantics by giving an in-depth example.
+We consider the regular inclusion problem for context-free languages.
+The idea of applying effective denotational semantics to this problem is not a contribution by the author of this thesis.
+The content of this section is taken from a paper by \citea{HolikM15}, and our presentation mostly follows that publication.
+
+Formally, the problem we consider is the following.
+
+\begin{problem}
+    \problemtitle{Regular inclusion for context-free languages}
+    \problemshort{($\CFLINREG$)}
+    \probleminput{Context-free grammar $G$, NFA $A$.}
+    \problemquestion{Does $\lang{G} \subseteq \lang{A}$ hold?}
+\end{problem}
+
+The importance of this problem stems from the fact that context-free grammars can be used to represent recursive programs, as we have explained in \cref{Section:CFG}, assuming that each level of the recursion only stores a bounded amount of data.
+This means that the problem of checking whether all possible executions of such a program satisfy a given property corresponds to an instance of $\CFLINREG$.
+Even in the case of programs that use unbounded storage at each level of the recursion, one may use  techniques like a language-theoretic version of counterexample guided abstraction refinement that repeatedly solves instances of $\CFLINREG$.
+
+The problem $\CFLINREG$ is well-known to be $\PSPACE$-hard\footnote{$\CFLINREG$ is a generalization of the problem of deciding whether an inclusion among regular languages, represented by finite automata, holds. This problem in turn is a generalization of the \emph{universality problem} for finite automata, \ie deciding whether $\lang{A} = \Sigma^*$ holds for an NFA~$A$. This problem can be proven to be $\PSPACE$-complete using the techniques introduced in~\cite{StockmeyerM73}.} and in $\EXPTIME$.
+To obtain an exponential-time algorithm, one can use that the inclusion $\lang{G} \subseteq \lang{A}$ holds if and only if the intersection $\lang{G} \cap \overline{\lang{A}}$ is empty.
+To check the latter, we first compute an NFA $\overline{A}$ for the complement language.
+Secondly, we use the well known triple-construction~\cite{BarHillel61} to obtain a new grammar $G \times \overline{A}$.
+Finally, we apply an emptiness check to this grammar to determine whether $\lang{G \times \overline{A}} = \lang{G} \cap \overline{\lang{A}}$ is empty.
+The runtime of this algorithm is in $\poly{\card{G}} \cdot 2^{\poly{\card{A}}}$.
+The exponential part corresponds to the determinization of the automaton $A$ that is needed to compute~$\overline{A}$.
+
+The drawback of this algorithm is that it requires an upfront determinization of automaton $A$.
+The grammar $G$ might not explore the full behavior of $A$, \eg if there are states of the determinization of $A$ that are not visited in any run on any word in the language of $G$.
+Nevertheless, the algorithm needs to compute a full representation of the determinization before the product with the grammar can be computed.
+
+In the following, we present an algorithm by \citea{HolikM15} that avoids this upfront determinization.
+Instead, it only determinizes $A$ along the words that occur in $\lang{G}$.
+To this end, it uses effective denotational semantics with a domain that is based on the transition monoid, which we have introduced in \cref{Section:TransitionMonoid}.
+
+Assume that we are given a context-free grammar $G = (N,P,S)$ over the terminal alphabet $\Sigma$ and an NFA $A$ over the same alphabet.
+We first set up a system of inequalities representing $G$.
+Similar to what we did in the last section, we see the nonterminals as variables.
+Each terminal~$a$ as well as $\eps$ constitute constant function symbols.
+Additionally, we have composition $\comp$ as an operation.
+We obtain a system of inequalities in which each rule
+\(
+    X \to \eta
+\)
+of the grammar translates into an inequality
+\(
+    X \geq \eta
+\)
+by seeing the right-hand side as a term that is a composition of the constants (terminals) and the variables (nonterminals).
+
+Let $\nfatransmonoid{A}$ be the transition monoid of $A$.
+We interpret the above system over the powerset lattice $(\powerset{\nfatransmonoid{A}},\subseteq)$ over the transition monoid.
+Each of the constants $a \in \Sigma \cup \set{\eps}$ is interpreted as the singleton set $\set{ \tbox{a}}$.
+The product operation is interpreted as element-wise relational composition: For sets $R_1,R_2 \subseteq \nfatransmonoid{A}$, we have
+\[
+    R_1 \comp R_2
+    =
+    \Set{ \rho \relcomp \tau }{ \rho \in R_1, \tau \in R_2}
+    \ .
+\]
+
+The powerset lattice $(\powerset{\nfatransmonoid{A}},\subseteq)$ has height $\card{\nfatransmonoid{A}} \leq 2^{\card{Q}^2}$, where $Q$ is the set of states of $A$.
+This in particular means that it satisfies ACC.\@
+Additionally, the interpretation of each of the function symbols is monotonic, which is clear by definition.
+Hence, we can apply the techniques in the previous section to obtain the least solution $\sol$ to the system of inequalities within finitely many steps.
+This solution assigns to each nonterminal $X$ a set of boxes $\sol{X} \subseteq \nfatransmonoid{A}$.
+Recall that a rejecting box is an element of $\nfatransmonoid{A}$ that does not contain a transition from an initial to a final state.
+This means that the words represented by it are not in the language of $A$.
+We claim that $\lang{G} \subseteq \lang{A}$ holds if and only if the least solution $\sol(S)$ associated to the initial symbol does not contain a rejecting box.
+
+Once this claim is proven, we obtain an algorithm for $\CFLINREG$ that sets up the above system of inequalities, determines its least solution, and reads off the answer to the verification problem.
+This algorithm is amenable to algorithmic improvements, including the worklist procedure that we discussed in the last section and further optimizations that we will \nb{mention below}.
+
+In the following, we will prove the soundness of the algorithm.
+The proofs are adapted from~\cite{HolikM15}.
+We choose to explicitly present these proofs, even though they are not original work by the author of this thesis.
+They serve as an example of how to show the soundness of an approach to a verification problem based on effective denotational semantics.
+
+%
+\cheatpagebreak
+%
+
+The crucial step in proving the soundness of the algorithm is establishing the following lemma.
+
+\begin{lemma}%
+\label{Lemma:EDSRegInclSoundness}%
+    We have $\sol{S} = \Set{ \tbox{w} }{ w \in \lang{G}}$.
+\end{lemma}
+
+The easiest way to prove this lemma is to assume that we solve the system of inequalities not using chaotic iteration, but by transforming it into a system of equations and applying Kleene iteration.
+Both procedures arrive at the same result.
+Kleene iteration has the advantage of providing us with $\soli{i}$, the $\nth{i}$ approximant.
+
+We show that $\sol{i}{X}$ is the set of boxes associated to words that can be obtained by a derivation of height at most $i$ from nonterminal $X$.
+Here, the \emph{height} of a derivation is the height of the corresponding derivation tree, \ie the number of edges from the root note to the most distant child.
+Recall that a derivation tree (from $X$) is an ordered tree whose root node, inner nodes, and leaves are labeled by $X$, nonterminals, and terminals, respectively.
+A replacement $X \to \eta_1 \ldots \eta_n$ with $\eta_i \in N \cup \Sigma$ in the derivation process corresponds to the associated node $X$ of the tree having $\eta_1, \ldots, \eta_n$ as children in that order.
+We only consider complete derivation trees in which all leaves are terminals.
+The word produced by the derivation process is then exactly the \emph{yield} of the associated derivation tree, \ie its leaves read from left to right.
+
+The following lemma makes this correspondence formal.
+\begin{lemma}%
+\label{Lemma:EDSRegInclSoundnessHelper}%
+    For each nonterminal $X$ and each $i \in \N$, we have
+    \[
+        \sol{i}{X}
+        = \Set{ \tbox{w} }{ X \derive^* w \text{ with a derivation of height $\leq i$}}
+        \ .
+    \]
+\end{lemma}
+
+\begin{proof}
+    We prove the statement simultaneously for all nonterminals, proceeding by induction on $i$.
+
+    In the base case $i = 0$, we have $\soli{i} = \bot$ and hence $\sol{i}{X} = \emptyset$.
+    Indeed, no terminal word can be derived from $X$ with a derivation of height $0$.
+
+    Assume that the statement holds for $i$ and consider $i+1$.
+    Recall that in order to apply Kleene iteration, we have to transform the system of inequalities into a system of equations.
+    We collect all rules $X \to\itr{\eta}{1}, \ldots, X \to \itr{\eta}{\ell_X}$ with $X$ and obtain that
+    \[
+        \sol{i+1}{X} = \sol{i}{\itr{\eta}{1}} \sqcup \ldots \cup \sol{i}{\itr{\eta}{\ell_X}}
+        \ .
+    \]
+    Since the symbol $\sqcup$ is the join, which is interpreted as the union in a powerset lattice, we can rewrite the right-hand side and get
+    \[
+        \sol{i+1}{X} = \sol{i}{\itr{\eta}{1}} \cup \ldots \cup \sol{i}{\itr{\eta}{\ell_X}}
+        \ .
+    \]
+
+    Using this equality, we prove $\sol{i+1}{X} \subseteq \Set{ \tbox{w} }{ X \derive^* w \text{ with a derivation of height} \leq i+1}$.
+    If $\tbox \in \sol{i+1}{X}$, then there is a rule $X \to \eta$ (where $\eta$ is one of the $\itr{\eta}{k}$ in the above union) so that $\tbox \in \sol{i}{\eta}$.
+    Let $\eta = \eta_1 \ldots \eta_m \in {(N \cup \Sigma)}^*$ be the decomposition of $\eta$ into its letters.
+    We have that
+    \[
+        \sol{i}{\eta} = \sol{i}{\eta_1}\ldots\sol{i}{\eta_m}
+        \ ,
+    \]
+    where we use that the interpretation of concatenation is element-wise relational composition.
+    Since $\tbox \in \sol{i}{\eta}$, each $\sol{i}{\eta_j}$ contains some $\tbox_j$ so that $\tbox = \tbox_1 \cdots \tbox_m$.
+    Using induction, we can associate to each $\tbox_j$ a word $w_j$ such that $\eta_j \derive^* w_j$ with a derivation of height at most $i$ and $\tbox_j$ is the box associated to word $w_j$, $\tbox_j = \tbox{w_j}$.
+    If some letter $\eta_k$ of $\eta$ is a terminal symbol, the statement trivially holds.
+
+    Finally, we construct a derivation $X \derive^* w_1 \ldots w_m$ by first applying the rule $X \to \eta$ and then using $\eta_j \derive^* w_j$ for each $j$.
+    Since each derivation process $\eta_j \derive^* w_j$ has height at most $i$, $X \derive^* w_1 \ldots w_m$ has height at most $i+1$ as desired.
+    Its yield is the word $w_1 \ldots w_m$ with $\tbox{w_1 \ldots w_m} = \tbox{w_1} \cdots \tbox{w_m} = \tbox_1 \cdots \tbox_m = \tbox$.
+
+    For the other inclusion, one proceeds similarly.
+    For derivations of size strictly less than $i+1$, we use induction and the fact that $\sol{i}{X} \subseteq \sol{i+1}{X}$.
+    For a derivation of a word $w$ of height exactly $i+1$, we consider the associated derivation tree.
+    It can be decomposed into the application of a production rule $X \to \eta$ to the root node and derivation trees for each of the letters of $\eta$.
+    For each $\eta_j$, we extract a derivation $\eta_j \derive^* w_j$ of height at most $i$ for each of the letters of $\beta$ so that $w = w_1 \ldots w_m$.
+    By induction, we have that $\tbox{w_j} \in \sol{i}{\eta_j}$, so
+    \(
+        \tbox{w} = \tbox{w_1} \cdots \tbox{w_m} \in \sol{i}{\eta} \subseteq \sol{i+1}{X}
+        \ .
+    \)
+\end{proof}
+
+With this lemma at hand, it is easy to show \cref{Lemma:EDSRegInclSoundness}.
+
+\begin{proof}[Proof of \cref{Lemma:EDSRegInclSoundness}]
+    Consider $w \in \lang{G}$, \ie $S \derive^* w$.
+    We need to show $\tbox{w} \in \sol{S}$.
+    There is some height $i$ of the associated derivation tree, so by \cref{Lemma:EDSRegInclSoundnessHelper}, we have $\tbox{w} \in \sol{i}{S}$.
+    Now we observe that the approximants form an ascending chain $\sol{0}{S} \subseteq \sol{1}{S} \subseteq \ldots$, and the fixed point solution is an upper bound of that chain.
+    Hence, $\tbox \in \sol{S}$.
+
+    For the other direction, consider $\tbox \in \sol{S}$.
+    Since the powerset lattice under consideration satisfies the ACC, there is some $i_0 \in \N$ such that $\sol = \soli{i_0}$.
+    Hence, $\tbox \in \sol{i_0}{S}$, and by \cref{Lemma:EDSRegInclSoundnessHelper}, there is a derivation process $S \derive^* w$ with $\tbox = \tbox{w}$.
+    Thus, $\tbox = \tbox{w}$ with $w \in \lang{G}$ as required.
+\end{proof}
+
+With both lemmas proven, the soundness of the algorithm follows directly.
+
+%
+\cheatpagebreak
+%
+
+\begin{proposition}%
+\label{Proposition:EDSRegInclSoundness}%
+    The inclusion $\lang{G} \subseteq \lang{A}$ holds if and only if $\sol{S}$ contains no rejecting box.
+\end{proposition}
+
+\begin{proof}
+    Assume that $\sol{S}$ contains the rejecting box $\tbox$.
+    With \cref{Lemma:EDSRegInclSoundness}, we have $\tbox = \tbox{w}$ for some word $w \in \lang{G}$.
+    Since $\tbox{w}$ is rejecting, we have $w \not\in \lang{A}$ and the inclusion does not hold.
+    The other direction is similar.
+\end{proof}
+
+With the soundness of the algorithm proven, we consider some tricks that can speed it up.
+Firstly, the system of inequalities can be solved using a worklist procedure as explained in the previous section.
+Secondly, the implementation can be \emph{lazy} in that it stops the algorithm as soon as $\sol{S}$ in the current candidate solution contains a rejecting box.
+Both chaotic iteration and Kleene iteration guarantee that the candidates for $\sol{S}$ that occur throughout the run of the algorithm form an ascending chain.
+If some candidate contains a rejecting box, then the final solution will contain it too.
+Finally, the paper by \citea{HolikM15} considers an \emph{antichain optimization}.
+Here, the key observation is that the elements of the transition monoid itself can be seen as boxes, which are subsets of $Q \times Q$.
+Boxes can be ordered by inclusion, and the operations that we apply as well as the property of being non-rejecting is well-behaved with respect to inclusion.
+Hence, we can consider instead of the powerset lattice, whose elements are arbitrary sets of boxes, the \emph{antichain lattice} whose elements are sets of boxes are incomparable.
+This domain is smaller, so there is a chance that the algorithm will terminate after fewer steps.
+The antichain optimization have been shown to be highly efficient \eg for checking the universality of finite automata~\cite{CaludeJKLS17}.
+However, the difference in size is not substantial enough to improve the asymptotic worst-case complexity, which remains exponential.
+
+\end{document}

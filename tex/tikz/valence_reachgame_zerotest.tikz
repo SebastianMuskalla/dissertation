@@ -1,0 +1,11 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node[state] (Q) {$q$};
+\node[state] (P) [right of=Q] {$p$};
+\node[state,draw=none] [above of=Q,node distance=4em] {}; % invisible state to fix size
+
+\path
+    (Q) edge node [above]  {$\zeroop{x}$} (P)
+;
+
+\end{tikzpicture}

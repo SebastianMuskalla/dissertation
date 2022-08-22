@@ -1,0 +1,32 @@
+\begin{tikzpicture}[->,>=latex,node distance=7em,semithick]
+
+\node (origin) [coordinate] at (0,0) {};
+
+\node (abstr) at (0.5,0) [minimum width=3em, minimum height=3em, anchor=west,draw] {};
+
+
+\node (rect) at (4,0) [minimum width=4.5em,minimum height=4.5em, anchor=west,draw] {};
+
+\node (yes) [coordinate] at (6.3,0.75) {};
+\node (no) [coordinate] at (6.3,-0.75) {};
+\path [->]
+    (origin) edge (abstr.west)
+    (abstr.east) edge (rect.west)
+    (rect.east) edge (yes)
+    (rect.east) edge (no)
+;
+
+\node at (-0.3,0.4) [anchor=west] {$P$};
+\node at (-0.3,-0.4) [anchor=west] {$S$};
+
+\node at (1.7,0) [anchor=south west] {$A$};
+\node at (1.7,0) [anchor=north west] {Overapprox.};
+
+
+\node (yes2) [right of=yes, node distance=0em, anchor=west] {$A \models S \Rightarrow P \models S$};
+\node (no2) [right of=no, node distance=0em, anchor=west] {$A \not\models S$};
+
+\node [align=center, font=\small] at (abstr) {Abstr.};
+\node [align=center, text width=5em,font=\small] at (rect) {Decision proc.};
+
+\end{tikzpicture}

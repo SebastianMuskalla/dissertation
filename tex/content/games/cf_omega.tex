@@ -1,0 +1,301 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{\texorpdfstring{$\omega$}{Omega}-context-free inclusion games}%
+\label{Section:CFGamesOmega}%
+
+We complete our study of context-free games by studying $\omega$-context-free $\omega$-regular inclusion games.
+In the case of context-free inclusions games with a regular language of finite words as the target language, all infinite plays are won by the universal player.
+In order to be able to win, the existential player had to be able to enforce the termination of any play.
+Here in this section, we will take the opposite approach.
+We define the winning condition so that the universal player wins all plays that do terminate.
+For plays that are infinite, the winner is determined by whether the play corresponds to an infinite word in the given $\omega$-regular target language.
+To be precise, the existential player wins if the play corresponds to a right-infinite left-derivation process that produces an infinite word that is not contained in the target language.
+
+\paragraph{Formal definition}
+
+Formally, an $\omega$-context-free ($\omega$-regular) inclusion games is given by a context-free game grammar $G = (N_\allplayer \dotcup N_\explayer,P,S)$ and a nondeterministic Büchi automaton $A = (Q, \delta, \qinit, \QF)$.
+The game arena is defined as for context-free regular inclusion games in \cref{Section:CFGamesDefinition}:
+Starting from the initial symbol, a play is a left-derivation process in which each player chooses the production rules applied to the nonterminals owner by her.
+They key difference is that the winning condition for the existential player is now non-inclusion in an $\omega$-regular language.
+To this end, she has to enforce that the play of the game corresponds to a right-infinite (left-)derivation process as defined in \cref{Section:CFGOmega}.
+Recall that this means that the play is a sequence of sentential forms that have a nonterminal as their rightmost symbol which is replaced infinitely often.
+Consequently, the derivation of all other nonterminals is a finite process.
+The existential player wins the play if and only if it constitutes such a right-infinite derivation process, deriving an infinite word $w$ not contained in $\olang{A}$.
+In all other cases, the universal player wins:
+This applies when the play is a right-infinite derivation process deriving a word from $\olang{A}$, but it also applies if the play is finite, or if it is infinite, but it is not a right-infinite derivation process, or if it is a right-infinite derivation process that does not derive an infinite word.
+The latter case could occur if starting at some point, the terminal prefix of the sentential form stops growing.
+Our hope is to extend the techniques for context-free games in the same way that we extended our algorithm for context-free regular inclusion to $\omega$-context-free $\omega$-regular inclusion in \cref{Section:EDSOmegaRegIncl}.
+To do so, there are two major challenges.
+The first lies in the fact that the automaton representing the $\omega$-regular target language is nondeterministic.
+The second one is that least fixed-points as used in effective denotational semantics seem to be insufficient to capture the semantics of this type of game.
+We discuss each of the problems in detail and present our solutions.
+
+\paragraph{Determinizing the automaton}
+
+We have explained in \cref{Chapter:Games} that a nondeterministic automaton representing the target language poses a problem, as it essentially introduces a third player that can be merged with neither of the other two players without changing the semantics of the game.
+In the case of context-free inclusion games, we have overcome this problem by using the transition monoid.
+We have relied on the fact that using the transition monoid is a way of implicitly determinizing the automaton.
+The same is not true for nondeterministic Büchi automata:
+Firstly, we cannot determinize an NBA into a deterministic Büchi automaton in general.
+Secondly, even by considering a more involved acceptance condition for which deterministic automata are sufficiently expressive, like the parity or Muller acceptance conditions, considering the transition monoid is not enough.
+Unlike in the case of automata on finite words, in general there is no deterministic automaton that uses transition monoid elements (boxes) as states that is equivalent to a given NBA.\@
+We have used in \cref{Section:EDSOmegaRegIncl} that infinite words can be represented by pairs of boxes $\tau\rho^\omega$.
+However, during the derivation of a word, it is impossible to decide on-the-fly which pair of boxes $\tau\rho^\omega$ is the correct one and where the split between the $\lang{\tau}$ and the $\lang{\rho}^\omega$ part happens.
+In the case of a verification problem, we could overcome this by guessing nondeterministically.
+In the case of a game, this mechanism is invalid:
+We cannot let one of the players guess for the same reasons that cannot let one of players pick the moves of the automaton (as explained in \cref{Chapter:Games}).
+-
+Our solution to this problem is an upfront determinization of the automaton, the very thing that we successfully avoided in the case of context-free inclusion games.
+In the rest of this section, we assume that the automaton representing the target language is a deterministic parity automaton $A = (Q, \Sigma, \delta, \qinit, \Omega)$.
+Using a famous result by \citea{Safra88}, a given NBA with $n$ states can be transformed into a DPA with $2^{\bigO{n \cdot \log n}}$ states.
+These states are so-called Safra-trees, and the construction is a variant of the powerset construction that is rather involved.
+We also assume that the priority function $\Omega \colon Q \to \N$ does not assign the priority $0$ to any state, as we will need this priority later for the empty word.
+This condition can be easily enforced by incrementing all priorities by $2$.
+Let $d$ be the largest priority assigned to any state of the automaton in the following.
+
+\paragraph{Solving finite subgames}
+
+Before actually considering the $\omega$-context-free game, we set up a system of equations whose least solutions characterizes the effect of finite words on the parity automaton.
+We re-use the system that we have developed in the previous section for context-free games with the target language being represented by a DFA.\@
+The only modification that is needed is tracking the priorities in the automaton.
+Formally, we consider formulas in $\pBF(Q \times \zeroto{d})$ whose atoms are tuples of a target state and the largest priority that has been seen.
+
+We quickly recall the construction.
+For each state $q$ and each nonterminal $X$, there is a variable $qX$.
+Its defining equation is
+\[
+    qX = \text{preprocess}_q(\itr{\beta}{1}) \wedgevee \ldots \wedgevee \text{preprocess}_q(\itr{\beta}{k})
+    \ .
+\]
+Here, $X \to \itr{\beta}{1} \mid \ldots \mid \itr{\beta}{k}$ are all production rules for nonterminal $X$, and $\wedgevee$ is disjunction if and only if the owner of $X$ is the existential player.
+The operation $\text{preprocess}_q$ applied to a sentential form $\beta_1.\beta_2 \ldots \beta_m$ prefixes the first symbol by $q$, replaces all other symbols $\beta_i$ by the family ${(p\,\beta_i)}_{p \in Q}$, and connects them using the composition operator $\supercomp$\ .
+Formally, we define
+\[
+    \text{preprocess}_q(\beta_1.\beta_2 \ldots \beta_m) = q\,\beta_1 \supercomp {(p \, \beta_2)}_{p \in Q} \supercomp \ldots \supercomp {(p \, \beta_m)}_{p \in Q}
+    \ .
+\]
+
+This system is interpreted over (equivalence classes of) positive Boolean formulas from $\pBF(Q \times \zeroto{d})$, ordered by implication.
+Conjunction and disjunction are interpreted in the expected way.
+For each terminal $a \in \Sigma$ and each state $q \in Q$, the interpretation of the constant $q \, a$ is the formula just consisting of the atom $(p,j)$, where $p$ is the unique state with $q \tow{a} p$ in the automaton, and $j = \max \set{ \Omega(q), \Omega(p)}$.
+For any state $q$, the interpretation of the constant $q \, \eps$ is the atom $(q,0)$.
+Our rationale behind using priority $0$ here (which by assumption is not assigned to any state) is that in the $\omega$-context-free game, the existential player has to guarantee the derivation of an infinite word.
+If the game derives an infinite sequence of $\eps$ starting at some point, the result of the play is not an infinite word, and the play is won by the universal player.
+Therefore, we should assign an even priority to $\eps$, since even priorities correspond to words that are accepted by the automaton (which is good for the universal player).
+However, the derivation of infinitely many $\eps$ is only problematic if no non-$\eps$ word is derived infinitely \nb{often -- therefore}, we assign the lowest even priority to $\eps$.
+
+The composition operator $\supercomp$ is a $(\card{Q}+1)$-ary operator that composes a formula $F$ with a family of formulas ${(H_q)}_{p \in Q}$.
+Compared to the previous section, the definition is altered so that it keeps track of the maximal priority.
+We inductively define $F \supercomp {(H_q)}_{p \in Q}$ to be
+\begin{align*}
+    (F \wedgevee F') \supercomp {(H_q)}_{q \in Q} &= F \supercomp {(H_q)}_{q \in Q} \wedgevee F' \supercomp {(H_q)}_{q \in Q}
+    \\
+    (p,j) \supercomp {(H_q)}_{q \in Q} &= \text{max}_j \, H_p
+    \ ,
+\end{align*}
+where $\text{max}_j\, H_p$ is defined by
+\begin{align*}
+    \text{max}_j\, (H \wedgevee H') &= \text{max}_j H \wedgevee \text{max}_j H'
+    \\
+    \text{max}_j\, (s,j') &= (s,\max \set{j,j'})
+    \ .
+\end{align*}
+The intuition behind the definition is as follows:
+Assume the automaton is in state $q$, and we derive a finite word from the sentential form $Y.Z$.
+This means we first derive a finite word from~$Y$, tracking the target state $p$ and the maximum priority $j$ that has occurred during the run of the automaton from $q$ to $p$.
+We then derive a word from $Z$ while tracking the target state $s$ of this word from the source state $p$ and the maximum priority $j'$ along the way.
+The information of interest for the concatenation of these words is the target state $s$ and the maximum priority $\max \set{j,j'}$ seen along the run from $q$ to $s$.
+
+With the interpretation fixed, we can solve the system of equations.
+We obtain for each pair $qX$ of state and nonterminal a formula $\sol{qX} \in \pBF(Q \times \zeroto{d})$.
+The atoms $(p,j)$ in that formula correspond to finite words derivable from $X$ that introduce a run from $q$ to $p$ with maximum priority $j$ in the automaton.
+
+
+\paragraph{Solving the $\omega$-game}
+
+It remains to use the information about the finite subgames to solve the $\omega$-context-free game.
+Recall that a derivation of an infinite word in the language of an $\omega$-context-free grammar can be seen as a nested process consisting of an infinite path in the spinal graph of the grammar (as defined in \cref{LTS:OmegaAutomata}) and a sequence of finite derivations from the symbols occurring as transition labels along that path.
+Similarly, a play of an $\omega$-context-free game consists of an infinite play in the spinal graph constructing an infinite sentential form, and a sequence of plays from the symbols of that sentential form.
+In order to win, the existential player has to enforce that the latter are finite, \ie they are plays of a context-free game.
+
+We use this insight to construct a parity game on a finite arena that is induced by the spinal graph and the parity automaton representing the target language.
+For each nonterminal $X$ and state $q$ of the DPA, $(X,q)$ is a position of the game.
+The initial position is $(S,\qinit)$, consisting of the initial symbol and the initial state.
+When the parity game that we construct is in some position $(X,q)$, it proceeds as follows.
+Firstly, the owner of $X$ picks some production of the grammar for $X$.
+If this production is not of the shape $X \to \beta.Y$, \ie its rightmost symbol is not a nonterminal, the play does not represent a right-infinite left-derivation process and the universal player wins immediately.
+Else, we consider the formula $F = \sol{ \text{preprocess}_q{\beta} }$ that describes the behavior of the finite play from $\beta$ with respect to the initial state $q$.
+Here, we have used the $\text{preprocess}_q$ operator to insert the states of the automaton into the sentential form.
+Secondly, we let the players resolve the operators in $F$ in the expected way: The existential player resolves disjunctions, the universal player resolves conjunctions.
+Finally, the play arrives at an atom of the shape $(p,j)$.
+From this position, the play continues at $(Y,p)$, the position formed by the rightmost nonterminal of the production and the state that was reached by the finite word that was derived from $\beta$.
+The priority of each position in the parity game is $0$, unless the position is of the shape $(p,j)$, in which case it is $j$.
+
+A play of the parity game in which only transitions of the shape $X \to \beta.Y$ are picked corresponds to a right-infinite left-derivation process.
+The finite play that unfolds from $\beta$ is represented by the formula structure.
+This means we use the formulas to represent a play of finite, but unbounded length by a play on the formula of bounded length.
+The literal $(p,j)$ that is the result of such a bounded play corresponds to the behavior of the finite word that is derived from $\beta$ on the DPA.\@
+In particular, the priority $j$ corresponds to the maximum priority seen in the run on the word.
+If the existential player wins the parity game, \ie she can enforce a play in which the dominating priority is odd, she can enforce the derivation of an infinite word that is not accepted by the DPA.\@
+This means she wins the $\omega$-context-free game by proving non-inclusion.
+
+Before giving the proof, it is necessary to make the construction of the parity game formal.
+For the sake of simplicity, we proceed as in the proof of \cref{Proposition:CFGamesComplexityMembership} and assume that all formulas are in conjunctive normal form.
+This means that $\sol{ \text{preprocess}_q{\beta} }$ is a set of clauses, and each such clause is a set of literals.
+The parity game has as positions a sink $\bot$, positions of the shape $(X,q)$ and positions for the formulas, clauses, and literals,
+%
+\begin{align*}
+    \configs = &\phantom{\cup} \phantom{\cup}  \paren{N \times Q} \cup \set{\bot}
+    \\
+    & \cup \Set{ \paren{ \sol{\text{preprocess}_q{\beta}},Y }  }{ X \to \beta.Y \text{ is a production} }
+    \\
+    & \cup \Set{ (K,Y)  }{ K \in \sol{\text{preprocess}_q{\beta}}, X \to \beta.Y \text{ is a production} }
+    \\
+    & \cup \Set{ \paren{ (p,j) ,Y }  }{ (p,j) \in K \in \sol{\text{preprocess}_q{\beta}}, X \to \beta.Y \text{ is a production} }
+    \ .
+\end{align*}
+%
+The initial position is $(S,\qinit)$.
+The existential player owns all positions of the shape $(X,q)$ for $X \in N_\explayer$ and all positions $(K,Y)$ corresponding to clauses.
+All other positions are owned by the universal player.
+%
+The priority of a position $(p,j)$ is $j$.
+The priority of all other positions is $0$.
+
+The transitions connect positions of the shape $(X,q)$ to formulas according to the productions for $X$, or to the sink state.
+The sink state has a self-loop as its unique outgoing transition.
+They also connect formulas to their clauses and clauses to their literals.
+Empty clauses are connected to the sink state.
+Finally, literals are connected to the positions of the shape $(X,q)$,
+\begin{align*}
+    T = &\phantom{\cup} \phantom{\cup}
+    \Set{ (X,q) \to \bot}{ X \to \eta \text{ is a production with } \eta \not\in {\paren{N \cup T}}^*.N}
+    \\
+    & \cup \set{ \bot \to \bot}
+    \\
+    & \cup \Set{ (X,q) \to (\sol{\text{preprocess}_q{\beta}},Y)  }{ X \to \beta.Y \text{ is a production} }
+    \\
+    & \cup \Set{  (\sol{\text{preprocess}_q{\beta}},Y) \to (K,Y)  }{ K \in \sol{\text{preprocess}_q{\beta}},  X \to \beta.Y \text{ is a production} }
+    \\
+    & \cup \Set{  (K,Y) \to ((p,j),Y)  }{ (p,j) \in K  \in \sol{\text{preprocess}_q{\beta}},  X \to \beta.Y \text{ is a production}  }
+    \\
+    & \cup \Set{  (K,Y) \to \bot }{ K = \emptyset, K  \in \sol{\text{preprocess}_q{\beta}},  X \to \beta.Y \text{ is a production}  }
+    \\
+    & \cup \Set{  \paren{ \paren{p,j},Y } \to (Y,p) }{ Y \in N, p \in Q}
+    \ .
+\end{align*}
+
+With the formal construction at hand, we can prove the main result.
+
+\begin{theorem}
+    The winner of the finite parity game equals the winner of the $\omega$-context-free $\omega$-regular game.
+\end{theorem}
+
+\begin{proof}
+    It is well-known that parity games are determined: Exactly one of the players has a winning strategy.
+    We prove that this winning strategy induces a winning strategy for the $\omega$-context-free game.
+    We give the formal proof in the case that the existential player wins the parity game.
+    The proof for the universal player is easier as one has to care less about various corner cases.
+
+    Assume that some winning strategy for the existential player is fixed.
+    We show how to turn a conforming play of the parity game into a play of the context-free game.
+    We do this in a way that implicitly defines a winning strategy.
+    In particular, whenever the universal player can make a choice, we consider all of these choices.
+
+    Assume that the play of the parity game is in some node $(X,q)$ and the play of the $\omega$-context-free game is in some sentential form $w.X$.
+    Initially, we have $X = S$, $w = \eps$, and $q = \qinit$.
+    The owner of~$X$ selects a transition $X \to \beta.Y$ in the parity game, and we pick the corresponding production in the $\omega$-context-free game.
+    If $X \in N_\explayer$, this transition is chosen according to the winning strategy.
+    Note that any production that is not of the shape $X \to \beta.Y$ will never be chosen, since it would lead to the sink state of the parity game in which the \nb{universal player wins}.
+
+    The parity game is now in the state $(\sol{\text{preprocess}_q{\beta}},Y)$, in which the universal player can choose one of the clauses of the formula.
+    Since we are following a winning strategy, we know that the existential player can react to any choice that the universal player can make.
+    More formally, for each clause $K \in \sol{\text{preprocess}_q{\beta}}$ that the universal player could select, there is one atom $(p,j) \in K$ contained in that clause so that the winning strategy would select the transition $(K,Y) \to ((p,j),Y)$ in the parity game.
+    Note that this in particular implies that the formula cannot be equivalent to $\false$:
+    A positive Boolean formula in conjunctive formal is unsatisfiable if and only if it contains the empty clause.
+    The empty clause in the game is connected to the sink state, which would lead to the universal player winning the play.
+
+    We define a variable assignment that sets the atoms to true that are picked by the winning strategy.
+    More precisely, $(p,j)$ is evaluated to true $\true$ if the winning strategy picks the transition $(K,Y) \to ((p,j),Y)$ for some clause $K$.
+    Since every clause contains at least one such atom, the formula $\sol{\text{preprocess}_q{\beta}}$ evaluates to true under that assignment.
+    By an analogue of \cref{Proposition:CFGamesSoundnessExistential}, adapted to the setting under consideration, one can show that the existential player has a strategy from $\beta$ that enforces the derivation of a finite word $v$ whose effect is described by $(p,j)$.
+    This means $q \tow{v} p$ in the DPA, and the maximum priority seen in the run is $j$.
+    We invoke this strategy in the $\omega$-context-free game to go from sentential form $w.\beta.Y$ (which we obtained from $w.X$ by applying $X \to \beta.Y$) to $w.v.Y$.
+    Now, the play of the $\omega$-context-free game continues from that sentential form, while the play of the parity game continues from $(Y,p)$.
+    We repeat this process ad infinitum.
+
+    When following this strategy in the $\omega$-context-free game, we encounter an infinite sequence of sentential forms of the shape
+    \[
+        S \to^* \itr{w}{1}X_1  \to^* \itr{w}{1}\itr{w}{2} X_2 \to^* \ldots \to^* \itr{w}{1}\itr{w}{2}\ldots\itr{w}{k} X_K \to^* \ldots
+    \]
+    We argue that this constitutes a right-infinite left-derivation process deriving an infinite word not in the language of the DPA.\@
+    Firstly, we note that the strategies that we invoke for the subgames enforce deriving a finite word.
+    Thus, every subgame terminates after finitely many steps, and the process is indeed right-infinite.
+    Secondly, each infix $\itr{w}{i}$ that is derived in such a subgame corresponds to an atom $(p_i,j_i)$ of some formula that is chosen by the winning strategy in the parity game.
+    The fact that the strategy wins the parity game means that the largest priority occurring infinitely often is odd.
+    In particular, it is not zero, the priority that we have assigned to $\eps$ above.
+    Winning the parity game implies that infinitely many of the $\itr{w}{i}$ are not equal to $\eps$, and we indeed derive an infinite word.
+    Finally, the atoms are witnesses for the unique run
+    \[
+        \qinit \tow{ \itr{w}{1}} p_1 \tow{ \itr{w}{2}} p_2 \tow{ \itr{w}{3}} \ldots
+    \]
+    of the DPA on the infinite word $\itr{w}{1}\itr{w}{2}\itr{w}{3} \ldots $ that is derived by the process.
+    Each priority $j_i$ is the maximum priority seen during the run on the finite infix $\itr{w}{i}$.
+    If the largest priority that occurs infinitely often among the $j_i$ is odd, then so is the largest priority that occurs infinitely often in the run.
+    (Summarizing finite infixes in the sequence of priorities by taking their maximum does not change the dominating priority.)
+    Hence, the run of the DPA on the word is not accepting.
+    The existential player has enforced the derivation of an infinite word that is not in the language of the DPA.\@
+\end{proof}
+
+With the soundness of the construction proven, we turn to considering its complexity.
+Assume that we have fixed a grammar $G$ and a DPA with $Q$ as its sets of states.
+We claim that the running time our algorithm is polynomial in $G$ and exponential in $Q$.
+Note that we can assume without loss of generality that the maximum priority $d$ is in $\bigO{\card{Q}}$, $d \leq \card{Q} + 4$ to be precise.
+
+Firstly, we can argue similarly to the previous section that computing $\sol{\text{preprocess}_q{\beta}}$ for each transition $X \to \beta.Y$ can be done in that time.
+Also, the number of such transitions is bounded by $\card{G}$.
+The formulas themselves can be shown to obey a similar bound:
+The number of atoms is $\card{ Q \times \zeroto{d}} = \card{Q} \cdot (d+1)$.
+This also bounds the size of any clause, and there are at most $2^{\card{Q} \cdot (d+1)}$ clauses, which bounds the size of any formula.
+Combining at most $\card{G}$ of these objects into a parity game leads to a parity game whose size is polynomial in $\card{G}$, exponential in $\card{Q}$, and whose maximum priority is in $\bigO{\card{Q}}$.
+We can now use the recent breakthrough result~\cite{CaludeJKLS17} that parity games are fixed-parameter tractable:
+They can be solved in time polynomial in the size of the arena and exponential only in the maximum priority.
+Since the maximum priority is linear in the size of the original input, solving the parity game overall is exponential in the size of the input.
+Altogether, we obtain the desired running time.
+
+If we imagine starting with a nondeterministic Büchi automaton instead of a deterministic parity automaton, we first have to apply the Safra construction for determinization.
+It transforms an NBA with set of states $Q$ into a parity automaton with a set of states of size $2^{\bigO{ \card{Q} \cdot \log \card{Q}}}$ and maximum priority in $\bigO{\card{Q}}$.
+Applying the determinization and then the rest of the algorithm leads to a running time that is polynomial in the size of the grammar and doubly exponential in the size of the NBA.\@
+This is the optimal time complexity.
+Obviously, solving $\omega$-context-free games with an NBA representing the target language is $2\EXPTIME$-hard:
+A context-free game with an NFA representing the target language can be seen as a special case of such a game, and for this case, we have proven $2\EXPTIME$-completeness in \cref{Theorem:CFGamesComplexityHardness}.
+To transform the instance, it is sufficient to modify the grammar and the automaton so that they first produce a finite word as usual, and then proceed to generate an infinite sequence of occurrences of a filler symbol.
+
+\paragraph{Can the parity game construction can be avoided?}
+
+We have provided an algorithm for $\omega$-context-free games with the optimal time complexity.
+The fact that this algorithm relies on solving a parity game might seem undesirable.
+An algorithm that simply solves a system of equations to compute the winner of the game with no additional steps would be a cleaner solution and potentially more efficient.
+However, solving parity games is a well-studied topic, so it would be easy enough to actually implement the algorithm by combining a modified version of the solver we have presented in \cref{Section:CFGamesAlgorithmics} with a solver for parity game like Oink~\cite{Dijk18}.
+
+In the following, we want to argue that it might be impossible to devise an algorithm for computing the winning of an $\omega$-context-free inclusion game by simply computing a least fixed point.
+In their papers~\cite{SalvatiW15,SalvatiW15b}, Salvati and \Walu~have considered the $\lambda Y$ calculus as a tree-generating mechanism which is closely related to higher-order recursion schemes.
+They have shown that a so-called Scott model (which is similar to the model template for HORSes that we will introduce in \cref{Section:HORSTemplate}) that is based on either least or greatest fixed points is not very expressive when it comes to its capabilities of accepting trees generated by $\lambda Y$-calculus terms.
+Its expressiveness is equal to boolean combination of $\Omega$-blind automata.
+The precise definition of $\Omega$-blind automata is beyond the scope of this thesis; it shall suffice to say that an $\Omega$-blind automata will accept all infinite branches of a tree (and its negation will reject all infinite branches of a tree).
+Hence, a boolean combination of $\Omega$-blind automata is insufficient to check liveness properties (like membership in an $\omega$-regular language) along an infinite branch of the tree generated by a $\lambda Y$-calculus term.
+
+In personal communication with the author of this thesis, Roland Meyer has conjectured that the result by Salvati and \Walu~can be used to show that $\omega$-context-free inclusion games cannot be solved with an algorithm based on effective denotational semantics that simply translates the problem of computing the winner into computing the least solution to a system of equations.
+Recall that a context-free grammar can be seen as a higher-order recursion scheme.
+It should be possible to transform a game grammar into a term in the $\lambda Y$-calculus that generates a tree so that each possible play of the game corresponds to a branch of that tree.
+We leave making this correspondence formal for future work.
+
+\Walus~work also provides us with an explanation why this problem can be circumvented by constructing and solving a parity game instead of trying to read off the winner from the solution to the system of equations directly.
+He has shown in~\cite{Walukiewicz02} that the winning regions of parity games can be described by formulas in $\mu$-calculus that contain an alternation of least and greatest fixed-point operators.
+Hence, solving a parity game based on the solution to the system of equations means computing a so-called \emph{non-extremal} fixed point that is obtained by nesting least and greatest fixed-point operators.
+The expressiveness results by Salvati and \Walu~do not apply to semantics featuring non-extremal fixed point operators.
+
+We think that if this part of the computation potentially cannot be avoided, then representing it via parity games, for which there is a plethora of research and numerous solvers like the ones implemented in the aforementioned tool Oink, is the most elegant way to deal with the issue.
+
+\end{document}

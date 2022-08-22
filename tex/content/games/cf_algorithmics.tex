@@ -1,0 +1,179 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Algorithmics}%
+\label{Section:CFGamesAlgorithmics}%
+
+We discuss a prototype implementation of our procedure solving context-free regular inclusion games.
+We also list several techniques that can be used to speed it up.
+Most of these ideas have already been implemented with various degrees of success.
+
+\paragraph{Evaluation of a prototype implementation}
+
+In conjunction with the conference publication of our procedure for solving context-free games~\cite{HolikMM16}, the author of this thesis has developed a prototype implementation of the algorithm that we have described in the first half of \cref{Section:CFGamesComplexity}.
+In the publication, we have compared this implementation to another approach to solving context-free games that works by first computing an equivalent instance of Cachat's context-free games and then applying Cachat's algorithm.
+Here, we discuss the implementations briefly and recapitulate the evaluation that is present in our conference publication.
+
+Our prototype implementation~\cite{Muskalla16} consists of several parts.
+The first is a random generator for automata and game grammars.
+The generator for automata follows the Tabakov-Vardi model~\cite{TabakovV05}.
+The generator for grammars is an extension of the Tabakov-Vardi model to context-free grammars.
+We use the generators to provide us with randomly generated instances of context-free regular inclusion games for certain parameters, like the alphabet size, the number of states of the automaton and the number of nonterminals of the grammar.
+
+The second and main part of the prototype is an implementation of our procedure for solving context-free regular inclusion games using effective denotational semantics.
+The procedure constructs the system of equations from the given grammar.
+It then solves it using Kleene iteration:
+We first assign $\false$ to all variables, \ie the nonterminals, and then update their values according to the production rules of the grammar until a fixed point has been reached.
+The equivalence classes of formulas are stored by storing some arbitrary representation in conjunctive normal form, as explained in \cref{Section:CFGamesComplexity}.
+Using conjunctive normal form simplifies various parts of the algorithm, \eg checking whether the fixed point has been reached, but leads to a potential increase in formula size.
+The prototype contains both a naive implementation of Kleene iteration and a worklist-based implementation of chaotic iteration.
+In the naive implementation, the value of each variable is updated in every step.
+Worklist-based chaotic iteration precomputes the dependencies among the variables to speed up the solving process as described in \cref{Section:EDSEqSys}.
+
+As a third part, the prototype contains the reduction to Cachat's type of context-free games.
+Recall from the previous section that these games are played on the configuration graph of a pushdown automaton with the goal of reaching a stack content that is in a specified regular language.
+We describe the idea of the reduction in detail.
+Given a context-free regular inclusion game $(G,A)$, we first determinize and minimize the automaton $A$ using standard techniques.
+This potentially leads to an exponential blowup in the size of the automaton, which is to be expected since solving Cachat's context-free games is only $\EXPTIME$-complete, in contrast to the $2\EXPTIME$-completeness of context-free regular inclusion games.
+We then construct a pushdown automaton that is essentially the product of the grammar and the determinized automaton.
+Its control-state stores the state of the automaton after reading the terminal prefix of the sentential form.
+The stack stores the rest of the sentential form.
+Formally, for each state $q$ of the determinization of $A$, the pushdown has two states, $q_\explayer$ and $q_\allplayer$ owned by the respective player.
+If the top-of-stack is a terminal symbol $a$, the pushdown has transitions $q_\explayer \to p_\explayer$ and $q_\allplayer \to p_\allplayer$ that pop symbol $a$, where $p$ is the unique state of the DFA with $q \tow{a} p$.
+If the top-of-stack is a nonterminal $X$ that is owned by $\allplayer$, and the current state is $q_\explayer$, the automaton has a transition $q_\explayer \to q_\allplayer$ that hands control to the correct player without modifying the top-of-stack.
+In case $X$ is owned by $\explayer$ and the state is $q_\allplayer$, the transition is similar.
+If the owner $\player \in \players$ of the top-of-stack $X$ and the state $q_\player$ match, player~$\player$ may select a production rule $X \to \beta$.
+Formally, we have a transition that maintains state $q_\player$, but replaces the stack symbol $X$ by the sequence~$\beta$, with the leftmost symbol of $\beta$ becoming the new top-of-stack.
+Finally, we also need an automaton that represents the winning condition in the game.
+This automaton simply accepts any configuration of the pushdown if the control state is not final and the stack is empty.
+It is not difficult to check that producing a terminal word that is not in the language of $A$ in the grammar-based game is equivalent to reaching a non-accepting control state of the DFA with empty stack in Cachat's type of game.
+Hence, the winners of both games coincide.
+
+The fourth and final part of our implementation is a prototype implementation of Cachat's algorithm for his types of games, since to the best of the author's knowledge, no such implementation is publicly available.
+The implementation follows Cachat's description of his algorithm in the paper~\cite{Cachat02} in a straightforward manner.
+
+It might seem unfair to compare a worklist-based implementation of Kleene iteration to a naive implementation of Cachat.
+We have actually also implemented a worklist-based implementation of Cachat, but it does not speed up the algorithm.
+The problem is that the reduction from inclusion games to Cachat's type of games produces instances that are dense in the sense that any state of the pushdown has at least one transition for any possible top-of-stack.
+
+One should be aware of the fact that we are not comparing our algorithm to solve context-free regular inclusion games with Cachat's algorithm to solve his type of games.
+Rather, we are comparing the two algorithms on context-free regular inclusion games, which requires a reduction to be able to apply Cachat's algorithm.
+This reduction may result in instances that Cachat's algorithms is not tailored to.
+
+In our conference publication, we have generated random instances of context-free regular inclusion games consisting of linear grammars.
+This means that all transitions of the grammar are of the shape $X \to a.Y.b$ with $a, b \in \Sigma \cup \set{\eps}$ terminals and $Y \in N \cup \set{\eps}$ a single nonterminal.
+Both algorithms benefit from this restriction, but our approach does so in a major way.
+Consider a sentential form $a.Y.b$ where $F$ is the formula that is currently associated to $Y$.
+To compute the formula associated to $a.Y.b$, it is sufficient to replace every atom $\tbox$ that occurs in $F$ by $\tbox{a} \relcomp \tbox \relcomp \tbox{b}$.
+In other words, the grammar being linear makes computing the composition of formulas that is needed when evaluating the right-hand sides of the equations simple.
+
+The experimental evaluation in the conference publication shows that the worklist-based implementation of Kleene iteration is typically faster than the naive one by one order of magnitude, \ie a factor of 10.
+There are even cases where the naive implementation reaches our 10-second timeout limit, while the worklist-based one finishes in roughly 100 milliseconds.
+This is partially because we do not minimize the formulas after every step:
+Doing unnecessary updates of the variables does not change the equivalence class of the associated formula, but it may increase the size of its representation.
+This increase in size can then propagate in later steps to the values of other variables, substantially slowing down the algorithm.
+Minimizing the variables in every step could avoid this, at the cost of the quadratic running time of the minimization (in the current size of the formula).
+Using the worklist procedure is an easy and efficient way to avoid this problem.
+
+Our procedure solves context-free regular inclusion games with linear grammars substantially faster than Cachat's algorithm.
+Even for very small instances, it is faster by two orders of magnitude, \ie a factor of about 100.
+For instances with 10 control states in the NFA, 10 terminal symbols, and 10 nonterminals (5 owned by each player), Cachat's algorithm was not able to solve 46 out of 50 randomly generated instanced within the 10-second time limit.
+For the 4 instances that it was able to solve, it took about 7.7 seconds on average.
+Our algorithm (with the worklist-based iteration scheme) applied to the very same set of instances could solve all the instances within the time limit and took an average of 0.2 milliseconds.
+Increasing the number of terminals to 15 and the number of nonterminals to 30 resulted in Cachat's algorithm to not being able to solve any of 50 randomly generated instances within the time limit.
+Our algorithm solved all of these instances with an average running time of 1.8 milliseconds.
+This means that in this case, our algorithm is more efficient by three orders of magnitude.
+For more data on the evaluation of these algorithms, we refer to the publication~\cite{HolikMM16} and the code~\cite{Muskalla16}.
+
+We claim that one of the reasons why our algorithm is superior for solving context-free inclusion games is that it avoids the upfront determinization of the automaton for the target language.
+If the existential player can enforce the derivation of a finite word $w$, then our algorithm will eventually compute the behavior of $w$ in the finite automaton in the form of the transition monoid element for $w$.
+For all words whose derivation cannot be enforced by the existential player, we never consider their behavior in the automaton.
+This means that potentially, a large part of the determinization of the automaton remains unexplored, which saves running time.
+In contrast to this, solving context-free inclusion games by using Cachat's algorithm requires us to determinize the automaton at the start.
+The result is an instance that is potentially exponentially larger, even if only a fraction of the deterministic automaton will actually be needed.
+
+\paragraph{Non-linear grammars}
+
+We have investigated the behavior of the implementations on non-linear grammars, \ie grammars in which the right-hand side of a production rule may contain several nonterminals.
+This means that when evaluating the system of equations, we need to compute the composition of non-atomic formulas.
+Consequently, the formulas that we need to store can get very large within few iterations.
+In unpublished experiments using our prototype, we have observed that this quickly leads to an exorbitant memory condition.
+For some instances, the solver consumes the 12\,GB of available main memory of the machine we ran the tests on within a few seconds and the program goes out-of-memory before it could exceed the \nb{10-second timeout}.
+
+When comparing the performance of our procedure with the other approach that relies on Cachat's algorithm, we still obtain that our procedure is vastly superior.
+However, in the case of non-linear grammars, our procedure was often unable to solve instances that consisted of an automaton with more than 5 states without exceeding the available main memory, which \nb{is unsatisfactory}.
+
+Our prototype implementation does not minimize formulas and it keeps all formulas that occur as approximants when conducting Kleene iteration in memory until the fixed point has been computed.
+Changing these aspects can potentially mitigate the problems with solving games defined by non-linear grammars.
+We have tasked a group of students, supervised by Roland Meyer and the author of this thesis, to develop a more advanced implementation of the algorithm.
+While the resulting tool indeed performs better than the prototype implementation, especially on instances with non-linear grammars, it could not fully overcome the problems that arise from the high memory consumption of some instances.
+This tool is also the basis for several attempts to improve the algorithm that we will report on in the following.
+The idea behind some of these attempts has already been outlined in the full version~\cite{HolikMM16a} of our publication~\cite{HolikMM16} on context-free games.
+
+\paragraph{Non-CNF formulas}
+
+Our prototype implementation stores formulas in conjunctive normal form (CNF).
+Using \cref{Lemma:CFGamesCNFOperations}, this allows us to check whether a formula implies another in quadratic time.
+The result of computing the conjunction of two formulas is additive, computing the disjunctive is multiplicative, and computing the composition is exponential in the size of the given \nb{formulas}.
+
+In his bachelor's thesis~\cite{Stutz17}, Felix Stutz, supervised by Roland Meyer and the author of this thesis, has explored the option of not normalizing the formulas to conjunctive normal form.
+This potentially allows us to obtain a smaller representation for formulas, which decreases both the memory consumption and the time needed for computing subsequent operations on these formulas.
+However, there is a major drawback.
+Recall that the Kleene iteration terminates as soon as two subsequent approximants are equal, where checking the equality of equivalence classes of formulas amounts to checking logical equivalence for representatives.
+Since implication in one direction is guaranteed to hold, checking whether the algorithm terminates means checking an implication among positive Boolean formulas.
+For formulas in conjunctive normal form, Part~d) of \cref{Lemma:CFGamesCNFOperations} provides a characterization of implication that can be used to implement a check using quadratic time.
+For non-normalized formulas, the problem is substantially more involved.
+Felix Stutz has proven in his bachelor's thesis that checking the implication between positive Boolean formulas is $\mathsf{coNP}$-complete.
+Intuitively, checking whether $F \lleq H$ holds amounts to checking whether $\neg F \vee H$ is a tautology, with is a $\mathsf{coNP}$-complete problem, even if $F$ and $H$ are not allowed to contain negations.
+
+To handle the implication check, Stutz proposes several approaches.
+One of them is simply encoding the implication as an instance of the unsatisfiability problem and employing a SAT solver.
+However, an implementation of this approach did not consistently outperform the version that uses formulas in conjunctive normal form.
+A more promising approach uses that the implication $F \lleq H$ holds if and only if all minimal satisfying assignments for $F$ also satisfy $H$.
+A minimal satisfying assignment is a variable assignment $M \subseteq \nfatransmonoid{A}$ under which $F$ evaluates to true so that $F$ does not evaluate to true under any strict subset $M' \subsetneq M$.
+One can design a procedure that computes a superset of the minimal assignments that satisfy $F$ and checks whether they also satisfy $H$.
+Implication holds if and only if this true for all minimal assignments, and as soon as we encounter an assignment that is a counterexample to implication, we can terminate.
+An implementation of the implication check that uses this approach consistently outperforms the CNF-based implementation.
+It can solve more instances in a ten-second time frame and in the case that both implementations can solve an instance, the approach based on minimal satisfying assignments is at least twice as fast on average.
+
+\paragraph{Antichain optimizations}
+
+A second approach to increasing the performance of our solver for context-free games is the so-called antichain optimization.
+It was successfully used in the context of transition-based method for universality and inclusion testing for nondeterministic finite automata~\cite{DeWulfDHR06,AbdullaCHMV10}.
+In his master's thesis~\cite{Haifani17}, Fajar Haifani, supervised by Roland Meyer and the author of this thesis, has explored the antichain optimization for solving context-free games using fixed-point iteration.
+
+In the development throughout this chapter, we have considered the transition monoid elements as distinct and unrelated atoms of positive Boolean formulas.
+The key observation enabling the antichain optimization is that transition monoid elements carry additionally information that can be used to relate them to each other.
+Let us see a transition monoid element as a box, \ie as an element of $\powerset{Q \times Q}$.
+If a box is a subset of another, $\tbox \subseteq \tbox'$, then box $\tbox'$ can only be rejecting if $\tbox$ is rejecting, since being rejecting is defined as the absence of a transition from the initial to a final state.
+We can extend this subset relation from boxes to formulas as follows.
+Instead of considering the standard definition for the implication $F \lleq H$, \ie we require all assignments that satisfy $F$ to also satisfy $H$, we restrict ourselves to assignments that respect the relation among boxes.
+More formally, we only consider assignments with the property that if they set some box $\tbox'$ to true, then they also set all its subsets $\tbox' \subseteq \tbox$ to true.
+We redefine implication so that $F \lleq H$ holds if every assignment that respect the relation among boxes and that satisfies $F$ also satisfies $H$.
+
+Considering less assignments in the definition of implication means that it is easier for a formula to imply another.
+When we redefine logical equivalency using our new notion of implication, we get larger equivalence classes.
+Hence, we expect Kleene iteration to terminate in fewer steps compared to the naive approach that does not consider relations among boxes.
+However, using the antichain approach also requires a more involved implication check.
+We have to replace the characterization of implication provided by Part~d) of \cref{Lemma:CFGamesCNFOperations} by a version that considers the subset relation among boxes.
+
+In addition to just considering subsets relations among boxes, there are relations that are even more powerful, meaning that they relate more boxes.
+These relations on boxes arise from so-called simulation relations~\cite{DillHW91} on states of the automaton.
+Using these relations gives us even larger equivalence classes, so we expect faster termination.
+However, this comes at the cost of having to precompute simulation relations on states of the automaton.
+
+Using an extension of the aforementioned tool, Fajar Haifani has implemented various relations on boxes and compared their performance to the naive approach.
+In all cases, the evaluation represents formulas using conjunctive normal form.
+Some cases also reduce the formulas in the current approximant every few steps, meaning that they try to exploit the relations among boxes to find a smaller representative for the same equivalence class.
+The hope is that this reduction will improve the space consumption of the formulas and the time needed for subsequent operations on these formulas.
+
+The evaluation in Haifani's thesis suggests that on average, the refined implementation using relations on boxes slightly outperforms the naive approach.
+In the best case, it cuts the time needed to solve the instances in half.
+Unfortunately, one also encounters instances where the cost of the precomputation and the more expensive implication check outweighs the reduced number of iterations~--~the optimization increases the running time of the algorithm.
+Interestingly, Haifani's data suggests that for almost all game instance, either the naive approach is better than all versions of the antichain optimization (using the subset relation or various relations arising from simulation relations), or every version of the antichain optimization outperforms the naive approach.
+
+One should note that both our publication, and the theses by Stutz and Haifani, use randomly generated instances for the evaluation of the implementations.
+Randomly generated instances are known from \eg SAT solving to have much less structure that algorithmic optimizations can exploit to speed up the solving process, compared to instances that occur in practical examples.
+It would be interesting to see the behavior of the various implementations and optimizations on instances that result from \eg encoding real program synthesis problems as \nb{context-free games}.
+
+\end{document}

@@ -1,0 +1,58 @@
+\begin{tikzpicture}[->,>=latex,node distance=1.5em,semithick]
+
+\node (REG) [draw,minimum width=3em] {$\REG$};
+\node [left of=REG,anchor=east] {$\checkmark$};
+
+\node (OCN) [draw,minimum width=3em] at (0,2) {$\OCN$};
+\node [left of=OCN,anchor=east] {$\checkmark$};
+\node [right of=OCN,anchor=west] {\cite{CzerwinskiL17}};
+
+\node (VOCA) [draw] at (3.5,2) {$\mathsf{VOCA}$};
+\node [left of=VOCA,anchor=east] {$\bm{\times}$};
+\node [right of=VOCA,anchor=west] {\cite{ClementeCLP17}};
+
+\node (OCA) [draw,minimum width=3em] at (2,4) {$\OCA$};
+\node [left of=OCA,anchor=east] {$\bm{\times}$};
+\node [right of=OCA,anchor=west] {\cite{CzerwinskiL17}};
+
+\node (VPL) [draw,minimum width=3em] at (5,3) {$\VPL$};
+\node [left of=VPL,anchor=east] {$\bm{\times}$};
+\node [right of=VPL,anchor=west] {\cite{Kopczynski16}};
+
+\node (DCFL) [draw,minimum width=3em] at (5,4) {$\DCFL$};
+\node [left of=DCFL,anchor=east] {$\bm{\times}$};
+\node [right of=DCFL,anchor=west] {\cite{SzymanskiW76}};
+
+\node (CFL) [draw,minimum width=3em] at (3.5,5.4) {$\CFL$};
+\node [left of=CFL,anchor=east] {$\bm{\times}$};
+
+\node (HORS) [draw,minimum width=3em] at (3.5,7) {$\HORS$};
+\node [left of=HORS,anchor=east] {$\bm{\times}$};
+
+\node (PNCOV) [draw] at (-4,2) {$\PNLCOV$};
+\node [left of=PNCOV,anchor=east,node distance=1.7em] {$\checkmark$};
+
+\node (PNREACH) [draw] at (-2,7) {$\PNLREACH$};
+\node [left of=PNREACH,anchor=east,node distance=2em] {$\bm{?}$};
+
+\node (WSTS) [draw] at (-6,7) {$\WSTS$};
+\node [left of=WSTS,anchor=east] {$\checkmark$};
+\node [right of=WSTS,anchor=west] {\cite{CzerwinskiLMMKS18}};
+
+\path
+    (REG) edge (VOCA)
+    (REG) edge (OCN)
+    (REG) edge (PNCOV)
+    (OCN) edge (OCA)
+    (VOCA) edge (OCA)
+    (VOCA) edge (VPL)
+    (OCA) edge (CFL)
+    (VPL) edge (DCFL)
+    (DCFL) edge (CFL)
+    (CFL) edge (HORS)
+    (OCN) edge (PNREACH)
+    (PNCOV) edge (PNREACH)
+    (PNCOV) edge (WSTS)
+;
+
+\end{tikzpicture}

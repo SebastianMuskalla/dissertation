@@ -1,0 +1,157 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{(Labeled) Transition systems}%
+\label{Section:LTS}%
+
+A \emph{transition system} $S = (\configs,T)$ consists of a set of \emph{configurations} $\configs$ and a \emph{transition relation} $T \subseteq \configs \times \configs$.
+One can say that the transition systems defined by hardware and software systems are the main object of interest in computer science.
+
+Instead of working directly on the configuration space $\configs$, we want to see transition systems as language-generating devices.
+This additional level of indirection allow us to compare transition systems with different sets of configurations as long as they define languages over the \nb{same alphabet}.
+
+Formally, a \emph{labeled transition system (LTS)} over alphabet $\Sigma$ is of the shape $\lts = (\configs,T)$ where $T \subseteq \configs \times \Sigma^* \times \configs$ is a set of transitions labeled by finite words over $\Sigma$.
+Most of the time, we are interested in LTSes whose transitions are labeled by words of length exactly one (\ie $T \subseteq \configs \times \Sigma \times \configs$), or of length at most one.
+In the latter case, we get $T \subseteq \configs \times \Sigma_\eps \times \configs$ where $\Sigma_\eps = \Sigma \dotcup \set{\eps}$.
+
+In the case of labeled transitions, we usually write $c \tow{a} c'$ instead of $(c,a,c') \in T$.
+We extend the notations towards \emph{computations} (also called \emph{runs}) in the expected way and write $c \tow{w} c'$ where $w \in \Sigma^*$ is a word if there is a sequence of states $c_0, \ldots, c_{\card{w}}$ such that $c = c_0 \tow{w_1} c_1 \tow{w_2} \ldots \tow{w_{\card{w}}} c_{\card{w}} = c'$.
+
+To see an LTS as a device that generates finite words, we equip it with sets of \emph{initial} and \emph{final} configurations, respectively.
+This means we consider a tuple $\lts = (\configs,T,\configs_\init,\configs_\final)$, where $(\configs,T)$ is as before and $\configs_\init, \configs_\final \subseteq \configs$.
+A run of such an LTS is \emph{accepting} if it starts in an initial and ends in a final configuration.
+The language $\lang{\lts} \subseteq \Sigma^*$ of an LTS is the set of all words that occur along accepting runs,
+\[
+    \lang{\lts} = \Set{ w \in \Sigma^*}{c_\init \tow{w} c_\final \text{ for some } c_\init \in \configs_\init, c_\final \in \configs_\final}
+    \ .
+\]
+
+\begin{remark*}
+    Seeing an LTS as a device for generating languages of infinite words is more involved, and we will not give a general definition on the level of LTSes.
+    The acceptance condition (ending in a final state) has to be replaced, and there are different ways to do so, each with its own sets of drawbacks and advantages.
+    A detailed discussion is given in \cref{LTS:OmegaAutomata}.
+\end{remark*}
+
+We define some notation for LTSes with $\Sigma$-labeled transitions.
+For a letter $a$ and a \nb{configuration $c$} of some LTS $\lts$, we denote by
+%
+\begin{align*}
+    \post{\lts}{a}{c} &= \Set{ c' \in \configs}{ c \tow{a} c'}
+    \ ,
+    &
+    \pre{\lts}{a}{c} &= \Set{ c' \in \configs}{ c' \tow{a} c}
+\end{align*}
+%
+the set of \emph{(direct) $a$-successors} \resp \emph{predecessors}.
+We extend the notation to sets of configurations by taking the union, \eg $\post{\lts}{a}{C} = \bigcup_{c \in C} \post{\lts}{a}{c}$.
+Additionally, we extend the notation to words by induction,
+%
+\begin{align*}
+    \post{\lts}{\eps}{C} &= \pre{\lts}{\eps}{C} = C
+    \ ,
+    \\
+    \post{\lts}{w.a}{C} &= \post{\lts}{a}{\post{\lts}{w}{C}}
+    \ ,
+    &
+    \pre{\lts}{w.a}{C} &= \pre{\lts}{w}{\pre{\lts}{a}{C}}
+    \ .
+\end{align*}
+%
+We will be mostly interested in the configurations reached from the initial configurations and, similarly, in the configurations from which a final configuration can be reached.
+We define
+%
+\begin{align*}
+    \reach{\lts}{w} &= \post{\lts}{w}{\configs_\init}
+    \ ,
+    &
+    \reachrev{\lts}{w} &= \pre{\lts}{w}{\configs_\final}
+    \ .
+\end{align*}
+%
+We generalize $\reach, \reachrev, \postT$, and $\preT$ to set of words by taking the union.
+A particularly interesting case is the case of all words, which we simply denote by
+\begin{align*}
+    \reach{\lts} &= \reach{\lts}{\Sigma^*} = \bigcup_{w \in \Sigma^*} \reach{\lts}{w}
+    \ ,
+    &
+    \reachrev{\lts} &= \reachrev{\lts}{\Sigma^*} = \bigcup_{w \in \Sigma^*} \reachrev{\lts}{w}
+    \ ,
+\end{align*}
+%
+the set of all configurations reachable from the initial configurations respectively the set of all configurations from which a final configuration is reachable.
+It is clear from the definition of the language of an LTS that we have $\lang{\lts} \neq \emptyset$ if and only if one (or all) of the following equivalent conditions is true:
+\begin{align*}
+    \reach{\lts} \cap \configs_\final &\neq \emptyset
+    \ ,
+    &
+    \reachrev{\lts} \cap \configs_\init &\neq \emptyset
+    \ ,
+    &
+    \reach{\lts} \cap \reachrev{\lts} &\neq \emptyset
+    \ .
+\end{align*}
+%
+If the system $\lts$ we are considering is clear from the context, we omit the subscript and simply write \eg $\post{a}{c}$.
+
+The transition relation of an LTS is \emph{finitely branching} if for each configuration $c$ and each \nb{symbol $a \in \Sigma$}, there are at most finitely many successors $c'$ such that $c \tow{a} c'$.
+It is called \emph{unique} if there is at most one successor, \emph{complete} if there is at least one successor, and \emph{deterministic} if there is exactly one successor.
+If the transition relation $T$ of an LTS is deterministic, we may see it as a function $T \colon \configs \times \Sigma \to \configs$ such that $T(c,a)$ is the unique $c'$ with $c \tow{a} c'$.
+
+An LTS is \emph{finitely branching} if its transition relation is and it additionally has only finitely many initial states.
+It is \emph{deterministic} if its transition relation is and it has a unique initial state.
+
+\paragraph{The synchronized product}
+
+We present a standard construction that, given two LTSes, yields an LTS whose language is the intersection of the languages.
+Intuitively, the product of the LTSes tracks tuples of configurations, simulating a run of one LTS per component.
+Transitions not labeled by $\eps$ need to be applied synchronously to both components.
+Formally, the construction is as follows:
+Let $\lts = (\configs,T,\configs_\init,\configs_\final)$ and $\lts' = (\configs',T',\configs_\init',\configs_\final')$ be two LTSes with transition labeled by $\Sigma_\eps$.
+Their \emph{synchronized product} is $\lts \times \lts' = (\configs \times \configs', T_\times, \configs_\init \times \configs_\init', \configs_\final \times \configs_\final')$ where $T_\times$ is defined by $(c,c') \tow{a} (d,d')$ if
+(1) $a = \eps$, and $c \tow{\eps} d$ in $T$ and $c' = d'$,
+or
+(2) \nb{$a = \eps$, and $c' \tow{\eps} d'$ in $T'$ and $c = d$,}
+or
+(3) $a \in \Sigma$, and $c \tow{a} d$ in $T$ and $c' \tow{a} d'$ in $T'$.
+
+It is straightforward to show $\lang{\lts \times \lts'} = \lang{\lts} \cap \lang{\lts'}$: For each word $w$, a run of the product LTS gives rise to a run in each LTS.\@
+Similarly, two runs on the same word, one for each system, can be merged into a single run of the product system.
+
+
+\paragraph{Automata}
+
+LTSes are a very general concept since we have not imposed any restriction on the set $\configs$; in particular, it may be infinite.
+The drawback is that we cannot treat them algorithmically in this full generality.
+%
+To solve the problem, we will focus on \emph{automata} in the following.
+Automata are LTSes of a special shape:
+Their set of configurations can be written as $\configs = Q \times M$ such that $Q$ is a \emph{small} (typically finite) set of \emph{control states}, and $M$ is a potentially large (\eg infinite) set of \emph{memory values}.
+The transitions $T$ are allowed to depend arbitrarily on $Q$, but only \emph{locally} on $M$.
+The latter means for example that even if $M$ is infinite (which necessarily means that its elements have unbounded size), the transitions should only depend on a bounded part of the current value $m \in M$.
+More formally, one can require that there is a finite set of \nb{\emph{transition rules} $\to$} that specify whether a transition $(q,m) \tow{a} (q',m') \in T$ exists.
+Hence, an automaton can usually be represented by some \emph{finite syntax} (the set $Q$, a representation of the shape of the elements of $M$, and $\to$), although it gives rise to a potentially infinite \emph{semantics}, the transition system $(Q \times M, T)$.
+% In many cases, this allows us to use the finite description of the system to compute properties of its infinite configuration space.
+
+For example, sequential imperative programs can be seen as automata:
+The control states are the lines of code while the memory stores the assignment of the variables.
+The transitions from one line to another only depend on the memory as specified \eg by a conditional in the source code.
+With this view, the source code is the syntax of the automaton, the transition system that describes its runtime behavior is the semantics.
+The labeling that we consider for such a system depends on what property we want to analyze.
+For example, it may be the atomic commands that are executed by the program.
+
+The above definition of automata is imprecise and fuzzy, but it captures the fundamental idea behind automata theory:
+An infinite semantics is represented by a finite description that can serve as input for algorithms.
+%
+However, requiring a finite representation of the system is not sufficient to get decidability results.
+For example, Turing machines also admit a finite description, but by Rice's  theorem~\cite{Rice53} no non-trivial properties of the languages they define are decidable.
+At the current state, there is no general theory that explains which types of systems admit which decidability results.
+The model of valence systems over graph monoids~\cite{Zetzsche15d,Charney07} that we present in \cref{Chapter:ValenceGames} can be seen as a step in that direction, but this model is not powerful enough to capture all types of memories, and it has not (yet) gained wide-spread usage.
+
+This leaves us with having to define various classes of automata for which certain properties are decidable.
+In the following, we define various types of \emph{state-based systems} that are automata in the above sense and for which some properties, \eg membership in their language, are decidable.
+Finite automata, Petri nets, and well-structured transition systems fall into this category.
+
+We will also consider \emph{rewriting-based systems} like context-free grammars and higher-order recursion schemes.
+These systems can also be seen as automata as we will explain in \cref{Section:CFGOmega}.
+
+\end{document}

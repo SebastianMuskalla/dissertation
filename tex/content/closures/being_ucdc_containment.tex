@@ -1,0 +1,161 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Regular containment}%
+\label{Section:PNRegularContainment}%
+
+As mentioned before, the problem of checking whether a given regular language is contained in a Petri net coverability language is of independent interest.
+We formalize it as follows.
+
+\begin{problem}
+    \problemtitle{Regular containment}
+    \problemshort{($\PNCOVREGCONT$)}
+    \probleminput{A labeled Petri net instance $(N,\Minit,\Mfinal)$, an NFA $A$.}
+    \problemquestion{$\lang{A} \subseteq \lang{N,\Minit,\Mfinal}$? }
+\end{problem}
+
+In the rest of the section, our goal is to prove that $\PNCOVREGCONT$ is decidable.
+
+\begin{theorem}%
+\label{Theorem:PNCOVRegularContainment}%
+     $\PNCOVREGCONT$ is decidable.
+\end{theorem}
+
+Before giving the proof, we discuss the consequences of this result. We have already mentioned potential practical applications in the previous sections.
+
+Firstly, note that the decidability of $\PNCOVREGCONT$ implies the decidability of other interesting computational problems.
+In particular, we get the decidability of the universality problem for the coverability languages of Petri nets, \ie checking whether $\Sigma^* = \lang{N,\Minit,\Mfinal}$, as an immediate consequence.
+This is, to the best of the author's knowledge, a new result.
+In fact, \citea{Wimmel08} conjectures that this problem is undecidable even for Petri nets that do not use $\eps$ as transition label.
+The results extend the known decidability of universality for freely labeled Petri nets, \ie Petri nets in which each transition has a distinct non-$\eps$ label.
+The latter holds for several acceptance conditions, including coverability and reachability.
+It contrasts with the undecidability of universality in the case of non-freely labeled Petri nets with reachability as the acceptance condition~\cite{Wimmel08}.
+
+Secondly, the decidability is surprising in that the proof approach that is commonly used to show the decidability of the regular containment problem does not apply in the case of Petri net languages.
+Usually, one uses that $\calL_1 \subseteq \calL_2$ holds if and only if there is no counterexample to inclusion, \ie $\calL_1 \cap \overline{\calL_2}$ is empty.
+This approach requires $\calL_2$ to stem from a class of languages that can be effectively complemented.
+It is well-known that the class of Petri net coverability languages is not closed under complement~\cite{MukundKRS98,MukundKRS98b}.
+For some other classes that are not closed under complement, \eg the context-free languages, the regular containment problem is undecidable.
+Also, several other problems that could be solved if an effective complementation of Petri net languages would be possible, are known to be undecidable.
+These problems include the inclusion problem, \ie the question of whether $\lang{N_1} \subseteq \lang{N_2}$ holds for two given Petri nets $N_1, N_2$, even in the simple case that the nets do not use $\eps$ as label and that the acceptance condition is trivial, \ie it is coverability with respect to the zero vector.
+The undecidability of the inclusion problem can be deduced using a technique introduced by \citea{Jancar95}, see \eg \cite{Wimmel08} for a proof.
+
+\paragraph{Trace containment}
+
+Let us turn to the proof of \cref{Theorem:PNCOVRegularContainment}.
+It strongly relies on a result of \citea{JancarEM99} that shows that the containment problem is decidable for \emph{trace languages} of finite-state automata \resp Petri nets.
+A trace of an automaton is a finite word that occurs along a computation from the initial state, regardless of whether it reaches a final state.
+Formally, we define the \emph{trace language} of an NFA $A$ as
+\[
+     \Traces{A} = \Set{ w \in \Sigma^* }{ q_\init \tow{w} q \text{ for some } q \in Q }
+     \ .
+\]
+Similarly, we define the trace language of a Petri net $N$ together with an initial marking $\Minit$ by
+\[
+    \Traces{N,\Minit} = \Set{ \lambda(\sigma) \in \Sigma^*}{
+                \Minit \fire{\sigma}
+        }
+    \ .
+\]
+Observe that $\Traces{A}$ is the language of $A$ if we assume that all states are final.
+Similarly, the trace language of the Petri net is the coverability language with the zero vector as the final marking, $\Traces{N,\Minit} = \lang{N,\Minit,\vec{0}}$.
+An important property of trace languages that limits their expressiveness is that they are necessarily \emph{prefix closed}: If $w = w_1 \ldots w_n \in \Traces{A}$, then also $w_1 \ldots w_k \in \Traces{A}$ for all $k \leq n$.
+
+The \emph{trace containment} problem is a variant of regular containment in which we restrict both languages to be trace languages.
+
+\begin{problem}
+    \problemtitle{Trace containment}
+    \problemshort{($\TRACECONT$)}
+    \probleminput{A labeled Petri net with initial marking $(N,\Minit)$, an NFA $A$.}
+    \problemquestion{$\Traces{A} \subseteq \Traces{N,\Minit}$? }
+\end{problem}
+
+The result that we rely on is the decidability of this problem.
+
+\begin{theorem}[(\citea{JancarEM99})]%
+\label{Theorem:PNTraceContainmentDecidable}%
+    $\TRACECONT$ is decidable.
+\end{theorem}
+
+We have argued above that an algorithm for containment cannot simply complement a Petri net coverability language.
+The same reasoning holds in the case of trace containment.
+We briefly discuss the algorithm proving \cref{Theorem:PNTraceContainmentDecidable}.
+Let us assume that $A$ is a DFA, which in particular means that it has no $\eps$-labeled transitions.
+The algorithm simultaneously explores the behavior of the automaton and the net, in a fashion that is similar to the construction of the Karp-Miller tree, see \cref{Section:PNSREDC}.
+It constructs a tree whose nodes are labeled by pairs $(q,\calM)$, where $q$ is a state of the automaton and $\calM$ is a set of incomparable generalized markings.
+This means that $\calM \subseteq \powerset{\N_\omega^P}$, and for $M,M' \in \calM$, neither $M \leq M'$ nor $M' \leq M$ holds.
+
+The root node is labeled by the initial state and the singleton set consisting of the initial markings.
+Successors of a node $(q,\calM)$ are constructed by picking an applicable transition of the automaton, say $q \tow{a} q'$, and then constructing the finite set of maximal markings from the set $\calM' = \Set{ M' \in \N_\omega^P}{ \exists M \in \calM, \exists \sigma \colon \lambda(\sigma) = a, M \fire{\sigma} M'}$.
+Note that there are potentially infinitely many candidates for $\sigma$, since we allow $\eps$-labeled transitions in the net.
+Altogether, we obtain the successor $(q',\calM')$.
+
+If we have constructed a successor of the shape $(q',  \emptyset)$, trace containment is violated.
+Indeed, the path from the root node to $(q',  \emptyset)$ can be pumped to obtain a witness for a word that is contained in $\Traces{A}$, but not in $\Traces{N,\Minit}$.
+If we have constructed a successor $(q',\calM')$ such that on the path from the root node to $(q',\calM')$, there is a node $(q',\calM)$ such that the control states are equal and for every $M' \in \calM'$, there is $M \in \calM$ with $M' \leq M$, $(q',\calM')$ becomes a leaf for which we do not have constructed further successors.
+
+The soundness of the algorithm is not hard to prove.
+The difficult part is showing that the succors can be constructed in finite time, and that the tree is necessarily finite.
+This part of the proof relies on well-quasi ordering arguments.
+Hence, a naive complexity analysis of the algorithm yields a non-primitive recursive complexity.
+A more detailed analysis using the techniques developed by Schmitz and others, see \eg~\cite{LazicS15}, is beyond the scope of this thesis.
+
+\paragraph{Reducing regular containment to trace containment}
+
+To prove \cref{Theorem:PNCOVUCDCDecidable}, we show how to reduce an instance of $\PNCOVREGCONT$ to an instance of $\TRACECONT$.
+Let $(N,\Minit,\Mfinal)$ be the labeled Petri net instance of interest, and let $A = (Q,\to,q_\init,Q_F)$ be the NFA for which we want to check language containment.
+As argued above, we have $\Traces{N,\Minit} = \lang{N,\Minit,\vec{0}}$.
+Hence, we consider the zero vector as the new final marking.
+To take the original final marking $\Mfinal$ into account, we will use a new transition with a fresh label that can only be fired once $\Mfinal$ has been covered.
+Similarly, will we add transitions with this label to the automaton that witness that a final state has been reached.
+
+More formally, let $a \not\in \Sigma$ be a fresh letter and define $\Sigma_a = \Sigma \dotcup \set{a}$.
+We define $N.a$ to be the labeled Petri net over $\Sigma_a$ that is obtained from $N$ by adding an $a$-labeled transition $t_a$ that produces no token and consumes $\Mfinal$, \ie $\i(t_a) = \Mfinal$, $\o(t_a) = \vec{0}$.
+Similarly, we construct an automaton $A.a$ over $\Sigma_a$ for the language $\lang{A}.a$.
+For the proof, it will be important that $A.a$ is reduced in these sense that it has a unique final state that is reachable from all states.
+This property guarantees that each word $w \in \Traces{A.a}$ is the prefix of a word from $\lang{A.a}$.
+To ensure it, we construct $A.a$ from $A$ as follows:
+(1)~We add a fresh final state $q_\final$, then (2)~add $a$-labeled transitions from all other final states to this state, (3)~make all other states non-final, and finally (4)~remove all states from which $q_\final$ is not reachable.
+
+The net $N.a$ and the automaton $A.a$ have been constructed so that we can use them to reduce regular containment to trace containment, as stated by the following lemma.
+
+\begin{lemma}%
+\label{Lemma:PNRegularContainmentToTraceContainment}%
+    $
+        \lang{A} \subseteq \lang{N,\Minit, \Mfinal}
+    $
+    holds iff
+    $
+        \Traces{A.a} \subseteq \Traces{N.a, \Minit}
+    $
+    holds.
+\end{lemma}
+
+\begin{proof}
+    Assume $\lang{A} \subseteq \lang{N,\Minit, \Mfinal}$ to hold.
+    We prove that trace containment holds.
+    Let $v \in \Traces{A.a}$, and let $q$ be some state of $A.a$ such that $q_\init \tow{v} q$.
+    Since the unique final state is reachable from every state of $A.a$ by construction, there is some word $w$ with $q \tow{w} q_\final$.
+    Hence, we have $v.w \in \lang{A.a} = \lang{A}.a$, and we may write $v.w = x.a$ for some $x \in \lang{A}$.
+    By assumption, $x \in \lang{N,\Minit, \Mfinal}$, so there is a computation $\Minit \fire{\sigma} M \geq \Mfinal$ of $N$ with $\lambda(\sigma) = x$.
+    This computation is also a computation of $N.a$, and it reaches a marking greater than $\Mfinal$.
+    Hence, we have that $\sigma.t_a$ is a valid firing sequence from $\Minit$.
+    We obtain that $\lambda(\sigma.t_a) = x.a \in \Traces{N.a,\Minit}$.
+    Recall that $v$ is a prefix of $v.w = x.a$, and that trace languages are prefix-closed.
+    Hence, we obtain $v \in \Traces{N.a,\Minit}$ as desired.
+
+    For the other direction, assume $\Traces{A.a} \subseteq \Traces{N.a, \Minit}$ to hold.
+    Let $w \in \lang{A}$, and consider $w.a \in \lang{A.a} \subseteq \Traces{A.a}$.
+    By assumption, we have $w.a \in \Traces{N.a, \Minit}$, so we may choose a computation $\Minit \fire{\sigma} M$ of $N.a$ with $\lambda(\sigma) = w.a$.
+    Note that $w$ is a word over $\Sigma$ and does not contain $a$.
+    Hence, $\sigma$ is of the shape $\sigma = \sigma'.t_a$, where $\sigma'$ only uses transitions from the original net $N$.
+    We get that $\Minit \fire{\sigma\lowerprime} M$ is a computation of $N$ reaching a marking in which \nb{transition $t_a$} is enabled, which implies $M \geq \Mfinal$.
+    Hence, $\lambda(\sigma') = w \in \lang{N,\Minit,\Mfinal}$, \nb{as we wanted to prove.}
+\end{proof}
+
+Combining the reduction from regular containment to trace containment, \cref{Lemma:PNRegularContainmentToTraceContainment}, with the decidability of trace containment, \cref{Theorem:PNTraceContainmentDecidable}, yields the desired decidability of regular containment, \cref{Theorem:PNCOVRegularContainment}.
+
+This also finishes the proof of \cref{Theorem:PNCOVUCDCDecidable}.
+With this proof, all results mentioned in \cref{Section:PNResults} have been shown and our study of the computability and complexity of the upward and downward closures of Petri net coverability languages is complete.
+
+\end{document}

@@ -1,0 +1,44 @@
+\begin{tikzpicture}[->,>=latex,node distance=10em,semithick]
+
+\node[place] (Init) [minimum size=3em,tokens=1] {};
+
+\node[place] (Run) [minimum size=3em,right of=Init] {};
+
+\node (InC) at (2,2.7) {};
+
+\node (Box) [draw, minimum width=10em, minimum height=6em, inner sep=0em, outer sep=0em, right of=InC, node distance=0em, anchor=west]{$N_{\text{dec}}$};
+
+\node[place] (In) at (InC) [fill=white,minimum size=3em,] {};
+
+\node [transition,square] (A) at (0,2.7) [inner sep=0.25em] {$t_a$}
+    edge [<->] (Init)
+    edge [post] (In)
+;
+\node [transition] (Start) [right of=Init, node distance=5em,inner sep=0.25em] {$t_{\text{start}}$}
+    edge [pre] (Init)
+    edge [post] (Run)
+;
+
+\path
+    (Box.south west)
+    --
+    coordinate [pos=0.15] (Anchor1)
+    coordinate [pos=0.35] (Anchor2)
+    coordinate [pos=0.65] (Anchor3)
+    coordinate [pos=0.85] (Anchor4)
+    (Box.south east)
+;
+
+\path [<->] (Anchor1) edge (Run);
+\path [<->] (Anchor2) edge (Run);
+\path [<->] (Anchor3) edge (Run);
+\path [<->] (Anchor4) edge (Run);
+
+\node [below of=Init, node distance=2em] {$p_\init$};
+\node [below of=Run, node distance=2em] {$p_{\text{run}}$};
+\node [below of=In, node distance=2em, xshift=-1.5em] {$p_{\indec}$};
+
+\node [above of=A, node distance=1.5em] {$a$};
+\node [below of=Start, node distance=1.5em] {$\eps$};
+
+\end{tikzpicture}

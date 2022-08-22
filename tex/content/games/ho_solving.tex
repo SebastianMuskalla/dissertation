@@ -1,0 +1,664 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Solving higher-order inclusion games}%
+\label{Section:HORSSolving}
+
+We finally discuss how to decide the regular inclusions games defined by higher-order recursion schemes.
+In \cref{Section:HORSFPSemantics}, we have defined a concrete semantics for HORS games using the mode template that we have introduced in \cref{Section:HORSTemplate}.
+In the form of \cref{Theorem:HORSConcreteSol} we have shown that the least solution to the system of equations interpreted using the concrete model provides the winner of the game.
+Unfortunately, this result is non-constructive.
+If we were able to compute the least solution, we could read off the winner, but since the domains used by the concrete semantics are infinite and do not satisfy the ascending chain condition, this is not possible.
+
+In this section, we overcome this problem by using the framework for exact fixed-point transfer.
+We define an \emph{abstract model} by again instantiating the model template.
+The abstract domains are finite, so it is possible to actually compute the least solution to the interpreted system of equations.
+Showing that the winner of the game can be read off from the least solution directly would be difficult.
+To this end, we use exact fixed-point transfer.
+We define a precise abstraction from the concrete to the abstract model and get that the abstraction of the concrete least solution is essentially the abstract least solution.
+This will tell us how to read off the winner of the game and prove that this approach is sound.
+
+\paragraph{The abstract model}
+
+We start by defining the abstract model, using the model template from \cref{Section:HORSTemplate}.
+We follow our overview on the model template, \cref{Figure:HORSTemplateCheatSheet}.
+The template requires us to define a domain $\domaina{\ground}$ for kind ground.
+We want to use positive Boolean formulas over a finite set of atoms.
+Recall that the winning condition of the game for the existential player is deriving a finite word that is in the regular language $\overline{\lang{A}}$, the complement of the language of an NFA~$A$.
+Let $Q$ be the set of states of $A$.
+We define $\domaina{\ground}$ to be the set of positive Boolean formulas over $Q$, factorized by logical equivalence and ordered by implication,
+\[
+    \domaina{\ground} =
+    \paren{ \pBF\paren{Q}/_{\lequiv},\lleq }
+    \ .
+\]
+Similar to the domain that we have used in \cref{Chapter:ContextFreeGames}, this set is a CPPO.\@
+Its least element is the equivalence class of $\false$.
+The join of an ascending chain of (equivalence classes of) formulas is the disjunction of the formulas.
+Since the set of atoms~$Q$ is finite, there are only finitely many equivalence classes.
+Hence, an infinite chain only consists of finitely many distinct elements and the disjunction of these elements is a well-defined finite formula.
+The model template now provides us with $\domaina{\kappa_1 \to \kappa_2} = \domaina{\kappa_1} \cto \domaina{\kappa_1}$ for every kind $\kappa_1 \to \kappa_2$.
+
+The idea behind using formulas over states is the following.
+We want to represent each word~$w$ by the set $\Set{ q }{ q \tow{w} \qfinal \in \QF}$ of states from which $w$ is accepted, \ie the states $q$ so that there is a run of $A$ from $q$ to a final state.
+Since our atoms are states and not sets of states, we transform the above set into a conjunction.
+This means we represent $w$ by $\bigwedge_{q \text{ s.t. } q \tow{w} \qfinal \in \QF} q$.
+To improve readability, we write such a conjunction as $\bigwedge \Set{ q }{ q \tow{w} \qfinal \in \QF}$ \nb{in the following}.
+
+The existential player needs to enforce the derivation of a finite word $w$ in $\overline{\lang{A}}$.
+This means that no run of $A$ on $w$ can be accepting.
+For each run of $A$ on $w$, it must not be true that the run is a run from the initial to the final state.
+Using conjunction represents the fact that the existential player has to show that each run is non-accepting.
+
+Following this intuition, we complete the instantiation of the model template by specifying the interpretation of the terminals.
+The word-end marker $\wordend \colon \ground$ is the representation of the empty word.
+Hence, it corresponds to the set of final states, which we see as conjunction,
+\[
+    \wordend^{\interpretationa} = \bigwedge_{\qfinal \in \QF} \qfinal \in \domaina{\ground}
+    \ .
+\]
+For each letter terminal $a \colon \ground \to \ground$ corresponding to a letter $a \in \Sigma$, we define the \nb{interpretation as}
+\[
+    a^{\interpretationa} = \predec{a} \in \domaina{\ground \to \ground}
+    \ .
+\]
+It takes a formula in $\domaina{\ground}$ and distributes over conjunction and disjunction.
+When it reaches an atom $q$, it computes the $a$-predecessors of $q$ in $A$ and connects them using conjunction.
+Formally, the definition is
+\begin{align*}
+    \predec{a}{H \wedgevee H'} &= \predec{a}{H \wedgevee H'}
+    \\
+    \predec{a}{q} &= \bigwedge \Set{q' \in Q}{ q' \tow{a} q}
+    \ .
+\end{align*}
+%
+It remains to define the interpretations of the terminals of the shape $\brancht_F$ that are present in the determinization of the game HORS.\@
+Consider $\brancht_F \colon \ground \to \ldots \to \ground$ with arity $k$.
+If $F$ is owned by the existential player, then the interpretation ${\brancht_F}^{\interpretationa}$ is $k$-ary disjunction.
+Otherwise, it is $k$-ary conjunction.
+
+Before we can finalize the instantiation of the template, we need to show that the interpretations are join-continuous.
+Before doing so, we make the following observation.
+
+\begin{lemma}%
+\label{Lemma:HORSSolvingDomainsFinite}%
+    For each kind $\kappa$, $\domaina{\kappa}$ and $(N \dotcup V \pto \domaina) \cto \domaina{\kappa}$ are finite.
+\end{lemma}
+
+\begin{proof}
+    Since the set of states $Q$ is finite, so is the set $\domaina{\ground}$ of equivalence classes of formulas.
+    The set of function from a finite domain to a finite target set is finite.
+    The same is true for the subset of join-continuous functions.
+    Hence, it is easy to show using induction that each $\domaina{\kappa_1 \to \kappa_2} = \domaina{\kappa_1} \cto \domaina{\kappa_2}$ is finite.
+
+    For $(N \dotcup V \pto \domaina) \cto \domaina{\kappa}$, note that we do not actually consider arbitrary valuations.
+    We only consider valuations $\val$ that assign to each HORS variable or nonterminal of kind $\kappa$ a value from $\domaina{\kappa}$.
+    As we have just argued, each $\domaina{\kappa}$ is finite.
+    Since there are only finitely many HORS variables and nonterminals, the set of valuations that respect the kinds is finite.
+    Hence, there are only finite many functions with signature $(N \dotcup V \pto \domaina) \cto \domaina{\kappa}$.
+\end{proof}
+
+The finiteness of each $\domaina{\kappa}$ allows us to use \cref{Remark:EDSMonotonocityContinuity}.
+For a finite domain, join-continuity and monotonicity are equivalent.
+In order to show that the interpretations are values in their respective domain, we need to show that they are monotonic (and hence join-continuous) functions.
+The interpretation of the word-end marker is just a value and not a function, so there is nothing to do.
+The interpretation of each $\brancht_F$ is conjunction or disjunction, and we have argued that these functions are monotonic in \cref{Section:CFGamesEDS}.
+It remains to show that $\predec{a}$ is monotonic, which we prove in the form of the following lemma.
+
+\begin{lemma}%
+\label{Lemma:HORSSolvingPredecMonotonic}%
+    If $H, H' \in \domaina{\ground}$ with $H \lleq H'$, then $\predec{a}{H} \lleq \predec{a}{H'}$.
+\end{lemma}
+
+\begin{proof}
+    The proof is similar to the proof of \cref{Lemma:CFGamesCompositionMonot} and uses the same observations on the equivalence of Boolean formulas.
+
+    We proceed by a nested induction.
+    The outer induction is an induction on the structure of $H$.
+    In its base case, $H = q$ is an atom.
+    We proceed using an induction on the structure of $H'$.
+    In the base case, $H' = q'$ is an atom, too.
+    The implication $H \lleq H'$ can only hold if $q = q'$.
+    In this case $\predec{a}{H} = \predec{a}{H'}$ holds and we get the desired implication.
+
+    In the induction step of the inner induction, consider $H' = H_1' \wedge H_2'$.
+    Since $H \lleq H'$, we get both $H \lleq H_1'$ and $H \lleq H_1'$ using the \nth{2}~Observation from the proof of \cref{Lemma:CFGamesCompositionMonot}.
+    Using induction, we obtain $\predec{a}{H} \lleq \predec{a}{H_1'}$ and $\predec{a}{H} \lleq \predec{a}{H_2'}$.
+    Using the observation again, we conclude $\predec{a}{H} \lleq \predec{a}{H_1'} \wedge \predec{a}{H_2'} = \predec{a}{H_2'}$ as desired.
+    If $H'$ is a disjunction, the argumentation is similar.
+
+    In the induction step of the outer induction, consider $H = H_1 \wedge H_2$ and $H'$ arbitrary.
+    Using the \nth{3}~Observation from the proof of \cref{Lemma:CFGamesCompositionMonot}, we obtain that $H \lleq H'$ implies $H_1 \lleq H'$ or $H_2 \lleq H'$.
+    With induction, we get $\predec{a}{H_1} \lleq \predec{a}{H'}$ or $\predec{a}{H_2} \lleq \predec{a}{H'}$.
+    Applying the observation again gives us $\predec{a}{H} = \predec{a}{H_1} \wedge \predec{a}{H_2} \lleq \predec{a}{H'}$  as desired.
+    If $H$ is a disjunction, the argumentation is similar.
+\end{proof}
+
+This completes the instantiation of the model template.
+We get the \emph{abstract model} $\modela = \paren{\domaina, \interpretationa}$ and for each term $t$ of kind $\kappa$ the \emph{abstract semantics}
+\[
+    \sema{t} \colon (N \dotcup V \pto \domaina) \cto \domaina{\kappa}
+    \ .
+\]
+By \cref{Proposition:HORSTemplateExistenceLeastSolution}, the least \emph{abstract} solution to the interpreted system of equation exists.
+It is obtained as the join of the abstract approximants,
+\[
+    \sola = \bigsqcup_{i \in \N} \solai{i}
+    \ .
+\]
+In contrast to the concrete domains, the abstract domains satisfy the ascending chain condition as they are finite, see \cref{Lemma:HORSSolvingDomainsFinite}.
+Hence, the chain of the $\solai{i}$ is stationary, and $\sola$ equals $\solai{i_0}$ for some $i_0 \in \N$.
+This will later allow us to compute the winner of the game.
+We come back to the details when we discuss the complexity of the algorithm.
+
+\paragraph{Exact fixed-point transfer}
+
+We want to prove that we can read off the winner of this game from the abstract least solution $\sola$.
+Instead of reproving a result similar to \cref{Theorem:HORSConcreteSol}, we want to apply exact fixed-point transfer.
+This will allow us to simply reuse \cref{Theorem:HORSConcreteSol}.
+
+We instantiate the framework from \cref{Section:HOGamesFramework} by following our overview, \cref{Figure:HORSEFPTCheatSheet}.
+The first step is defining an abstraction function $\abs \colon \domainc{\ground} \to \domaina{\ground}$.
+The definition will follow the intuition behind the translation from words to formulas over states we have explained earlier.
+For the formal definition, we proceed as follows.
+For a set of formulas $\sof \in \domainc{\ground}$, we define
+\[
+    \abs{\sof} = \bigvee_{H \in \sof} \abs{H}
+\]
+as the disjunction of the result of applying $\abs$ to the elements of $\sof$.
+Note that there are only finitely many distinct values in $\domaina{\ground}$, so the disjunction on the right-hand side is a well-defined finite formula, even if $\sof$ is an infinite set.
+For a formula in $\pBF\paren{\Sigma^*}$, we define $\abs$ as follows.
+%
+\begin{align*}
+    \abs{H \wedgevee H'} &= \abs{H} \wedgevee \abs{H'}
+    \\
+    \abs{w} &= \bigwedge \Set{ q }{ q \tow{w} \qfinal \in \QF}
+    \\
+    \abs{\false} &= \false
+    \ .
+\end{align*}
+This means that $\abs$ distributes over disjunctions and conjunctions.
+For a word $w$, it produces the conjunctions of the states $q$ so that $A$ has an accepting run on $w$ from $q$.
+
+Since formally, $\domainc{\ground}$ and $\domaina{\ground}$ are equivalence classes of (sets of) formulas, we should argue that $\abs$ is well-defined.
+It is sufficient to argue that $\abs$ is monotonic: $\sof \lleq \sof'$ implies $\abs{\sof} \lleq \abs{\sof'}$.
+For individual formulas, it is easy to show that $H \lleq H'$ implies $\abs{H} \lleq \abs{H'}$ with the same line of reasoning as in \cref{Lemma:HORSSolvingPredecMonotonic}.
+For sets of formulas, we observe that $\sof \lleq \sof'$ means that for every $H \in \sof$, there is some $H' \in \sof'$ so that $H \lleq H'$.
+This is because we have defined the evaluation semantics to treat sets of formulas as disjunctions.
+Hence, for every disjunct $\abs{H}$ of $\abs{\sof}$, there is a disjunct $\abs{H'}$ of $\abs{\sof'}$ so that $\abs{H} \lleq \abs{H'}$.
+We obtain $\abs{\sof} \lleq \abs{\sof'}$ as desired.
+
+In order to be able to use exact fixed-point transfer, we need to show that $\abs$ is precise.
+
+
+\begin{lemma}
+    The abstraction function $\abs$ is precise.
+\end{lemma}
+
+\begin{proof}
+    We use the definition of precision, \cref{Definition:HORSEFPTPrecise}, and our outline, \cref{Figure:HORSEFPTCheatSheet}.
+
+    \subparagraph{Property~\ref{Property:HORSPrecisionBottom}}
+    %
+    The least element of $\domainc{\ground}$ is the (equivalence class of the) set $\set{\false}$.
+    Its $\abs$-value is the disjunction with the unique disjunct $\abs{\false} = \false$, which is the least element of $\domaina{\ground}$.
+
+    \subparagraph{Property~\ref{Property:HORSPrecisionCont}}
+    %
+    We consider join-continuity.
+    Let ${(\sof_i)}_{i \in \N}$ be an ascending chain of sets of formulas, and note that their join in $\domainc{\ground}$ is the union $\bigcup_{i \in \N} \sof_i$, corresponding to the disjunction of all formulas contained in some $\sof_i$.
+    We have that the join of the $\abs{\sof_i}$ is the disjunction $\bigsqcup_{i \in \N} \abs{\sof_i} = \bigvee_{H \in \sof_i \text{ for some } i \in \N} \abs{H}$, which equals $\abs{ \bigcup_{i \in \N} \sof_i  }$.
+
+    \subparagraph{Property~\ref{Property:HORSPrecisionCompatibility}}
+    %
+    We prove that the concrete interpretations of the terminals are compatible.
+    For the word-end marker, the interpretation is not a function and there is nothing to show.
+    The abstraction function $\abs$ distributing over disjunction and conjunction means the concrete interpretations of the terminals of the shape $\brancht_F$ are compatible.
+
+    Let $a \in \Sigma$ be a letter and consider elements of $\domainc{\ground}$ whose abstractions coincide.
+    Here, it is important to take into account that the equality of equivalence classes means that their representatives are logically equivalent.
+    Hence, consider $\sof, \sof'$ so that $\abs{\sof} \lequiv \abs{\sof'}$.
+    Using the definition of $\abs$, $\abs{\sof} \lequiv \abs{\sof'}$ means $\bigvee_{H \in \sof} \abs{H} \lequiv \bigvee_{H' \in \sof'} \abs{H'}$.
+    As in the above proof that $\abs$ is well-defined, this means that for every $H \in \sof$, there is some $H' \in \sof'$ so that $\abs{H} \lleq \abs{H'}$ and vice versa.
+
+    We need to show $\abs{\prepend{a}{\sof}} \lequiv \abs{\prepend{a}{\sof'}}$.
+    Using the definition of the prepend function and of $\abs$, this is equivalent to showing
+    \[
+        \bigvee_{H \in \sof} \abs{\prepend{a}{H}} \lequiv \bigvee_{H' \in \sof'} \abs{\prepend{a}{H'}}
+        \ .
+    \]
+    We use the characterization of the equivalence of disjunctions again and get that we have to show that for every $H \in \sof$, there is some $H' \in \sof'$ so that $\abs{\prepend{a}{H}} \lleq \abs{\prepend{a}{H'}}$ and vice versa.
+    If we show that $\abs{H} \lleq \abs{H'}$ implies $\abs{\prepend{a}{H}} \lleq \abs{\prepend{a}{H'}}$, we are done.
+    We proceed by a nested induction on $H$ and $H'$.
+    In the base case of the inner induction, both $H = w$ and $H' = w'$ are atoms, words over $\Sigma$.
+    We have $\abs{H} = \bigwedge Q_w$ with $Q_w = \Set{ q }{ q \tow{w} \qfinal \in \QF}$, and $\abs{H'} = \bigwedge Q_{w'}$ with $Q_{w'} = \Set{ q }{ q \tow{w'} \qfinal \in \QF}$.
+    Similarly, $\abs{\prepend{a}{H}} = \abs{aw} = \bigwedge Q_{aw}$ and $\abs{\prepend{a}{H'}} = \abs{aw'} = \bigwedge Q_{aw'}$ with $Q_{aw} = \Set{ q }{ q \tow{aw} \qfinal \in \QF}$ and $Q_{aw'} = \Set{ q }{ q \tow{aw'} \qfinal \in \QF}$.
+    Observe that for two sets of states $Q', Q'' \subseteq Q$, we have $\bigwedge Q' \lleq \bigwedge Q''$ if and only if $Q'' \subseteq Q'$.
+    Since we assume that $\abs{H} \lleq \abs{H'}$, we get $Q_{w'} \subseteq Q_{w}$.
+    Furthermore, we have that $Q_{aw} = \pre{A}{a}{Q_w}$ is the set of $a$-predecessors of $Q_{w}$ in $A$, similarly $Q_{aw'} = \pre{A}{a}{Q_w'}$.
+    The predecessor function $\pre{A}{a}{-}$ is monotonic with respect to the set of states, so $Q_{w'} \subseteq Q_{w}$ implies $Q_{aw'} \subseteq Q_{aw}$.
+    This means the desired implication $\abs{\prepend{a}{H}} = \bigwedge Q_{aw} \lleq \bigwedge Q_{aw'} = \abs{\prepend{a}{H'}}$ holds.
+    This finishes the base case of the inner induction.
+    The induction steps can be proven analogously to the proof of \cref{Lemma:HORSSolvingPredecMonotonic}, using the fact that $\abs$ distributes over conjunctions and disjunctions.
+    We forgo giving the formal proof.
+
+    \subparagraph{Property~\ref{Property:HORSPrecisionInterpretations}}
+    %
+    Finally, we need to prove that the abstractions of the concrete interpretations are $\approx$-equivalent to the abstract interpretations.
+    For the word end marker, we have
+    \[
+        \abs{\wordend^{\interpretationc}} = \abs{ \set{\eps}} = \abs{\eps} = \bigwedge \QF = \wordend^{\interpretationa}
+        \ .
+    \]
+    Since the terminals of the shape $\brancht_F$ are interpreted as conjunctions \resp disjunctions in both domains, the desired property holds.
+    It remains to consider a letter $a \in \Sigma$. Let $\sof \in \domainc{\ground}$.
+    We need to show $\abs{ a^{\interpretationc} \appl \sof } = a^{\interpretationa} \appl \abs{\sof}$.
+    We have
+    \[
+        \abs{ a^{\interpretationc} \appl \sof }
+        \ = \ \abs{ \prepend{a}{\sof}}
+        \ = \ \abs \big( \bigcup_{H \in \sof} \prepend{a}{H} \big)
+        \ = \bigvee_{H \in \sof} \abs{\prepend{a}{H}}
+    \]
+    and
+    \begin{align*}
+        a^{\interpretationa} \appl \abs{\sof}
+        &= \predec{a}{\abs{\sof}}
+        % \ = \ \predec{a} \big( \abs \big( \bigcup_{H \in \sof} H \big) \big)
+        % \\
+        % &
+        = \predec{a} \big( \bigvee_{H \in \sof} \abs{H} \big)
+        \ = \bigvee_{H \in \sof} \predec{a}{\abs{H}}
+    \end{align*}
+    using the definitions of $\prepend{a}$, $\predec{a}$, and $\abs$.
+    If we show $\abs{\prepend{a}{H}} = \predec{a}{\abs{H}}$, we are done.
+    We proceed by induction on the structure.
+    In the base case, $H = w$ and
+    \begin{align*}
+        \abs{\prepend{a}{w}}
+        &=
+        \abs{aw}
+        \ =
+        \bigwedge_{q \colon q \tow{aw} \qfinal \in \QF} q
+        \ =
+        \bigwedge_{q' \colon q \tow{w} \qfinal \in \QF}
+        \bigwedge_{q \colon q' \tow{a} q} q
+        \\
+        &=
+        \predec{a} \big( \bigwedge_{q' \colon q \tow{w} \qfinal \in \QF} q' \big)
+        \ = \
+        \predec{a}{\abs{w} }
+        \ .
+    \end{align*}
+    The induction step is again trivial because all involved functions distribute over conjunctions and disjunctions.
+    This completes the proof.
+\end{proof}
+
+The fact that $\abs$ is precise allows us to use \cref{Theorem:HORSEFPT} \resp \cref{Corollary:HORSEFPT}.
+
+\begin{corollary}%
+\label{Corollary:HORSSolvingEFPT}%
+    We have $\abs{\solc} \approx \sola$. In particular, for the initial symbol $S$ of the HORS of kind $\ground$, we have $\abs{\solc}(S) = \sola{S}$.
+\end{corollary}
+
+\paragraph{Determining the winner}
+
+We have proven in the form of \cref{Theorem:HORSConcreteSol} that the existential player wins the higher-order inclusion game iff $\solc{S}$ is satisfied by the language $\overline{\lang{A}}$.
+It remains to see how this property can be translated to the abstract domain.
+The following lemma establishes the \nb{desired connection}.
+
+\begin{lemma}%
+\label{Lemma:HORSSolvingAbsSatisfied}%
+    For $\sof \in \domainc{\ground}$, $\sof$ is satisfied by $\overline{\lang{A}}$ if and only if $\abs{\sof}$ is satisfied by $Q \setminus \qinit$, where $\qinit$ is the initial state of $A$.
+\end{lemma}
+
+\begin{proof}
+    By definition, $\sof$ is satisfied by $\overline{\lang{A}}$ if and only if at least one formula $H \in \sof$ is satisfied by $\overline{\lang{A}}$.
+    Similarly, $\abs{\sof} = \bigvee_{H \in \sof} \abs{H}$ is satisfied by $Q \setminus \set{\qinit}$ if and only if at least one $\abs{H}$ is satisfied by $Q \setminus \set{\qinit}$.
+    If we prove that every formula $H$ is satisfied by $\overline{\lang{A}}$ iff $\abs{H}$ is satisfied by $Q \setminus \set{\qinit}$, we are done.
+    We proceed by induction on the structure of $H$.
+    In the base case, we have $H = w$.
+    This formula is satisfied by $\overline{\lang{A}}$ iff $w \in \overline{\lang{A}}$, \ie $w \not\in \lang{A}$.
+    This means that $A$ has no accepting run on $w$, no run from the initial state $\qinit$ to a final state.
+    Every run of $A$ that ends in a final state and processes word~$w$ must not start in the initial state.
+
+    Recall that $\abs{w}$ is the conjunction of the states $q$ so that $q \tow{w} \qfinal \in \QF$.
+    This conjunction is satisfied by $Q \setminus \set{\qinit}$ if and only if $\qinit$ is not one of these states, \ie if $\qinit \tow{w} \qfinal \in \QF$ does not hold.
+    This proves the desired equivalence.
+    Because $\abs$ distributes over conjunctions and disjunctions, the induction step is again trivial.
+\end{proof}
+
+With the previous lemma, we finally obtain a characterization of the winner of the higher-order inclusion game in terms of the abstract least solution.
+
+\begin{theorem}
+    The existential player has a winning strategy for the higher-order inclusion game iff $\sola{S}$ is satisfied by $Q \setminus \set{\qinit}$.
+\end{theorem}
+
+\begin{shortproof}
+    \cref{Theorem:HORSConcreteSol}, \cref{Corollary:HORSSolvingEFPT}, and \cref{Lemma:HORSSolvingAbsSatisfied}.
+\end{shortproof}
+
+We have already argued that $\sola$ can be computed because the domains that are used in the fixed-point iteration are finite.
+Hence, we in particular get the decidability of higher-order inclusion games as a result.
+
+\begin{corollary}
+    Higher-order inclusion games with a regular target language are decidable.
+\end{corollary}
+
+We state the algorithm that, given an instance $(G,A)$ of a higher-order inclusion game, computes the winner, \ie the player who has a winning strategy.
+
+Given an instance $(G,A)$, it works as follows.
+
+\begin{enumerate}
+    \item
+        Determinize the given game HORS $G$.
+    \item
+        Construct the system of equations associated to the determinization of $G$ as described in \cref{Section:HORSTemplate}.
+    \item
+        Solve the system of equations interpreted over the abstract model $\modela$.
+        \begin{itemize}
+            \item
+                Initialize $\sola{0}{F} = \bota{\kappa}$ for each nonterminal $F$ of kind $\kappa$.
+            \item
+                Starting with $i = 0$, compute $\solai{i+1}$ by evaluating the interpreted right-hand sides of the equations at $\solai{i}$.
+                For each nonterminal $F$, we set
+                \[
+                    \sola{i+1}{F} = \sema{t}{\solai{i}}
+                    \ ,
+                \]
+                where $F \to t$ is the unique rule for $F$ in the determinization of $G$.
+
+                While $\soli{i+1} \neq \soli{i}$, increment $i$ and repeat this step.
+            \item
+                Let $i_0$ be the first index so that $\solai{i_0} = \solai{i_0 + 1}$.
+        \end{itemize}
+    \item
+        The existential player has a winning strategy from $S$ if and only if $\sola{i_0}{S}$ evaluates to true under the assignment $Q \setminus \set{\qinit}$.
+\end{enumerate}
+
+Note that the equality $\solai{i_0} = \solai{i_0 + 1}$ in Step~3 of the algorithm means that for each nonterminal $F$ of $\kappa$, $\soli{i_0}{F} = \soli{i_0 + 1}{F}$, where the two values are from $\domaina{\kappa}$.
+If $F$ is of kind ground, this means the two values are equivalence classes of formulas in $\pBF\paren{Q}$ and we need to check the implication $\soli{i_0 + 1}{F} \lleq \soli{i_0}{F}$.
+(The implication in the other direction will always hold as the approximants $\solai{i}$ form an ascending chain.)
+If $F$ is of kind $\kappa_1 \to \kappa_2$, $\soli{i_0}{F}$ and $\soli{i_0 + 1}{F}$ are functions, and checking equality means checking for each value in $\domaina{\kappa_1}$ whether the function values of the two functions coincide.
+
+\paragraph{Computational complexity}
+
+We conclude this chapter by analyzing the complexity of solving higher-order inclusion games.
+This complexity of the problem is mostly determined by order $k$ of $G$.
+Recall that the order of a HORS is the maximum order of any of its nonterminals, where the order of a term is the order of the associated kind.
+We will show that the problem is $(k+1)\EXPTIME$-complete, \ie it is complete for the class of problems solvable in deterministic $(k+1)$-fold exponential time.
+For the upper bound, \ie proving membership in $(k+1)\EXPTIME$, we will show the algorithm outlined above achieves this optimal time complexity.
+
+Let us make these statements formal.
+
+\begin{problem}
+    \problemtitle{Solving higher-order inclusions games of order $k$}
+    \probleminput{Game HORS $G$ of order $k$, NFA $A$.}
+    \problemquestion{Does the existential player have a winning strategy for $(G,A)$ \newline from the position $S$?}
+\end{problem}
+
+\begin{theorem}%
+\label{Theorem:HorseSolvingComplexity}%
+    Solving higher-order inclusions games of order $k$ is $(k+1)\EXPTIME$-complete, and the above algorithm achieves this optimal time complexity.
+\end{theorem}
+
+\begin{remark*}
+    The theorem also shows the following.
+    If we do not restrict the order of the input game HORS, then solving higher-order inclusions games is primitive recursive, but non-$\ELEMENTARY$.
+    The time needed to solve the game is described by a tower of exponentials, where the height of the tower depends on a property of the input, namely the highest order of any nonterminal.
+\end{remark*}
+
+\paragraph{Upper bound / Membership}
+
+In order to show that higher-order inclusions games of order $k$ can be solved in $(k+1)\EXPTIME$, we analyze the running time of the above algorithm.
+We start by considering various properties of the domain $\domaina{\kappa}$ for kind $\kappa$.
+
+When we say that a number is $k$-fold exponential in the following, we man that the number can be described as $\kexp{k}{f(\card{Q})}$, where $f$ is a polynomial.
+
+\begin{lemma}%
+\label{Lemma:HorseSolvingSizeAnalysis}%
+    For each kind $\kappa$ of order $k$, the size of $\domaina{\kappa}$ is at most $(k+2)$-fold exponential, the height of $\domaina{\kappa}$ is at most $(k+1)$-fold exponential, and objects from $\domaina{\kappa}$ can be represented using $(k+1)$-fold exponential space.
+\end{lemma}
+
+\begin{proof}
+    We proceed by induction on the order of the kind $\kappa$.
+    In the base case, the order is zero, and the only kind of order zero is $\ground$.
+    Hence, we analyze $\domaina{\ground} = \pBF\paren{Q}/_{\lequiv}$.
+    We may represent (equivalence classes of) formulas in $\domaina{\ground}$ in conjunctive normal form, see \cref{Lemma:CFGamesCNFOperations}.
+    This allows us to identify $\domaina{\ground}$ with $\powerset{\powerset{Q}}$.
+    The size of this domain is $2^{2^{\card{Q}}}$.
+    Additionally, a formula can be represented as a conjunction of at most $2^{\card{Q}}$ different clauses of size at most $\card{Q}$, which is singly exponential.
+    We can analyze the height of the domain using the same reasoning as in the proof of \cref{Proposition:CFGamesComplexityMembership} and get that its height is $2^{\card{Q}}$ as desired.
+
+    Assume we have proven statement for all orders strictly less than $k$.
+    Consider kind $\kappa$ of order $k > 0$.
+    In order to be able to apply the induction hypothesis, we need to conduct an inner induction on the arity of the kind.
+    In the base case, the arity of $\kappa$ is zero.
+    However, this is only possible if $\kappa$ is $\ground$, which violates the assumption that the order is $k > 0$.
+    Hence, our desired statement trivially holds.
+
+    Consider $\kappa = \kappa_1 \to \kappa_2$ of order $k$.
+    We have $\horsorder{\kappa_1 \to \kappa_2} = \max(\horsorder{\kappa_1} +1, \horsorder{\kappa_2})$.
+    This means that $\kappa_1$ has order at most $k-1$ and $\kappa_2$ has order at most $k$.
+    We can apply the induction hypothesis of the outer induction to $\domaina{\kappa_1}$.
+    By the definition of the arity, $\horsarity{\kappa_1 \to \kappa_2} = \horsarity{\kappa_2}+1$, the arity of $\kappa_2$ is strictly less than the arity of $\kappa$.
+    We can apply the induction hypothesis of the outer induction to $\domaina{\kappa_2}$.
+    In summary, we get that the size of $\domaina{\kappa_1}$ is $\kexp{k+1}{f_1}$ for a suitable polynomial $f_1$.
+    Similarly, the size of $\domaina{\kappa_2}$ is $\kexp{k+2}{f_2}$, the height is $\kexp{k+1}{h_2}$, and the space needed to represent an element is $\kexp{k+1}{g_2}$ for suitable \nb{polynomials $f_2$, $h_2, g_2$}.
+
+    Let us analyze $\domaina{\kappa_1 \to \kappa_2}$, which is a subset of the set of functions from $\domaina{\kappa_1}$ to $\domaina{\kappa_2}$.
+    Hence, the height and size of $\domaina{\kappa_1} \to \domaina{\kappa_2}$ bound the height and size of $\domaina{\kappa_1 \to \kappa_2}$.
+    %
+    An element of $\domaina{\kappa_1 \to \kappa_2}$ can be represented as a map that assigns a function value from $\domaina{\kappa_2}$ to each of the
+    $\card{\domaina{\kappa_1}}$ elements of $\domaina{\kappa_1}$.
+    Each function value can be represented using $\kexp{k+1}{g_2}$ space, so the function itself can be represented using
+    \begin{align*}
+        \kexp{k+1}{f_1} \cdot \kexp{k+1}{g_2}
+        &=
+        2^{\kexp{k}{f_1}} \cdot 2^{\kexp{k}{g_2}}
+        =
+        2^{\kexp{k}{f_1} + \kexp{k}{g_2}}
+        \\
+        &\leq
+        2^{\kexp{k}{f_1 \cdot g_2}}
+        =
+        \kexp{k+1}{f_1 \cdot g_2}
+    \end{align*}
+    space.
+    The size of $\domaina{\kappa_1} \to \domaina{\kappa_2}$ is bounded by
+    \begin{align*}
+        \card{\domaina{\kappa_2}}^{\card{\domaina{\kappa_1}}}
+        &=
+        {\big(\kexp{k+2}{f_2}\big)}^{\kexp{k+1}{f_1}}
+        \\
+        &= {\big(2^{\kexp{k+1}{f_2}}\big)}^{\kexp{k+1}{f_1}}
+        = 2^{\kexp{k+1}{f_2} \ \cdot \ \kexp{k+1}{f_1}}
+        \\
+        &\leq 2^{\kexp{k+1}{f_2 \cdot f_1}}
+        = \kexp{k+2}{f_2 \cdot f_1}
+        \ .
+    \end{align*}
+    Finally, we observe that a chain in $\domaina{\kappa_1} \to \domaina{\kappa_2}$ can be decomposed into at most $\card{\domaina{\kappa_1}}$ chains in $\domaina{\kappa_2}$, one chain for each value in the domain of the functions.
+    The length of each such component chain is bounded by the height of $\domaina{\kappa_2}$.
+    Altogether, the height of $\domaina{\kappa_1} \to \domaina{\kappa_2}$ is bounded by
+    \[
+        \kexp{k+1}{f_1} \cdot \kexp{k+1}{h_2}
+        \leq
+        \kexp{k+1}{f_1 \cdot h_2}
+        \ .
+    \]
+    This completes the induction step of the inner induction, which also finishes the induction step of the outer induction and the proof.
+\end{proof}
+
+With the technical lemma at hand, we can prove one direction of \cref{Theorem:HorseSolvingComplexity}.
+
+\begin{proposition}%
+\label{Proposition:HorseSolvingMembership}%
+    The above algorithm solves higher-order inclusions games of order $k$ in $(k+1)\EXPTIME$.
+\end{proposition}
+
+\begin{proof}
+    We analyze the time needed for each step of the algorithm.
+    In contrast to the determinization of NFAs, the determinization of HORSes can be completed in polynomial time, and the result is a deterministic HORS of polynomial size.
+    Constructing the associated system of equations can also be done in polynomial time.
+
+    Assume we had obtained $\sola{i_0}{S}$, the least solution associated to the initial symbol $S$.
+    Since $S$ is of kind ground, $\sola{i_0}{S}$ is a value of $\domaina{\ground}$ whose size is at most exponential by \cref{Lemma:HorseSolvingSizeAnalysis}.
+    This value is at most $(k+1)$-fold exponential for all $k \in \N$.
+    Evaluating this formula for the assignment $Q \setminus \set{\qinit}$ can be done in time polynomial in the size of the formula.
+
+    It remains to analyze the cost of solving the interpreted system of equations.
+    This cost is determined by two factors: the maximum number of iterations and the cost per iterations.
+    The approximants $\solai{i}$ form a chain in $N \to \domaina$, the domain of valuations from nonterminals to $\domaina$
+    Hence, the height of this domain bounds the number of iterations.
+    The height of the domain of valuations is the product of the heights of the domains $\domaina{\kappa}$ associated to the kind $\kappa$ of each nonterminal.
+    In the worst case, the order of each $\kappa$ is the maximum order $k$, so $\domaina{\kappa}$ has $(k+1)$-fold exponential height by \cref{Lemma:HorseSolvingSizeAnalysis}.
+    In this case, the total height is $\card{N}$ times a $(k+1)$-fold exponential number, which is a $(k+1)$-fold exponential number.
+
+    If we prove that each iteration of the loop needs at most $(k+1)$-fold exponential time, we are done.
+    The number of operations needed for each iteration is polynomial in the size of the determinized scheme, which is polynomial in the size of the original HORS.\@
+    We need to argue that each operation itself can be completed in $(k+1)$-fold exponential time.
+    Here, we need to be careful.
+    When evaluating \eg $\sema{t}{\solai{i}}$ for some term $t$, we will encounter subterms $t'$ that are not variable free.
+    For these subterms, the semantics is not simply a value from $\domaina{\kappa'}$, where $\kappa'$ is the kind of $t'$.
+    Instead, it is a function $(V \pto \domaina) \to \domaina{\kappa'}$ that takes a valuation that assigns values to the free variables of $t'$.
+    We will need to argue that each such function can be represented using space at most $(k+1)$-fold exponential.
+
+    We make the following observation.
+    If $k$ is the maximum order of any nonterminal in $G$, then $k-1$ is the maximum order of any variable that is used on the right-hand sides of the rules for $G$.
+    Assume the contrary and consider a term $\lambda x . t$.
+    Its kind is $\kappa_1 \to \kappa_2$, where $\kappa_1$ is the kind of $x$ and $\kappa_2$ is the kind of $t$.
+    The order of $\kappa_1 \to \kappa_2$ is $\max(\horsorder{\kappa_1} +1, \horsorder{\kappa_2})$.
+    If variable $x$ were of order $k$ or higher, the term $\lambda x . t$ would be of order at least $k+1$.
+    Since the kinds of the terms on the right-hand sides of HORS rules coincide with the kinds of the variables, and the highest order of any nonterminal is $k$, we are not able to use a variable of order more than $k-1$.
+
+    Using the observation, we get that each valuation assigns at most a value from $\domaina{\kappa}$ to each variable, where $\kappa$ is of order at most $k-1$.
+    With the same argumentation as in the proof of \cref{Lemma:HorseSolvingSizeAnalysis}, we obtain that the number of such valuations is at most $(k+1)$-fold exponential.
+    Hence, each function with signature $(V \pto \domaina) \to \domaina{\kappa'}$ can be represented using $(k+1)$-fold exponential space.
+    It remains to note that all operations that we need to compute, \eg function applications, disjunctions and conjunctions, and predecessor computations, can be conducted in time polynomial in the size of the objects that are involved.
+    As we have just argued, the size of each object involved is at most $(k+1)$-fold exponential, so each operation can be computed in $(k+1)$-fold exponential time.
+    This completes the proof.
+\end{proof}
+
+\paragraph{Hardness / Lower bound}
+
+To show that solving games define by a HORS of order $k$ is $(k+1)\EXPTIME$ complete, it remains to provide a matching lower bound, showing the hardness of the problem.
+
+\begin{proposition}%
+\label{Proposition:HorseSolvingHardness}%
+    Solving higher-order inclusions games of order $k$ is $(k+1)\EXPTIME$-hard.
+\end{proposition}
+
+The author conjectures that one could prove this proposition similar to the proof of \cref{Theorem:CFGamesComplexityHardness}.
+This means one would use $(k+1)\EXPTIME = k\AEXPSPACE$ and try to simulate an alternating Turing machine with $k$-fold exponential space consumption by a higher-order inclusion game.
+This would require accurately generating configurations of length $\kexp{k}{n}$, where $n$ is the size of the input of the machine.
+To this end, it should be possible to use the fact that HORSes can be used to generate $k$-fold exponential numbers~\cite{CachatW07}.
+
+However, this is not the approach to the proof that we will take in the following.
+Instead, we will give a reduction from another kind of automata model.
+Introducing this automata model in full detail would be beyond the scope of this thesis.
+We will give a sketch of the proof and refer to our publication~\cite{HagueMM17} \resp its full version~\cite{HagueMM17a} for the technical details.
+
+\begin{proof}[Proof sketch for \cref{Proposition:HorseSolvingHardness}]
+    We reduce the word problem for the languages of alternating order-$k$ pushdown automata with a work tape.
+    At the end of \cref{Section:HORS}, we have explained that there is a generalization of pushdown automata that is polynomially equivalent~\cite{KnapikNU02} to a subclass of HORSes.
+    An \emph{order-$k$ pushdown} is a pushdown automaton that mains an order-$k$ stack, where an order-one stack is a normal stack consisting of symbols, while an order-$n$ stack for $n > 1$ is a stack of order-$(n-1)$ stacks.
+    \emph{Alternating automata} are defined, similar to alternating pushdown machines, by partitioning the control states into existential and universal control states.
+    In contrast to Turing machines, the word that should be processed is not initially written on a tape.
+    Instead, it is read letter-by-letter.
+    If the automaton is in an existential control state and it reads letter $a$, there needs to be an $a$-labeled transition that can be continued, resulting in an accepting run.
+    If the automaton is in a universal control state and it reads letter $a$, there needs to be an accepting run no matter which $a$-labeled transition is chosen.
+    An \emph{automaton with a work tape} has a tape of polynomial length that it can use to store information during its computation.
+    Combining these three properties leads to the aforementioned model of \emph{alternating order-$k$ pushdown automata with a work tape}.
+
+    \citea{Engelfriet91} has shown that the word problem for this model, given a word $w$ and an alternating order-$k$ pushdown automata with a work tape $B$, decide whether $w \in \lang{B}$ holds, is $(k+1)\EXPTIME$-complete.
+    If we manage to encode this word problem into an instance of a HORS game $(G,A)$ where $G$ and $A$ are of size polynomial in $\card{w} + \card{B}$ and $G$ has order $k$, we obtain the desired result.
+
+    The first step is to get rid of the work tape.
+    To this end, we first construct a DFA for the singleton language $\set{w}$.
+    We then take the product of this DFA and $B$, and get an alternating order-$k$ pushdown automaton with a work tape whose language is either empty if $w \not\in \lang{B}$, or it is equal to $\set{w}$ if $w \in \lang{B}$.
+    In this automaton, the language does not play a role anymore, it just matters whether a final state can be reached.
+    Hence, we can redefine the automaton to not read word $w$, but instead read the sequence of worktape contents that occur during the computation.
+    (Here, it is more intuitive to think of the pushdown automaton as an automaton that generates words rather than reading them.)
+    If we drop the worktape of $B$, we are not actually able to output the precise worktape content.
+    Instead, we will have to guess a worktape content.
+    For the cell of the worktape that is the current head position, we can make sure that the output is consistent with the transition of $B$ that was used.
+    For the rest of the cells, we simply have to guess.
+    The technical details can be found in the proof of Proposition~20 in~\cite{HagueMM17a}.
+    Let $B'$ be the alternating order-$k$ pushdown automaton without a worktape that is the \nb{result of this operation}.
+
+    An accepting computation of $B'$ producing some word $v$ corresponds to an accepting computation of $B$ for word $w$ if and only if $v$ corresponds to a valid sequence of worktape contents.
+    In order to verify the latter, we design an NFA $A$ of polynomial size.
+    It accepts $v$ iff $v$ is not a valid sequence of worktape contents.
+    The idea behind this construction is similar to the construction of the NFA in the proof of \cref{Theorem:CFGamesComplexityHardness}.
+    The NFA essentially detects if the head has been moved in an illegal way or if the tape content has been modified in an illegal way.
+    Again, we omit the details of the construction.
+    We get that $w \not\in \lang{B}$ if and only if $B$ has no accepting computation for $w$, which is the case if and only if every output of $B'$ is accepted by $A$.
+    We have reduced the problem of checking $w \in \lang{B}$ to deciding the inclusion $\lang{B'} \subseteq \lang{A}$.
+
+    It remains to encode checking $\lang{B'} \subseteq \lang{A}$ as a higher-order inclusion game.
+    It is well-known that order-$k$ pushdown automata can be translated into HORSes of order $k$ of polynomial size~\cite{KnapikNU02}.
+    This construction can be extended so that it translates an alternating order-$k$ pushdown automaton into a game HORS of order $k$.
+    Basically, the players of the game HORS correspond to the alternation in the automaton.
+    We apply this construction to $B'$, obtaining a HORS $G$.
+    For the details of the translation, we gain refer to~\cite{HagueMM17a}.
+
+    Finally, we make use of the fact that we consider inclusion games where the winning condition for the existential player is non-membership in a given regular language.
+    The existential player wins $(G,A)$ if and only if she can enforce producing a word $v$ not in $A$, which is the case if and only if the inclusion $\lang{B'} \subseteq \lang{A}$ does not hold, which is the case if and only if $w \in \lang{B}$.
+    Hence, the reduction that takes as input $w$ and $B$ and returns $G$ and $A$ is as required and proves that solving higher-order inclusions games of order $k$ is $(k+1)\EXPTIME$-hard.
+\end{proof}
+
+Together, \cref{Proposition:HorseSolvingMembership} and \cref{Proposition:HorseSolvingHardness} prove \cref{Theorem:HorseSolvingComplexity}.
+We finish this chapter with some concluding remarks on the case that the HORS has order one or zero.
+
+\paragraph{Game HORSes of order zero}
+
+Let us consider the case of a higher-order inclusion game $(G,A)$ where $G$ has order zero.
+This means that the nonterminals of $G$ do not represent functions, but rather they are just values.
+In particular, the right-hand sides of the rules of $G$ do not use any variables.
+Additionally, since the nonterminals represent values, they can only be used as the rightmost symbol in a term of the shape $a_1 ( \ldots a_n (F)\ldots)$.
+This means that HORSes of order zero are equivalent to right-linear grammars, a special type of context-free grammars.
+In a right-linear grammar, the right-hand side of each rule either contains no nonterminal, or it contains a single nonterminal that is the rightmost symbol.
+By translating nonterminals into states, it is easy to convert a right-linear grammar to a finite automaton; the class of languages of right-linear grammars (\resp word-generating HORSes of order zero) is the class of regular languages.
+
+\cref{Theorem:HorseSolvingComplexity} states that higher-order inclusion games are $\EXPTIME$-complete when the HORS is of order zero.
+Let us inspect our proofs for that case.
+In the proof of the upper bound, \cref{Proposition:CFGamesComplexityMembership}, there is a small difficulty that we have swept under the carpet.
+Even though the HORS is of order zero, which means that all its nonterminals are of order zero, the right-hand sides of the rules can contain terminals of order one.
+Namely, they may contain terminals of the shape $a \in \Sigma$ or of the shape $\brancht_F$ as introduced by the determinization of the HORS.\@
+This intricacy is unique to the case of HORSes of order zero.
+Luckily, we will never have to explicitly represent the interpretation of a terminal as a function.
+To be able to conduct Kleene iteration, it is sufficient to be able to apply these functions, \ie to compute the predecessors and to compute disjunctions and conjunctions, in singly exponential time to formulas of exponential size.
+Our upper bound holds for order zero.
+
+For the lower bound, we need to inspect the results we rely on.
+Firstly, note that an order-$0$ pushdown is simply a finite automaton.
+Engelfriet's results~\cite{Engelfriet91} imply that the word problem for alternating finite automata with a work tape is $\EXPTIME$-complete.
+The rest of the proof of the lower bound, \cref{Proposition:CFGamesComplexityMembership} also works:
+We can translate the word problem for alternating finite automata with a work tape into an inclusion problem whose left-hand side is given by an alternating finite automaton (without work-tape), and then translate this problem into a higher-order inclusion game of order zero.
+
+It would also be possible to obtain a different proof for the $\EXPTIME$-hardness based on our proof of \cref{Theorem:CFGamesComplexityHardness}.
+In that proof, we have simulated an alternating Turing machine with exponential space consumption by constructing a context-free inclusion game that proceeds in two phases.
+The second phase of the game was used to be able to handle configurations of exponential length with a finite automaton of polynomial size.
+If we are only allowed to use a game grammar that is right-linear (or, equivalently, a game HORS of order zero), we cannot implement that second phase.
+However, this still allows us to simulate an alternating Turing machine with polynomial space consumption.
+Using $\mathsf{APSPACE} = \EXPTIME$, we get the desired result.
+
+\paragraph{Game HORSes of order one}
+
+Consider higher-order inclusion games $(G,A)$ where the game HORS~$G$ is of order one.
+In this case, \cref{Theorem:HorseSolvingComplexity} states that solving these games is $2\EXPTIME$-complete.
+
+This should not be surprising.
+In \cref{Example:HORSfromCFG}, we have seen that a context-free grammar can be translated into a HORS of order one.
+If we apply this construction to a game grammar that specifies a context-free inclusion game, we end up with a game HORS of order one such that the two games are equivalent.
+For context-free inclusion games, we have proven $2\EXPTIME$-completeness in \cref{Section:CFGamesComplexity}.
+
+It might be surprising that when solving context-free inclusion games in \cref{Chapter:ContextFreeGames}, we had to consider positive Boolean formulas over boxes.
+When considering higher-order games, we could get away with using formulas over states.
+This discrepancy is resolved by observing that we associate formulas over states to terms of order zero.
+When translating a CFG into a HORS, the nonterminals of the CFG are turned into symbols of order one.
+The abstract domain for the associated kind is the set of functions from formulas over states to formulas over states.
+The author conjectures that it is possible to convert such a function to a formula over boxes and vice versa.
+
+\end{document}

@@ -1,0 +1,427 @@
+\documentclass[../../diss.tex]{subfiles}
+\begin{document}
+
+\section{Upper bound}%
+\label{Section:PNSeparabilityUpperBound}%
+
+Our upper bound is the following theorem.
+
+\begin{theorem}%
+\label{Theorem:PNSeparabilityUpperBound}%
+    Two labeled Petri net instances with disjoint languages can be separated by a regular language with triply exponential state complexity.
+\end{theorem}
+
+Our proof of the theorem will be constructive in the sense that it provides an invariant in the ideal completion from which one can construct a separating automaton as specified by \cref{Definition:WSTSSeparabilityAutomaton}.
+Before we present the construction, we need to deal with two problems.
+The first one is the minor technicality that we have allowed $\eps$-transitions in Petri nets, but not in WSTSes.
+The second one is the requirement of one of the systems being deterministic.
+We will discuss the latter in more detail after solving the first problem.
+
+Throughout the rest of this section, let $(N_1,M_{\init1},M_{\final1})$ and $(N_2,M_{\init2},M_{\final2})$ be two Petri net instances over some alphabet $\Sigma$ of size $n_1$ and $n_2$, respectively.
+We assume that the coverability languages of the two nets are disjoint.
+
+\paragraph{Eliminating $\eps$-transitions}
+
+Unlike in Petri nets, we have not allowed $\eps$-transitions in WSTSes for reasons that we explained in \cref{Remark:WSTSEpsTransitions}.
+The construction that we will apply to determinize one of the nets will also eliminate $\eps$-transitions in that net as a by-product.
+To handle $\eps$-transitions in the other net, we apply a preprocessing step.
+It is designed so that it does not change the fact that the nets are language-disjoint, and it has no substantial influence on the size of the separating automaton.
+
+Assume that net $N_1$ contains transitions labeled by $\eps$.
+To eliminate them, we consider a fresh letter $a \not\in \Sigma$ and define $\Sigma_a = \Sigma \dotcup \set{a}$.
+We relabel all $\eps$-transitions in $N_1$ by letter $a$, resulting in the net $N_1'$.
+The initial and final marking remain unchanged.
+
+To account for the changes to $N_1$ in the other net, we add a fresh transition $t_a$ to $N_2$ that is labeled by $a$ and that does neither consume nor produce any tokens, $\i(t_a) = \o(t_a) = \vec{0}$.
+Let the resulting net be $N_2'$.
+Again, we do not change the initial or the final marking.
+
+Firstly, observe that the size of $N_1$ and $N_2$ is polynomial in the size of $N_1$ and $N_2$, respectively.
+Secondly, we will prove that a separator for the original nets can be turned into a separator for the modified nets and vice versa, where both transformations impose a blow up of the separating automaton that is at most polynomial.
+
+\begin{lemma}%
+\label{Lemma:PNSeparabilityEliminatingEpsilon}%
+    The languages of $N_1$ and $N_2$ are regularly separable iff the languages of $N_1'$ and $N_2'$ are.
+\end{lemma}
+
+\begin{proof}
+    Assume that $A$ is an NFA over $\Sigma$ whose language $\lang{A}$ is a regular separator for $\lang{N_1,M_{\init1},M_{\final1}}$ and $\lang{N_2,M_{\init2},M_{\final2}}$.
+    We define $A'$ over $\Sigma_a$ by adding an $a$-labeled self-loop $q \tow{a} q$ to every state $q$ of $A$.
+    Clearly, the size of $A'$ is polynomial in the size of $A$.
+    It remains to show that its language separates $\lang{N_1',M_{\init1},M_{\final1}}$ and $\lang{N_2',M_{\init2},M_{\final2}}$.
+
+    We first show $\lang{N_1',M_{\init1},M_{\final1}} \subseteq \lang{A'}$.
+    Consider a covering computation $M_{\init1} \fire{\sigma} M \geq M_{\final1}$ of $N_1'$.
+    It is also a covering computation of $N_1$, because the two nets differ only in their transition labels.
+    Hence, $\lambda(\sigma) \in \lang{A}$ since $\lang{A}$ is assumed to be a separator.
+    By using the $a$-labeled self-loops that are present in $A'$, we turn an accepting run of~$A$  on $\lambda(\sigma)$ in into an accepting run of $A'$ on $\lambda'(\sigma)$, which completes the argument.
+
+    To see that $\lang{A'} \cap \lang{N_2',M_{\init2},M_{\final2}} = \emptyset$, assume towards a contradiction that some word $w' \in \Sigma_a^*$ is contained in the intersection.
+    Define word $w \in \Sigma^*$ by projecting $w'$ to $\Sigma$, \ie by removing all occurrences of letter $a$.
+    We claim that $w \in \lang{A} \cap \lang{N_2,M_{\init2},M_{\final2}}$.
+    The only way of generating letter $a$ in automaton $A'$ is using the $a$-labeled self-loops.
+    By removing all of them, we turn an accepting run of $A'$ on $w'$ into an accepting run of $A$ on $w$.
+    Similarly, a covering computation of $N_2'$ for $w'$ can be turned into a covering computation of $N_2$ for $w$ by removing all occurrences of transition $t_a$.
+    Hence, $w \in \lang{A} \cap \lang{N_2,M_{\init2},M_{\final2}}$ which is a contradiction to the assumption that $\lang{A}$ is a separator.
+
+    For the other direction, assume that the language of some NFA $A'$ separates $\lang{N_1',M_{\init1},M_{\final1}}$ and $\lang{N_2',M_{\init2},M_{\final2}}$.
+    We define $A$ by relabeling all $a$-transitions of $A'$ to $\eps$.
+    The resulting automaton has the same size as $A'$, but may contain $\eps$-transitions.
+    However, it is well-known that these transitions can be eliminated without introducing additional states.
+
+    We show that $\lang{N_1,M_{\init1},M_{\final1}} \subseteq \lang{A}$.
+    Assume $w \in \lang{N_1,M_{\init1},M_{\final1}}$, and consider a covering computation $M_{\init1} \fire{\sigma} M \geq M_{\final1}$ of $N_1$ with $\lambda(\sigma) = w$.
+    We may see this computation as a computation of $N_1'$ that produces the word $w' = \lambda'(\sigma)$, and use the assumption that $\lang{A'}$ is a separator to conclude $w' \in \lang{A'}$.
+    Because $w$ is obtained from $w'$ by removing all occurrences of letter $a$, we obtain $w \in \lang{A}$ as desired.
+
+    Finally, we show $\lang{N_2,M_{\init2},M_{\final2}} \cap \lang{A} = \emptyset$.
+    Assume that word $w$ is contained in $\lang{A}$.
+    We define $w'$ to be a word that is obtained from $w$ by inserting occurrences of letter $a$ so that $w' \in \lang{A'}$.
+    It has to exist by the definition of the automaton $A$.
+    Using that $\lang{A'}$ is a separator, we obtain that $w'$ is not contained in $\lang{N_2',M_{\init2},M_{\final2}}$.
+    Hence, the word $w$ that is re-obtained by removing all occurrences of $a$ cannot be contained in the language of $N_2$:
+    A covering computation of $N_2$ producing $w$ would imply the existence of a covering computation of $N_2'$ producing~$w'$ by inserting occurrences of $t_a$.
+    This finishes the proof.
+\end{proof}
+
+Altogether, we have shown how to eliminate $\eps$-transitions from one of the nets while only introducing a polynomial blowup to the size of the nets and the size of the separator.
+In the rest of this section, we can assume without loss of generality that both Petri nets do not contain $\eps$-labeled transitions.
+
+\paragraph{Enforcing determinism}
+
+\cref{Theorem:WSTSSeparability}, our result that shows that the languages of disjoint WSTSes are regularly separable requires one of the two WSTSes to be deterministic.
+In general, the WSTSes induced by a labeled Petri net will not satisfy this requirement.
+Because the underlying order $(\N^k,\leq)$ of such a WSTS is $\omega^2$, we could use our results on expressiveness, \cref{Lemma:Expressiveness1} in particular, to obtain a deterministic language-equivalent WSTS.\@
+The construction from the proof of \cref{Lemma:Expressiveness1} would provide a WSTS whose underlying order is $(\pwrsetdown{\N^k},\subseteq)$.
+This poses a problem.
+The ideals of $(\pwrsetdown{\N^k},\subseteq)$ are well-understood: They are of the shape $\dcwrt{D}{\subseteq} = \Set{ D' \subseteq D }{ D' \text{ is downward closed in }  \N^k}$, where $D$ ranges over the non-empty downward-closed subsets of $\N^k$~\cite{LazicS15}.
+However, we then would need to obtain a bound on the size of the ideal decomposition of an invariant in this order to obtain a bound on the size of the separating automaton.
+The author did not succeed in proving such a result.
+It seems that the methods that have been developed by \citea{LazicS15} in the context of \emph{alternating} and \emph{branching vector addition systems} do not apply here.
+
+To circumvent the outlined problems, we do not use the construction from the proof of \cref{Lemma:Expressiveness1}.
+Instead, we apply another preprocessing step to one of the Petri net which leads to the induced WSTS becoming deterministic.
+This leads to a separator for the modified nets, but it is not straightforward to obtain the desired separator for the original ones.
+We will discuss this problem in detail after giving the construction.
+
+\paragraph{Enforcing uniqueness}
+
+Assume again that $(N_1,M_{\init1},M_{\final1})$ and $(N_2,M_{\init2},M_{\final2})$ are the given Petri net instances.
+The main challenge in enforcing the WSTS induced by $N_1$ to be deterministic is the requirement that the transition relation has to be unique.
+This requirement is violated as soon as $N_1$ contains two transitions that have the same label, because there is necessarily a marking that is large enough so that both transitions are enabled.
+Hence, we have to equip $N_1$ with the \emph{free labeling}, a labeling that labels each transition by its own name.
+In the freely labeled variant $N_1'$ of $N_1$, the set of transitions $T_1$ is the alphabet and the labeling function is the identity $\id \colon T_1 \to T_1$.
+
+It remains to create a modification $N_2'$ of $N_2$ that also uses $T_1$ as the alphabet.
+In the product of $N_1$ and $N_2$, a transition $t_1$ of $N_1$ can synchronize with all transitions of $t_2$ that have the same label, $\lambda_1(t_1) = \lambda_2(t_2)$.
+The idea behind the construction of $N_2'$ is to preserve this property.
+To this end, we replace each transition $t_2$, say with label $\lambda_2(t_2) = a$, by a bunch of copies $t_2(t_1)$ of $t_2$ in $N_2'$, one copy for each transition $t_1$ of $N_1$ with label $\lambda_1(t_1) = a$.
+The incoming and outgoing multiplicities of each copy $t_2(t_1)$ are equal to those of $t_2$.
+The places, the initial marking, and the final marking of $N_2'$ coincide with $N_2$.
+Net $N_2'$ uses $T_1$ as its alphabet, and each transition $t_2(t_1)$ is labeled by $t_1$.
+
+We argue that this construction accomplishes its intended purpose.
+Firstly, observe that if two transitions $t_1$ in $N_1$ and $t_2$ in $N_2$ can synchronize in the product of the nets, meaning that they have the same label, then the transition $t_1$ in $N_1'$ can synchronize with transition $t_2(t_1)$ in $N_2'$, the $t_1$-labeled copy of $t_2$.
+
+Secondly, the transition relation of $N_1'$ (and the WSTS induced by $N_1'$) is unique since there is only one transition with a specific label.
+However, it is not yet deterministic, since we are missing completeness:
+There may be markings in which the unique transition with a specific label is not enabled.
+This is a minor issue that we will handle later.
+
+Thirdly, there is a strong connection between the languages of $N_1$ and $N_2$ and the languages of $N_1'$ and $N_2'$.
+Consider the labeling function  of $N_1'$, extended into a homomorphism $\lambda_1 \colon T_1^* \to \Sigma^*$.
+We have that $\lang{N_1,M_{\init1},M_{\final1}} = \lambda_1 ( \lang{N_1',M_{\init1},M_{\final1}}   )$
+and $\lang{N_2,M_{\init2},M_{\final2}} = \lambda_1 ( \lang{N_2',M_{\init2},M_{\final2}}   )$.
+This in particular means that the languages of $N_1$ and $N_2$ are disjoint if and only if the languages of $N_1'$ and $N_2'$ are.
+It is easy to see that a word $\sigma \in T_1^*$ that is in the languages of $N_1'$ and $N_2'$ leads to $\lambda_1(\sigma)$ being in the language of $N_1$ and $N_2$.
+For the other direction, consider a word $w \in \Sigma^*$ in the intersection of the languages of $N_1$ and $N_2$, and consider firing sequences $\sigma \in T_1^*$, $\tau \in T_2^*$ that induce the covering computation.
+We immediately get that $\sigma$ is in the language of $N_1'$.
+To see that $\sigma$ is also in the language of $N_2'$, one can use the covering computation induced by the firing sequence $\tau_\sigma$ whose $\nth{i}$ transition is $\tau_i (\sigma_i)$, the $\sigma_i$-labeled copy of $\tau_i$ in $N_2'$.
+
+The most important property is that a regular separator for the languages $N_1'$ and $N_2'$ can be turned in to a regular separator for the languages of the original nets.
+One might expect that if $\calR \subseteq T_1^*$ is a regular language separating the languages of the modified nets, then $\lambda_1(\calR)$ is the desired separator over $\Sigma^*$.
+However, this turns out to be wrong.
+Applying a homomorphism to two disjoint languages can result in two languages with a non-empty intersection.
+Assume that $\calR$ is disjoint from the language of $N_2'$, $\calR \cap \lang{N_2',M_{\init2},M_{\final2}} = \emptyset$.
+Nevertheless, there may be a word $w \in \lambda_1(\calR) \cap \lambda_1(\lang{N_2',M_{\init2},M_{\final2}})$, which means that $\lambda_1(\calR)$ is not disjoint from $\lambda_1(\lang{N_2',M_{\init2},M_{\final2}}) = \lang{N_2,M_{\init2},M_{\final2}}$.
+Since we assume that $\calR$ and the language of $N_2'$ are disjoint, we know that $w$ is not the image of a word over $T_1$ that is both in $\calR$ and in the language of $N_2$.
+However, there may be two words that both have $w$ as their image under $\lambda_1$ such that one of them is in $\calR$ and the other is in the language of $N_2'$.
+Phrased differently, we need that any word in $\lambda_1(\calR)$ has no preimage in the language of $N_2'$, which is a stronger property than disjointness.
+
+This problem can be overcome by using complementation.
+More precisely, let $\calR \subseteq T_1^*$ be a regular language that separates $N_2'$ and $N_1'$ in the sense that $\lang{N_2',M_{\init2},M_{\final2}} \subseteq \calR$ and $\lang{N_1',M_{\init1},M_{\final1}} \cap \calR = \emptyset$.
+Then $\lambda_1(\overline{\calR})$ is a regular separator for the languages of $N_1$ and $N_2$.
+Note that the order of the two input languages is swapped to account for the complementation.
+
+\begin{proposition}%
+\label{Proposition:PNSeparabilityDeterminization}%
+    If $\calR$ regularly separates the languages of $N_2'$ and $N_1'$, then $\lambda_1(\overline{\calR})$ regularly separates the languages of $N_1$ and $N_2$.
+\end{proposition}
+
+\begin{proof}
+    Firstly, observe that our candidate separator is indeed a regular language because the class of regular languages is closed under complementation and homomorphisms.
+    Secondly, we prove $\lang{N_1,M_{\init1},M_{\final1}} \subseteq \lambda_1(\overline{\calR})$.
+    Since $\calR$ separates the languages of $N_2'$ and $N_1'$, its complement $\overline{\calR}$ separates the languages of $N_1'$ and $N_2'$.
+    This in particular means that $\lang{N_1',M_{\init1},M_{\final1}} \subseteq  \overline{\calR}$.
+    Inclusions are preserved under homomorphisms, so we may use $\lang{N_1,M_{\init1},M_{\final1}} = \lambda_1(\lang{N_1',M_{\init1},M_{\final1}})$ to deduce the desired statement.
+
+    Finally, we show that $\lambda_1(\overline{\calR})$ is disjoint from $\lang{N_2,M_{\init2},M_{\final2}}$.
+    Towards a contradiction, assume that there is a word $w \in \Sigma^*$ in the intersection of the languages.
+    On the one hand, this means that there is some sequence $\tau \in \overline{\calR}$ with $\lambda_1(\tau) = w$.
+    Note that this sequence consists of (the names of) transitions of $N_1$.
+    On the other hand, there is a covering computation $M_{\init2} \fire{\sigma} M \geq M_{\final2}$ of net $N_2$ with $\lambda_2(\sigma) = w$.
+    We turn this computation into a computation $\sigma_\tau$ of $N_2'$ as follows:
+    We replace the $\nth{i}$ transition $\sigma_i \in T_2$ of $N_2$ by $\sigma_i(\tau_i)$, the copy of transition $\sigma_i$ in $N_2'$ that is labeled by $\tau_i \in T_1$.
+    This copy indeed exists because after applying the respective labeling functions, we have $\lambda_2(\sigma_i) = \lambda_1(\tau_i) = w_i$.
+%
+    The result is a sequence $\sigma_\tau$ of transitions of $N_2'$ that still induces a covering computation, hence $\lambda_1(\sigma_\tau) \in \lang{N_2',M_{\init2},M_{\final2}}$.
+    Furthermore, the construction ensures that the labeling of $\sigma_\tau$ under the labeling function of $N_2'$ is $\tau \in \overline{\calR}$.
+    This is a contradiction to the assumption that $\overline{\calR}$ and the language of $N_2$ are disjoint because $\calR$ is a regular separator.
+\end{proof}
+
+Unfortunately, applying complementation and a homomorphism has severe impact on the complexity.
+We will prove that for two Petri nets, one of them freely labeled, one can construct a separator with a doubly exponential state complexity.
+This means that we can represent its complement by a DFA with at most triply exponentially many states.
+Applying a homomorphism to this DFA introduces a polynomial blowup to its size, but we lose determinism.
+The final result is an NFA of triply exponential size, proving \cref{Theorem:PNSeparabilityUpperBound}.
+A priori, the index of the separator may be quadruply exponential.
+
+We will later prove a doubly exponential lower bound for the state complexity of regular separators for coverability languages of non-freely labeled Petri nets.
+This matches the upper bound in the case that one of the nets is freely labeled, but not in the general case.
+The author conjectures that the determinization construction in this section can be improved to avoid the exponential blowup introduced by the complement.
+
+\paragraph{Enforcing completeness}
+
+The definition of deterministic WSTSes imposes two restrictions on the transition relation, uniqueness and completeness.
+The above construction ensures that each marking has at most $a$-labeled successor in the WSTS associated to a Petri nets.
+To get determinism, we need also need to guarantee that there is at least one $a$-labeled successor.
+Luckily, enforcing completeness is typically much easier than enforcing uniqueness.
+For example, an NFA can be completed by introducing an additional \emph{error state}.
+A similar trick works in the case of WSTSes.
+
+Let $\wsts = (\configs,\leq,T,\configs_\init, \configs_\final)$ be a labeled WSTS over some alphabet $\Sigma$.
+We define the WSTS $\wstsprime = (\configs \dotcup \set{\bot},\leq,T',\configs_\init,\configs_\final)$ that is obtained by adding a special bottom configuration $\bot$.
+The order $\leq$ on $\configs$ is extended to $\configs \dotcup \set{\bot}$ by defining $\bot \leq c$ for all $c \in \configs \dotcup \set{\bot}$.
+This order is a WQO assuming that $(\configs,\leq)$ is a WQO.\@
+The new configuration is neither initial nor final.
+
+The transition relation $T'$ is a superset of $T$ defined as follows.
+If $c \in \configs$ is a configuration that has no $a$-successor in $T$, then we have $c \tow{a} \bot$ in $T'$.
+Additionally, we have $\bot \tow{a} \bot$ in $T'$ for all letters $a$.
+Upward compatibility is satisfied since $\bot \leq d$ for all $d \in \configs$.
+The definition of $T'$ ensures completeness, \ie each configuration has at least one $a$-successor.
+If $T$ is unique, then $T'$ is deterministic.
+
+Since the new configuration $\bot$ is absorbing, meaning a computation that enters it cannot leave, but it is not final, we have $\lang{\wsts} = \lang{\wstsprime}$.
+If $\wsts$ is the WSTS associated to a freely labeled Petri net, then $\wstsprime$ is a deterministic WSTS with the same language.
+With respect to regular separability, the two can be used interchangeably.
+
+When considering the size of the separator, however, it is important to understand the implications that the construction of $\wstsprime$ has on the ideal completion.
+If $\calJ$ is an ideal in $(\configs \dotcup \set{\bot},\leq)$, then it is of the shape $\calI \dotcup \set{\bot}$, where $\calI \subseteq \configs$ is an ideal of $(\configs,\leq)$ or the empty set.
+Similarly, if $\calI$ is an ideal of $(\configs,\leq)$, then $\calI \dotcup \set{\bot}$ is an ideal of $(\configs \dotcup \set{\bot},\leq)$.
+To see that both statements are true, we use the fact that $\bot$ is a bottom element, which implies that it is contained in every non-empty downward-closed subset.
+
+Consequently, if $X$ is an invariant for $\wsts$, and its ideal decomposition $\idealdecomp{\configs}{X}$ has size $k$, then $X \cup \set{\bot}$ is an invariant for $\wstsprime$ and its ideal decomposition has size $k+1$.
+The latter consists if the ideals $\ideal \cup \set{\bot}$ where $\ideal \in \idealdecomp{\configs}{X}$ and the additional ideal $\set{\bot}$.
+This means that applying the processing that makes a WSTS complete only adds a single ideal to the ideal decomposition of an invariant.
+
+\paragraph{An upper bound assuming determinism}
+
+The final step in proving \cref{Theorem:PNSeparabilityUpperBound} is showing that if $N_1$ and $N_2$ are language-disjoint Petri nets where $N_1$ is freely labeled, then their languages can be separated by the language of an NFA with doubly exponentially many states.
+To this end, we will consider the size of the ideal decomposition of an invariant for the products of the nets.
+
+The main ingredient to showing a doubly exponential bound for the size of this invariant is the following result by \citea{BozzelliG11}.
+It provides a doubly exponential bound on the size of a representation of $\reachrev{\wstsN}$, where $\wstsN$ is the WSTS associated to a Petri net $N$.
+The result has been obtained by inspecting Abdulla's backward search~\cite{AbdullaCJT96}.
+
+\begin{theorem}[(\citea{BozzelliG11})]%
+\label{Theorem:SeparabilityBozzelliGanty}%
+    Consider a Petri net instance $(N,M_\init,M_\final)$ and the associated WSTS $\wstsN$.
+    One can construct a representation
+    $\reachrev{\wstsN}=\uc{\set{M_1, \ldots, M_k}}$, where $k$ as well as all $\norminf{M_i}$ are bounded by
+    \[
+        g =
+        \paren
+        {
+            \card{T} \cdot
+            \paren
+            {
+                \norminf{N}
+                +
+                \norminf{M_\init}
+                +
+                \norminf{M_\final}
+                +
+                2
+            }
+        }^{2^{\bigO{\card{P} \cdot \log \card{P}}}}
+        \ .
+    \]
+\end{theorem}
+
+Here, $\norminf{N} = \max \set{ \norminf{\i}, \norminf{\o}}$ is the maximum multiplicity of any transition.
+Our challenge in the following will be to convert this bound on a representation of the upward closed set $\reachrev{\wstsN}$ into a bound on the size of the ideal decomposition of its complement $\N^P \setminus \reachrev{\wstsN}$.
+This set is guaranteed to be an invariant since $\wstsN$ has empty language.
+
+We have already briefly mentioned in \cref{Section:SeparabilityIdeals} that the ideals in $\N^d$ are of the shape $\dc{M}$, where $M \in \N_\omega^d$ is a generalized marking.
+In this section, we will additionally need to consider (1)~how to construct a representation of the intersection of two ideals, and (2)~how to construct the ideal decomposition of the set $\N^d \setminus \uc{M}$, where $M$ is a marking.
+The following lemma states the well-known solution to both problems.
+
+%
+\cheatpagebreak
+%
+
+\begin{lemma}[(see \eg \citea{LazicS15})]%
+\label{Lemma:SeparabilityIdealOperations}%
+    \begin{thmenumerate}[a)]
+        \item
+            For ideals $\dc{M_1}, \dc{M_2}$ of $\N^d$, their intersection $\dc{M_1} \cap \ \dc{M_2}$ is the ideal $\dc{M}$ where $M$ is specified by $M(i) = \min \set{ M_1(i), M_2(i)}$ for all $i \in \oneto{d}$.
+        \item
+            For a marking $M \in \N^d$, the ideal decomposition of $\N^d \setminus \uc{M}$ is $\Set{ \dc{M_i}}{ i \in \oneto{d}}$ where $M_i(i) = M(i) - 1$ and $M_i(j) = \omega$ for $j \neq i$.
+    \end{thmenumerate}
+\end{lemma}
+
+The proof is straightforward in both cases.
+The representation of the intersection simply formalizes the fact that an element of the intersection needs to be smaller in every component than the representations of the intersected ideals.
+For b), each ideal in the ideal decomposition of $\N^d \setminus \uc{M}$ describes all markings that are smaller than $M$ in some component, and hence contained in the complement of $\uc{M}$.
+
+With the preliminaries at hand, we can state and prove the main result.
+
+\begin{proposition}%
+\label{Proposition:PNSeparabilityUpperBound}%
+    Let $N_1,N_2$ be languages-disjoint Petri nets, and let $\wsts_{\times}$ be the WSTS associated to their product.
+    The ideal decomposition of the invariant $\N^P \setminus \reachrev{\wstsN}$ has size at most doubly exponential.
+\end{proposition}
+
+
+\begin{proof}
+    Let $(N_1,M_{\init1},M_{\final1})$ and $(N_2,M_{\init2},M_{\final2})$ be the given Petri net instances.
+    Let $\wsts_{\times}$ be the WSTS associated to the product of the nets, and let $d$ be the total number of places.
+    Since the two Petri nets are language disjoint, $X = \N^d \setminus \reachrev{\wsts_{\times}}$ is a safe inductive invariant, see \cref{Section:WSTSSeparabilityCore}.
+    Hence, the downward closure $\dc{Y}$ of its ideal decomposition $Y = \idealdecomp{X}$ is a finitely represented invariant in the ideal completion by \cref{Proposition:WSTSIdealInductiveInvariant}.
+
+    With \cref{Theorem:SeparabilityBozzelliGanty} applied to $\wsts_{\times}$, we have
+    $\reachrev{\wsts_{\times}} = \uc{\set{M_1, \ldots, M_k}}$ for suitable markings $M_1, \ldots, M_k$.
+    We may write
+    \[
+        X
+        \ = \ \N^d \setminus \reachrev{\wsts_{\times}}
+        \ = \ \N^d \setminus \uc{\set{M_1, \ldots, M_k}}
+        \ = \ \N^d \setminus \bigcup_{i \in \oneto{k}} \uc{M_i}
+        \ = \ \bigcap_{i \in \oneto{k}} \N^d \setminus \uc{M_i}
+        \ .
+    \]
+    With Part~b) of \cref{Lemma:SeparabilityIdealOperations}, we can rewrite each $\N^d \setminus \uc{M_i}$ to $\bigcup_{j \in \oneto{d}} \dc{M_{i,j}}$, where $M_{i,j}(j) = M_i(j) - 1$ and $M_{i,j}(\ell) = \omega$ for $\ell \neq j$.
+    Altogether, we have
+    \[
+        X = \bigcap_{i \in \oneto{k}}  \bigcup_{j_i \in \oneto{d}} \dc{M_{i,j_i}}
+        \ .
+    \]
+%
+    We use distributivity to swap the intersection and the union, resulting in
+    \[
+        X =  \bigcup_{\vec{j} \in \oneto{d}^k} \bigcap_{i \in \oneto{k}} \dc{M_{i,\vec{j}(i)}}
+        \ .
+    \]
+    We can use Part~a) of \cref{Lemma:SeparabilityIdealOperations} to compute for each $\vec{j}$ a single ideal $M_{\vec{j}}$ with $\dc{M_{\vec{j}}} = \bigcap_{i \in \oneto{k}} \dc{M_{i,\vec{j}(i)}}$.
+    Altogether, we obtain $X = \bigcup_{\vec{j} \in \oneto{d}^k} \dc{M_{\vec{j}}}$.
+    Some ideals in this union might be redundant, but in any case, we obtain that the ideal decomposition of $X$ consists of at most~$d^k$ ideals.
+    Note that we have $k \leq g$, where $g$ is the doubly exponential bound specified in \cref{Theorem:SeparabilityBozzelliGanty}.
+    Unfortunately, this only provides a triply exponential bound $d^{g}$.
+
+    To get the desired bound, we use that \cref{Theorem:SeparabilityBozzelliGanty} also specifies $\norminf{M_i} \leq g$ for all $i$.
+    By the construction of the generalized markings $M_{i,j}$, we have $\norminf{M_{i,j}} \leq \norminf{M_i} \leq g$, where we extend the infinity norm to generalized markings by treating $\omega$-components as zero.
+    Finally, we have that each $M_{\vec{j}}$ which represents the intersection of some of the $\dc{M_{i,j}}$ also satisfies $\norminf{M_{\vec{j}}} \leq g$ by definition.
+    Hence, any non-$\omega$ component of $M_{\vec{j}}$ is bounded by $g$ from above.
+
+    There are only ${(g+2)}^d$ different generalized $d$-dimensional marking in which all non-$\omega$ components are bounded by $g$.
+    Hence, after removing redundant ideals, the ideal decomposition of $X$ has size at most ${(g+2)}^d$.
+    Inserting the definition of $g$ from \cref{Theorem:SeparabilityBozzelliGanty} yields the bound
+    \[
+        \card{Y} \leq {(g+2)}^d
+        =
+        \paren
+        {
+        \paren
+        {
+            \card{T_\times} \cdot
+            \paren
+            {
+                \norminf{N_\times}
+                +
+                \norminf{M_{\init\times}}
+                +
+                \norminf{M_{\final\times}}
+                +
+                2
+            }
+        }^{2^{\bigO{\card{P_\times} \cdot \log \card{P}}}}
+        +2
+        }^{d}
+        \ .
+    \]
+    Here $T_\times, N_\times$ and so on specify the components of the product net of $N_1$ and $N_2$ that induces the WSTS $\wsts_{\times}$.
+    Using the power laws, the number
+    \(
+        \paren
+        {
+            \card{T_\times} \cdot
+            \paren
+            {
+                \norminf{N_\times}
+                +
+                \norminf{M_{\init\times}}
+                +
+                \norminf{M_{\final\times}}
+                +
+                2
+            }
+        }^{2^{\bigO{\card{P_\times} \cdot \log \card{P}}}}
+    \)
+    is at most exponential in $\card{N_1} + \card{N_2}$, even if $\norminf{N_\times}$, $\norminf{M_{\init\times}}$, and $\norminf{M_{\final\times}}$ may already be exponential in $\card{N_1} + \card{N_2}$.
+    Hence, we get the desired doubly exponential bound.
+\end{proof}
+
+\begin{remark}
+    The above proof of \cref{Proposition:PNSeparabilityUpperBound} using the result by \citea{BozzelliG11} is a modified version of the proof in the original publication~\cite{CzerwinskiLMMKS18,CzerwinskiLMMKS18a}.
+    With the results by \citea{LazicS15}, Corollary~4.6 in particular, a simpler proof would be possible.
+    The authors of that paper show that one can compute the invariant $\N^d \setminus \reachrev{\wsts_N}$ as the fixed point of the descending chain
+    \[
+        \N^d \setminus \uc{\Mfinal}
+        \ \supseteq \
+        \N^d \setminus \pre{\Sigma^{\leq 1}}{\uc{\Mfinal}}
+        \ \supseteq \
+        \N^d \setminus \pre{\Sigma^{\leq 2}}{\uc{\Mfinal}}
+        \ \supseteq \
+        \ldots
+        \ ,
+    \]
+    based on a technique that uses ideals.
+    They establish a doubly exponential upper bound for the smallest number $i$ such that $\N^d \setminus \reachrev{\wsts_N} = \N^d \setminus \pre{\Sigma^{\leq i},\uc{\Mfinal}}$ and mention that this implies that the ideal decomposition of the invariant is also of doubly exponential size.
+\end{remark}
+
+Recall that our upper bound, \cref{Theorem:PNSeparabilityUpperBound}, states that two labeled Petri net instances with disjoint languages can be separated by a regular language with triply exponential state complexity.
+We can now assemble its proof by using the various techniques that we have presented in this section.
+
+\begin{proof}[Proof of \cref{Theorem:PNSeparabilityUpperBound}]
+    Let $N_1, N_2$ be two given language-disjoint Petri nets.
+    We use the above construction to eliminate all $\eps$-transitions in $N_2$, resulting in the nets $N_1',N_2'$.
+    We then consider $N_1''$, the freely labeled variant of $N_1'$, and $N_2''$, the corresponding modification of $N_2'$.
+    Note that being freely labeled also implies that $N_1'$ has no $\eps$-transitions.
+    %
+    The techniques that we have applied preserve language-disjointness, so the intersection of the languages of $N_1''$ and $N_2''$ are disjoint.
+    This means that the language of the WSTS $\wsts_\times$ associated to their product is empty, and the set $\N^d \setminus \reachrev{\wsts_\times}{\uc{M_{\final\times}}}$ is an inductive invariant.
+    With \cref{Proposition:PNSeparabilityUpperBound}, the size of the ideal decomposition of this invariant is at most doubly exponential.
+
+    The transition relation of the WSTS associated to $N_1''$ is unique, but not complete.
+    However, we may apply a preprocessing step as described above and obtain a deterministic WSTS $\wsts_{N_1''\text{complete}}$ with the same language.
+    Compared to the original WSTS, this WSTS has one additional ideal.
+    This means that the ideal decomposition of the invariant for $\wsts_\times$ translates into an ideal decomposition of an invariant for the product of $\wsts_{N_1''\text{complete}}$ and $\wsts_{N_2''}$ that is larger only by a polynomial factor.
+    This product satisfies the assumption of \cref{Theorem:WSTSSeparabilityCore}, proving that the languages of $\wsts_{N_1''\text{complete}}$ and $\wsts_{N_2''}$ can be separated by the language of an NFA with doubly exponentially many states.
+
+    Applying \cref{Proposition:PNSeparabilityDeterminization} yields that the languages of $N_1'$ and $N_2'$ can be separated by a regular separator with triply exponential state complexity.
+    Finally, we apply the construction from the proof of \cref{Lemma:PNSeparabilityEliminatingEpsilon} to obtain separator for the languages of the original nets $N_1$ and $N_2$ with the desired triply exponential state complexity.
+    This completes the proof.
+\end{proof}
+
+\end{document}
