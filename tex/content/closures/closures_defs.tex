@@ -8,9 +8,9 @@ We start by making formal the notions of superwords and subwords and the sets of
 To be precise, we show that they can be incorporated into the framework of WQOs, see \cref{Section:WSTS}.
 
 Let $(X,\leq)$ be a quasi-order.
-The \emph{subsequence ordering} $(X^*,\leq^*)$ on the set of finite-length sequences over $X$ is defined as follows.
-A sequence $v$ is smaller than sequence $w$, $v \leq^* w$, if it can be obtained from $v$ by iteratively deleting elements and replacing elements by smaller elements with respect to the underlying order $(X,\leq)$.
-If $v = a_1 a_2 \ldots a_n$ and $v \leq^* w$, this means that we can write
+The \emph{subsequence ordering} $(X^*,\subword)$ on the set of finite-length sequences over $X$ is defined as follows.
+A sequence $v$ is smaller than sequence $w$, $v \subword w$, if it can be obtained from $v$ by iteratively deleting elements and replacing elements by smaller elements with respect to the underlying order $(X,\leq)$.
+If $v = a_1 a_2 \ldots a_n$ and $v \subword w$, this means that we can write
 $w = \itr{c}{0} b_1 \itr{c}{1} b_2 \ldots \itr{c}{n-1} b_n \itr{c}{n}$ for sequences $\itr{c}{i} \in X^*$ and elements $b_i \in X$ with $a_i \leq b_i$ for all $i$.
 Note that here, we use $X^*$ to denote the finite-length sequences over $X$ following the notation for words, even if $X$ is not finite.
 
@@ -18,12 +18,12 @@ Higman's lemma~\cite{Higman52} guarantees that the subsequence ordering induced 
 
 \begin{lemma}[(\citea{Higman52})]%
 \label{Lemma:Higman}%
-    If $(X,\leq)$ is a well-quasi-order, then so is $(X^*,\leq^*)$.
+    If $(X,\leq)$ is a well-quasi-order, then so is $(X^*,\subword)$.
 \end{lemma}
 
 Throughout this thesis, we will be exclusively interested in the case where the underlying order is $(\Sigma,=)$, a finite alphabet ordered by equality.
-Indeed, such a set is a WQO, see Part~a) of \cref{Example:WQO}, so Higman's Lemma guarantees that $(\Sigma^*,=^*)$ is a WQO.\@
-In this special case, we call the order the \emph{subword order} and denote it by $(\Sigma^*,\subword)$.
+Indeed, such a set is a WQO, see Part~a) of \cref{Example:WQO}, so Higman's Lemma guarantees that $(\Sigma^*,\subword)$ is a WQO.\@
+In this special case, we call the order the \emph{subword order}.
 Since the underlying order is equality, the definition of the subsequence order is restricted: It is impossible to replace an element by a distinct smaller element.
 Hence, the definition is as expected: A word $w$ is a subword of another word $v$, $w \subword v$, if it can be obtained by deleting letters.
 In that case, we also say that $v$ is a \emph{superword}, which means that it can be obtained from $w$ by inserting letters.
@@ -47,7 +47,7 @@ Unless stated otherwise, all closure operators will refer to the closures with r
 \paragraph{Regularity and simple regular expressions}
 
 With Higman's Lemma, we also get that the various properties of WQOs stated in \cref{Lemma:WQOProperties} apply to the subword ordering.
-A surprising consequence of this is the classical result states that both the upward closures and the downward closures of arbitrary languages are guaranteed to be regular.
+A surprising consequence of this is the classical result that both the upward closures and the downward closures of arbitrary languages are guaranteed to be regular.
 We give the proof to show how the properties of well-quasi-orders come into play.
 
 \begin{theorem}[(\citea{Haines69})]%

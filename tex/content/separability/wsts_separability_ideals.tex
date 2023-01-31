@@ -95,7 +95,7 @@ We have $X = \bigcup \idealdecomp{\configs}{X} = \bigcup \dc{\idealdecomp{\confi
 In~\cite{FinkelG12,BlondinFM17}, the notion of the ideal completion has been lifted from orders to WSTSes.
 Given a WSTS, one constructs an ordered LTS whose configurations are ideals of the original underlying order.
 Its runs approximate runs of the original WSTS in the sense that at each point in time, the ideal that forms the current configuration in the ideal completion contains a configuration of the original WSTS that can be reached by the same word.
-Due to upward-compatibility, taking the ideal completion of an WSTS does not change the language.
+Due to upward-compatibility, taking the ideal completion of a WSTS does not change the language.
 
 The ideal completion can be seen as an alternative to the construction from \cref{Lemma:Expressiveness1} that we have used to show that an $\omega^2$-WSTS can be transformed into a deterministic WSTS with the same language.
 The drawback that using $(\ideals{\configs},\subseteq)$ has compared to using $(\pwrsetdown{\configs},\leq)$ is that we can only ensure that the new LTS is finitely branching, but not that it is deterministic.
@@ -298,7 +298,7 @@ Luckily, the operations of taking the product and taking the ideal completion co
     It remains to show that the transition relation is preserved.
     Consider a product of ideals $\ideal \times \ideal'$.
     The $a$-successors of this product in $\idealcompletion{\wsts \times \wstsprime}$ are the ideals (which themselves are products) in $\idealdecomp{\dc{\post{\wsts \times \wstsprime}{a}{\ideal \times \ideal'}}}$;
-    the $a$-successors of $\ideal \in \ideal'$ in $\ideal \times \ideal'$ are the products of ideals in $\idealdecomp{\dc{\post{\wsts}{a}{\ideal}}} \times \idealdecomp{\dc{\post{\wstsprime}{a}{\ideal'}}}$.
+    the $a$-successors of $\ideal \times \ideal'$ in $\idealcompletion{\wsts} \times \idealcompletion{\wstsprime}$ are the products of ideals in $\idealdecomp{\dc{\post{\wsts}{a}{\ideal}}} \times \idealdecomp{\dc{\post{\wstsprime}{a}{\ideal'}}}$.
     Using the definition of the transition relation of the synchronized product and the fact that taking the downward closure and taking the ideal decomposition both commute with the product operation, we can prove the equality of these sets:
     \begin{align*}
         \idealdecomp{\dc{\post{\wsts \times \wstsprime}{a}{\ideal \times \ideal'}}}
@@ -324,11 +324,11 @@ Recall that \cref{Theorem:WSTSSeparability} states that two disjoint WSTS langua
 
     Since the languages of $\wsts$ and $\wstsprime$ are disjoint, the language of their product $\wsts \times \wstsprime$ is empty.
     Hence, there is an inductive invariant for $\wsts \times \wstsprime$, \eg $\dc{\reach{\wsts \times \wstsprime}}$, that is not necessarily finitely represented.
-    With \cref{Proposition:WSTSIdealInductiveInvariant}, the ideal completion of the product $\idealcompletion{\wsts \times \wstsprime}$ has a finitely represented inductive invariant, \eg $\dcwrt{\idealcompletion{\dc{\reach{\wsts \times \wstsprime}}}}{\subseteq}$.
+    With \cref{Proposition:WSTSIdealInductiveInvariant}, the ideal completion of the product $\idealcompletion{\wsts \times \wstsprime}$ has a finitely represented inductive invariant, \eg $\dcwrt{\idealdecomp{\dc{\reach{\wsts \times \wstsprime}}}}{\subseteq}$.
     With \cref{Lemma:WSTSIdealsCompletionProduct}, the ideal completion of the product is equal to the product of the ideal completions.
     Hence, we have found finitely represented inductive invariant for the product of the ideal completions.
 
-    By applying the technical core result \cref{Theorem:WSTSSeparabilityCore}, we obtain that the languages of the ideal completions -- which are equal to the languages of the original WSTSes -- are regularly separable as desired.
+    By applying the technical core result, \cref{Theorem:WSTSSeparabilityCore}, we obtain that the languages of the ideal completions -- which are equal to the languages of the original WSTSes -- are regularly separable as desired.
 \end{proof}
 
 We conclude this section by demonstrating that with the concepts that we have introduced in this thesis, it does not seem possible to get rid of the assumption that one of the two WSTSes is deterministic.
@@ -340,15 +340,15 @@ Consider for example the idea of first using \eg the operator $\pwrsetdown{-}$ t
 This might seem promising since our technical core result only requires ordered LTSes instead of WSTSes.
 However, this approach makes the given systems lose the WQO property \emph{too early}:
 After applying the operator $\pwrsetdown{-}$ as in \cref{Lemma:Expressiveness1} to a WSTS that is not guaranteed to be $\omega^2$ will yield an ordered LTS that may not be a WSTS.\@
-However, \cref{Lemma:WSTSIdealsDecomposition}, the fact that all downward-closed sets decompose into finitely many ideals, is reliant on the finite antichain property of WQOs, Property~\cref{Property:WQOAntichain} in \cref{Lemma:WQOProperties}.
-Hence, applying the ideal completion to an LTS that is not a WSTS may yield a system which sets of the shape $\idealdecomp{X}$ can be infinite and \cref{Proposition:WSTSIdealInductiveInvariant} breaks.
+However, \cref{Lemma:WSTSIdealsDecomposition}, the fact that all downward-closed sets decompose into finitely many ideals, is reliant on the finite antichain property of WQOs, Property~(\ref{Property:WQOAntichain}) in \cref{Lemma:WQOProperties}.
+Hence, applying the ideal completion to an LTS that is not a WSTS may yield a system for which sets of the shape $\idealdecomp{X}$ can be infinite and \cref{Proposition:WSTSIdealInductiveInvariant} breaks.
 A similar problem occurs if we try to start by making one of the given systems finitely branching, \eg using the ideal completion.
 
 Another idea that comes to mind is replacing the ideal completion by the operator $\pwrsetdown{-}$ throughout this section.
 The resulting system shares many of the properties with the ideal completion:
 It preserves the language and ensures the existence of finitely represented invariants: If $X \subseteq \configs$ is a downward-closed inductive invariant, then so is $\dcwrt{X}{\subseteq} \ \, \subseteq \pwrsetdown{\configs}$.
 The problem here is that an equivalent of \cref{Lemma:WSTSIdealsCompletionProduct} does not hold in this case:
-The downward closed subsets in $\pwrsetdown{\configs \times \configs'}$ are not simply products of downward closed subsets in $\pwrsetdown{\configs}$ and $\pwrsetdown{\configs'}$, but rather unions of such products.
+The downward-closed subsets in $\pwrsetdown{\configs \times \configs'}$ are not simply products of downward-closed subsets in $\pwrsetdown{\configs}$ and $\pwrsetdown{\configs'}$, but rather unions of such products.
 
 The author conjectures that the key to overcoming the requirement of one of the given systems having to be deterministic, or realizing that the requirement is in fact necessary, is understanding whether the inclusions in our result on WSTS expressiveness, \cref{Theorem:WSTSExpressiveness}, are strict.
 This would require a deeper understanding of the expressive power of WSTSes that are neither $\omega^2$ nor finitely branching.

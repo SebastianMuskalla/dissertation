@@ -122,7 +122,7 @@ In the case of nondeterministic automata, it would be sufficient to replace each
 This is not true in the game setting:
 Assume that the top of stack in the pushdown game is a $\minusop{a}$ symbol, corresponding to an earlier $\dec{a}$ transition in the valence game.
 When the universal player takes an $\inc{a}$ transition in the valence game, this should cancel out the $\dec{a}$ symbol, \ie she should \nb{pop $\minusop{a}$} in the pushdown game.
-If we give her the free choice among popping $\minusop{a}$ and pushing $\plusop{a}$, she can decide to push $\inc{a}$ instead.
+If we give her the free choice among popping $\minusop{a}$ and pushing $\plusop{a}$, she can decide to push $\plusop{a}$ instead.
 This leaves an infix $\minusop{a}.\plusop{a}$ on the stack, which corresponds to $\inc{a}.\dec{a}$ in the valence game.
 While $\inc{a}.\dec{a}$ cancels out in the graph monoid, it does not cancel out on the stack of the pushdown.
 The desired correspondence between plays of the valence game and plays of the pushdown game does not hold.
@@ -146,7 +146,7 @@ To improve readability, we do not reflect this fact in the notation.
 
 The mechanism that we have described works as follows:
 Instead of executing transition $q \tow{\dec{a}} p$, the owner of state $q$ signals that she wants to take it by going to the intermediary state $\hat{q}$.
-In $\hat{q}$, it is the existential player's choice to either implement the transition by pushing $\plusop{a}$ or by popping $\plusop{a}$.
+In $\hat{q}$, it is the existential player's choice to either implement the transition by pushing~$\plusop{a}$ or by popping $\plusop{a}$.
 We will show that by picking accordingly, she can enforce reaching the empty stack content at the end.
 
 We prove the correctness of the construction in the form of the following proposition.
@@ -293,7 +293,7 @@ For now, we assume that these nodes do not have self-loops.
     This state implements a challenge mechanism.
     The universal player can either trust that the current value of counter $x$ is zero and use the transition ${\hat{q}}_\allplayer \tow{\eps} p$ leading to control state $p$.
     She can also challenge the existential player to prove that the counter value is indeed zero by taking the transition ${\hat{q}}_\allplayer \tow{\eps} {\hat{q}}_\explayer$.
-    In ${\hat{q}}_\explayer$, the existential can decrement counter $y$ using a $\dec{y}$-labeled loop arbitrarily often and then \nb{go to $\qfinal$}.
+    In ${\hat{q}}_\explayer$, the existential player can decrement counter $y$ using a $\dec{y}$-labeled loop arbitrarily often and then \nb{go to $\qfinal$}.
 
     We argue that the challenge mechanism enforces the desired behavior.
     If counter $x$ is indeed zero, the universal player will lose if she issues a challenge by going to ${\hat{q}}_\explayer$.
@@ -554,7 +554,7 @@ Its edges are the edges of $G_1$ among the nodes of $G_1$, the edges of $G_2$ am
     We argue that the graph monoid associated to the product of two graphs is the product of the corresponding graph monoids.
     Let $G_1$, $G_2$ be graphs and let $G_\times = G_1 \times G_2$ be their product.
     Any element of $\graphmonoid{G_\times}$ can be represented by a sequence $m_1.m_2$ such that $m_1$ exclusively contains operations for the nodes of $G_1$, similar for $m_2$ and $G_2$.
-    To this end, we use that the parts of the storage corresponding to $G_1$ and $G_2$ are fully independent, meaning $o_1 \indeprel o_2$ holds for any $o$ from $G_1$ and $o_2$ from $G_2$.
+    To this end, we use that the parts of the storage corresponding to $G_1$ and $G_2$ are fully independent, meaning $o_1 \indeprel o_2$ holds for any $o$ from~$G_1$ and $o_2$ from $G_2$.
     Hence, an element of $\graphmonoid{G_\times}$ can be seen as a tuple consisting of an element of $\graphmonoid{G_1}$ and an element of $\graphmonoid{G_2}$.
 \end{remark*}
 
@@ -779,7 +779,7 @@ Instead, we will be able to reduce from valence reachability games using the und
 \begin{figure}[t]
     \centering%
     \input{tikz/subgraph_cover_undecidable3.tikz}%
-    \caption{The $\nth{3}$ illegal graph}.%
+    \caption{The $\nth{3}$ illegal graph.}%
     \label{Figure:ValenceCoverabilityGamesUndecidableThree}%
 \end{figure}
 
@@ -798,7 +798,7 @@ The proof is similar to the proof for the \nth{2} illegal graph.
 However, we have to extend the construction.
 In the proof of \cref{Lemma:ValenceCoverabilityGamesUndecidableTwo}, we have used that $\inc{a}.m.\dec{a}$ is right invertible if and only if $m \cong \eps$.
 This fact relies on node $a$ not having a self-loop, which makes the $\dec{a}$ operation blocking.
-Since $a$ has a self-loop in the \nth{3} illegal graph, using $\inc{a}$ at the beginning of the play will be sufficient.
+Since $a$ has a self-loop in the \nth{3} illegal graph, using $\inc{a}$ at the beginning of the play will not be sufficient.
 Instead, we will use $\inc{y}.\inc{a}$ at the beginning and $\dec{a}.\dec{y}$ at the end.
 
 \begin{proof}[Proof of \cref{Lemma:ValenceCoverabilityGamesUndecidableThree}]
@@ -831,7 +831,7 @@ Instead, we will use $\inc{y}.\inc{a}$ at the beginning and $\dec{a}.\dec{y}$ at
     The details are as in the proof of \cref{Lemma:ValenceCoverabilityGamesUndecidableTwo}.
 \end{proof}
 
-Before proving the result, we formally observe that decidability is monotonic with respect to the induced subgraph order.
+Before proving the final result, we formally observe that decidability is monotonic with respect to the induced subgraph order.
 
 \begin{lemma}%
 \label{Lemma:ValenceCoverabilityGamesUndecidableInduced}%

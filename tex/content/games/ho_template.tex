@@ -34,7 +34,7 @@ Function application is a binary function symbol: If $f$ and $t$ are terms in th
 As usual for function application in the context of HORSes, we use infix notation and omit brackets.
 For each variable $x$, the lambda abstraction  $\lambda x$ is a unary function symbol, so if $t$ is a valid term in the system of equations, then so is $\lambda x. t$
 
-Choosing HORS terminals to have arity zero instead of assigning them their arity as specify by the kind might seem peculiar.
+Choosing HORS terminals to have arity zero instead of assigning them their arity as specified by the kind might seem peculiar.
 The reason here is that a terminal in a HORS term does not always have all its parameter present.
 For example, a terminal $a \colon \ground \to \ground$ may occur in a term like $F\appl a$ without any parameter.
 Therefore, it makes sense to let terminals and variables be constants and encode function application as a separate function symbol.
@@ -295,7 +295,7 @@ We have fully specified our $\modelt = (\domaint,\interpretationt)$ by providing
 In order to prove that the model satisfies the requirements for Kleene iteration as presented in \cref{Section:EDSEqSys}, we need to argue that the interpretation of all function symbols are join-continuous.
 
 When we have considered join-continuity in the proofs of the previous lemmas, we were discussion join-continuity on the level of valuations.
-We were merely arguing that for each term $t$, its interpretation is a value of $(V \pto \domain) \to \domain$, \ie a join-continuous function that expects a valuation.
+We were merely arguing that for each term~$t$, its interpretation is a value of $(V \pto \domain) \cto \domain$, \ie a join-continuous function that expects a valuation.
 To satisfy the requirements of Kleene's theorem, we need to argue that the functions are also join-continuous with respect to their arguments from $\domaint$.
 
 \begin{remark*}
@@ -581,7 +581,7 @@ Because the model satisfies the requirement of Kleene's theorem, the existence o
     \[
         \rhs \colon (N \to \domain) \cto (N \to \domain)
     \]
-    with $\rhs(\val,F) = \sem{\modelt}{t}{\val}$ for each nonterminal $F$, where $F \to t$ is the unique rule of the HORS for $F$.
+    with $\rhs(\val,F) = \sem{\modelt}{t}{\val}$ for each nonterminal $F$, where $F \to t$ is the unique rule of the HORS for~$F$.
     Note that since each such $t$ does not contain any free variables, we can omit the valuation for the HORS variables here.
     We have argued that for each term $t$, $\sem{\modelt}{t}$ is a join-continuous function on a CPPO.\@
     Hence, also $\rhs$ is a join-continuous function on a CPPO.\@

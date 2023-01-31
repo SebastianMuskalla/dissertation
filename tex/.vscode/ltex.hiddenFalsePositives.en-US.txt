@@ -150,3 +150,8 @@
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qof this thesis, we focus on languages of well-structured transition systems (WSTSes).\\E$"}
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qof this thesis will be finding an efficient solution for the aforementioned context-free inclusion games.\\E$"}
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qof this thesis will be finding a procedure efficiently solving context-free inclusion games.\\E$"}
+{"rule":"WHETHER","sentence":"^\\QThe question whether \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q becomes \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q-complete if we restrict the input net to be a BPP net arises naturally.\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qof the thesis often rely on the versatility of results from the literature.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThe box \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q for some NFA \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q contains more information than the state reached in the powerset-based determinization of \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q when processing \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q from the initial state: Words that reach the same state behave the same with respect to appending suffixes, but they may show different behavior when prepending prefixes.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFor the Petri net \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q, it is not hard to see that the associated Karp-Miller tree will be of Ackermannian size.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThe paper \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q provides us with a matching upper bound, which also shows that the procedure for computing the downward closure runs in Ackermannian time.\\E$"}

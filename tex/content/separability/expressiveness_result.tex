@@ -4,12 +4,12 @@
 \section{Results on WSTS expressiveness}%
 \label{Section:WSTSExpressiveness}%
 
-With the notion of $\omega^2$ introduced, we can state our results on WSTS expressiveness.
+With the notion of being $\omega^2$ introduced, we can state our results on WSTS expressiveness.
 In the following, we identify a type of WSTS with the class of languages of such WSTSes.
 For example, when we write \enquote{$\text{deterministic WSTS} =  \text{finitely branching WSTS}$}, we mean that each language of a deterministic WSTS is also the language of a finitely branching WSTS and vice versa.
 We do not claim that every finitely branching WSTS is deterministic.
 
-To be able state the result, we will also need the following notation.
+To be able to state the result, we will also need the following notation.
 The \emph{reverse} of a word $a_1 \ldots a_k$ is defined as expected, $\rev{a_1 \ldots a_k} = a_k \ldots a_1$.
 We extend the notion to languages, $\rev{\calL} = \Set{ \rev{w} }{ w  \in \calL}$.
 Two LTSes $M,M'$ with $\lang{M} = \rev{\lang{M'}}$ are called \emph{reversely
@@ -63,10 +63,10 @@ We state and prove each of the other inclusions as a separate lemma:
         $\text{DWSTS} \subseteq \text{finitely branching DWSTS}$
         is \cref{Lemma:Expressiveness4},
     \item
-        $\text{$\omega^2$-WSTS} \revsubseteq \text{deterministic DWSTS}$
+        $\text{$\omega^2$-WSTS} \ \revsubseteq \text{deterministic DWSTS}$
         is \cref{Lemma:Expressiveness5}, and
     \item
-        $\text{$\omega^2$-DWSTS} \revsubseteq \text{deterministic WSTS}$
+        $\text{$\omega^2$-DWSTS} \ \revsubseteq \text{deterministic WSTS}$
         is \cref{Lemma:Expressiveness6}.
 \end{itemize}
 
@@ -80,13 +80,13 @@ We say that a WSTS $\wsts$ is \emph{internally downward closed} if the following
 (2) If $c \tow{a} d$ for some configurations $c,d$, then there is also a transition $c \tow{a} d'$ for all $d' \in \dc{d}$.
 The latter condition can be rephrased by requiring $\post{}{a}{c}$ to be downward closed.
 
-If a WSTS $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is not downward closed, we may replace it by its \emph{internal downward closure} $\idc{\wsts} = (\configs,\leq,T',\dc{\configs_\init},\configs_\final)$ where the transitions are defined by
+If a WSTS $\wsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is not internally downward closed, we may replace it by its \emph{internal downward closure} $\idc{\wsts} = (\configs,\leq,T',\dc{\configs_\init},\configs_\final)$ where the transitions are defined by
 \[
     T' = \Set{ c \tow{a} d' }{ \exists d \colon d' \leq d \text{ and } c \tow{a} d \text{ in } T}
     \ .
 \]
 As the name suggest, the internal downward closure is internally downward closed.
-It is easy to check that the internal downward closure indeed is a WSTS.\@
+It is easy to check that the internal downward closure is indeed a WSTS.\@
 The operation preserves the language of the WSTS, \ie we always have $\lang{\wsts} = \lang{\idc{\wsts}}$.
 The inclusion $\lang{\wsts} \subseteq \lang{\idc{\wsts}}$ is implied by $\configs_\init \subseteq \dc{\configs_\init}$ and $T \subseteq T'$, the other one follows from the following lemma.
 
@@ -136,7 +136,7 @@ In general, it does not preserve the properties of being deterministic or finite
 We can define a similar notion for downward-compatible WSTSes.
 We call a DWSTS \emph{internally upward closed} if its set of initial configurations and $\post{}{a}{c}$ are upward closed for all symbols $a$ and all configurations $c$.
 For a given DWSTS $\dwsts$, we may enforce these properties by constructing its \emph{internal upward closure} $\iuc{\dwsts}$, a DWSTS that has $\uc{\configs_\init}$ as its set of initial configurations and in which the $a$-successors of a configuration $c$ are $\uc{\post{\dwsts}{a}{c}}$.
-The languages of the two DWSTS coincide, $\lang{\dwsts} = \lang{\iuc{\dwsts}}$.
+The languages of the two DWSTSes coincide, $\lang{\dwsts} = \lang{\iuc{\dwsts}}$.
 The proof from the case of WSTS carries over:
 To see that this is true, note that the proof of \cref{Lemma:WSTSExtendedCompatibility} has not used the WQO property, so a dualized version holds for DWSTSes.
 
@@ -150,7 +150,7 @@ The given (D)WSTS being $\omega^2$ ensures that the result is well-quasi-ordered
 
 \begin{lemma}%
 \label{Lemma:Expressiveness1}%
-    Every $\omega^2$-WSTS is language equivalent to a deterministic WSTS.\@
+    Every $\omega^2$-WSTS is language-equivalent to a deterministic WSTS.\@
 \end{lemma}
 
 \begin{proof}
@@ -169,7 +169,7 @@ The given (D)WSTS being $\omega^2$ ensures that the result is well-quasi-ordered
         C \tow{a} \post{\wsts}{a}{C}
         \ .
     \]
-    Note that $\wstsprime$ is well-defined, \ie $\set{\configs_\init} \in \pwrsetdown{\configs}$ and $\post{\wstsprime}{a}{C} \in \pwrsetdown{\configs}$ for all $C \in \pwrsetdown{\configs}$, because we assumed $\wsts$ to be internally downward closed.
+    Note that $\wstsprime$ is well-defined, \ie $\configs_\init \in \pwrsetdown{\configs}$ and $\post{\wstsprime}{a}{C} \in \pwrsetdown{\configs}$ for all $C \in \pwrsetdown{\configs}$, because we assumed $\wsts$ to be internally downward closed.
 
     WSTS $\wstsprime$ is deterministic by definition.
     To see that it indeed accepts the same language, one can prove that for each word $w \in \Sigma^*$, we have $\reach{\wstsprime}{w} = \set{ \reach{\wsts}{w}}$.
@@ -178,7 +178,7 @@ The given (D)WSTS being $\omega^2$ ensures that the result is well-quasi-ordered
 
 \begin{lemma}%
 \label{Lemma:Expressiveness3}%
-    Every $\omega^2$-DWSTS is language equivalent to a deterministic DWSTS.\@
+    Every $\omega^2$-DWSTS is language-equivalent to a deterministic DWSTS.\@
 \end{lemma}
 
 \begin{proof}
@@ -194,10 +194,10 @@ We continue with the inclusion of the class of languages of finitely branching W
 
 \begin{lemma}%
 \label{Lemma:Expressiveness2}%
-    Every finitely branching WSTS is language equivalent to a deterministic WSTS.\@
+    Every finitely branching WSTS is language-equivalent to a deterministic WSTS.\@
 \end{lemma}
 
-In principle, the proof is a version of the proof of \cref{Lemma:Expressiveness1} that uses the finitely represented downward closed subsets $(\pwrsetdownfin{\configs},\subseteq)$ instead of $(\pwrsetdown{\configs},\subseteq)$.
+In principle, the proof is a version of the proof of \cref{Lemma:Expressiveness1} that uses the finitely represented downward-closed subsets $(\pwrsetdownfin{\configs},\subseteq)$ instead of $(\pwrsetdown{\configs},\subseteq)$.
 The assumption that the given WSTS is finitely branching guarantees that considering these subsets is sufficient.
 
 However, there is a technical difficulty that we have to overcome.
@@ -222,7 +222,7 @@ Hence, we will have to essentially incorporate a proof similar to the one of \cr
     %
     Since $(\pwrsetdownfin{\configs},\subseteq)$ is always a WQO if $(\configs,\subseteq)$ is, see \cref{Lemma:WSTSPwrsetdownfin}, we conclude that $\wstsprime$ is a WSTS.\@
 
-    It remains to show that $\wsts$ and $\wstsprime$ are language equivalent.
+    It remains to show that $\wsts$ and $\wstsprime$ are language-equivalent.
     We first show the following claim by induction:
     For each $w \in \Sigma^*$, we have
     \[
@@ -259,7 +259,7 @@ Hence, we will have to essentially incorporate a proof similar to the one of \cr
     Hence, we have $c \tow{a} d$ in $\idc{\wsts}$ by the definition of being internally downward closed.
     We conclude $d \in \post{\idc{\wsts}}{a}{\reach{\idc{\wsts}}{w}} = \reach{\idc{\wsts}}{w.a}$ as required.
 
-    For the other direction, let $d \in \reach{\idc{\wsts}}{w.a}$, \ie there is some $c \in \reach{\idc{\wsts}}{w}$ with $c \tow{a} d$ in $\idc{\wsts}$.
+    For the other direction, let $d \in \reach{\idc{\wsts}}{w.a}$, \ie there is some $c \in \reach{\idc{\wsts}}{w}$ with $c \tow{a} d$ in~$\idc{\wsts}$.
     By the definition of $\idc{\wsts}$, there is some $d'$ with $d \leq d'$ such that $c \tow{a} d'$ in $\wsts$.
     We conclude $c \in \post{\wsts}{a}{\reach{\idc{\wsts}}{w}}$, which implies the desired statement (since the downward closure of any set contains that set).
 
@@ -277,7 +277,7 @@ However, the upward-closed sets are not well-quasi-ordered by reverse inclusion 
 
 \begin{lemma}%
 \label{Lemma:Expressiveness4}%
-    Every DWSTS is language equivalent to a finitely branching DWSTS.\@
+    Every DWSTS is language-equivalent to a finitely branching DWSTS.\@
 \end{lemma}
 
 \begin{proof}

@@ -12,7 +12,7 @@ Recall that a \emph{monoid} is a tuple $(\monoid,\cdot,\neutral)$ where $\monoid
 Furthermore, $\neutral \in \monoid$ is neutral with respect to the operation, $x \cdot \neutral = \neutral \cdot x = x$ for all $x \in \monoid$.
 In the following, we will usually say that a set $\monoid$ is a monoid and assume that the operation and the neutral element are clear from the context.
 
-A set of \emph{generators} of a monoid $\monoid$ is a subset $G \subseteq \monoid$ such that all elements of $\monoid$ can be obtained by iteratively composing elements of $G$.
+A set of \emph{generators} of a monoid $\monoid$ is a subset $\mathit{Gen} \subseteq \monoid$ such that all elements of $\monoid$ can be obtained by iteratively composing elements of $\mathit{Gen}$.
 A monoid is \emph{finitely generated} if it has a finite set of generators.
 %
 For example, consider the monoid $(\N,+,0)$, the natural numbers with addition.
@@ -46,7 +46,7 @@ Altogether, we obtain the following formal definition of valence systems and the
 
 \begin{definition}
     Syntactically, a \emph{valence system} is \( \lts = (\monoid, Q, \delta, \qinit, \qfinal) \)
-    where $\monoid$ is a monoid, $Q$ is a finite set of states, $\qinit, \qfinal \in Q$ and $\delta \subseteq Q \times \monoid \times Q$.
+    where $\monoid$ is a monoid, $Q$ is a finite set of states, $\qinit, \qfinal \in Q$ and $\delta \subseteq Q \times \monoid \times Q$ is finite.
     Its semantics is the induced transition system whose configurations are from the set $Q \times \monoid$.
     % with the initial configuration being $(\qinit,\neutral)$.
     The transition relation $\delta$ induces a transition relation among configurations: $(q,m) \to (q'',m'')$ if there is a transition $q \tow{m'} q''$ in $\delta$ such that $m'' = m \cdot m'$ and $m''$ is right invertible.
@@ -110,16 +110,20 @@ The neutral element is the equivalence class of the empty word $\eps$.
 It represents the empty storage, and concatenating it is the operation that leaves the storage unchanged.
 We will often use sequences to denote monoid elements and extend the corresponding notations and definitions whenever there is no risk of causing ambiguity.
 
+%
+\cheatpagebreak
+%
+
 \begin{remark}%
 \label{Remark:ValenceSelfLoops}%
     We briefly discuss the implications of a node having or not having a self-loop in the graph.
 
     If node $o_1$ does not have a self-loop, $o_1 \notindeprel o_1$, then the negative operation $\dec{o}$ is not the right inverse of the positive operation $\inc{o}$.
-    \RuleCancel only applies to the sequence $\inc{o}.\dec{o}$, not to $\dec{o}.\inc{o}$.
+    \RuleCancel~only applies to the sequence $\inc{o}.\dec{o}$, not to $\dec{o}.\inc{o}$.
     In fact, $\dec{o}$ is not right invertible in this case.
 
     If $o_1$ has a self-loop, $o_1 \indeprel o_1$, then $\dec{o}$ is the right inverse of $\inc{o}$.
-    We can first apply \RuleSwap to obtain $\dec{o}.\inc{o} \cong \inc{o}.\dec{o}$, and then cancel the two operations using \RuleCancel.
+    We can first apply \RuleSwap~to obtain $\dec{o}.\inc{o} \cong \inc{o}.\dec{o}$, and then cancel the two operations using \RuleCancel.
 \end{remark}
 
 In the following, we will speak of a valence system over a graph and mean the valence system over the graph monoid defined by that graph.

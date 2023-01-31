@@ -45,7 +45,7 @@ Let us provide some examples for $\omega^2$-WQOs.
             Also note that $\pwrsetdown{\Sigma}$ is equal to $\powerset{\Sigma}$.
         \item
             Consider $(\N,\leq)$.
-            A downward-closed subset of $\N$ falls in one of three cases:
+            A downward-closed subset of $\N$ falls into one of three cases:
             (1)~it is empty, or
             (2)~it is infinite, in which case it is necessarily $\N$ itself, or
             (3)~it is finite, in which case it is of the shape $\dc{n}$ for some number $n \in \N$.
@@ -91,7 +91,7 @@ For example, $\N$ is not an element of $(\pwrsetdownfin{\N},\subseteq)$.
     We conclude $x_i \leq x_j$ as desired.
 
     For the other direction, assume that $(X, \leq)$ is a WQO.\@
-    Using Higman's lemma, \cref{Lemma:Higman}, $(X^*,\leq^*)$ is a WQO.\@
+    Using Higman's lemma, \cref{Lemma:Higman}, $(X^*,\subword)$ is a WQO.\@
     Now consider any infinite sequence in $\pwrsetdownfin{X}$, which we may write as $\dc{Y_1},\dc{Y_2},\ldots$, where each
     $Y_i = \set{ y^i_1, \ldots ,y^i_{n_i} }$ is a finite set.
     We represent each $\dc{Y_i}$ by the finite sequence $y^i_1 \ldots y^i_{n_1} \in X^*$ and consider the infinite sequence
@@ -99,9 +99,9 @@ For example, $\N$ is not an element of $(\pwrsetdownfin{\N},\subseteq)$.
         y^1_1 \dots y^1_{n_1}, \ y^2_1 \dots y^2_{n_2}, \ \ldots
     \]
     in $X^*$.
-    Using the fact that $(X^*,\leq^*)$ is a WQO, we obtain $i < j$ such that
-    $y^i_1 \dots y^i_{n_i} \leq^* y^j_1 \dots y^j_{n_j}$.
-    From the definition of $\leq^*$ we obtain $Y_i \subseteq Y_j$.
+    Using the fact that $(X^*,\subword)$ is a WQO, we obtain $i < j$ such that
+    $y^i_1 \dots y^i_{n_i} \subword y^j_1 \dots y^j_{n_j}$.
+    From the definition of $\subword$ we obtain $Y_i \subseteq Y_j$.
 \end{proof}
 
 \end{document}

@@ -139,14 +139,14 @@ Since we will need these gadgets in the Sections~\ref{Section:PNUC} and~\ref{Sec
 \cheatpagebreak
 %
 
-\begin{proposition}%
+\begin{proposition}[(\citea{Lipton76})]%
 \label{Proposition:Lipton}%
     Let $n \in \N$.
     \begin{enumerate}[a)]
         \item
             There is a Petri net instance $(\Ninc,\Minitinc,\vec{0})$ polynomial in $n$ with two special places $p_\haltinc$, $p_\outinc$ such that any computation $\Minitinc \fire{\sigma} M$ of $\Ninc$ with $M(p_\haltinc) \geq 1$ satisfies $M(p_\outinc) = 2^{2^n}$.
         \item
-            There is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a special place $p_\indec$ such that for any marking $M$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
+            There is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a special place $p_\indec$ such that for any marking $M$ with $M(p) = 0$ for all $p \neq p_\indec$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
     \end{enumerate}
 \end{proposition}
 
@@ -154,7 +154,7 @@ Since we will need these gadgets in the Sections~\ref{Section:PNUC} and~\ref{Sec
 
 When Lipton proved the $\EXPSPACE$-hardness of reachability and coverability, reachability was not known to be decidable.
 Coverability, however, was already proven to be decidable using a technique by \citea{KarpM69} which we will discuss in detail in \cref{Section:PNDC}.
-The precise complexity was determined by \citea{Rackoff78} who provided an algorithm whose complexity that matches Lipton lower bound.
+The precise complexity was determined by \citea{Rackoff78} who provided an algorithm whose complexity matches Lipton lower bound.
 
 \begin{theorem}[(\citea{Rackoff78})]
     $\PNCOV$ can be solved using exponential space.
@@ -164,7 +164,7 @@ The precise complexity was determined by \citea{Rackoff78} who provided an algor
     $\PNCOV$ is $\EXPSPACE$-complete.
 \end{corollary}
 
-Rackoff's proved this result by showing that if there is a covering computation, then there is one of doubly exponential length.
+Rackoff proved this result by showing that if there is a covering computation, then there is one of doubly exponential length.
 With this bound, one can enumerate and simulate all candidate executions using only exponential space.
 We will discuss Rackoff's proof in detail in \cref{Section:PNUC}.
 

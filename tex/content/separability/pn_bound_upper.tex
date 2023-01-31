@@ -17,7 +17,7 @@ The first one is the minor technicality that we have allowed $\eps$-transitions 
 The second one is the requirement of one of the systems being deterministic.
 We will discuss the latter in more detail after solving the first problem.
 
-Throughout the rest of this section, let $(N_1,M_{\init1},M_{\final1})$ and $(N_2,M_{\init2},M_{\final2})$ be two Petri net instances over some alphabet $\Sigma$ of size $n_1$ and $n_2$, respectively.
+Throughout the rest of this section, let $(N_1,M_{\init1},M_{\final1})$ and $(N_2,M_{\init2},M_{\final2})$ be two labeled Petri net instances over some alphabet $\Sigma$ of size $n_1$ and $n_2$, respectively.
 We assume that the coverability languages of the two nets are disjoint.
 
 \paragraph{Eliminating $\eps$-transitions}
@@ -133,7 +133,7 @@ Consider the labeling function  of $N_1'$, extended into a homomorphism $\lambda
 We have that $\lang{N_1,M_{\init1},M_{\final1}} = \lambda_1 ( \lang{N_1',M_{\init1},M_{\final1}}   )$
 and $\lang{N_2,M_{\init2},M_{\final2}} = \lambda_1 ( \lang{N_2',M_{\init2},M_{\final2}}   )$.
 This in particular means that the languages of $N_1$ and $N_2$ are disjoint if and only if the languages of $N_1'$ and $N_2'$ are.
-It is easy to see that a word $\sigma \in T_1^*$ that is in the languages of $N_1'$ and $N_2'$ leads to $\lambda_1(\sigma)$ being in the language of $N_1$ and $N_2$.
+It is easy to see that a word $\sigma \in T_1^*$ that is in the languages of $N_1'$ and $N_2'$ leads to $\lambda_1(\sigma)$ being in the language of $N_1$ and~$N_2$.
 For the other direction, consider a word $w \in \Sigma^*$ in the intersection of the languages of $N_1$ and $N_2$, and consider firing sequences $\sigma \in T_1^*$, $\tau \in T_2^*$ that induce the covering computation.
 We immediately get that $\sigma$ is in the language of $N_1'$.
 To see that $\sigma$ is also in the language of $N_2'$, one can use the covering computation induced by the firing sequence $\tau_\sigma$ whose $\nth{i}$ transition is $\tau_i (\sigma_i)$, the $\sigma_i$-labeled copy of $\tau_i$ in $N_2'$.
@@ -179,7 +179,7 @@ Note that the order of the two input languages is swapped to account for the com
     This is a contradiction to the assumption that $\overline{\calR}$ and the language of $N_2$ are disjoint because $\calR$ is a regular separator.
 \end{proof}
 
-Unfortunately, applying complementation and a homomorphism has severe impact on the complexity.
+Unfortunately, applying complementation and a homomorphism has a severe impact on the complexity.
 We will prove that for two Petri nets, one of them freely labeled, one can construct a separator with a doubly exponential state complexity.
 This means that we can represent its complement by a DFA with at most triply exponentially many states.
 Applying a homomorphism to this DFA introduces a polynomial blowup to its size, but we lose determinism.
@@ -188,12 +188,12 @@ A priori, the index of the separator may be quadruply exponential.
 
 We will later prove a doubly exponential lower bound for the state complexity of regular separators for coverability languages of non-freely labeled Petri nets.
 This matches the upper bound in the case that one of the nets is freely labeled, but not in the general case.
-The author conjectures that the determinization construction in this section can be improved to avoid the exponential blowup introduced by the complement.
+The author conjectures that the determinization construction in this section can be improved to avoid the exponential blowup introduced by the complementation.
 
 \paragraph{Enforcing completeness}
 
 The definition of deterministic WSTSes imposes two restrictions on the transition relation, uniqueness and completeness.
-The above construction ensures that each marking has at most $a$-labeled successor in the WSTS associated to a Petri nets.
+The above construction ensures that each marking has at most one $a$-labeled successor in the WSTS associated to a Petri net.
 To get determinism, we need also need to guarantee that there is at least one $a$-labeled successor.
 Luckily, enforcing completeness is typically much easier than enforcing uniqueness.
 For example, an NFA can be completed by introducing an additional \emph{error state}.
@@ -223,7 +223,7 @@ To see that both statements are true, we use the fact that $\bot$ is a bottom el
 
 Consequently, if $X$ is an invariant for $\wsts$, and its ideal decomposition $\idealdecomp{\configs}{X}$ has size $k$, then $X \cup \set{\bot}$ is an invariant for $\wstsprime$ and its ideal decomposition has size $k+1$.
 The latter consists if the ideals $\ideal \cup \set{\bot}$ where $\ideal \in \idealdecomp{\configs}{X}$ and the additional ideal $\set{\bot}$.
-This means that applying the processing that makes a WSTS complete only adds a single ideal to the ideal decomposition of an invariant.
+This means that applying the preprocessing step that makes a WSTS complete only adds a single ideal to the ideal decomposition of an invariant.
 
 \paragraph{An upper bound assuming determinism}
 
@@ -261,7 +261,7 @@ The result has been obtained by inspecting Abdulla's backward search~\cite{Abdul
 
 Here, $\norminf{N} = \max \set{ \norminf{\i}, \norminf{\o}}$ is the maximum multiplicity of any transition.
 Our challenge in the following will be to convert this bound on a representation of the upward closed set $\reachrev{\wstsN}$ into a bound on the size of the ideal decomposition of its complement $\N^P \setminus \reachrev{\wstsN}$.
-This set is guaranteed to be an invariant since $\wstsN$ has empty language.
+This set is guaranteed to be an invariant since $\wstsN$ has empty language in our case.
 
 We have already briefly mentioned in \cref{Section:SeparabilityIdeals} that the ideals in $\N^d$ are of the shape $\dc{M}$, where $M \in \N_\omega^d$ is a generalized marking.
 In this section, we will additionally need to consider (1)~how to construct a representation of the intersection of two ideals, and (2)~how to construct the ideal decomposition of the set $\N^d \setminus \uc{M}$, where $M$ is a marking.
@@ -290,7 +290,7 @@ With the preliminaries at hand, we can state and prove the main result.
 \begin{proposition}%
 \label{Proposition:PNSeparabilityUpperBound}%
     Let $N_1,N_2$ be languages-disjoint Petri nets, and let $\wsts_{\times}$ be the WSTS associated to their product.
-    The ideal decomposition of the invariant $\N^P \setminus \reachrev{\wstsN}$ has size at most doubly exponential.
+    The ideal decomposition of the invariant $\N^P \setminus \reachrev{\wsts_{\times}}$ has size at most doubly exponential.
 \end{proposition}
 
 

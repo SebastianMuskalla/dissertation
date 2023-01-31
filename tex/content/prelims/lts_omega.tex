@@ -56,7 +56,7 @@ It nondeterministically guesses the occurrence of the last $a$.
 
 \paragraph{Parity automata}
 
-To solve the above problem, one possibility is to consider an automaton model with a more involved acceptance condition.
+To solve the above problem, one possibility is to consider an automata model with a more involved acceptance condition.
 There are several choices, including the Rabin~\cite{Rabin68}, Streett~\cite{Streett81}, Muller~\cite{Muller63}, and parity~\cite{Mostowski84} acceptance conditions.
 We only consider the parity acceptance condition throughout this thesis as it is widely used in theory and tools.
 
@@ -103,6 +103,6 @@ However, there is a potential exponential blowup in the number of states that is
 
 Both NPAs and DPAs can be used to obtain an alternative but equivalent definition of the $\omega$-regular languages:
 A language is $\omega$-regular iff it occurs as the language of an NBA/NPA/DPA.\@
-To convert an NBA into an NPA is trivial, determinizability is Safra's result, and to convert a DPA to an NBA, we let the NBA guess the highest-occurring priority at the beginning and verify its guess later.
+Converting an NBA into an NPA is trivial, determinizability is Safra's result, and to convert a DPA to an NBA, we let the NBA guess the highest-occurring priority at the beginning of the run and verify its guess later.
 
 \end{document}

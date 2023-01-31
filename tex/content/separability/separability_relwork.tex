@@ -8,15 +8,17 @@ We summarize results from the literature regarding separability and regular sepa
 
 The separability \emph{of} regular languages \emph{by} subclasses of the regular languages is a widely studied problem, but beyond the scope of this thesis.
 Let us briefly mention that the decision problem of $\calS$-separability of regular languages is decidable if $\calS$ is the class of piecewise-testable languages~\cite{CzerwinskiMM13,PlaceVZ13}, or the class of locally testable or locally threshold-testable languages~\cite{PlaceVZ13b}, or the class of  languages definable in first-order logic~\cite{PlaceZ14}, or one of certain classes in the higher levels of the first-order hierarchy~\cite{PlaceZ14b}.
+There has also been interest in the separability of languages classes beyond the regular languages by subclasses of the regular languages, see \eg \cite{CzerwinskiMRZZ17}.
 
 \begin{figure}
     \centering%
     \input{tikz/separability_map.tikz}%
-    \caption{An overview of the decidability status of the regular separability problem for various languages classes. Boxes represent classes, arrows represent inclusions among classes. The symbol on the left-hand side of each node shows whether regular separability is decidable ($\checkmark$), undecidable ($\bm\times$), or whether the decidability status is unknown ($\bm?$).}%
+    \caption{An overview of the decidability status of the regular separability problem for various languages classes. Boxes represent classes, arrows represent inclusions among classes. The symbol on the left-hand side of each box shows whether regular separability is decidable ($\checkmark$), undecidable ($\bm\times$), or whether the decidability status is unknown ($\bm?$).}%
     \label{Figure:RegularSeparabilityRelatedWork}%
 \end{figure}
 
-\cref{Figure:RegularSeparabilityRelatedWork} contains an overview of the results that have been established regarding regular separability.
+We will be exclusively interested in regular separability in this thesis.
+\cref{Figure:RegularSeparabilityRelatedWork} contains an overview of the results that have been established.
 We will discuss these results in detail in the following.
 
 \paragraph{Undecidable cases}
@@ -56,6 +58,7 @@ An integer Petri net is a Petri net that is executed on what we have called pseu
 %
 Additionally, the regular separability problem has been shown to be decidable for the class of commutative closures of Petri net reachability languages~\cite{ClementeCLP17b}.
 Equivalently, it is decidable whether two Petri net reachability languages can be separated by the commutative closure of a regular language.
+The paper~\cite{CzerwinskiZ20} provides a generalized approach that can be used to prove some of the aforementioned results.
 % For the proof, the authors study separability problems that do not work on the level of languages, but on the level of configurations, an approach that we will also take in \cref{Chapter:WSTSSeparability}.
 
 The rest of this part of the thesis is dedicated to showing results related to regular separability for Petri net coverability languages, another important subclass of the Petri net reachability languages.
@@ -72,6 +75,7 @@ Its relation to regular separability stems from the fact that if a language and 
 This is because in that case, the language itself is the only possible candidate for a regular separator; we will later formally prove this statement in the form of \cref{Corollary:WSTSNecessarilyRegular}.
 However, it has been shown that both problems are independent of regular separability in general.
 The decidability or undecidability of regularity or intersection-emptiness does not imply the decidability or undecidability of regular separability and vice versa.
+
 
 The result by \citea{Kopczynski16} on visibly pushdown languages exhibits a case in which intersection-emptiness is decidable, but regular separability is undecidable.
 Recently, \citea{ThinniyamZ19} have constructed a setting in which regular separability is decidable while intersection-emptiness is undecidable.

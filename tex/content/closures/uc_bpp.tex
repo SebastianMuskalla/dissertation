@@ -89,7 +89,7 @@ To make this formal, we consider occurrence nets $O = (P', T', \i',\o')$, which 
 (1) $O$ may be infinite.
 (2) Each place has at most one incoming transition.
 (3) Each transition creates at most one token per place.
-(4) $O$ seen as directed graph is acyclic.
+\mbox{(4) $O$ seen} as directed graph is acyclic.
 
 We call two elements $x,y \in P'\dotcup T'$ \emph{causally related} and write $x \causal y$ if there is a path from $x$ to $y$ in $O$ seen as graph.
 Note that this is a partial order on the nodes of the graph: Reflexivity and transitivity obviously hold true, while antisymmetry is guaranteed by $O$ being acyclic.
@@ -106,10 +106,10 @@ Similarly, we may write $P_1'\fire{t\lowprime}P_2'$ for subsets $P_1', P_2'\subs
 
 To associate an occurrence net $O$ to a BPP net $N$ together with an initial marking $\Minit$, we use the notion of \emph{folding homomorphisms}.
 Such a homomorphism is a function $h:P' \cup T' \rightarrow P \cup T$.
-For a place $p$ of the original net, we think of all places $p'$ of $O$ with $h(p')$ as \emph{copies} of $p$, similar for the transitions.
+For a place $p$ of the original net, we think of all places $p'$ of $O$ with $h(p') = p$ as \emph{copies} of $p$, similar for the transitions.
 
 A folding homomorphism should satisfy three properties, but in order to state them, we will need some more notation.
-We extend $h$ to a function that, given a subset $P'' \subseteq P'$ of places of $O$, returns the marking $h(P'')$ defined by $h(P'')(p) = \card{\Set{p'\in P_1'}{h(p')=p}}$, \ie we count all tokens assigned to copies of place $p$.
+We extend $h$ to a function that, given a subset $P'' \subseteq P'$ of places of $O$, returns the marking $h(P'') \in \N^P$ defined by $h(P'')(p) = \card{\Set{p'\in P_1'}{h(p')=p}}$, \ie we count all tokens assigned to copies of place $p$.
 Furthermore, we may use that transitions in $O$ consume and produce at most token per place and see $\i'(t)$ and $\o'(t)$ as subsets of $P'$ (for some \nb{transition $t$}).
 This allows us to consider $h(\i'(t))$ and $h(\o'(t))$ as markings.
 
@@ -123,14 +123,14 @@ The three properties of folding homomorphisms are the following:
      \item
          Initiation:
          The initial marking of $O$ maps to the initial marking of $N$,
-         $h(\mathit{Min}(O))=\Minit$.
+         $h(\min O)=\Minit$.
      \item\label{Property:FoldingHomomorphismConsecution}
          Consecution: $\i'$ and $\o'$ map to $\i$ and $\o$:
          For all $t'\in T'$:
          $h(\i'(t')) = \i(h(t'))$, $h(\o'(t')) = \o(h(t'))$.
      \item
          Irredundancy:
-         For all $t_1',t_2' \in T'$, with $\i(t_1') = \i(t_2')$ and $h(t_1') = h(t_2')$, we have $t_1' = t_2'$.
+         For all $t_1',t_2' \in T'$ with $\i(t_1') = \i(t_2')$ and $h(t_1') = h(t_2')$, we have $t_1' = t_2'$.
 \end{enumerate}
 
 A pair $(O,h)$ consisting of an occurrence net $O$ and a folding homomorphism $h$ is called a \emph{branching process} of $(N, \Minit)$.
@@ -285,7 +285,7 @@ We define the language $\calL_{\text{all}}$ as the language of all words over $\
     \ .
 \]
 This language and its complement $\overline{\calL_{\text{all}}}$, the set of words in which at least one letter does not occur, are well-known examples in the context of the state complexity of regular languages.
-Both languages can be easily represented by a DFA of size $2^n$: The DFA has one state for each subset of $\Sigma$ and tracks the set of letters that has occurred.
+Both languages can be easily represented by a DFA of size $2^n$: The DFA has one state for each subset of $\Sigma$ and tracks the set of letters that have occurred.
 One can find a small NFA of size $n+1$ that accepts $\overline{\calL_{\text{all}}}$ by initially guessing a letter that will not occur and verifying that guess later.
 The same is not true for $\calL_{\text{all}}$: Any NFA for this language has at least $2^n$ states, just as the DFA.\@
 Hence, the pair of languages shows that complementing a regular language can increase its state complexity exponentially.
@@ -327,7 +327,7 @@ For the sake of completeness, we give a proof for the fact that $\calL_{\text{al
     Since $\Gamma \neq \Gamma'$, there is some letter that occurs only in one of the subalphabets.
     \Wolog, we assume that $a_i \in \Gamma$, but $a_i \not \in \Gamma'$.
     Consider the word $w_{\Gamma'}.w_{\Sigma \setminus \Gamma}$.
-    This word is not contained in $\calL_{\text{all}}$, cause neither $w_{\Gamma'}$ nor $w_{\Sigma \setminus \Gamma}$ contain letter $a_i$.
+    This word is not contained in $\calL_{\text{all}}$ because neither $w_{\Gamma'}$ nor $w_{\Sigma \setminus \Gamma}$ contain letter $a_i$.
     However, we can construct an accepting run $q_\init \tow{ w_{\Gamma'} } q_\Gamma \tow{ w_{\Sigma \setminus \Gamma} } q_\final \in Q_\final$ on that word, proving that it is contained in $\lang{A}$.
     We obtain a contradiction to $\lang{A} = \calL_{\text{all}}$.
 
@@ -341,6 +341,7 @@ The required net is rather simple: It counts how often each letter has been gene
 We depict it in  \cref{Figure:BPPUCLowerBoundUnary}.
 For each $i \in \oneto{n}$, there is a place $p_{a_i}$ and an $a_i$-labeled transition $t_{a_i}$ that consumes no tokens and produces a token on $p_{a_i}$.
 The initial marking puts no tokens anywhere, while the final marking is $\vec{1}$, \ie it is covered once at least one token has been produced on every place.
+Additionally, $\calL_{\text{all}}$ is an upward-closed language.
 
 Altogether, we obtain matching lower and upper bounds: The state complexity of the upward closure of a BPP net is a number that is exponential in the number of places of the net.
 

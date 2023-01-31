@@ -20,7 +20,7 @@ To solve this type of game, \Walu~has designed a reduction that outputs an equiv
 The idea behind the reduction is to not store the full stack content of the pushdown, but only the top-of-stack.
 Whenever a push operation, say $\pushop a$ should be executed, the finite-state game uses a guess-and-verify mechanism, aided by the fact that we have two adversarial players.
 Firstly, one of the players is allowed to choose a prediction, a set of tuples of control state and priority.
-Intuitively, an entry $(q,i)$ in the prediction set represents a play of the game in which $a$ gets pushed, remains on the stack for some time, and then gets popped again while reaching state $q$.
+Intuitively, an entry~$(q,i)$ in the prediction set represents a play of the game in which $a$ gets pushed, remains on the stack for some time, and then gets popped again while reaching state $q$.
 The priority $i$ is the largest priority that occurred while symbol $a$ was on the stack.
 Secondly, the other player decides whether to trust or to verify the prediction.
 If she trusts the prediction, she picks one entry $(q,i)$ from the prediction set, and the play continues with control state $q$ and the current top-of-stack remains as before -- we assume that the infix of the play in which the letter $a$ was on the stack has been skipped.
@@ -38,17 +38,17 @@ In both cases, the construction introduces an exponential blowup, since we need 
 To be able to apply \Walus~construction to context-free inclusion games, one has to determinize the automaton for the target language as described in \cref{Chapter:Games}.
 This introduces another exponential blowup, which is to be expected: \Walu~has shown $\EXPTIME$-completeness for his type of games, while we have shown \nb{$2\EXPTIME$-completeness}.
 
-In her Master's thesis, Elisabeth Neumann~\cite{Neumann17} has conducted an in-depth comparison of \Walus~approach and ours.
+In her Master's thesis~\cite{Neumann17}, Elisabeth Neumann has conducted an in-depth comparison of \Walus~approach and ours.
 Assume that we do not use the standard powerset construction to determinize the automaton, but rather we use a construction based on the transition monoid, as explained in \cref{Section:TransitionMonoid}.
-If one transform a given game grammar to a game pushdown, takes the product with this determinized automaton, applies \Walus~reduction to obtain a finite-state reachability game, one can then solve this game with the well-known attractor construction.
-From the attractor (\resp its approximants that occur during its computations), one can read off the formulas that are the least solution to the interpreted system of equations in our approach (\resp their approximants).
+If one transforms a given game grammar to a game pushdown, takes the product with this determinized automaton, applies \Walus~reduction to obtain a finite-state reachability game, one can then solve this game with the well-known attractor construction.
+From the attractor (\resp its approximants that occur during its computation), one can read off the formulas that are the least solution to the interpreted system of equations in our approach (\resp their approximants).
 Note that, however, the fact that \Walus~approach can be conducted using the determinization based on the transition monoid does not mean that it actually uses the advantages that the transition monoid provides, \eg the fact that the behavior of a word in arbitrary contexts is represented by its box.
 
 If one compares \Walus~approach applied to $\omega$-context-free games to our approach that we will present in \cref{Section:CFGamesOmega}, one sees that both approaches ultimately require solving a finite-state parity game.
-The key difference is that in Walukiewicz game, the players can pick an arbitrary prediction set.
+The key difference is that in \Walus~game, the players can pick an arbitrary prediction set.
 Finding out which prediction sets are not valid candidates has to be done when the parity game is solved and the winning strategy is computed.
 In our approach, we use the fixed-point iteration to precompute information about finite subplays.
-This yields formulas -- which we can see as a collection of prediction sets --, and the players are only allowed to choose among these.
+This yields formulas -- which we can see as a collection of prediction sets -- and the players are only allowed to choose among these.
 This should be a more efficient implementation.
 
 \Walus~reduction is inspired by the game semantics for the $\mu$-calculus, see \eg \cite{BradfieldW18}:
@@ -62,14 +62,14 @@ This trick has proven to be very versatile.
 In~\cite{Cachat02}, Cachat has considered a different type of context-free games.
 Like in \Walus~case, the game arena is the computation tree of a pushdown automaton with a partition of the control states.
 However, the winning condition is reaching a configuration that is in a regular target set.
-To specify such a regular set of configurations of some pushdown $P$, one uses so-called $P$-AFAs.
+To specify such a regular set of configurations of some pushdown~$P$, one uses so-called $P$-AFAs.
 A $P$-AFA is an alternating automaton whose input alphabet is the set of stack symbols and whose set of states contains the set of states of $P$.
 A configuration of the pushdown with state $q$ and stack content $w$ is accepted by a $P$-AFA if the automaton accepts the word $w$ from the control state $q$.
 Cachat presents a saturation technique that turns a $P$-AFA for the target set into a $P$-AFA for its attractor, the winning region of the reachability game, by iteratively adding transitions.
 The fact that he is considering alternating automata makes it easy to implement the attractor construction for solving reachability games on the level of automata.
 
 Cachat also presents an extension of his construction to Büchi games.
-The constructions for both reachability and Büchi games are very much inspired by the seminal paper by~\cite{BouajjaniEM97} on the verification of pushdown automata.
+The constructions for both reachability and Büchi games are very much inspired by the seminal paper by~\citea{BouajjaniEM97} on the verification of pushdown automata.
 Cachat's contribution is extending these constructions from verification problems to games.
 The main modification consists of using $P$-AFAs instead of $P$-NFAs, which are defined similarly but do not feature alternation.
 
@@ -80,7 +80,7 @@ Elisabeth Neumann has also considered Cachat's algorithm in her Master's thesis~
 \paragraph{\citeauthor{MuschollSS06}:~Active context-free games}
 
 \citea{MuschollSS06} have considered so-called active context-free games.
-Like in our definition of context-free games, the game arena for these games are induced by context-free grammars and they have regular target languages.
+Like in our definition of context-free games, the game arenas for these games are induced by context-free grammars and they have regular target languages.
 However, these target languages are languages over the set of both terminals and nonterminals.
 Compared to our context-free games, active context-free games proceed differently.
 In each round of a play, one of the players selects a nonterminal in the current sentential form, then the other player picks a production rule to replace that nonterminal.
@@ -112,7 +112,7 @@ As in Cachat's work, alternation provides a way to incorporate the game aspect.
 A two-way automaton is an automaton that can move up and down in the tree.
 This is used to handle pops: A pop operation of the pushdown can be simulated by a two-way automaton by simply walking up the tree to the configuration before the letter has been pushed.
 This reduction is then combined with an earlier result of~\citea{Vardi98} that shows how a two-way alternating parity tree automaton can be transformed into an equivalent regular (one-way) alternating parity tree automaton.
-The emptiness problem for this automaton can be solved by a variation of the construction that has been used to prove Rabin's tree theorem (which we have briefly described in \cref{Chapter:Games}).
+The emptiness problem for this automaton can be solved by a variation of the construction that from the proof of Rabin's tree theorem~\cite{Zielonka98} (which we have briefly mentioned in \cref{Section:IntroGames}).
 
 \paragraph{Serre: Regular winning regions of context-free games}
 

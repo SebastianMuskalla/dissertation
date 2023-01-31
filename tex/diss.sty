@@ -114,30 +114,12 @@
 %     }%
 % }%
 
-% \DeclareDocumentCommand{\litref}{ g }%
-% {%
-%     \IfNoValueTF{#1}%
-%     {%
-%         \textcolor{blue}{LITREF}%
-%     }%
-%     {%
-%         \textcolor{blue}{LITREF:~#1}%
-%     }%
-% }%
-
-% \newcommand{\forwardref}{\textcolor{feuervogel}{REF$\to$}}
-% \newcommand{\backwardref}{\textcolor{feuervogel}{REF$\from$}}
-
 
 %\=================================================
 
 %
 % title
 %
-
-
-\RequirePackage{mathdots}
-% for iddots
 
 \renewcommand{\maketitle}%
 {%
@@ -175,9 +157,9 @@
     \begin{tabularx}{\textwidth}{l@{\hspace*{3em}}lX}%
         Eingereicht am: &  4.~August 2022 &\\%
         Disputation am: &  11.~Mai 2023 &\\%
-        1. Referent: & Prof.~Dr.~Roland Meyer &\\%
-        2. Referent: & doc.~Mgr.~Lukáš Holík,~Ph.D. &\\%
-        3. Referent: & Dr.~Georg Zetzsche &\\%
+        1. Referent:    & Prof.~Dr.~Roland Meyer &\\%
+        2. Referent:    & doc.~Mgr.~Lukáš Holík,~Ph.D. &\\%
+        3. Referent:    & Dr.~Georg Zetzsche &\\%
     \end{tabularx}%
 
 \vspace*{2\baselineskip}%
@@ -809,7 +791,7 @@
 \newcommand{\player}{{\mathchoice{\mystar}{\mystar}{\mystarsmall}{\mystarsmall}}}
 
 \newcommand{\opponent} {{\overline{\player}}}
-\newcommand{\players} {\set{\explayer, \allplayer}}
+\newcommand{\players} {\set{\allplayer, \explayer}}
 
 \newcommand{\owner}{\text{owner}}
 \newcommand{\winningcond}{\text{win}}

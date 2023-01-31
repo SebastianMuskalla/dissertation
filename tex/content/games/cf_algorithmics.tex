@@ -36,7 +36,7 @@ We describe the idea of the reduction in detail.
 Given a context-free regular inclusion game $(G,A)$, we first determinize and minimize the automaton $A$ using standard techniques.
 This potentially leads to an exponential blowup in the size of the automaton, which is to be expected since solving Cachat's context-free games is only $\EXPTIME$-complete, in contrast to the $2\EXPTIME$-completeness of context-free regular inclusion games.
 We then construct a pushdown automaton that is essentially the product of the grammar and the determinized automaton.
-Its control-state stores the state of the automaton after reading the terminal prefix of the sentential form.
+Its control state stores the state of the automaton after reading the terminal prefix of the sentential form.
 The stack stores the rest of the sentential form.
 Formally, for each state $q$ of the determinization of $A$, the pushdown has two states, $q_\explayer$ and $q_\allplayer$ owned by the respective player.
 If the top-of-stack is a terminal symbol $a$, the pushdown has transitions $q_\explayer \to p_\explayer$ and $q_\allplayer \to p_\allplayer$ that pop symbol $a$, where $p$ is the unique state of the DFA with $q \tow{a} p$.
@@ -116,7 +116,7 @@ Our prototype implementation stores formulas in conjunctive normal form (CNF).
 Using \cref{Lemma:CFGamesCNFOperations}, this allows us to check whether a formula implies another in quadratic time.
 The result of computing the conjunction of two formulas is additive, computing the disjunctive is multiplicative, and computing the composition is exponential in the size of the given \nb{formulas}.
 
-In his bachelor's thesis~\cite{Stutz17}, Felix Stutz, supervised by Roland Meyer and the author of this thesis, has explored the option of not normalizing the formulas to conjunctive normal form.
+In his Bachelor's thesis~\cite{Stutz17}, Felix Stutz, supervised by Roland Meyer and the author of this thesis, has explored the option of not normalizing the formulas to conjunctive normal form.
 This potentially allows us to obtain a smaller representation for formulas, which decreases both the memory consumption and the time needed for computing subsequent operations on these formulas.
 However, there is a major drawback.
 Recall that the Kleene iteration terminates as soon as two subsequent approximants are equal, where checking the equality of equivalence classes of formulas amounts to checking logical equivalence for representatives.
@@ -139,8 +139,8 @@ It can solve more instances in a ten-second time frame and in the case that both
 \paragraph{Antichain optimizations}
 
 A second approach to increasing the performance of our solver for context-free games is the so-called antichain optimization.
-It was successfully used in the context of transition-based method for universality and inclusion testing for nondeterministic finite automata~\cite{DeWulfDHR06,AbdullaCHMV10}.
-In his master's thesis~\cite{Haifani17}, Fajar Haifani, supervised by Roland Meyer and the author of this thesis, has explored the antichain optimization for solving context-free games using fixed-point iteration.
+It was successfully used in the context of transition-based methods for universality and inclusion testing for nondeterministic finite automata~\cite{DeWulfDHR06,AbdullaCHMV10}.
+In his Master's thesis~\cite{Haifani17}, Fajar Haifani, supervised by Roland Meyer and the author of this thesis, has explored the antichain optimization for solving context-free games using fixed-point iteration.
 
 In the development throughout this chapter, we have considered the transition monoid elements as distinct and unrelated atoms of positive Boolean formulas.
 The key observation enabling the antichain optimization is that transition monoid elements carry additionally information that can be used to relate them to each other.
@@ -157,7 +157,7 @@ Hence, we expect Kleene iteration to terminate in fewer steps compared to the na
 However, using the antichain approach also requires a more involved implication check.
 We have to replace the characterization of implication provided by Part~d) of \cref{Lemma:CFGamesCNFOperations} by a version that considers the subset relation among boxes.
 
-In addition to just considering subsets relations among boxes, there are relations that are even more powerful, meaning that they relate more boxes.
+In addition to just considering subset relations among boxes, there are relations that are even more powerful, meaning that they relate more boxes.
 These relations on boxes arise from so-called simulation relations~\cite{DillHW91} on states of the automaton.
 Using these relations gives us even larger equivalence classes, so we expect faster termination.
 However, this comes at the cost of having to precompute simulation relations on states of the automaton.

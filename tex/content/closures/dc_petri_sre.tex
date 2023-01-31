@@ -30,7 +30,7 @@ We briefly recall the idea of the proof, but refer to \cref{Lemma:PNSREUChardnes
 
 If we modify an unlabeled Petri net instance $(N,\Minit,\Mfinal)$ by labeling all transitions by $\eps$, we have $\lang{N,\Minit,\Mfinal} = \set{\eps}$ if $\Mfinal$ is coverable from $\Minit$.
 If this is not the case, we have $\lang{N,\Minit,\Mfinal} = \emptyset$.
-Both these languages are already downward closed.
+These two languages are already downward closed.
 Hence, we have that $\emptyset^* = \set{\eps} \subseteq \uc{\lang{N,\Minit,\Mfinal}}$ holds if and only if $(N,\Minit,\Mfinal)$ is a yes-instance of coverability.
 
 
@@ -58,7 +58,7 @@ Since the number of products is polynomial in the size of the SRE $\sre$, this w
 Unfortunately, the second observation does not carry over.
 Unlike upward-closed languages, downward-closed languages cannot be represented by a single word in general.
 Consider for example the product $\Sigma^*$ (whose language is already downward closed).
-A priori, there is no reason why there should be a single word such that inclusion of the product and the membership problem for that word are equivalent.
+A priori, there is no reason why there should be a single word such that the inclusion of the product and the membership problem for that word are equivalent.
 This means that checking whether a product is contained in the downward closure is much more involved.
 
 Nevertheless, we can provide a syntactic transformation of the product that will later simplify solving the problem.
@@ -166,7 +166,7 @@ This finally allows for checking all such computations using only exponential sp
 With the $\EXPSPACE$ membership of $\PNSU$ at hand, it remains to reduce the inclusion $\lang{\linof{\product}}\subseteq \dc{\lang{N, \Minit, \Mfinal}}$ to an instance of $\PNSU$ in polynomial time.
 The first step is to consider the net $\dc{N}$ with $\dc{\lang{N, \Minit, \Mfinal}} = \lang{\dc{N}, \Minit, \Mfinal}$, see \cref{Section:PNRelwork}.
 
-As explained above, we need to check whether for each infix ${w_\Gamma}^*$, arbitrarily long instantiations still lead to words in the language of $\dc{N}$
+As explained above, we need to check whether for each infix ${w_\Gamma}^*$, arbitrarily long instantiations still lead to words in the language of $\dc{N}$.
 We encode this by introducing for each infix ${w_\Gamma}^*$ a place that tracks that $w_\Gamma$ has been seen.
 The instance of the unboundedness problem that we construct requires all such places to be simultaneously unbounded.
 We will make this formal in the following.
@@ -187,7 +187,7 @@ We obtain $\lang{\linof{\product}} = \lang{N_\product,M_{\init,\product},M_{\fin
 It remains to modify the net so that for each infix ${w_\Gamma}^*$ of $\linof{\product}$, it counts how many iterations of ${w_\Gamma}^*$ have occurred.
 For such an infix, net $N_\product$ has a transition that correspond to the last letter of $w_\Gamma$.
 We add a new place $p_\Gamma$ and modify the transition so that it additionally creates a token on $p_\Gamma$.
-The desired result is that if a computation produces $m$ tokens on $p_\Gamma$, then ${w_\Gamma}^m$ was the instantiations of ${w_\Gamma}^*$ that has been read.
+The desired result is that if a computation produces $m$ tokens on $p_\Gamma$, then ${w_\Gamma}^m$ was the instantiation of ${w_\Gamma}^*$ that has been read.
 
 Note that the notation is intentionally a bit sloppy here:
 The linearization may contain several occurrences of ${w_\Gamma}^*$ for the same subalphabet $\Gamma$.

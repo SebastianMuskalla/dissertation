@@ -39,7 +39,7 @@ Assume that $S$ is a component of a concurrent system that writes to shared memo
 We assume that the memory accesses are perfect: All write accesses to memory executed by $S$ actually take place, and they do so in the correct order.
 However, we assume that we observe this memory location from the perspective of another component of the concurrent system.
 If we poll the memory location without synchronizing with $S$ in some way, we may not see all writes that have been executed by $S$.
-If between reading the memory location twice, two write accesses of $S$ take place, we will only see the second write access; the first one will be lost.
+If two write accesses of $S$ take place between reading the memory location twice, we will only see the second write access; the first one will be lost.
 Similarly, if we start and stop polling the memory at some point in time, we will not see any write accesses by $S$ that happen outside this time interval.
 In summary, this type of communication shows the same lossy behavior as in the first example.
 
@@ -158,7 +158,7 @@ Finite automata are indeed good certificates in principle, as it is typically ra
 Unfortunately, the latter task scales with the size of the automaton, \ie it becomes harder the larger the automaton is.
 The procedures that we will provide later to compute automata describing the language closures can result in very large automata, \eg automata that are doubly exponentially larger than the initial system.
 Unfortunately, this cannot be avoided:
-We will prove results in the areas of descriptive complexity showing that the size of the automata yielded by our algorithms is optimal.
+We will prove results in the areas of descriptional complexity showing that the size of the automata yielded by our algorithms is optimal.
 %
 To circumvent this problem, we suggest an approach that is based on using so-called \emph{simple-regular expressions (SREs)} as certificates for properties of the language closures.
 SREs are particularly simple representations for certain regular languages.

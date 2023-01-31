@@ -43,7 +43,7 @@ A \emph{separator} for two languages $\calL, \calK \subseteq \Sigma^*$ is a thir
 Obviously, the existence of a separator is equivalent to intersection-emptiness:
 If the languages are not disjoint, a separator cannot exist.
 Otherwise, $\calL$ is a separator.
-Hence, it only makes sense to study separators if we restrict them to come from a simpler class -- one with less expressive power -- than $\calL$ and $\calK$ do.
+Hence, it only makes sense to study separators if we restrict them to come from a simpler \mbox{class~--~one} with less expressive power~--~than $\calL$ and $\calK$ do.
 We call a separator that comes from language class $\calS$ an \emph{$\calS$-separator}, and we say that $\calL$ and $\calK$ are \emph{$\calS$-separable} if an $\calS$-separator exists.
 The decision problem of checking the existence of such a separator is the following.
 
@@ -64,7 +64,7 @@ Here, we use that checking that a given language $\calR$ is a separator is typic
 %
 However, one has to be careful since intersection-emptiness does not imply the existence of a separator if the class~$\calS$ is too restrictive.
 Consider for example the context-free languages $\calL = \Set{a^n b^n}{n \in \N}$ and $\calK = \overline{\calL}$ that are complements of each other.
-The languages are obviously disjoint, but not $\calS$-separable if we choose $\calS$ to be a subclass of the context-free languages that does not contain $\calL$; the regular languages for example.
+The languages are obviously disjoint, but not $\calS$-separable if we choose $\calS$ to be a subclass of the context-free languages that does not contain $\calL$, the regular languages for example.
 
 From the perspective of verification, the most important variant of the separability problem is \emph{regular separability}, \ie checking the existence of a separator from the class of regular languages.
 In this case, we call the separators \emph{regular separators} and we call two languages that have such a separator \emph{regularly separable}.

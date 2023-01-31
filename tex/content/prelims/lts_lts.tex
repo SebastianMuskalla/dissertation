@@ -102,7 +102,7 @@ It is \emph{deterministic} if its transition relation is and it has a unique ini
 
 \paragraph{The synchronized product}
 
-We present a standard construction that, given two LTSes, yields an LTS whose language is the intersection of the languages.
+We present a standard construction that, given two LTSes, yields an LTS whose language is the intersection of the languages of the LTSes.
 Intuitively, the product of the LTSes tracks tuples of configurations, simulating a run of one LTS per component.
 Transitions not labeled by $\eps$ need to be applied synchronously to both components.
 Formally, the construction is as follows:
@@ -144,7 +144,7 @@ An infinite semantics is represented by a finite description that can serve as i
 %
 However, requiring a finite representation of the system is not sufficient to get decidability results.
 For example, Turing machines also admit a finite description, but by Rice's  theorem~\cite{Rice53} no non-trivial properties of the languages they define are decidable.
-At the current state, there is no general theory that explains which types of systems admit which decidability results.
+Currently, there is no general theory that explains which types of systems admit which decidability results.
 The model of valence systems over graph monoids~\cite{Zetzsche15d,Charney07} that we present in \cref{Chapter:ValenceGames} can be seen as a step in that direction, but this model is not powerful enough to capture all types of memories, and it has not (yet) gained wide-spread usage.
 
 This leaves us with having to define various classes of automata for which certain properties are decidable.

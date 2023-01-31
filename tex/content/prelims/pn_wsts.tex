@@ -44,11 +44,11 @@ An \emph{ordered LTS} over $\Sigma$ is of the shape $\wsts = (\configs,\leq,T,\c
 If $c \tow{a} d$, and $c \leq c'$, then $c' \tow{a} d'$ for some $d'$ with $d \leq d'$.
 We say that $T$ is \emph{upward-compatible} with $\leq$, or that $\leq$ is a \emph{simulation relation}, since intuitively, the condition states that larger states can simulate the behavior of smaller states.
 
-Requiring an LTS to be ordered is actually not a real restriction: Any LTS is an ordered LTS with respect to equality as order.
+Requiring an LTS to be ordered is actually not a real restriction: Any LTS is an ordered LTS with respect to equality as the order.
 In this case, upward-compatibility is trivially satisfied since $c \leq c'$ means $c = c'$ in this case, and we have $S = \uc{S}$ for any set $S \subseteq \configs$ of configurations.
 To get a model with good properties, we have to restrict the order.
 
-\paragraph{Well-quasi orders}
+\paragraph{Well-quasi-orders}
 
 The crucial restriction is requiring the order to be a well-quasi-order.
 Before finally giving the definition of WSTSes, we define such orders and list some of their properties.
@@ -205,9 +205,9 @@ We obtain that the class of WSTS languages is a strict superclass of the Petri n
 
 \paragraph{Downward-compatible WSTSes}
 
-To conclude this section, we define downward-compatible ordered LTS and WSTS similar to their upward-compatible variants.
+To conclude this section, we define downward-compatible ordered LTSes and WSTSes similar to their upward-compatible variants.
 
-A \emph{downward-compatible ordered LTS} $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is an LTS $(\configs,T,\configs_\init,\configs_\final)$ together with a quasi-order $(\configs,\leq)$ on the configurations such that $\configs_\final$ is downward closed and $T$ is \emph{downward compatible}: If $c \tow{a} d$, and $c' \leq $, then $c' \tow{a} d'$ for some $d'$ with $d' \leq d$.
+A \emph{downward-compatible ordered LTS} $\dwsts = (\configs,\leq,T,\configs_\init,\configs_\final)$ is an LTS $(\configs,T,\configs_\init,\configs_\final)$ together with a quasi-order $(\configs,\leq)$ on the configurations such that $\configs_\final$ is downward closed and $T$ is \emph{downward compatible}: If $c \tow{a} d$, and $c' \leq c$, then $c' \tow{a} d'$ for some $d'$ with $d' \leq d$.
 
 We call such a system a \emph{downward-compatible well-structured transition system (DWSTS)} if $(\configs,\leq)$ is a WQO.\@
 

@@ -19,7 +19,7 @@ We start by considering a representation of the two winning regions $W_\allplaye
 Correspondingly, we are able to design for each player $\player \in \players$ a finite automaton over $N \cup \Sigma$ that accepts exactly the sentential forms $\beta$ from $W_\player$.
 
 Formally, we define the DFA~$B$ as follows.
-Its set of states is $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$, the sets of equivalence class of positive Boolean formulas over $\nfatransmonoid{A}$.
+Its set of states is $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$, the sets of equivalence classes of positive Boolean formulas over $\nfatransmonoid{A}$.
 The initial state is the equivalence class of $\tbox{\eps}$, which is the neutral element of $\pBF\paren{\nfatransmonoid{A}}/_{\lequiv}$ seen as monoid.
 If the automaton is in state $F$, where $F$ is the representative of some equivalence class, and reads the letter $a \in \paren{N \cup \Sigma}$, it goes to state $F \comp \sol{a}$.
 Note that $\sol{a}$ is simply $\tbox{a}$ for $a \in \Sigma$; otherwise, we take $\sol{a}$ for $a \in N$ from the precomputed solution to the system of equations.
@@ -53,7 +53,7 @@ Assume that we consider a play in which already $n$ moves have been made.
 This means that the length of the sentential form that is the current position is in $\bigO{n}$.
 Indeed, in each step, the sentential form grows by at most the length of the longest right-hand side of any production rule, which is less than the size of $G$ which we assume is a constant.
 Our strategy requires computing and evaluating a constant number of formulas (at most one for each rule of the grammar), each formula associated to a sentential form of size $\bigO{n}$.
-The strategy does not reuse the information that has been computed in step $n-1$ to make a decision in step $n$.
+The strategy does not reuse the information that has been computed in step~$n-1$ to make a decision in step $n$.
 It cannot be implemented by a strategy automaton as defined in \cref{Chapter:Games}, because such a strategy is only allowed to use constant time -- one step of the strategy automaton -- to update its state after each move.
 
 In the following, we design a strategy that is more efficient.
@@ -83,8 +83,8 @@ This transition maintains the shape of the stack as described above.
 
 To output a move for the universal player, the automaton peeks at the top-of-stack $(X, F)$, the information for the symbol $X$ that should be replaced.
 It then computes the formula $\sol{w.\eta.\beta}$ for all possible successors, the number of which is constant.
-Each such formula is of the shape $\tbox{w} \comp \sol{\beta} \comp F$, where $\tbox{w}$ and $F$ can be read off from the internal state and stack, respectively.
-It then prints out any move $X \to \beta$ so that the resulting formula is not rejecting.
+Each such formula is of the shape $\tbox{w} \comp \sol{\eta} \comp F$, where $\tbox{w}$ and $F$ can be read off from the internal state and stack, respectively.
+It then prints out any move $X \to \eta$ so that the resulting formula is not rejecting.
 Note that one could modify the automaton so that all information that is needed to determine the next move can be read off from the internal state without peeking at the top-of-stack.
 
 Assuming that the play starts from $S$, the initial symbol of the grammar, we initialize the pushdown automaton with state $\tbox{\eps}$, the box associated to the empty terminal prefix, and stack content $(S,\tbox{\eps})$.
@@ -103,7 +103,7 @@ This property allows us to take a product of the strategy automaton $\Pstratallp
 (Note that in general, the product of two pushdown automata results in a multi-pushdown automaton with two stacks that cannot be merged, since the heights of the stacks may not coincide.)
 
 We then use the output function of the strategy automaton to resolve all choices of the universal player in the game.
-The result is a nondeterministic pushdown automaton, say PDA $\Pexplayer = \Parena \times \Pstratallplayer$, the nondeterminism of which represents the choices of the existential player.
+The result is a nondeterministic pushdown automaton, say PDA~$\Pexplayer = \Parena \times \Pstratallplayer$, the nondeterminism of which represents the choices of the existential player.
 One can verify that the strategy for the universal player that was defined by $\Pstratallplayer$ is indeed a winning strategy by checking that $\lang{\Pexplayer} \subseteq \lang{A}$:
 No finite play of the game that conforms to the strategy defined by $\Pstratallplayer$ produces a counterexample to inclusion.
 
@@ -159,7 +159,7 @@ consisting of the symbol itself, a number $i \in \N$ that tells us which fixed-p
 
 Assuming that the play starts from $S$, the initial control state is $\tbox{\eps}$ and the initial stack content is $(S,i_0,\tbox{\eps})$.
 Here, $i_0$ is the number of steps after which the fixed-point iteration terminates, \ie the $\nth{i_0}{th}$ approximant equals the least solution.
-Assume that the produces has arrived in a sentential form $w.X.\beta$.
+Assume that the procedure has arrived in a sentential form $w.X.\beta$.
 This in particular means that the current control state is $\tbox{w}$ and that the stack contains for each nonterminal $\beta_j$ in $X.\beta$ a symbol $(\beta_j, i_j, F_j)$.
 When the rule $X \to \eta$ is applied, the stack is updated as follows.
 We first remove the top-of-stack $(X, i_X, F_X)$ and remember $i_X \in \N$ and the formula $F_X$.

@@ -1,14 +1,14 @@
 \documentclass[../../diss.tex]{subfiles}
 \begin{document}
 
-\section{Descriptive complexity}%
-\label{Section:DescriptiveComplexity}%
+\section{Descriptional complexity}%
+\label{Section:DescriptionalComplexity}%
 
-We introduce some notions regarding the descriptive complexity of regular languages.
-Unlike computational complexity (see \cref{Section:Complexity}) which studies the amount of resources needed to decide membership in a language, descriptive complexity studies the size of descriptions of languages.
+We introduce some notions regarding the descriptional complexity of regular languages.
+Unlike computational complexity (see \cref{Section:Complexity}) which studies the amount of resources needed to decide membership in a language, descriptional complexity studies the size of descriptions of languages.
 However, many interconnections between the two areas exist in the form of results that show that languages for which the membership problem has a certain complexity admit descriptions of a certain shape and size and vice versa~\cite{Immerman98}.
-Descriptive complexity theory considers several types of objects to represent languages, including logical formulas and circuits.
-In this thesis, we are exclusively interested in the descriptive complexity of regular languages, for which we use finite automata as descriptions.
+Descriptional complexity theory considers several types of objects to represent languages, including logical formulas and circuits.
+In this thesis, we are exclusively interested in the descriptional complexity of regular languages, for which we use finite automata as descriptions.
 
 The well-known fact that DFAs and NFAs are equally expressive results in two measures of complexity for regular languages.
 We will introduce and use both in the following.
@@ -56,10 +56,10 @@ In the following, we consider an example for a family of languages in which the 
     Both constructions are optimal.
 
     The example is mentioned without proof in~\cite{Kozen97}.
-    We give a proof in \cref{Section:PNSeparabilityLowerBound} when we use the example to establish a lower bound on the descriptive complexity of separators.
+    We give a proof in \cref{Section:PNSeparabilityLowerBound} when we use the example to establish a lower bound on the descriptional complexity of separators.
 \end{example}
 
-\paragraph{Descriptive complexity for families of languages}
+\paragraph{Descriptional complexity for families of languages}
 
 As in the Examples~\ref{Example:StateComplexityEqualsIndex} and~\ref{Example:StateComplexityVsIndex}, we are usually not interested in the state complexity of a single language, but rather in the state complexity of a family of languages.
 In the case where we have a family of languages ${(\calL_k)}_{k \in \N}$ consisting of one language per natural number, the meaning of a statement like \enquote{the state complexity is exponential} is obvious.

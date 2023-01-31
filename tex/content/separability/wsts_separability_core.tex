@@ -65,7 +65,7 @@ The above discussion justifies the following definition of inductive invariants 
 
 An inductive invariant exists if and only if $\lang{\wsts}$ is empty.
 If $\lang{\wsts}$ is empty, then the downward-closure of the reachable configurations $\dc{\reach{\wsts}}$ is the least, and the configurations that are not the predecessor of a final configuration $\configs \setminus \reachrev{W}$ is the greatest inductive invariant.
-Note that the latter set is always downward closed by upward compatibility, while $\reach{\wsts}$ may not be downward closed if $\wsts$ is not internally downward closed.
+Note that the latter set is always downward closed by upward compatibility, whereas $\reach{\wsts}$ may not be downward closed if $\wsts$ is not internally downward closed.
 
 
 In the following, we want to transform an inductive invariant for the product of two language-disjoint WSTSes into a regular separator for their languages.
@@ -86,7 +86,7 @@ Any smaller set does not contain all reachable configurations, any bigger set co
 However, this invariant is not finitely represented as there is no finite set of numbers whose downward closure is $\N$.
 
 Not every inductive invariant being finitely represented is a problem that we will need to overcome later.
-For now, let us use the notion to state the core result.
+For now, let us state the core result.
 
 \begin{theorem}%
 \label{Theorem:WSTSSeparabilityCore}%
@@ -154,7 +154,7 @@ The fact that $\dc{Q}$ is an inductive invariant will be sufficient to prove the
 
 \begin{remark*}
 Note that we are dealing with an NFA with multiple initial states here.
-We have already explained in \cref{Section:DescriptiveComplexity} that such an NFA can be transformed into an NFA with a unique initial state while introducing a single new state.
+We have already explained in \cref{Section:DescriptionalComplexity} that such an NFA can be transformed into an NFA with a unique initial state while introducing a single new state.
 \end{remark*}
 
 To prove that $A$ is indeed a separating automaton, we need to show $\lang{\wsts} \subseteq \lang{A}$ and $\lang{\wstsprime} \cap \lang{A} = \emptyset$.
@@ -198,7 +198,7 @@ We start with a technical lemma that will be needed to establish $\lang{W} \subs
     In the base case, we have that $(c,c') = \reach{\prodwsts}{\eps}$ is an initial configuration of the product system.
     By Property~(1) of being an invariant, this means $(c,c') \in \dc{Q}$.
     Hence, $Q$ contains some state $(q,q')$ with $(c,c') \prodleq (q,q')$.
-    By the definition of the initial state of $A$, we have $(q,q') \in Q_\init = \reach{A}{\eps}$ as required.
+    By the definition of the initial states of $A$, we have $(q,q') \in Q_\init = \reach{A}{\eps}$ as required.
     For the inductive step, consider $w.a$.
     Any configuration $(d,d') \in \reach{\prodwsts}{w.a}$ can be written as an $a$-successor of a configuration $(c,c') \in \reach{\prodwsts}{w}$, \ie $(c,c') \tow{a} (d,d')$ in $\prodwsts$.
     By induction, we obtain that there is some state $(q,q') \in \reach{A}{w}$ with $(c,c') \prodleq (q,q')$.
@@ -225,7 +225,7 @@ With this lemma at hand, we can immediately conclude that the language of $A$ co
     We conclude that $A$ has an accepting run on word $w$ as desired.
 \end{proof}
 
-We now show that every run of the automaton on some word overapproximates in its second component the unique run of $\wstsprime$ ob that word.
+We now show that every run of the automaton on some word overapproximates in its second component the unique run of $\wstsprime$ on that word.
 
 \begin{lemma}%
 \label{Lemma:WSTSDisjointness}%
@@ -235,15 +235,15 @@ We now show that every run of the automaton on some word overapproximates in its
 \begin{proof}
     We proceed by induction on $w$.
     In the base case, we have that $(q,q') \in \reach{A}{\eps} = Q_\init$ is an initial state of $A$.
-    By definition, this means $(c,c') \prodleq (q,q')$ for some initial configuration $(c,c')$ of $\prodwsts$.
-    Again by definition we have that $c' \in \configs'_\init$ is the unique initial configuration of $\wstsprime$.
+    By definition, this means $(c,c') \prodleq (q,q')$ for some initial configuration $(c,c')$ of~$\prodwsts$.
+    Again by definition we have that $c' \in \configs'_\init$ is the unique initial configuration of~$\wstsprime$.
     Hence, we have $\reach{\wstsprime}{\eps} \leq' q'$.
 
     For the inductive step, consider $w.a$.
     We may write $(p,p') \in \reach{A}{w.a}$ as an $a$-successor of some state $(q,q') \in \reach{A}{w}$.
-    This means that there is some transition $(q,q') \tow{a} (d,d')$ of the product system with $(d,d') \leq (p,p')$.
-    Using induction, we get $\reach{\wstsprime}{w} \leq q'$.
-    By the definition of the transition relation of the product system, we have that $d' = \reach{\wstsprime}{w.a}$ is the unique configuration reached by $\wstsprime$ when reading $w.a$, and we have $d' \leq p'$ as required.
+    This means that there is some transition $(q,q') \tow{a} (d,d')$ of the product system with $(d,d') \prodleq (p,p')$.
+    Using induction, we get $\reach{\wstsprime}{w} \leq' q'$.
+    By the definition of the transition relation of the product system, we have that $d' = \reach{\wstsprime}{w.a}$ is the unique configuration reached by $\wstsprime$ when reading $w.a$, and we have $d' \leq' p'$ as required.
 \end{proof}
 
 We use this lemma to conclude that the languages of $A$ and $\wsts'$ are disjoint.

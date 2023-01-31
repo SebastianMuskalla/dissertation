@@ -30,7 +30,7 @@ Each of the models provides an interpretation $\interpretationc$ \resp $\interpr
 Assume that an \emph{abstraction function} $\abs \colon \domainc{\ground} \to \domaina{\ground}$ is given.
 Note that it acts on the domains for kind ground.
 The first step in the development of the framework will be to lift $\abs$ to the domains for other kinds.
-Intuitively, the abstraction $\abs{\fc}$ of a function $\fc \in \domainc{\kappa_1 \to \kappa_2}$ should be the function that takes an abstract value $\xa \in \domaina{\kappa_1}$, \emph{concretizes} it by taking a preimage $\xc \in \domainc{\kappa_1}$ with $\abs{\xc} = \xa$, applies $f$ to the preimage and abstracts the result, $\abs{\xc} \appl \xa = \abs{\fc \appl \xc}$.
+Intuitively, the abstraction $\abs{\fc}$ of a function $\fc \in \domainc{\kappa_1 \to \kappa_2}$ should be the function that takes an abstract value $\xa \in \domaina{\kappa_1}$, \emph{concretizes} it by taking a preimage $\xc \in \domainc{\kappa_1}$ with $\abs{\xc} = \xa$, applies $f$ to the preimage and abstracts the result, $\abs{\fc} \appl \xa = \abs{\fc \appl \xc}$.
 
 This definition has two problems:
 The abstract value $\xa$ might have no preimage under $\abs$, and even if it has one, the preimage may not be unique.
@@ -38,7 +38,7 @@ To solve the second problem, we introduce the notion of \emph{compatibility}:
 A function is compatible (with $\abs$) if values with the same abstraction are evaluated to function values with the same abstraction.
 Hence, the value of the abstraction of such a function will not depend on which preimage is chosen.
 
-Furthermore, we define $\abs{f} \appl \xa$ to be the least element of the domain for the appropriate kind whenever $\xa$ has no $\abs$-preimage.
+Furthermore, we define $\abs{\fc} \appl \xa$ to be the least element of the domain for the appropriate kind whenever $\xa$ has no $\abs$-preimage.
 This solves the first problem, but causes another one:
 We now cannot hope that $\abs{\solc} = \sola$ will hold for the components of the fixed-point that are functions.
 Instead, we will only get what is essentially equality on the image of $\abs$.
@@ -84,12 +84,12 @@ Note that for each kind $\kappa$, we denote by $\botc{\kappa}$ and $\bota{\kappa
                 for every compatible $\xc, \xc' \in \domainc{\kappa_1}$ such that $\abs{\xc} \approx \abs{\xc'}$, we have $\abs{\fc \appl \xc} \approx \abs{\fc \appl \xc'}$.
         \item
             If $\fc  \in \domainc{\kappa_1 \to \kappa_2}$ is compatible, we define its \emph{abstraction} $\abs{\fc} \in \domaina{\kappa_1 \to \kappa_2}$ as follows:
-            Whenever $\xa \in \domaina{\kappa_1}$ is $\approx$-related to the $\abs$-image of a compatible element, \ie $\xa \approx \abs{\xc}$ for some $\xc \in \domainc{\kappa_1}$, we define the function value $\abs{\fc} \appl \xa = \abs{\fc \appl \xc}$.
-            If no such $\xc$ exists, we define $\abs{\fc} = \bota{\kappa_1}$ to be the least element of $\domaina{\kappa_1}$.
+            Whenever $\xa \in \domaina{\kappa_1}$ is $\approx$-related to the $\abs$-image of a compatible element, \ie $\xa \approx \abs{\xc}$ for some compatible $\xc \in \domainc{\kappa_1}$, we define the function value $\abs{\fc} \appl \xa = \abs{\fc \appl \xc}$.
+            If no such $\xc$ exists, we define $\abs{\fc} \xa = \bota{\kappa_1}$ to be the least element of $\domaina{\kappa_2}$.
 
             For non-compatible $\fc$, we define $\abs{\fc} = \bota{\kappa_1 \to \kappa_2}$ as the bottom function for kind $\kappa_1 \to \kappa_2$, the function that maps any value from $\domaina{\kappa_1}$ to $\bota{\kappa_2}$.
         \item
-            The \emph{equivalence} $\approx$ on $\domaina{\kappa_1 \to \kappa_2}$ is defined as follows: For $\fa, \fa' \in \domaina{\kappa_1 \to \kappa_2}$, $\fa \approx \fa'$ holds if for any $\xa \in \domaina{\kappa_1}$ that is $\approx$-equivalent to the $\abs$-image of a compatible element, $\xa \cong \abs{\xc}$ for some $\xc \in \domainc{\kappa_1}$, we have $\fa \appl \xa \approx \fa' \appl \xa$.
+            The \emph{equivalence} $\approx$ on $\domaina{\kappa_1 \to \kappa_2}$ is defined as follows: For $\fa, \fa' \in \domaina{\kappa_1 \to \kappa_2}$, $\fa \approx \fa'$ holds if for any $\xa \in \domaina{\kappa_1}$ that is $\approx$-equivalent to the $\abs$-image of a compatible element, $\xa \cong \abs{\xc}$ for some compatible $\xc \in \domainc{\kappa_1}$, we have $\fa \appl \xa \approx \fa' \appl \xa$.
     \end{thmenumerate}
 \end{definition}
 
@@ -100,13 +100,13 @@ Before studying the definition in more detail, we consider an example.
     Consider kind $\ground \to \ground$.
     A function $\fc \in \domainc{\ground \to \ground}$ is compatible if for any two $\xc,\xc \in \domainc{\ground}$, $\abs{\xc} = \abs{\xc}$ implies $\abs{\fc \appl \xc} = \abs{\fc \appl \xc'}$.
     Note that this is just the second part of the definition of compatibility, since the first one is trivially satisfied.
-    Also, the fact that $\approx$ is just equality on $\domainc{\ground}$ and that every element of $\domainc{\ground}$ is compatible play a rule here.
+    Also, the fact that $\approx$ is just equality on $\domainc{\ground}$ and that every element of $\domainc{\ground}$ is compatible play a role here.
 
     Such a compatible function $\fc$ can be abstracted, obtaining $\abs{\fc}$, the function that takes a value $\xa \in \domaina{\ground}$ and returns $\abs{\fc \appl \xc}$, where $\xc \in \domainc{\ground}$ satisfies $\abs{\xc} = \xa$.
     If no such $\xc$ exists, the return value is $\bota{\ground}$.
     This in particular means that $\abs{\fc} \appl \abs{\xc} = \abs{\fc \appl \xc}$ holds for all $\xc \in \domainc{\ground}$.
 
-    Two functions $\fa,\fa \in \domaina{\ground \to \ground}$ are $\approx$-equivalent if for any $\abs{\xc}$, their function \nb{values coincide}.
+    Two functions $\fa,\fa' \in \domaina{\ground \to \ground}$ are $\approx$-equivalent if for any $\abs{\xc}$, their function \nb{values coincide}.
 
     This characterization can be generalized easily for any kind of order one with arbitrary arity.
     A concrete function is compatible if swapping its arguments for ones that have the same image under $\abs$ does not change the $\abs$-image of the function value.
@@ -234,7 +234,7 @@ The first requirement is that $\abs$ maps the least element of the concrete doma
 The second is that $\abs$ is join-continuous.
 Since the least fixed point is, by Kleene's theorem, the join of an ascending chain that starts with the bottom element, requiring these properties is not unexpected.
 Note that we only require these properties for kind ground.
-We will show that this is sufficient to be able to lift them to arbitrary the domains for arbitrary kinds.
+We will show that this is sufficient to be able to lift them to the domains for arbitrary kinds.
 
 The latter two requirements are that the concrete interpretation of the terminals are compatible and that under $\abs$, they are $\approx$-equivalent to the abstract interpretations.
 Recall that we have required terminals to be first order.
@@ -315,7 +315,7 @@ For the proof by induction to work, we need to strengthen the induction hypothes
 
 \begin{lemma}%
 \label{Lemma:HORSEFPTLiftJoinContinuity}%
-    Assume that $\abs$ satisfies the Properties~\ref{Property:HORSPrecisionBottom}~and~\ref{Property:HORSPrecisionCont}
+    Assume that $\abs$ satisfies the Properties~\ref{Property:HORSPrecisionBottom}~and~\ref{Property:HORSPrecisionCont}.
     For all $\kappa$:
     The join $\bigsqcup_{i \in \N} \fci$ of an ascending chain of compatible elements ${(\fci)}_{i \in \N}$ from $\domainc{\kappa}$ is compatible, and $\abs$ is join-continuous on such chains:
     $\abs{ \bigsqcup_{i \in \N} \fci } \approx \bigsqcup_{i \in \N} \abs{\fci}$.
@@ -324,7 +324,7 @@ For the proof by induction to work, we need to strengthen the induction hypothes
 \begin{proof}
     We proceed by induction on $\kappa$.
     Any element of $\domainc{\ground}$ is compatible by definition, which in particular applies to the join of a chain.
-    The join continuity of $\abs$ is simply Property~{\ref{Property:HORSPrecisionCont}}.
+    The join-continuity of $\abs$ is simply Property~{\ref{Property:HORSPrecisionCont}}.
 
     Consider kind $\kappa_1 \to \kappa_2$, and let $\bigsqcup_{i \in \N} \fci$ be an ascending chain of compatible elements ${(\fci)}_{i \in \N}$ from $\domainc{\kappa_1 \to \kappa_2}$.
 
@@ -525,6 +525,10 @@ We also prove that if we modify the valuation $\abs{\val}$ by exchanging its ent
     We now use $\abs{\valc[x \mapsto \xc]} \approx \vala[x \mapsto \xa]$ and apply the induction hypothesis again to get
     $\sema{t_1}{\abs{\valc[x \mapsto \xc]}} \approx \sema{t_1}{\paren{\vala[x \mapsto \xa]}}$ as desired.
 
+    %
+    \cheatpagebreak
+    %
+
     \subparagraph{Inductive step, $t = t_1 \appl t_2$}
     %
     For Part~a), we have
@@ -612,7 +616,7 @@ We state this result as a corollary.
     If $t$ is a variable-closed term of kind ground, then $\sola{t} = \abs{\solc{t}}$.
 \end{corollary}
 
-Note that the corollary in articular applies to the initial nonterminal $S$ of the scheme, which we have required to be of kind $\ground$.
+Note that the corollary in particular applies to the initial nonterminal $S$ of the scheme, which we have required to be of kind $\ground$.
 
 To finish this section, it remains to prove the theorem.
 

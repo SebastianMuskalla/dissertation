@@ -50,7 +50,7 @@ The resulting model is what we will call the \emph{concrete model}~$\modelc$.
 Instantiating the model requires us to provide a domain $\domainc{\ground}$ for kind ground.
 Intuitively, we want to use positive Boolean formulas over words.
 In contrast to the development in \cref{Chapter:ContextFreeGames}, this means that we consider an infinite set of atoms.
-As a consequence, it will easier to establish a correspondence between the winner of the game and the least solution to the interpreted system of equations, but we will not be able to compute the least solution in finite time.
+As a consequence, it will be easier to establish a correspondence between the winner of the game and the least solution to the interpreted system of equations, but we will not be able to compute the least solution in finite time.
 
 Let us consider the set of positive Boolean formulas over words as atoms, factorized by logical equivalence and ordered by implication.
 Because the set of atoms is infinite, the set of equivalence classes is not finite.
@@ -82,11 +82,11 @@ non-empty sets of positive Boolean formulas over words, factorized by logical eq
 In order to formally define implication, we proceed as follows.
 Since the set of atoms is the set of words over $\Sigma$, variable assignments correspond to languages $\calL \subseteq \Sigma^*$ by setting $\calL(w) = \true$ iff $w \in \calL$.
 A language $\calL$ satisfies a formula $H$, $H(\calL) = \true$, if the formula evaluates to true under the standard evaluation semantics.
-A language $\calL$ satisfies a non-empty set of formulas $\sof$, $\sof(\calL) = \true$, if it satisfies at least one formula $H \in \sof$.
+A language $\calL$ satisfies a non-empty set of formulas~$\sof$, $\sof(\calL) = \true$, if it satisfies at least one formula $H \in \sof$.
 A set of formulas $\sof$ implies another set of formulas $\sof'$, $\sof \lleq \sof'$, if any language that satisfies $\sof$ also satisfies $\sof'$.
 Two sets of formulas $\sof, \sof'$ are logically equivalent, $\sof \lequiv \sof'$, if both $\sof \lleq \sof'$ and $\sof' \lleq \sof$ hold.
 
-Note that our definition of implication extends the usual notion of implication for formulas to sets of formulas in a straightforward way by seeing them as (potentially) infinite disjunction.
+Note that our definition of implication extends the usual notion of implication for formulas to sets of formulas in a straightforward way by seeing them as (potentially) infinite disjunctions.
 For example, the singleton $\set{H \vee H'}$ is logically equivalent to the set $\set{H, H'}$.
 In the following, we will proceed as in the previous chapter and work with formulas that represent the corresponding equivalence class.
 
@@ -155,7 +155,7 @@ The following theorem tells us how the concrete solution yields the winner of th
     The existential player wins the inclusion game iff $\solc{S}$ is satisfied by $\overline{\lang{A}}$.
 \end{theorem}
 
-The value of $\solc{S}$ is an (an equivalence class of) a set of formula over words, so the notation of being satisfied by a language makes sense.
+The value of $\solc{S}$ is an (an equivalence class of) a set of formulas over words, so the notation of being satisfied by a language makes sense.
 Note that the concrete solution associates elements of the domain to terms of the determinization of the game HORS.\@
 In the following proofs, we will apply $\solc$ to terms of the game HORS.\@
 Since every term of the game HORS is a valid term of its determinization, this is formally valid.
@@ -395,7 +395,7 @@ With the lemma at hand, we can prove one direction of \cref{Theorem:HORSConcrete
     We define the strategy of the universal player to pick the rule
     $F \to \lambda x_1 \ldots \lambda x_m . e_i$ in the game.
 
-    It remains to prove that the strategy maintains the invariant, \ie we have to argue that the solution associated to the term that results from picking this rule is not satisfied by $A$.
+    It remains to prove that the strategy maintains the invariant, \ie we have to argue that the solution associated to the term that results from picking this rule is not satisfied by $\overline{\lang{A}}$.
     The rewriting rules of HORSes are defined so that replacing $F$ in $a_1(\ldots(a_n(F \appl t_1 \ldots t_m)) \ldots)$ yields the term
     \[
         t' = a_1(\ldots(a_n(e_i [x_1 \mapsto t_1,  \ldots, x_m \mapsto t_m])) \ldots)
@@ -431,7 +431,7 @@ With the lemma at hand, we can prove one direction of \cref{Theorem:HORSConcrete
 
 We consider the case of the existential player.
 While the result looks very similar, its proof is much more involved.
-This is because a winning strategy for the existential player needs to enforce that all plays that conform to it terminate after finite many steps.
+This is because a winning strategy for the existential player needs to enforce that all plays that conform to it terminate after finitely many steps.
 
 \begin{proposition}%
 \label{Proposition:HORSConcreteSolExistential}%
@@ -771,7 +771,7 @@ This is because a winning strategy for the existential player needs to enforce t
                 \bigsqcup_{i \in N} \prepend{w}{\judgment_i}
                 \ .
             \]
-            Recall that the join on $\domainc{\ground}$ is union, which corresponds to an (infinite) disjunction, this value being satisfied by $\overline{\lang{A}}$ means that $\prepend{w}{\judgment_i}$ is satisfied by $\overline{\lang{A}}$ for at least one $i$.
+            Recall that the join on $\domainc{\ground}$ is the union, which corresponds to an (infinite) disjunction. So this value being satisfied by $\overline{\lang{A}}$ means that $\prepend{w}{\judgment_i}$ is satisfied by $\overline{\lang{A}}$ for at least one $i$.
             By assumption $\judgment_i \gamesound t$ holds, so there is a winning strategy for the existential player from $w(t)$.
             This proves $\bigsqcup_{i \in \N} \judgment_i \gamesound t$ as desired.
 

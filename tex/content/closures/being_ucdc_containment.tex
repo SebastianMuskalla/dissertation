@@ -43,7 +43,7 @@ The undecidability of the inclusion problem can be deduced using a technique int
 \paragraph{Trace containment}
 
 Let us turn to the proof of \cref{Theorem:PNCOVRegularContainment}.
-It strongly relies on a result of \citea{JancarEM99} that shows that the containment problem is decidable for \emph{trace languages} of finite-state automata \resp Petri nets.
+It strongly relies on a result by \citea{JancarEM99} that shows that the containment problem is decidable for \emph{trace languages} of finite-state automata \resp Petri nets.
 A trace of an automaton is a finite word that occurs along a computation from the initial state, regardless of whether it reaches a final state.
 Formally, we define the \emph{trace language} of an NFA $A$ as
 \[
@@ -85,20 +85,21 @@ The algorithm simultaneously explores the behavior of the automaton and the net,
 It constructs a tree whose nodes are labeled by pairs $(q,\calM)$, where $q$ is a state of the automaton and $\calM$ is a set of incomparable generalized markings.
 This means that $\calM \subseteq \powerset{\N_\omega^P}$, and for $M,M' \in \calM$, neither $M \leq M'$ nor $M' \leq M$ holds.
 
-The root node is labeled by the initial state and the singleton set consisting of the initial markings.
+The root node is labeled by the initial state and the singleton set consisting of the initial marking.
 Successors of a node $(q,\calM)$ are constructed by picking an applicable transition of the automaton, say $q \tow{a} q'$, and then constructing the finite set of maximal markings from the set $\calM' = \Set{ M' \in \N_\omega^P}{ \exists M \in \calM, \exists \sigma \colon \lambda(\sigma) = a, M \fire{\sigma} M'}$.
 Note that there are potentially infinitely many candidates for $\sigma$, since we allow $\eps$-labeled transitions in the net.
 Altogether, we obtain the successor $(q',\calM')$.
 
 If we have constructed a successor of the shape $(q',  \emptyset)$, trace containment is violated.
 Indeed, the path from the root node to $(q',  \emptyset)$ can be pumped to obtain a witness for a word that is contained in $\Traces{A}$, but not in $\Traces{N,\Minit}$.
-If we have constructed a successor $(q',\calM')$ such that on the path from the root node to $(q',\calM')$, there is a node $(q',\calM)$ such that the control states are equal and for every $M' \in \calM'$, there is $M \in \calM$ with $M' \leq M$, $(q',\calM')$ becomes a leaf for which we do not have constructed further successors.
+If we have constructed a successor $(q',\calM')$ such that on the path from the root node to $(q',\calM')$, there is a node $(q',\calM)$ such that the control states are equal and for every $M' \in \calM'$, there is $M \in \calM$ with $M' \leq M$, $(q',\calM')$ becomes a leaf for which we do not have to construct further successors.
 
 The soundness of the algorithm is not hard to prove.
 The difficult part is showing that the succors can be constructed in finite time, and that the tree is necessarily finite.
 This part of the proof relies on well-quasi ordering arguments.
 Hence, a naive complexity analysis of the algorithm yields a non-primitive recursive complexity.
-A more detailed analysis using the techniques developed by Schmitz and others, see \eg~\cite{LazicS15}, is beyond the scope of this thesis.
+The literature provides us with a matching non-primitive recursive lower bound:
+In~\cite{HofmanT18}, it was shown that \emph{trace universality}, a variant of trace containment, is Ackermann-complete even for Petri nets in which just a single place is unbounded.
 
 \paragraph{Reducing regular containment to trace containment}
 
@@ -107,7 +108,7 @@ Let $(N,\Minit,\Mfinal)$ be the labeled Petri net instance of interest, and let 
 As argued above, we have $\Traces{N,\Minit} = \lang{N,\Minit,\vec{0}}$.
 Hence, we consider the zero vector as the new final marking.
 To take the original final marking $\Mfinal$ into account, we will use a new transition with a fresh label that can only be fired once $\Mfinal$ has been covered.
-Similarly, will we add transitions with this label to the automaton that witness that a final state has been reached.
+Similarly, we will add transitions with this label to the automaton that witness that a final state has been reached.
 
 More formally, let $a \not\in \Sigma$ be a fresh letter and define $\Sigma_a = \Sigma \dotcup \set{a}$.
 We define $N.a$ to be the labeled Petri net over $\Sigma_a$ that is obtained from $N$ by adding an $a$-labeled transition $t_a$ that produces no token and consumes $\Mfinal$, \ie $\i(t_a) = \Mfinal$, $\o(t_a) = \vec{0}$.
@@ -148,7 +149,7 @@ The net $N.a$ and the automaton $A.a$ have been constructed so that we can use t
     Let $w \in \lang{A}$, and consider $w.a \in \lang{A.a} \subseteq \Traces{A.a}$.
     By assumption, we have $w.a \in \Traces{N.a, \Minit}$, so we may choose a computation $\Minit \fire{\sigma} M$ of $N.a$ with $\lambda(\sigma) = w.a$.
     Note that $w$ is a word over $\Sigma$ and does not contain $a$.
-    Hence, $\sigma$ is of the shape $\sigma = \sigma'.t_a$, where $\sigma'$ only uses transitions from the original net $N$.
+    Hence, $\sigma$ is of the shape $\sigma = \sigma'.t_a$, where $\sigma'$ only uses transitions from the original net~$N$.
     We get that $\Minit \fire{\sigma\lowerprime} M$ is a computation of $N$ reaching a marking in which \nb{transition $t_a$} is enabled, which implies $M \geq \Mfinal$.
     Hence, $\lambda(\sigma') = w \in \lang{N,\Minit,\Mfinal}$, \nb{as we wanted to prove.}
 \end{proof}

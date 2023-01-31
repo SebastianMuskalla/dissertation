@@ -146,7 +146,7 @@ The formal definition is as follows.
 
 \begin{definition}%
 \label{Definition:CFComp}%
-    The composition $F \comp H$ of two formulas is inductively defined as follows.
+    The composition $F \comp H$ of two formulas is inductively defined as follows:
     \begin{align*}
         (F \wedgevee F') \comp H &= F \comp H \wedgevee F' \comp H
         \\
@@ -155,7 +155,8 @@ The formal definition is as follows.
         \tbox \comp \tbox' &= \tbox \relcomp\tbox'
         \ ,
     \end{align*}
-    where $F,F',H,H' \in \pBF\paren{\nfatransmonoid{A}}$, $\tbox,\tbox' \in \nfatransmonoid{A}$, and ${\wedgevee} \in \set{\wedge, \vee}$.
+    where $F,F',H,H' \in \pBF\paren{\nfatransmonoid{A}}$ are not equal to $\false$, $\tbox,\tbox' \in \nfatransmonoid{A}$, and ${\wedgevee} \in \set{\wedge, \vee}$.
+    For any $F \in \pBF\paren{\nfatransmonoid{A}}$, we define $F \comp \false = \false \comp F = \false$.
 \end{definition}
 
 \paragraph{The order}
@@ -171,7 +172,7 @@ Later iterations will yield formulas $F$ such that the existential player can en
 Here, we see $M$ as the variable assignment that assign true to $\tbox$ if and only if $\tbox \in M$.
 The least fixed point solution associated to a nonterminal will be a formula that characterizes the set of words whose derivation the existential player can enforce from that nonterminal.
 
-However, since the system of equation is set up so that it composes old information to obtain new information, it is not sufficient to define $F \leq H$ to hold if the tree of plays represented by $H$ is easier to win than the tree of plays represented by $F$.
+However, since the system of equations is set up so that it composes old information to obtain new information, it is not sufficient to define $F \leq H$ to hold if the tree of plays represented by $H$ is easier to win than the tree of plays represented by $F$.
 We have to require that this holds not only for $F$ and $H$ in isolation, but for $F$ and $H$ in any possible context.
 More formally, assume that $F$ represents the plays from $X$ and $H$ represents the plays from $Y$.
 Intuitively, we should require that $F \leq H$ implies that for any sentential forms $\beta,\gamma$, we have that it is easier for the existential player to win from $\beta.Y.\gamma$ than from $\beta.X.\gamma$.
@@ -354,7 +355,7 @@ We state and prove monotonicity in the form of the following lemma.
     In the outer three inductions, the base case is proven by the previous induction.
 
     In the proof, we let $\set{ \wedgevee, \veewedge } = \set{ \wedge, \vee}$, \ie $\wedgevee$ is one of the operators and $\veewedge$ is the other.
-    We will use $\wedgevee$, $\veewedge$, and $\lleq$ as syntactic parts of the formula as well as to connect statements in the part of the proof.
+    We will use $\wedgevee$, $\veewedge$, and $\lleq$ as syntactic parts of the formula as well as to connect statements in the proof.
     For example, we may write $(H_1 \lleq H') \veewedge (H_2 \lleq H')$ to express that $H_1 \lleq H'$ and/or $H_2 \lleq H'$ hold.
     This unusual choice prevents the proof from becoming too technical.
 
@@ -455,8 +456,8 @@ We state and prove monotonicity in the form of the following lemma.
      \vspace*{-\baselineskip}
 \end{proof}
 
-Note that the transitivity of implication would allow us to prove the statement by separately showing $F \comp G \lleq F' \comp G$ and $F \comp  G \lleq F \comp G'$.
-We also see this in Step~2 of the proof, since we do not need the assumption that $G$ is atomic.
+Note that the transitivity of implication would allow us to prove the statement by separately showing $F \comp H \lleq F' \comp H$ and $F \comp H \lleq F \comp H'$.
+We also see this in Step~2 of the proof, since we do not need the assumption that $H$ is atomic.
 
 We conclude that the operations are not only monotonic on formulas, but also monotonic and well-defined on equivalence classes.
 
@@ -491,7 +492,7 @@ To complete this section, we continue our example.
 
 \begin{example}%
 \label{Example:CFGamesTwo}%
-    Consider $(G,A)$ from \cref{Example:NFAForABStar} \resp \cref{Figure:NFAForABStar}.
+    Consider $(G,A)$ from \cref{Example:CFGamesOne}.
     Note that we have depicted all boxes with non-empty equivalence class for automaton $A$ in \cref{Figure:BoxesForABStar}.
 
     Interpreting the system of equations associated to $(G,A)$ yields

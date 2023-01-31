@@ -27,7 +27,7 @@ This allows us to model games as \emph{board games}, \ie based on directed graph
 The nodes of the graph represent states of the game and the choices of a player in a certain state are represented by the choice among the outgoing edges of the corresponding node.
 
 In \cref{Section:IntroGames} of the introduction, we have already given several examples of where such games play a role in computer science.
-We have discussed a proof of Rabin's tree theorem that relies on games, we have briefly mentioned game semantics, and we have talked extensively about how games can be used to model synthesis problems.
+We have briefly mentioned game semantics and a proof of Rabin's tree theorem that relies on games, and we have talked extensively about how games can be used to model synthesis problems.
 
 \paragraph{Basic definitions}
 
@@ -120,7 +120,7 @@ Hence, it is her winning region and its complement is the winning region of the 
 The corresponding winning strategy for the universal player simply picks for each position that is not in the attractor a successor that is also not in it.
 The definition of the attractor ensures that this is possible.
 The winning strategy for the existential player is more involved since it needs to ensure that $\configs_\final$ is reached after finitely many steps.
-To this end, if the play is currently in a position that was added to the attractor in the $\nth{i}$ step of the aforementioned inductive construction, the strategy needs to pick a successor that was added in the $\nth{(i-1)}{st}$ step of the construction or earlier.
+To this end, if the play is currently in a position that was added to the attractor in the $\nth{i}$~step of the aforementioned inductive construction, the strategy needs to pick a successor that was added in the $\nth{(i-1)}{st}$ step of the construction or earlier.
 This ensures that the play eventually reaches a position that is contained in the zero-step attractor, which is the target set.
 
 \paragraph{Parity games}
@@ -133,7 +133,7 @@ Oftentimes, games with other winning conditions can be transformed into parity g
 
 A \emph{parity game} is given by a game arena and a \emph{priority function} $\Omega \colon \configs \to \N$ that assigns to each position of the game one of finitely many priorities.
 For the sake of simplicity, we assume that the game arena is deadlock-free, which means that every maximal play is infinite.
-Such a play~$p$ is won by the existential player if and only if the largest priority that occurs infinitely often in the sequence $\Omega(p) = \Omega(p_1) \Omega(p_2) \ldots$ is odd.
+Such a play~$p$ is won by the existential player if and only if the largest priority that occurs infinitely often in the sequence $\Omega(p) = \Omega(p_0) \Omega(p_1) \Omega(p_2) \ldots$ is odd.
 
 If we only allow finitely many priorities, choosing smaller or larger priorities to be dominating is arbitrary.
 Considering a more general setting is beyond the scope of this thesis.
@@ -150,7 +150,7 @@ The membership in this intersection strongly suggests that the problem is not $\
 To this date, no polynomial-time algorithm is known.
 A recent breakthrough~\cite{CaludeJKLS17} has provided the first algorithm that is both quasi-polynomial and fixed-parameter tractable.
 The former property means that the algorithm solves parity games in time $\log (2^{n^k})$, where $n$ is the size of the input and $k$ is a constant.
-The latter means that the algorithm is exponential only in the highest occurring priority, but not in size of the game arena.
+The latter means that the algorithm is exponential only in the highest occurring priority, but not in the size of the game arena.
 
 \paragraph{Games on the transitions systems induced by automata}
 
@@ -179,7 +179,7 @@ We will later see that context-free games, games whose arenas are induced by pus
 Petri nets form an interesting case: While coverability and reachability are decidable, we will prove that games defined by Petri nets with the corresponding winning conditions \nb{are undecidable}.
 
 \begin{remark*}
-    In \cref{Section:ATMs} we have provided a definition of alternating Turing machines and later introduced nondeterministic Turing machines as special cases.
+    In \cref{Section:ATMs}, we have provided a definition of alternating Turing machines and later introduced nondeterministic Turing machines as special cases.
     With the notions introduced in this section, we could take the opposite approach: An alternating Turing machine is a nondeterministic Turing machine with a partitioning of the control states, and its semantics is the corresponding control-state reachability game.
 \end{remark*}
 
@@ -216,7 +216,7 @@ If a play generates a finite word or an infinite one contained in $\calL$, the u
 In \cref{Section:IntroGames} of the introduction, we had considered synthesis as one application for perfect-information games.
 If we model the game representing a synthesis problem according to the definitions in this section, the roles of the players are as follows.
 The universal player is the synthesis players.
-Her goal is to ensure that all executions that are terminating or non-terminating~--~depending on which type of program we consider~--~are valid with respect to the specification.
+Her goal is to ensure that all executions that are terminating or \mbox{non-terminating~--~depending} on which type of program we consider~--~are valid with respect to the specification.
 An execution being valid with respect to the specification means that the corresponding play generates a word that is in the target language.
 The existential player represents the environment.
 She wins  plays that generate words that are of the required shape (\ie finite or infinite) but not in the target language.

@@ -5,7 +5,7 @@
 \label{Section:EDSEqSys}%
 
 We start by formally introducing systems of equations, their interpretations and solutions.
-We then consider ordered domains, which results in the notion of the least solution to a system of equation.
+We then consider ordered domains, which results in the notion of the least solution to a system of equations.
 The material presented in this section is standard and can be found \eg in~\cite{NielsonNH99}.
 
 \paragraph{Systems of equations}
@@ -40,7 +40,7 @@ A system of equations provides for each variable one defining term.
 
 Before we can solve a system of equations, we first need to associate a meaning to its syntax.
 Let $\domain$ be a \emph{domain}, which at this point should just mean that it is a set of values.
-An \emph{interpretation} $\interpretation$ of the function symbols over $\domain$ is a function that assigns to each function symbol $f$, say with arity $k$, a function
+An \emph{interpretation}~$\interpretation$ of the function symbols over $\domain$ is a function that assigns to each function symbol $f$, say with arity $k$, a function
 \[
     f^\interpretation \colon \domain^k \to \domain
     \ .
@@ -61,7 +61,7 @@ It takes a variable assignment $\sigma \in \domain^\vars$ and returns the value 
 Note that it is customary to omit the parentheses around the argument $\sigma$.
 Formally, the function is defined by induction over the structure \nb{of the term},
 \begin{align*}
-    \sem{\model}{X}{\sigma} & = \sigma_X
+    \sem{\model}{X}{\sigma} & = \sigma(X)
     \ ,
     \\
     \sem{\model}{f(\term_1, \ldots, \term_k)}{\sigma} & =
@@ -74,10 +74,10 @@ Formally, the function is defined by induction over the structure \nb{of the ter
         \ .
 \end{align*}
 %
-We may see $\sem{\model}{-} \colon \terms \times \domain^\vars \to \domain$ as a function that takes both a term $\term$ and an assignment $\sigma$ and returns $\sem{\model}{\term}{\sigma}$.
+We may see $\sem{\model}{-} \colon \terms \times \domain^\vars \to \domain$ as a function that takes both a term $\term$ and an assignment~$\sigma$ and returns $\sem{\model}{\term}{\sigma}$.
 
 Let $\vec{X} = \vec{\term}$ be a system of equations and let $\model$ be a model for the set of terms used in that system.
-Applying the lifted interpretation to the defining terms $\term_i$ yields for each variable a function $\sem{\model}{\term_i} \colon \domain^\vars \to \domain$.
+Applying the lifted interpretation to the defining terms $\term_i$ yields for each variable~$X_i$ a function $\sem{\model}{\term_i} \colon \domain^\vars \to \domain$.
 We can combine these into a single function
 \[
     \rhs \colon \domain^\vars \to \domain^\vars
@@ -124,7 +124,7 @@ We will see in the following example that while the language of the grammar is a
 \label{Example:EDSSysOfEqCFG}%
     Consider the grammar $G$ with terminals $\Sigma = \set{a ,b, c}$, the single nonterminal $X$ and \nb{the rules}
     \begin{align*}
-        S &\to aX \mid bX
+        S &\to aX \mid bX \mid X
         \ ,
         &
         X &\to S
@@ -133,9 +133,8 @@ We will see in the following example that while the language of the grammar is a
     We have $\lang{G} = \emptyset$, as there is no terminating derivation process.
     It is easy to verify that the assignment $\sigma_1$ with $\sigma_1(X) = \sigma_1(S) = \emptyset$ satisfies the associated interpreted system of equations.
 
-    The assignment $\sigma_2$ with $\sigma_2(S) = a\Sigma^* \cup b\Sigma^* = \Sigma^*$ and $\sigma_2(X) = \Sigma^*$ is also a solution to the interpreted system of equations.
-    In fact, for any language $\calL$, we have that the assignment $\sigma_{\calL}$ with $\sigma_{\calL}(X) = \sigma_{\calL}(S) = a.\calL \cup b.\calL$ is a solution.
-    Unless we chose $\calL$ to be $\emptyset$ to recover the solution $\sigma_1$, $\sigma_{\calL}$~does not correspond to the language of the CFG.\@
+    The assignment $\sigma_2$ with $\sigma_2(S) = a\Sigma^* \cup b\Sigma^* \cup \Sigma^* = \Sigma^*$ and $\sigma_2(X) = \Sigma^*$ is also a solution to the interpreted system of equations.
+    We see that a solution to the system of equations does not necessarily correspond to the language of the CFG.\@
 \end{example}
 
 The example shows that there can be many solutions to an interpreted system of equations.
@@ -146,7 +145,7 @@ Formally, we equip the set of value with a partial order that satisfies certain 
 \paragraph{Complete Partial Orders.}
 
 
-Let $(\domain, \leq)$ be a \emph{partial order}, \ie a set $\domain$ of data elements and a partial ordering $\leq \ \subseteq \domain \times \domain$ on $\domain$.
+Let $(\domain, \leq)$ be a \emph{partial order}, \ie a set $\domain$ of data elements and a partial ordering $\leq \ \subseteq \domain \times \domain$ on~$\domain$.
 We call $(\domain, \leq)$ \emph{pointed} if there is a least element $\bot \in \domain$, called the \emph{bottom element}, satisfying $\bot \leq x$ for all $x \in \domain$.
 %
 Recall that an \emph{ascending chain} in $\domain$ is a sequence ${(d_i)}_{i \in \N}$ of elements in $\domain$ such that $d_i \leq d_{i+1}$ for all $i \in \N$.
@@ -260,7 +259,7 @@ We extend this result and show that the product of CPPOs equipped with the produ
 The least element in the product is the tuple consisting of the least elements, \ie it is the assignment $\bot \in \domain^\vars$ with $\bot_X = \bot \in \domain$ for all $X$, where we intentionally use the same symbol $\bot$ in both cases.
 Joins in the product order can be obtained component-wise:
 If ${(\sigma_i)}_{i \in \N}$ is an ascending chain in $\domain^\vars$, then the sequence of values ${(\sigma_{i,X})}_{i \in \N}$ occurring in component $X$ is an ascending chain in $\domain$.
-The join $\bigsqcup_{i \in \N} \sigma_i$ in $\domain^\vars$ is the vector whose $X$ component is $\bigsqcup_{i \in \N} \sigma_{i,X}$.
+The join $\bigsqcup_{i \in \N} \sigma_i$ in $\domain^\vars$ is the vector whose $X$-component is $\bigsqcup_{i \in \N} \sigma_{i,X}$.
 %
 Correspondingly, a function over $\domain^\vars$ is join-continuous if it is join-continuous in every component.
 We have argued before that if we assume that the interpretation of all function symbols is join-continuous, then so are the functions $\sem{\model}{\term}$.
@@ -269,7 +268,7 @@ This enables us to apply Kleene's theorem to it.
 
 We define the \emph{\nth{i}{\,th} approximant} $\soli{i}$ to be
 \[
-    \soli{i} = \rhs^i(\bot)
+    \soli{i} = \rhs^i(\bot),
 \]
 the variable assignment obtained by an $i$-fold application of $\rhs$ to $\bot \in \domain^\vars$, the least element of the product domain.
 Using Kleene's theorem, the value
@@ -283,16 +282,16 @@ If the domain $\domain$ satisfies the ACC or is of bounded height, then the same
 To this end, observe that if $\domain$ has height $j$, then $\domain^\vars$ has height $\card{\vars} \cdot j$.
 In this case, there is some index $i_0$ so that $\sol = \soli{i_0}$.
 Hence, Kleene's theorem allows us to compute the least solution to a system of equations assuming that it is interpreted over a CPPO satisfying the ACC and that the interpretations of the functions are monotonic.
-Starting with the least element, we iteratively the function $\rhs$ until the value remains unchanged.
+Starting with the least element, we iteratively apply the function $\rhs$ until the value remains unchanged.
 This process is called \emph{Kleene iteration}.
 
 \paragraph{Systems of inequalities and lattices}
 
 Often, our goal is not to solve a system of equations.
-Instead, we are given a system of inequalities, where each variable has one or more defining constraints.
-It turns out that this setting, while arguably sounding more complicated, can in fact be solved more efficiently, as long as the underlying domain satisfies additional properties.
+Instead, we are given a system of inequalities where each variable has one or more defining constraints.
+It turns out that this setting, while arguably sounding more complicated, can in fact be solved more efficiently as long as the underlying domain satisfies additional properties.
 
-Formally \emph{system of inequalities} for a set of variables $\vars$ and a set of function symbols $\funs$ is defined as a finite set of inequalities of the shape
+Formally, a \emph{system of inequalities} for a set of variables $\vars$ and a set of function symbols $\funs$ is defined as a finite set of inequalities of the shape
 \[
     X \geq \term
     \ ,
@@ -337,7 +336,7 @@ In particular, Kleene's theorem guarantees its existence if the interpretations 
 To formally show this, one uses a famous theorem by Knaster and Tarski~\cite{Knaster28,Tarski49,Tarski55}.
 
 \begin{theorem}[(Knaster \& Tarski)]
-    Let $f \colon \domain \to \domain$ be a monotonic function over a lattice $(\domain,\leq)$.
+    Let $f \colon \domain \to \domain$ be a monotonic function over a complete lattice $(\domain,\leq)$.
     Then $f$ has a least fixed point, namely
     \[
         \bigsqcap \ \Set{ d \in \domain }{ d \geq f(d) }
@@ -425,12 +424,13 @@ Considering the least solution instead of an arbitrary one allows us to recover 
 \begin{example}%
     Consider again the grammar $G$ from \cref{Example:EDSSysOfEqCFG} with the production rules
     \begin{align*}
-        S &\to aX \mid bX
+        S &\to aX \mid bX \mid X
         \ ,
         &
         X &\to S
         \ .
     \end{align*}
+    We interpret it over $(\powerset{\Sigma^*},\subseteq)$ as described above.
     We have that $\soli{0} = \rhs^0(\bot) = \bot$ is the tuple that assigns each nonterminal the empty language.
     It is not hard to see that $\soli{1} = \soli{0}$, so $\soli{0} = \sol$ is the least solution.
     Indeed, $\sol{S} = \emptyset$ is the language of the grammar.
@@ -465,7 +465,7 @@ Considering the least solution instead of an arbitrary one allows us to recover 
 \end{example}
 
 While the least solution to the system of equations associated to a context-free grammar is indeed the language of the grammar, it cannot be computed within finite time using Kleene iteration or chaotic iteration.
-In the next section, we will see how overcome this problem by using a finite domain.
+In the next section, we will see how to overcome this problem by using a finite domain.
 The corresponding least solution will not correspond to the language of the CFG, but it will characterize it precisely enough to be able to solve a specific verification problem.
 
 \end{document}

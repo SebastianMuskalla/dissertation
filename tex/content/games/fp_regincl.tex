@@ -42,7 +42,7 @@ Assume that we are given a context-free grammar $G = (N,P,S)$ over the terminal 
 We first set up a system of inequalities representing $G$.
 Similar to what we did in the last section, we see the nonterminals as variables.
 Each terminal~$a$ as well as $\eps$ constitute constant function symbols.
-Additionally, we have composition $\comp$ as an operation.
+Additionally, we have concatenation as an operation.
 We obtain a system of inequalities in which each rule
 \(
     X \to \eta
@@ -56,7 +56,7 @@ by seeing the right-hand side as a term that is a composition of the constants (
 Let $\nfatransmonoid{A}$ be the transition monoid of $A$.
 We interpret the above system over the powerset lattice $(\powerset{\nfatransmonoid{A}},\subseteq)$ over the transition monoid.
 Each of the constants $a \in \Sigma \cup \set{\eps}$ is interpreted as the singleton set $\set{ \tbox{a}}$.
-The product operation is interpreted as element-wise relational composition: For sets $R_1,R_2 \subseteq \nfatransmonoid{A}$, we have
+Concatenation is interpreted as element-wise relational composition: For sets $R_1,R_2 \subseteq \nfatransmonoid{A}$, we have
 \[
     R_1 \comp R_2
     =
@@ -81,9 +81,9 @@ The proofs are adapted from~\cite{HolikM15}.
 We choose to explicitly present these proofs, even though they are not original work by the author of this thesis.
 They serve as an example of how to show the soundness of an approach to a verification problem based on effective denotational semantics.
 
-%
-\cheatpagebreak
-%
+% %
+% \cheatpagebreak
+% %
 
 The crucial step in proving the soundness of the algorithm is establishing the following lemma.
 
@@ -124,7 +124,7 @@ The following lemma makes this correspondence formal.
     Recall that in order to apply Kleene iteration, we have to transform the system of inequalities into a system of equations.
     We collect all rules $X \to\itr{\eta}{1}, \ldots, X \to \itr{\eta}{\ell_X}$ with $X$ and obtain that
     \[
-        \sol{i+1}{X} = \sol{i}{\itr{\eta}{1}} \sqcup \ldots \cup \sol{i}{\itr{\eta}{\ell_X}}
+        \sol{i+1}{X} = \sol{i}{\itr{\eta}{1}} \sqcup \ldots \sqcup \sol{i}{\itr{\eta}{\ell_X}}
         \ .
     \]
     Since the symbol $\sqcup$ is the join, which is interpreted as the union in a powerset lattice, we can rewrite the right-hand side and get
@@ -147,7 +147,7 @@ The following lemma makes this correspondence formal.
     If some letter $\eta_k$ of $\eta$ is a terminal symbol, the statement trivially holds.
 
     Finally, we construct a derivation $X \derive^* w_1 \ldots w_m$ by first applying the rule $X \to \eta$ and then using $\eta_j \derive^* w_j$ for each $j$.
-    Since each derivation process $\eta_j \derive^* w_j$ has height at most $i$, $X \derive^* w_1 \ldots w_m$ has height at most $i+1$ as desired.
+    Since each derivation process $\eta_j \derive^* w_j$ has height at most~$i$, $X \derive^* w_1 \ldots w_m$ has height at most $i+1$ as desired.
     Its yield is the word $w_1 \ldots w_m$ with $\tbox{w_1 \ldots w_m} = \tbox{w_1} \cdots \tbox{w_m} = \tbox_1 \cdots \tbox_m = \tbox$.
 
     For the other inclusion, one proceeds similarly.
@@ -179,9 +179,9 @@ With this lemma at hand, it is easy to show \cref{Lemma:EDSRegInclSoundness}.
 
 With both lemmas proven, the soundness of the algorithm follows directly.
 
-%
-\cheatpagebreak
-%
+% %
+% \cheatpagebreak
+% %
 
 \begin{proposition}%
 \label{Proposition:EDSRegInclSoundness}%
@@ -199,13 +199,13 @@ With the soundness of the algorithm proven, we consider some tricks that can spe
 Firstly, the system of inequalities can be solved using a worklist procedure as explained in the previous section.
 Secondly, the implementation can be \emph{lazy} in that it stops the algorithm as soon as $\sol{S}$ in the current candidate solution contains a rejecting box.
 Both chaotic iteration and Kleene iteration guarantee that the candidates for $\sol{S}$ that occur throughout the run of the algorithm form an ascending chain.
-If some candidate contains a rejecting box, then the final solution will contain it too.
+If some candidate contains a rejecting box, then the final solution will contain it, too.
 Finally, the paper by \citea{HolikM15} considers an \emph{antichain optimization}.
 Here, the key observation is that the elements of the transition monoid itself can be seen as boxes, which are subsets of $Q \times Q$.
 Boxes can be ordered by inclusion, and the operations that we apply as well as the property of being non-rejecting is well-behaved with respect to inclusion.
-Hence, we can consider instead of the powerset lattice, whose elements are arbitrary sets of boxes, the \emph{antichain lattice} whose elements are sets of boxes are incomparable.
+Hence, we can consider instead of the powerset lattice, whose elements are arbitrary sets of boxes, the \emph{antichain lattice} whose elements are sets of boxes that are incomparable.
 This domain is smaller, so there is a chance that the algorithm will terminate after fewer steps.
-The antichain optimization have been shown to be highly efficient \eg for checking the universality of finite automata~\cite{CaludeJKLS17}.
+The antichain optimization has been shown to be highly efficient \eg for checking the universality of finite automata~\cite{CaludeJKLS17}.
 However, the difference in size is not substantial enough to improve the asymptotic worst-case complexity, which remains exponential.
 
 \end{document}

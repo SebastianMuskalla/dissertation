@@ -26,7 +26,7 @@ In all other cases, the universal player wins:
 This applies when the play is a right-infinite derivation process deriving a word from $\olang{A}$, but it also applies if the play is finite, or if it is infinite, but it is not a right-infinite derivation process, or if it is a right-infinite derivation process that does not derive an infinite word.
 The latter case could occur if starting at some point, the terminal prefix of the sentential form stops growing.
 Our hope is to extend the techniques for context-free games in the same way that we extended our algorithm for context-free regular inclusion to $\omega$-context-free $\omega$-regular inclusion in \cref{Section:EDSOmegaRegIncl}.
-To do so, there are two major challenges.
+There are two major challenges.
 The first lies in the fact that the automaton representing the $\omega$-regular target language is nondeterministic.
 The second one is that least fixed-points as used in effective denotational semantics seem to be insufficient to capture the semantics of this type of game.
 We discuss each of the problems in detail and present our solutions.
@@ -45,7 +45,7 @@ However, during the derivation of a word, it is impossible to decide on-the-fly 
 In the case of a verification problem, we could overcome this by guessing nondeterministically.
 In the case of a game, this mechanism is invalid:
 We cannot let one of the players guess for the same reasons that cannot let one of players pick the moves of the automaton (as explained in \cref{Chapter:Games}).
--
+
 Our solution to this problem is an upfront determinization of the automaton, the very thing that we successfully avoided in the case of context-free inclusion games.
 In the rest of this section, we assume that the automaton representing the target language is a deterministic parity automaton $A = (Q, \Sigma, \delta, \qinit, \Omega)$.
 Using a famous result by \citea{Safra88}, a given NBA with $n$ states can be transformed into a DPA with $2^{\bigO{n \cdot \log n}}$ states.
@@ -219,7 +219,7 @@ With the formal construction at hand, we can prove the main result.
     We define a variable assignment that sets the atoms to true that are picked by the winning strategy.
     More precisely, $(p,j)$ is evaluated to true $\true$ if the winning strategy picks the transition $(K,Y) \to ((p,j),Y)$ for some clause $K$.
     Since every clause contains at least one such atom, the formula $\sol{\text{preprocess}_q{\beta}}$ evaluates to true under that assignment.
-    By an analogue of \cref{Proposition:CFGamesSoundnessExistential}, adapted to the setting under consideration, one can show that the existential player has a strategy from $\beta$ that enforces the derivation of a finite word $v$ whose effect is described by $(p,j)$.
+    By an analogue of \cref{Proposition:CFGamesSoundnessExistential}, adapted to the setting under consideration, one can show that the existential player has a strategy from $\beta$ that enforces the derivation of a finite word $v$ whose effect is described by~$(p,j)$.
     This means $q \tow{v} p$ in the DPA, and the maximum priority seen in the run is $j$.
     We invoke this strategy in the $\omega$-context-free game to go from sentential form $w.\beta.Y$ (which we obtained from $w.X$ by applying $X \to \beta.Y$) to $w.v.Y$.
     Now, the play of the $\omega$-context-free game continues from that sentential form, while the play of the parity game continues from $(Y,p)$.
@@ -250,7 +250,7 @@ With the formal construction at hand, we can prove the main result.
 
 With the soundness of the construction proven, we turn to considering its complexity.
 Assume that we have fixed a grammar $G$ and a DPA with $Q$ as its sets of states.
-We claim that the running time our algorithm is polynomial in $G$ and exponential in $Q$.
+We claim that the running time of our algorithm is polynomial in $G$ and exponential in $Q$.
 Note that we can assume without loss of generality that the maximum priority $d$ is in $\bigO{\card{Q}}$, $d \leq \card{Q} + 4$ to be precise.
 
 Firstly, we can argue similarly to the previous section that computing $\sol{\text{preprocess}_q{\beta}}$ for each transition $X \to \beta.Y$ can be done in that time.

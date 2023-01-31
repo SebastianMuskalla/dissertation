@@ -13,7 +13,7 @@ $N$ is the set of \emph{nonterminal symbols},
 $S \in N$ is the initial symbol, and
 $P \subseteq N \times {(N \cup \Sigma)}^*$ is a finite set of \emph{production rules}.
 In this context, one calls the alphabet $\Sigma$ the set of non-rewritable \emph{terminal symbols}.
-Instead of $(X,\beta) \in P$, we commonly write $X \to_G \beta$, and we omit the subscript $G$ whenever it is clear from the context.
+Instead of $(X,\eta) \in P$, we commonly write $X \to_G \eta$, and we omit the subscript $G$ whenever it is clear from the context.
 
 The semantics of a context-free grammar is a transition system whose configurations are \emph{sentential forms} from $\sententials = {(N \cup T)}^*$, words consisting of both terminals and nonterminals.
 The transitions are given by the \emph{derivation relation}, the rewriting of sentential forms conforming to the production rules.
@@ -66,7 +66,7 @@ In some steps of a derivation process $S \leftderive^* v$, the growth may be the
 Every letter of $v$ belongs to the growth of exactly one derivation step.
 
 This allows us to define the LTS $(\sententials,T,\set{S},\Sigma^*)$ over $\Sigma$ and conclude that its language coincides with $\lang{G}$:
-The configurations are sentential forms, $S$ is the only initial configurations, and the terminal words are final configurations.
+The configurations are sentential forms, $S$ is the only initial configuration, and the terminal words are final configurations.
 If $\beta \leftderive \beta'$ with prefix growth $w'$, then $T$ contains the transition $\beta \tow{w'} \beta'$.
 
 This view on context-free grammars allows us to see them as automata, similar to state based models.
@@ -115,7 +115,7 @@ To show the correspondence between CFGs and PDAs, it is not hard to construct fo
 
 \paragraph{Recursive programs}
 
-It is well-known folklore result that context-free grammars can be used to model recursive programs.
+It is a well-known folklore result that context-free grammars can be used to model recursive programs.
 This correspondence is twofold:
 Context-free grammars are sufficient to describe the control flow of a sequential program in classical programming languages (that do not feature higher-order recursion).
 If we consider recursive programs with the property that each level of the recursion only uses bounded storage, then context-free grammars are able to precisely model the program behavior.
@@ -147,7 +147,7 @@ Note that $i+1$ is the index of the first line of the \mono{then} block, and we 
 For the special nonterminal $\mono{p}_{n+1}$, we introduce the rule $\mono{p}_{n+1} \to \eps$.
 
 We claim that the control flow of a program is represented by the words in the language of that grammar.
-To see this, note that the left-derivation processes of words in the language of that grammar correspond to the control flow according to a standard evaluation semantics (which we have not formally specified).
+To see this, note that the left-derivation processes for words in the language of that grammar correspond to the control flow according to a standard evaluation semantics (which we have not formally specified).
 Now we can use the fact that the language of the grammar equals the set of finite words that can be obtained using left-derivations.
 Note that we only model the control flow; we do not take the data values into account.
 For example, a conditional always yields two rules, one for each branch, even though in a deterministic program, the current memory value uniquely determines which branch will be taken.
@@ -155,7 +155,7 @@ We simply print which branch we have used as a terminal symbol and leave it to a
 
 Additionally, we want to show that if the program uses only bounded storage at each level of the recursion, we can explicitly model the semantics using a context-free grammar.
 Consider some finite domain $\domain$ from which the data values used at each level of the recursion stem.
-We associate it to each atomic statement \mono{a} a function $F_{\mono{a}} \colon \domain \to \domain$ that specifies the transformation of the current storage that is applied by executing \mono{a}.
+We associate to each atomic statement \mono{a} a function $F_{\mono{a}} \colon \domain \to \domain$ that specifies the transformation of the current storage that is applied by executing \mono{a}.
 Similarly, we associate to each conditional expression $\mono{cond}$ a predicate $P_{\mono{cond}} \colon \domain \to \B$ that specifies for which data values the expression evaluates to true.
 To enable communication among the different levels of the recursion, we redefine procedure to be of the shape \mono{x = f(y)}.
 Each procedure call works on an independent copy of the storage.

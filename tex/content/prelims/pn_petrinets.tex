@@ -15,7 +15,7 @@ We start by defining the syntax and semantics of unlabeled Petri nets.
 % \end{definition}
 
 We may see $\i$ and $\o$ as a function taking two arguments (\eg $\i(p,t) \in \N$) or as a function that assigns to each transition a vector of multiplicities (\eg $\i(t) \in \N^P$).
-Here, we will usually write $\N^P$ instead of $\N^{\card{P}}$ to denote the set of vectors with one tuple per place.
+Here, we will usually write $\N^P$ instead of $\N^{\card{P}}$ to denote the set of vectors with one entry per place.
 
 The \emph{effect} $\e(t) \in \Z^P$ of a transition $t$ is defined to be $\e(t) = \o(t) - \i(t)$.
 We lift operations like addition, subtraction, and comparison from numbers to such vectors by applying them component-wise, \eg $\e(t)$ is the vector that has entry $\o(t,p) - \i(t,p)$ for each place $p$.

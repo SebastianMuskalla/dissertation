@@ -75,12 +75,12 @@ After finitely many steps, for each place we have either discovered a pump that 
 Now observe that the out-degree of each node of the tree is bounded by the number of transitions.
 Both facts combined yield the finiteness of the Karp-Miller tree.
 
-One should mention that the Karp-Miller tree is not unique, as its construction depends on the order in which unprocessed leafs and transitions are considered.
+One should mention that the Karp-Miller tree is not unique, as its construction depends on the order in which unprocessed leaves and transitions are considered.
 However, the interesting properties of the tree are independent of this order.
 In the literature, the Karp-Miller tree is often transformed into the so-called \emph{coverability graph} by merging all nodes that are labeled by the same generalized marking.
 For our purpose, we will keep the tree structure.
 
-The Karp-Miller tree is commonly used to represent the set \emph{coverability set} of a net $N$ together with an initial marking $\Minit$.
+The Karp-Miller tree is commonly used to represent the \emph{coverability set} of a net $N$ together with an initial marking $\Minit$.
 A marking $\Mfinal$ is coverable in $N$ from $\Minit$ (\ie it is contained in the coverability set) if and only if the Karp-Miller tree contains some node labeled by a generalized marking $M$ with $\Mfinal \leq M$.
 % Phrased differently, the downward closure (with respect to the product order on $N_\omega^P$) of the set of generalized markings labeling nodes of the Karp-Miller tree intersected with $\N^P$ is exactly the coverability set.
 Since the tree is finite, this yields a simple procedure to decide coverability.
@@ -98,7 +98,7 @@ NFA $A$ has the property that its downward closure coincides with the downward c
     $\dc{\lang{A}} = \dc{\lang{N,\Minit,\Mfinal}}$.
 \end{lemma}
 
-A representation for $\dc{\lang{A}}$ is easy to compute by inserting an $\eps$-labeled variant of each transition in $A$ downward \cref{Section:PNRelwork}.
+A representation for $\dc{\lang{A}}$ is easy to compute by inserting an $\eps$-labeled variant of each transition in $A$ as described in \cref{Section:PNRelwork}.
 Hence, this proves \cref{Theorem:PNComputeDC}.
 
 The result is not accompanied by a statement on the complexity of the algorithm and the state complexity of the downward closure.
@@ -112,7 +112,7 @@ We say that a Petri net weakly computes a function $f$ if for each number $m$ of
 More formally, consider a net $N$ with a designed input place $p_{\text{in}}$ and a designed output place $p_{\text{out}}$ and an initial marking $\Minit$.
 % and a final marking $\Mfinal$.
 We define by $\Minit(m)$ the marking that coincides with $\Minit$ but for $M(p_{\text{in}}) = m$.
-The net $N$ \emph{weakly computes} function $f \colon \N \to \N$ if for any $m \in \N$ and any marking $M$ reachable from $\Minit(m)$, $M(p_{\text{out}}) \leq m$ holds, and there is at least one reachable marking $M$ with $M(p_{\text{out}}) = m$.
+The net $N$ \emph{weakly computes} function $f \colon \N \to \N$ if for any $m \in \N$ and any marking $M$ reachable from $\Minit(m)$, $M(p_{\text{out}}) \leq f(m)$ holds, and there is at least one reachable marking $M$ with $M(p_{\text{out}}) = f(m)$.
 
 It has been observed by \citea{MayrM81} that a function closely related to the non-primitive recursive Ackermann function can be computed by a Petri net.
 We adapt their construction to show that for each number $n \in \N$ there is a Petri net of size linear in $n \in \N$ that weakly computes the function $\Acker{n}{-}$, \ie a version of the Ackermann function in which the first parameter is fixed.
@@ -190,7 +190,7 @@ Before starting the proof, recall the recursive definition of the Ackermann func
 $\Acker{0}{m} = m + 1 $,
 $\Acker{n+1}{0} = \Acker{n}{1}$, and
 $\Acker{n+1}{m+1} = \Acker{n}{\Acker{n+1}{m}}$.
-We will need the following two properties of the Ackermann function, which are easy to show using induction.
+We will need the following three properties of the Ackermann function, which are easy to show using induction.
 For all $n, m, m' \in \N$, we~have
 \begin{align}
     \label{Equation:AckerOne}\tag{A1}%
@@ -267,6 +267,11 @@ It remains to modify the unlabeled Petri net $\AckerNet{n}$ to obtain the Petri 
 \end{proof}
 
 With the proof of \cref{Proposition:PNAckermann} completed, we have provided the lower bound matching the construction from \cref{Theorem:PNComputeDC}, showing \cref{Theorem:PNDCGeneral}.
+
+To be precise, we have shown the stronger statement that the complexity of computing the downward closure corresponds to the Ackermann function.
+This matches the maximum size of a Karp-Miller tree.
+For the Petri net $\AckerNet{n}$, it is not hard to see that the associated Karp-Miller tree will be of Ackermannian size.
+The paper~\cite{FigueiraFSS11} provides us with a matching upper bound, which also shows that the procedure for computing the downward closure runs in Ackermannian time.
 
 \paragraph{The unary case}
 

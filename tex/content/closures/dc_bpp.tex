@@ -8,7 +8,7 @@ The non-primitive recursive complexity of the downward closure in the case of ge
 On the practical side, one should take into account that we are talking about the worst-case complexity.
 It has been shown in experiments that the worst-case behavior occurs rarely.
 On many instances that are of practical interest (\eg for the purpose of verifying systems), the Karp-Miller tree, which can be used to represent the downward closure, can be computed within acceptable time.
-On the theoretic side, this unexpectedly tame behavior of these instances can partially be explained by the fact that they may stem from restricted subclasses of Petri nets.
+On the theoretic side, the unexpectedly tame behavior of these instances can partially be explained by the fact that they may stem from restricted subclasses of Petri nets.
 Hence, we study the problem of computing downward closures for one such subclass.
 As in \cref{Chapter:UC}, we focus on the class of BPP nets.
 This means we consider the following problem.
@@ -84,7 +84,7 @@ It is not hard to see that the downward closures of the language of $(N,\Minit,\
     As argued in \cref{Lemma:PNOverapproximation}, $\lang{N,\Minit,\Mfinal} \subseteq \langoak{k}{N,\Minit,\Mfinal}$ and hence $\dc{\lang{N,\Minit,\Mfinal}} \subseteq \dc{\langoak{k}{N,\Minit,\Mfinal}}$ hold.
     For the converse inclusion, consider $w \in \dc{\langoak{k}{N,\Minit,\Mfinal}}$.
     We consider an accepting run of $A_{> k}$ on a word $v \in \lang{A_{> k}}$ with $w \subword v$ that has to exist by the definition of the downward closure.
-    The transition of $A_{> k}$ used in this run induce a firing sequence $\sigma$ that is formed by the corresponding transitions of net $N$.
+    The transitions of $A_{> k}$ used in this run induce a firing sequence $\sigma$ that is formed by the corresponding transitions of net $N$.
 
     If the accepting run of $A_{> k}$ only uses markings from $\N^P$, \ie no component is ever $\omega$, this firing sequence $\sigma$ is valid.
     This means it induces a covering computation of $N$, proving $v \in \lang{N,\Minit,\Mfinal}$ and thus $w \in \dc{\lang{N,\Minit,\Mfinal}}$.
@@ -108,7 +108,7 @@ It is not hard to see that the downward closures of the language of $(N,\Minit,\
     Hence, $\Minit \fire{\tau} M \geq \Mfinal$ is a covering computation of $N$, proving that $\lambda(\tau) \in \lang{N,\Minit,\Mfinal}$, and thus $w \subword \lambda(\sigma'.\sigma'') \subword \lambda(\tau)$ is in the downward-closure $\dc{\lang{N,\Minit,\Mfinal}}$.
 
     We have established that the downward closures of $\langoak{k}{N,\Minit,\Mfinal}$ and $\lang{N,\Minit,\Mfinal}$ coincide.
-    To obtain a representation of $\dc{\langoak{k}{N,\Minit,\Mfinal}}$, we take the automaton $A_{> 0}$ and add for each transition an $\eps$-labeled variant as described in \cref{Section:PNRelwork}.
+    To obtain a representation of $\dc{\langoak{k}{N,\Minit,\Mfinal}}$, we take the automaton $A_{> k}$ and add for each transition an $\eps$-labeled variant as described in \cref{Section:PNRelwork}.
     This does not change the number of states, so to finish the proof, we argue that the state complexity of $A_{> k}$ is as desired.
     It is as most
     \[
@@ -141,20 +141,20 @@ We also assume that the original net satisfies $\norminf{N} \geq 2$, which means
     Assume that $\Minit \fire{\sigma} M$ is a computation of $N$ reaching a marking $M$ such that $M(p) > k = \normone{\Minit} \cdot \paren{ \card{P} \cdot \norminf{N}}^{ \paren{\card{T} + 1} }$ for some place $p$.
 
     We consider a computation $\min O \fire{\sigma\lowerprime} M'$ of $O$ induced by $\sigma$, \ie we have $h(\sigma') = \sigma$.
-    We also have $h(M') = M$, meaning that for each place $p_1$ of $N$, the total number of tokens in places $p_1'$ with $h(p_1') = p_1$ is equal to $M(p)$.
+    We also have $h(M') = M$, meaning that for each place $p_1$ of $N$, the total number of tokens in places $p_1'$ with $h(p_1') = p_1$ is equal to $M(p_1)$.
     In particular, we have
     \[
         \sum_{\substack{p' \in P',\\  h(p') = p}} M' (p') = M(p) > k
     \]
     for the place $p$ fixed above.
 
-    Recall that $O$ can be seen as a forest, each of its tree rooted in a place that carries a token in $\min O$.
+    Recall that $O$ can be seen as a forest, each of its trees rooted in a place that carries a token in $\min O$.
     Considering only the part of $O$ that is used by the computation associated to $\sigma'$, \ie the transitions that are used in $\sigma'$ and the places that carry a token at some point during the computation, yields a finite prefix of $O$ that is again a forest.
     The places that carry a token in the final marking $M'$ form the leaves of the trees in the forest.
     We will call the places $p'$ with $M'(p') = 1$ and $h(p') = p$ the \emph{$p$-leaves} of the forest.
     The name is justified by the above discussion.
 
-    We identify in the forest associated to $\sigma'$ the tree with the largest number of $p$ leaves.
+    We identify in the forest associated to $\sigma'$ the tree with the largest number of $p$-leaves.
     Let us denote this tree by $\calT$ and its root node by $r'$.
     The number of $p$-leaves in $\calT$ is at least
     \[
@@ -183,10 +183,10 @@ We also assume that the original net satisfies $\norminf{N} \geq 2$, which means
 
     \subproof{Claim}
 
-    Let $T$ be a tree with $\ell$ leaves in which all nodes have out-degree at most $c$.
-    Then $T$ has a branch with at least $\log_c \ell$ nodes of out-degree at least $2$.
+    Let $\mathit{Tr}$ be a tree with $\ell$ leaves in which all nodes have out-degree at most $c$.
+    Then $\mathit{Tr}$ has a branch with at least $\log_c \ell$ nodes of out-degree at least $2$.
 
-    To prove the claim, assume that in any branch of such a tree $T$, the number of nodes of out-degree greater than two in any branch of the tree is $m < \log_c \ell$.
+    To prove the claim, assume that in any branch of such a tree $\mathit{Tr}$, the number of nodes of out-degree greater than two in any branch of the tree is $m < \log_c \ell$.
     Such a tree has at most $c^m < c^{\log_c \ell} = \ell$ nodes, which is a contradiction to the assumption that $T$ has $\ell$ leaves.
 
     We now use the claim for the tree $\calT'$, $\ell = k_1$, $c = \norminf{N} \cdot \card{P}$, and obtain that $\calT'$ has at least
@@ -201,7 +201,7 @@ We also assume that the original net satisfies $\norminf{N} \geq 2$, which means
     The other branch does not contain $t''$ and ends in a different $p$-leaf; let $\sigma_a'.t'.\sigma_d'$ be the associated transitions.
     Note that $\sigma_a', \sigma_b', \sigma_c', \sigma_d' \in {T'}{}^*$ denote sequences of transitions here.
 
-    We now argue that we can first use $t'.\sigma_b'$ to create an arbitrary number of tokens on the places from which transition $t$ of $N$ consumes a token, and later use $t'.\sigma_d'$ to create an arbitrary number of tokens on place $p$ as desired.
+    We now argue that we can first use $\sigma_b'$ to create an arbitrary number of tokens on the places from which transition $t$ of $N$ consumes a token, and later use $t'.\sigma_d'$ to create an arbitrary number of tokens on place $p$ as desired.
 %
     More formally, we have that $\sigma_a'.t'.\sigma_b'.t''.\sigma_c'$ is a subword of the computation $\sigma'$ of $O$, and hence that $h(\sigma_a'.t'.\sigma_b'.t''.\sigma_c')$ is a subword of $\sigma$.
     Hence, we may write $\sigma = \sigma_A.t.\sigma_B$, where $t$ corresponds to the occurrence of $t'$ in $\sigma_a'.t'.\sigma_b'.t''.\sigma_c'$.
@@ -253,7 +253,7 @@ The difference is that this time, we use an exponential number in the initial ma
     Any computation of the net is covering, and each sequence $t^k$ for $k \leq \Minit(p) = 2^n$ is a valid firing sequence.
     Hence, $\lang{N, \Minit(n), \Mfinal} = \Set{ a^k }{ k \leq 2^n}$.
     This language is already downward closed and has state-complexity $2^n + 1$, see \cref{Example:StateComplexityEqualsIndex}.
-    To conclude the proof, note that the size of $N$ and $\Minit$ is constant, while the size of $\Mfinal$ is linear in $n$.
+    To conclude the proof, note that the size of $N$ and $\Mfinal$ is constant, while the size of $\Minit$ is linear in $n$.
 \end{proof}
 
 The proof of the proposition also completes the proof of \cref{Theorem:BPPDCGeneral}.
@@ -293,10 +293,10 @@ For each $i \in \oneto{n}$, there is a transition $t_i$ that consumes a token fr
 All these transitions are labeled by $\eps$.
 Additionally, there is an $a$-labeled transition $t_a$ that consumes a token from $p_n$.
 The final marking is the zero vector.
-Note that this net is indeed a BPP net, every transition consumes exactly one token.
+Note that this net is indeed a BPP net; every transition consumes exactly one token.
 
 Let us prove that the language of the instance is indeed $\Set{ a^k }{ k \leq 2^n}$.
-By firing the transitions $t_i$ exhaustively, one can generate $2^n$ tokens on place $2^n$: Assuming that $2^{i}$ tokens are present on place $p_i$, one can fire transition $t_{i+1}$ exactly $2^{i}$ times to generate $2 \cdot 2^{i} = 2^{i+1}$ tokens on $p_i$.
+By firing the transitions $t_i$ exhaustively, one can generate $2^n$ tokens on place $p_{n}$: Assuming that $2^{i}$ tokens are present on place $p_i$, one can fire transition $t_{i+1}$ exactly $2^{i}$ times to generate $2 \cdot 2^{i} = 2^{i+1}$ tokens on $p_i$.
 Now, we may fire transition $t_a$ up to $2^n$ times to generate an arbitrary number of $a$s between zero and $2^n$.
 
 To conclude the proof, it remains to observe that the size of the instance is indeed polynomial in $n$.

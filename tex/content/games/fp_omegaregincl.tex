@@ -87,7 +87,7 @@ We forgo giving a formal proof.
 
 \paragraph{Representing infinite words}
 
-It remains to use the solution to this system to decide whether the inclusion $\olang{G} \subseteq \olang{G}$ holds.
+It remains to use the solution to this system to decide whether the inclusion $\olang{G} \subseteq \olang{A}$ holds.
 Before we can explain how to extract this information from the solution, we need to discuss how the behavior of infinite words in a Büchi automaton can be represented by boxes.
 In the following, we consider pairs of boxes $(\tau,\rho)$, where $\tau$ describes a finite prefix and $\rho$ describes a behavior that is repeated infinitely.
 We write such a pair as $\tau\rho^\omega$, and we define $\lang{\tau\rho^\omega} = \lang{\tau}.\lang{\rho}^\omega$.
@@ -156,7 +156,7 @@ If $\tbox$ or $\tau$ has an empty language, then $\lang{\tau\tbox^\omega}$ is em
     For boxes $\tbox,\tau$ with non-empty language, $\lang{\tbox} \neq \emptyset \neq \lang{\tau}$, the pair $\tau\rho^\omega$ is a lasso if and only if $\lang{\tau\rho^\omega} \subseteq \olang{A}$.
 \end{lemma}
 
-Lassos characterizing whether a pair of boxes represents a language that is either included or disjoint in the language of an NBA is the final piece we need to solve $\OCFLINOREG$ using effective denotational semantics.
+Lassos characterizing whether a pair of boxes represents a language that is either included in or disjoint from the language of an NBA is the final piece we need to solve $\OCFLINOREG$ using effective denotational semantics.
 Checking whether the inclusion $\olang{G} \subseteq \olang{A}$ of interest holds amounts to checking whether certain pairs of boxes that are obtained from the least solution to our system of inequalities are lassos.
 
 \begin{theorem}%
@@ -230,7 +230,7 @@ Before we prove the result, we consider an example.
     {\centering\subcaptionbox{The boxes of $A$ with non-empty language.\label{Figure:ReqAckBoxes}}[0.49\textwidth][c]{
         \input{tikz/boxes_reqack.tikz}}
     }%
-    \caption{An NBA that checks that infinitely many $r$s implies infinitely many $a$s, and its boxes on the right-hand side. The upper dash on each side of each box $\rho$ represents $q_0$, the lower one represents $q_1$. An undotted edge from $q$ to $p$ stands for $\rho(q,p) = 1$, a dotted edge stands for $\rho(q,p) = 1$, \ie the final state has been visited.}%
+    \caption{An NBA that checks that infinitely many $r$s implies infinitely many $a$s, and its boxes on the right-hand side. The upper dash on each side of each box $\rho$ represents $q_0$, the lower one represents $q_1$. An undotted edge from $q$ to $p$ stands for $\rho(q,p) = 1$, a dotted edge stands for $\rho(q,p) = 2$, \ie the final state has been visited.}%
     \label{Figure:ReqAck}%
 \end{figure}
 
@@ -258,7 +258,7 @@ The remaining direction requires more work.
 In particular, we have to recall Ramsey's theorem which we will need for the proof.
 
 Ramsey's theorem, a generalization of a result by \citea{Ramsey30}, is an important result from infinitary combinatorics.
-It considers undirected complete graphs that are finitely colored, \ie equipped with a function $\lambda \colon E \to C$ that assign to each pair of distinct nodes $v,v' \in V$, $v \neq v'$ one of finitely many colors $\lambda(\set{v,v'}) \in C$ to the corresponding edge.
+It considers undirected complete graphs that are finitely colored, \ie equipped with a function $\lambda \colon E \to C$ that assign to each pair of distinct nodes $v,v' \in V$, $v \neq v'$ one of finitely many colors $\lambda(\set{v,v'}) \in C$ to the corresponding edge $\set{v,v'} \in E$.
 The coloring is \emph{monochromatic} if all edges are colored by the same color.
 
 \begin{ntheorem}[Ramsey's theorem]%

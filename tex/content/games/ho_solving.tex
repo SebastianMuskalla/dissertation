@@ -6,11 +6,11 @@
 
 We finally discuss how to decide the regular inclusions games defined by higher-order recursion schemes.
 In \cref{Section:HORSFPSemantics}, we have defined a concrete semantics for HORS games using the mode template that we have introduced in \cref{Section:HORSTemplate}.
-In the form of \cref{Theorem:HORSConcreteSol} we have shown that the least solution to the system of equations interpreted using the concrete model provides the winner of the game.
+In the form of \cref{Theorem:HORSConcreteSol}, we have shown that the least solution to the system of equations interpreted using the concrete model provides the winner of the game.
 Unfortunately, this result is non-constructive.
 If we were able to compute the least solution, we could read off the winner, but since the domains used by the concrete semantics are infinite and do not satisfy the ascending chain condition, this is not possible.
 
-In this section, we overcome this problem by using the framework for exact fixed-point transfer.
+In this section, we overcome this problem by using our framework for exact fixed-point transfer.
 We define an \emph{abstract model} by again instantiating the model template.
 The abstract domains are finite, so it is possible to actually compute the least solution to the interpreted system of equations.
 Showing that the winner of the game can be read off from the least solution directly would be difficult.
@@ -37,7 +37,7 @@ Its least element is the equivalence class of $\false$.
 The join of an ascending chain of (equivalence classes of) formulas is the disjunction of the formulas.
 Since the set of atoms~$Q$ is finite, there are only finitely many equivalence classes.
 Hence, an infinite chain only consists of finitely many distinct elements and the disjunction of these elements is a well-defined finite formula.
-The model template now provides us with $\domaina{\kappa_1 \to \kappa_2} = \domaina{\kappa_1} \cto \domaina{\kappa_1}$ for every kind $\kappa_1 \to \kappa_2$.
+The model template now provides us with $\domaina{\kappa_1 \to \kappa_2} = \domaina{\kappa_1} \cto \domaina{\kappa_2}$ for every kind $\kappa_1 \to \kappa_2$.
 
 The idea behind using formulas over states is the following.
 We want to represent each word~$w$ by the set $\Set{ q }{ q \tow{w} \qfinal \in \QF}$ of states from which $w$ is accepted, \ie the states $q$ so that there is a run of $A$ from $q$ to a final state.
@@ -57,7 +57,7 @@ Hence, it corresponds to the set of final states, which we see as conjunction,
     \wordend^{\interpretationa} = \bigwedge_{\qfinal \in \QF} \qfinal \in \domaina{\ground}
     \ .
 \]
-For each letter terminal $a \colon \ground \to \ground$ corresponding to a letter $a \in \Sigma$, we define the \nb{interpretation as}
+For each terminal $a \colon \ground \to \ground$ corresponding to a letter $a \in \Sigma$, we define the \nb{interpretation as}
 \[
     a^{\interpretationa} = \predec{a} \in \domaina{\ground \to \ground}
     \ .
@@ -235,7 +235,7 @@ In order to be able to use exact fixed-point transfer, we need to show that $\ab
     Similarly, $\abs{\prepend{a}{H}} = \abs{aw} = \bigwedge Q_{aw}$ and $\abs{\prepend{a}{H'}} = \abs{aw'} = \bigwedge Q_{aw'}$ with $Q_{aw} = \Set{ q }{ q \tow{aw} \qfinal \in \QF}$ and $Q_{aw'} = \Set{ q }{ q \tow{aw'} \qfinal \in \QF}$.
     Observe that for two sets of states $Q', Q'' \subseteq Q$, we have $\bigwedge Q' \lleq \bigwedge Q''$ if and only if $Q'' \subseteq Q'$.
     Since we assume that $\abs{H} \lleq \abs{H'}$, we get $Q_{w'} \subseteq Q_{w}$.
-    Furthermore, we have that $Q_{aw} = \pre{A}{a}{Q_w}$ is the set of $a$-predecessors of $Q_{w}$ in $A$, similarly $Q_{aw'} = \pre{A}{a}{Q_w'}$.
+    Furthermore, we have that $Q_{aw} = \pre{A}{a}{Q_w}$ is the set of $a$-predecessors of $Q_{w}$ in $A$, similarly $Q_{a{w'}} = \pre{A}{a}{Q_{w'}}$.
     The predecessor function $\pre{A}{a}{-}$ is monotonic with respect to the set of states, so $Q_{w'} \subseteq Q_{w}$ implies $Q_{aw'} \subseteq Q_{aw}$.
     This means the desired implication $\abs{\prepend{a}{H}} = \bigwedge Q_{aw} \lleq \bigwedge Q_{aw'} = \abs{\prepend{a}{H'}}$ holds.
     This finishes the base case of the inner induction.
@@ -525,7 +525,7 @@ With the technical lemma at hand, we can prove one direction of \cref{Theorem:Ho
     We will need to argue that each such function can be represented using space at most $(k+1)$-fold exponential.
 
     We make the following observation.
-    If $k$ is the maximum order of any nonterminal in $G$, then $k-1$ is the maximum order of any variable that is used on the right-hand sides of the rules for $G$.
+    If $k$ is the maximum order of any nonterminal in $G$, then $k-1$ is the maximum order of any variable that is used on the right-hand sides of the rules for~$G$.
     Assume the contrary and consider a term $\lambda x . t$.
     Its kind is $\kappa_1 \to \kappa_2$, where $\kappa_1$ is the kind of $x$ and $\kappa_2$ is the kind of $t$.
     The order of $\kappa_1 \to \kappa_2$ is $\max(\horsorder{\kappa_1} +1, \horsorder{\kappa_2})$.
@@ -562,14 +562,14 @@ We will give a sketch of the proof and refer to our publication~\cite{HagueMM17}
 \begin{proof}[Proof sketch for \cref{Proposition:HorseSolvingHardness}]
     We reduce the word problem for the languages of alternating order-$k$ pushdown automata with a work tape.
     At the end of \cref{Section:HORS}, we have explained that there is a generalization of pushdown automata that is polynomially equivalent~\cite{KnapikNU02} to a subclass of HORSes.
-    An \emph{order-$k$ pushdown} is a pushdown automaton that mains an order-$k$ stack, where an order-one stack is a normal stack consisting of symbols, while an order-$n$ stack for $n > 1$ is a stack of order-$(n-1)$ stacks.
-    \emph{Alternating automata} are defined, similar to alternating pushdown machines, by partitioning the control states into existential and universal control states.
+    An \emph{order-$k$ pushdown} is a pushdown automaton that maintains an order-$k$ stack, where an order-one stack is a normal stack consisting of symbols, while an order-$n$ stack for $n > 1$ is a stack of order-$(n-1)$ stacks.
+    \emph{Alternating automata} are defined, similar to alternating Turing machines, by partitioning the control states into existential and universal control states.
     In contrast to Turing machines, the word that should be processed is not initially written on a tape.
     Instead, it is read letter-by-letter.
-    If the automaton is in an existential control state and it reads letter $a$, there needs to be an $a$-labeled transition that can be continued, resulting in an accepting run.
+    If the automaton is in an existential control state and it reads letter $a$, there needs to be an $a$-labeled transition that can be used in an accepting run.
     If the automaton is in a universal control state and it reads letter $a$, there needs to be an accepting run no matter which $a$-labeled transition is chosen.
     An \emph{automaton with a work tape} has a tape of polynomial length that it can use to store information during its computation.
-    Combining these three properties leads to the aforementioned model of \emph{alternating order-$k$ pushdown automata with a work tape}.
+    Combining these three properties leads to the aforementioned model of \emph{alternating order-$k$ pushdown automata with a work~tape}.
 
     \citea{Engelfriet91} has shown that the word problem for this model, given a word $w$ and an alternating order-$k$ pushdown automata with a work tape $B$, decide whether $w \in \lang{B}$ holds, is $(k+1)\EXPTIME$-complete.
     If we manage to encode this word problem into an instance of a HORS game $(G,A)$ where $G$ and $A$ are of size polynomial in $\card{w} + \card{B}$ and $G$ has order $k$, we obtain the desired result.

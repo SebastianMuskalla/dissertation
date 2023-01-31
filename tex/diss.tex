@@ -34,8 +34,9 @@
 \addbibresource{other.bib}
 \addbibresource{my.bib}
 
-\begin{document}
+\raggedbottom%
 
+\begin{document}
 
 \maketitle%
 
@@ -49,7 +50,7 @@
 \setcounter{tocdepth}{\chaptertocdepth}
 %
 \tableofcontents%
-% dirty hacks
+% dirty hack
 \addtocontents{toc}{\protect\enlargethispage{3\baselineskip}}
 %
 \vspace*{0.5em}
@@ -65,6 +66,10 @@ The title page of each part provides a table of contents listing the sections wi
 \subfile{content/intro/abstract_en}
 
 \subfile{content/intro/abstract_de}
+
+%\=================================================
+
+\emptysheet
 
 %\=================================================
 
@@ -113,7 +118,7 @@ The title page of each part provides a table of contents listing the sections wi
         \clearpage
         \subfile{content/prelims/lts_nfa}
         \clearpage
-        \subfile{content/prelims/lts_descriptivecomplexity}
+        \subfile{content/prelims/lts_descriptionalcomplexity}
         \clearpage
         \subfile{content/prelims/lts_omega}
         \clearpage
@@ -295,6 +300,7 @@ The title page of each part provides a table of contents listing the sections wi
     \label{Chapter:ValenceGames}%
     \chaptertoc%
         \subfile{content/games/valence_intro}
+        \clearpage
         \subfile{content/games/valence_systems}
         \clearpage
         \subfile{content/games/valence_games}

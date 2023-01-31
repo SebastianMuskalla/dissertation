@@ -80,8 +80,8 @@ In addition to the three operations conjunction, disjunction, and formula compos
             $F \vee H = \Set{ K \cup K' }{K \in F, K' \in H}$,
             \ie $F \vee H = \bigwedge_{K, K'} \paren{ \paren{ \bigvee_{\tbox \in K} \tbox } \vee  \paren{ \bigvee_{\tbox' \in K'} \tbox'} }$.
         \item
-            $F \comp G = \bigcup_{K \in F} \bigcup_{\zeta \colon K \to H} \big\{ \bigcup_{\tbox \in K } \tbox \comp \zeta(\tbox)\big\}$,
-            \ie $F \comp G = \bigwedge_{K \in F} \bigwedge_{\zeta \colon K \to H} \bigvee_{\tbox \in K } \tbox \comp \zeta(\tbox)$.
+            $F \comp H = \bigcup_{K \in F} \bigcup_{\zeta \colon K \to H} \big\{ \bigcup_{\tbox \in K } \tbox \comp \zeta(\tbox)\big\}$,
+            \ie $F \comp H = \bigwedge_{K \in F} \bigwedge_{\zeta \colon K \to H} \bigvee_{\tbox \in K } \tbox \comp \zeta(\tbox)$.
         \item
             $F \lleq H$ holds iff every clause of $H$ contains a clause of $F$,
             \ie iff there is a function $\iota \colon H \to F$ so that $\iota(K') \subseteq K'$ for all $K' \in H$.
@@ -102,7 +102,7 @@ In addition to the three operations conjunction, disjunction, and formula compos
     To obtain a CNF, we need to swap the order of the disjunction $\bigvee_{\tbox \in K}$ and the conjunction $\bigwedge_{K'}$ using distributivity.
     The resulting formula will have one conjunct for each combination of a box $\tbox \in K$ and a clause $K'$ of $H$.
     The conjunction $\bigwedge_{\zeta \colon K \to G}$ over all functions that assign a clause $\zeta(\tbox)$ of $H$ to every box $\tbox$ in $K$ produces exactly these conjuncts.
-    Additionally, the composition $\tbox \comp K'$ of a box $\tbox$ and a clause $K'$ is the disjunction $\bigwedge{\tbox' \in K'} \tbox \cdot \tbox'$.
+    Additionally, the composition $\tbox \comp K'$ of a box $\tbox$ and a clause $K'$ is the disjunction $\bigwedge_{\tbox' \in K'} \tbox \cdot \tbox'$.
 
     For Part~d), assume a function $\iota \colon H \to F$ as specified exists and assume that $F(M) = \true$ for some variable assignment $M$.
     We need to argue that every clause $K'$ of $H$ is satisfied under $M$.
@@ -152,7 +152,7 @@ We obtain that the time is polynomial in the size of the grammar, but doubly exp
     since any strictly ascending chain in the product domain can be decomposed into $\card{N}$ ascending chains, one for each of the nonterminals.
     In each of these chains, there are at most $2^{2^{\card{Q}^2}}$ steps in which the elements can strictly increase.
 
-    The height of the domain gives us the required bound on the steps of the fixed-point iterations.
+    The height of the domain gives us the required bound on the steps of the fixed-point iteration.
     We analyze the cost of one step of the iteration.
     If we assume that a formula in CNF contains no repeated clauses, we obtain that the size of a single formula is at most doubly exponential.
     To be precise, it contains at most each of the $2^{2^{\card{Q}^2}}$ different clauses of size at most $2^{\card{Q}^2}$.
@@ -226,12 +226,12 @@ If the existential player manages to enforce the derivation of a valid accepting
 \paragraph{Into the proof}
 
 The rest of the section is dedicated to making this proof approach formal, including all gory technical details.
-We provide a polynomial time reduction from the $\AEXPSPACE$ acceptance problem.
+We provide a polynomial-time reduction from the $\AEXPSPACE$ acceptance problem.
 Recall that this problem is, given an alternating Turing machine $M$ and an input $x$ for that machine, to decide whether $M$ accepts $x$ with a computation tree in which each configuration has space consumption at most $2^{\card{x}}$.
 We have argued in \cref{Lemma:ComplexityAEXPSPACEcompleteProblem} that this problem is $\AEXPSPACE$-complete.
 Furthermore, it is well known that $\AEXPSPACE = 2\EXPTIME$~\cite{ChandraKS81}.
 
-We also assume that the input alphabet of the Turing machine is $\set{a,b}$, meaning that the tape alphabet $\set{a,b,\blank}$.
+We also assume that the input alphabet of the Turing machine is $\set{a,b}$, meaning that the tape alphabet is $\set{a,b,\blank}$.
 It is well-known that an arbitrary input alphabet can be encoded into a binary one by only polynomially increasing the space consumption.
 
 Let $(M,x)$ be the input for the $\AEXPSPACE$ acceptance problem.
@@ -252,8 +252,8 @@ It remains to deal with the problem that the configurations of exponential lengt
 The second trick solves this problem by designing the grammar so that the game proceeds in two phases.
 % To tackle this problem, we make use of the fact that we are allowed to construct a grammar and not just a finite-state system.
 % This allows us to build a game whose plays consist of two rounds.
-The first phase is a left-to-right pass in which the computation of the Turing machine is constructed as discussed above.
-The second phase is a right-to-left pass in which the players can place markers within the computation.
+The first phase is a right-to-left pass in which the computation of the Turing machine is constructed as discussed above.
+The second phase is a left-to-right pass in which the players can place markers within the computation.
 With the help of these markers, the automaton can check whether the computation is valid or not.
 
 \paragraph{The first phase}
@@ -264,7 +264,7 @@ The goal of the first phase is to obtain a sentential form of the shape
     \itr{c}{k} \ t_{k} \ \itr{c}{k-1} \ t_{k-1} \ \ldots \ t_1 \ \itr{c}{1} \ t_0\  \itr{c}{0}
 \]
 so that $\itr{c}{0} \tow{t_0} \itr{c}{1} \tow{t_1} \ldots \tow{t_{k-1}} \itr{c}{k-1} \tow{t_k} \itr{c}{k}$ is a candidate for an accepting computation of the ATM.\@
-By $\itr{c}{i} \tow{t_i} \itr{c}{i+1}$, we mean that transition $t_i \in \delta$ of the ATM was used to get from $\itr{c}{i}$  o $\itr{c}{i+1}$.
+By $\itr{c}{i} \tow{t_i} \itr{c}{i+1}$, we mean that transition $t_i \in \delta$ of the ATM was used to get from $\itr{c}{i}$ to $\itr{c}{i+1}$.
 Each configuration $\itr{c}{i}$ is encoded as its tape content
 \[
     \itr{c}{i} = \itr{c}{i}_1 \ldots \itr{c}{i}_m
@@ -287,23 +287,23 @@ The derivation starts with rules that implement a process that writes down the i
 The result of this process is the sentential form
 \[
     E_{q_0,x_1}
-    M_\allplayer M_\explayer
+    M_\explayer
     \underbrace{0 \ldots 0}_{\mathclap{\text{encoding of }0}}
     q_0 x_1
     % M_\allplayer M_\explayer
     % \underbrace{0 \ldots010}_{\text{encoding of }2}
     %  x_2
     \enspace \ldots \enspace
-    M_\allplayer M_\explayer
+    M_\explayer
     \underbrace{0 \ldots}_{\mathclap{\text{encoding of }n-1}} x_n
     \enspace
     % \ldots \enspace
-    M_\allplayer M_\explayer
+    M_\explayer
     \underbrace{0 \ldots}_{\mathclap{\text{encoding of }n}} \blank
     % M_\allplayer M_\explayer
     % \underbrace{0 \ldots}_{\text{encoding of }n+1} \blank
     \enspace \ldots \enspace
-    M_\allplayer M_\explayer
+    M_\explayer
     \underbrace{1 \ldots 1}_{\mathclap{\text{encoding of }2^n-1}} \blank
     \ .
 \]
@@ -400,7 +400,7 @@ The indexing for the symbols in this part of the tape content works just as befo
 
 This process proceeds either ad infinitum (in this case, the existential player looses by definition), or until the accepting state is reached.
 In the latter case, we end up with a sentential form in which the only occurrences of nonterminals are the markers $M_\allplayer$ and $M_\explayer$.
-Before discussing their usage, we explain the parts of the automaton that solely reference the terminals that have been written in first phase.
+Before discussing their usage, we summarize the constraints enforced by the first phase, and the ones that will be needed to be enforced by the automaton after the second phase.
 
 \subparagraph{Summarizing the first phase}
 
@@ -410,7 +410,11 @@ The transitions of the control states respects the transitions $t_i$ that occur 
 Each tape symbol is preceded by an indexing from $\set{0,1}^*$ and the two markers.
 Also note that the transitions originating in universal \resp existential control states have been picked by the universal \resp existential player.
 
-There are two properties that are still required so that $\itr{c}{k} \ t_k \ \ldots \ t_0 \ \itr{c}{0}$ is indeed a valid computation:
+%
+\cheatpagebreak
+%
+
+Two more properties are required to ensure that $\itr{c}{k} \ t_k \ \ldots \ t_0 \ \itr{c}{0}$ is a valid computation:
 \begin{enumerate}
     \item The indexing has to be correct: All indices have length $n$, the first tape symbol of each configuration is indexed by $0 = \underbrace{0 \ldots 0}_{n \text{ times}}$, the last tape symbol is indexed by $2^n-1 = \underbrace{1 \ldots 1}_{n \text{ times}}$, and successive tape symbols are indexed with successive binary numbers \nb{(from left to right)}.
     \item The tape content has to respect the transition relation of the Turing machine: From one configuration to the next, the tape content does not change at any position but at the former position of the head.
@@ -423,9 +427,9 @@ To enable the automaton that will represent the target language of the game to c
 \paragraph{The second phase}
 
 The goal of the second phase is to help the automaton checking that the tape content has been manipulated in the correct way.
-Intuitively, the automaton should compare for each index $j \in \zeroto{2^n-1}$ and for each two successive configurations $\itr{c}{i+1},\itr{c}{i}$ that the tape content of $\itr{c}{i+1}$ in cell $j$ has indeed been obtained from $\itr{c}{i}$ at all cell $j$ in a valid way.
+Intuitively, the automaton should compare for each index $j \in \zeroto{2^n-1}$ and for each two successive configurations $\itr{c}{i+1},\itr{c}{i}$ that the tape content of $\itr{c}{i+1}$ in cell $j$ has indeed been obtained from $\itr{c}{i}$ in cell $j$ in a valid way.
 To be able to do this, the automaton would have to store $j$ to match the two cells in the configurations.
-Since there are $2^n$ possibilities for $j$, this is not possible using a polynomially sized automaton.
+Since there are $2^n$~possibilities for $j$, this is not possible using a polynomially sized automaton.
 
 To solve this problem, we use the help of the players.
 Recall that at the end of the first phase, each cell is of the shape
@@ -439,7 +443,7 @@ where all symbols but $M_\allplayer$ and $M_\explayer$ are terminals.
 As we will explain later, we can detect configurations in which the indexing is incorrect without the help of the markers.
 Hence, we will assume that Property~1 is satisfied in the following.
 We use the nonterminals $M_\player$ to implement a marking mechanism.
-After the first phase has finished, the leftmost pair of markers becomes the leftmost nonterminal.
+After the first phase has finished, the leftmost pair of markers become the two leftmost nonterminals.
 After replacing this occurrence of $M_\allplayer M_\explayer$, the second occurrence of $M_\allplayer M_\explayer$ becomes active and so on.
 In total, the $M_\player$ markers implement a left-to-right pass (in contrast to the right-to-left writing process of the first phase) over the word.
 
@@ -461,7 +465,7 @@ After all $M_\player$ symbols have been replaced, we obtain a terminal word.
 \paragraph{The automaton}
 
 In the following, we will define the automaton $A$ representing the target language.
-It will accept a terminal word if and only if it encodes a candidate computation in which one the two properties is violated.
+It will accept a terminal word if and only if it encodes a candidate computation in which one of the two properties is violated.
 Because the goal of the existential player is non-inclusion, this will force her to ensure that the computation is valid.
 
 \subparagraph{Checking the indexing}

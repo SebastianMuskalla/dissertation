@@ -59,7 +59,7 @@ We ask whether one of the players has a systematic way of playing that guarantee
 A systematic way of playing is called a strategy, and if it achieves the aforementioned objective, it is called a winning strategy.
 A player is the winner of a game if she has a winning strategy, and solving a game means computing which player wins.\footnote{%
 It is easy to see that it is impossible for both players to have a winning strategy for a given game: If both players follow their strategy, the result is a unique play that either satisfies the winning condition or it does not -- at most one of the two strategies is a winning strategy.
-    However, it is not at all clear that at least one player has a winning strategy.
+    However, it is not clear  at all that at least one player has a winning strategy.
     We call games with the property that exactly one player has a winning strategy \emph{determined}.
     For now, it shall suffice to say that all games that we consider in the following have been proven to be determined.
 }
@@ -85,7 +85,7 @@ This mechanism is designed so that the player suggesting the sets loses the game
 Hence, computing her winning strategy means implicitly computing the values for the fixed points.
 
 Game semantics for $\mu$-calculus on finite structures can be extended to show deep results for automata-theoretic games as we will consider them in this thesis.
-For example, \Walus~reduction~\cite{Walukiewicz01} is a famous result that was developed in the context of showing the satisfiability of $\mu$-calculus formulas on pushdown systems.
+For example, \Walus~reduction~\cite{Walukiewicz01} is a famous result that was developed in the context of showing the decidability of satisfiability of $\mu$-calculus formulas on pushdown systems.
 It proves that games on infinite game arenas defined by pushdown automata can be reduced to games on finite arenas with an exponential blowup.
 We will come back to this result in \cref{Section:CFGamesRelWork}.
 
@@ -147,7 +147,7 @@ The language defines the winning condition:
 The goal of the environment player is obtaining a play, \ie an execution of the program, that corresponds to a word not in that language.
 The goal of the synthesis player representing the environment is the opposite, she wants to enforce that if the play of the game produces a word, then that word is contained in the language.
 Here, we consider regular languages of finite words, represented by finite automata, as target languages.
-Note that by choosing a larger class of languages, \eg context-free languages, the problem would become undecidable.
+Note that by choosing a larger class of languages, \eg the context-free languages, the problem would become undecidable.
 
 Assume in the program template, some procedure \mono{p()} is specified by the source code \nb{\mono{if (x) then \{ f(); \} else \{ g(); \}}.}
 Note that in this case, the conditional expression is explicitly given and no synthesis has to be performed.
@@ -214,7 +214,7 @@ If we have this automaton available at runtime, we can query its state to decide
 In order to implement this, we have to compute a strategy automaton that represents a winning strategy for the synthesis player.
 Afterwards, the program template is modified to keep track of the state of the strategy automaton.
 Assume the automaton has states from the set $\set{1, \ldots, n}$.
-The program is modified by introducing corresponding Boolean variables $\mono{a}_1, \ldots, \mono{a}_n$ so that during runtime, $\mono{a}_i$ is $\true$ if and only if the strategy automaton is currently in state $\mono{a}_i$.
+The program is modified by introducing corresponding Boolean variables $\mono{a}_1, \ldots, \mono{a}_n$ so that during runtime, $\mono{a}_i$ is $\true$ if and only if the strategy automaton is currently in state $i$.
 When we encounter procedure $\mono{p()}$, the strategy will tell us whether to use the if- or the else-branch.
 Correspondingly, there is a list of states $i_1, i_2, \ldots, i_k \in \set{1, \ldots, n}$ of that automaton in which the if-branch should be taken, while the else branch should be taken in all other states.
 The conditional expression that we need to synthesize is $\mono{a}_{i_1} \mono{ or } \mono{a}_{i_2} \mono{ or } \ldots \mono{ or } \mono{a}_{i_k}$, and hence the completed source-code for procedure \mono{p()} is \nb{\mono{if ($\mono{a}_{i_1} \mono{ or } \mono{a}_{i_2} \mono{ or } \ldots \mono{ or } \mono{a}_{i_k}$) then \{ f(); \} else \{ g(); \}}.}
@@ -223,7 +223,7 @@ But for each conditional expression that has to be generated, the states of the 
 
 In summary, we have translated a program template and a specification into a context-free inclusion game.
 One player represents the environment.
-Whenever the program template contains a conditional with a given conditional expression, she is allowed to resolve nondeterministically which branch to pick, but the winning condition of the game will force her to respect the actual data values of the variables.
+Whenever the program template contains a conditional with a given conditional expression, she is allowed to resolve which branch to pick, but the winning condition of the game will force her to respect the actual data values of the variables.
 The other player represents the synthesis task.
 By solving the game, we check whether it is possible to complete the synthesis task or whether any instantiation of the template will result in a program that violates the specification.
 If the synthesis player wins the game, synthesis is possible.
@@ -246,7 +246,7 @@ The first one consists of having a regular language of infinite words as the tar
 
 The second extension is considering game arenas described by higher-order recursion schemes, a generalization of context-free grammars.
 Solving these games using effective denotational semantics requires a major amount of work, but leads to several interesting by-products.
-We will establish both a template model for interpreting systems of equations defined by higher-order recursion schemes and a framework that can be used to transfer properties of the least solution with respect to one model to the least solution with respect to another mode.
+We will establish both a template model for interpreting systems of equations defined by higher-order recursion schemes and a framework that can be used to transfer properties of the least solution with respect to one model to the least solution with respect to another model.
 The template model mechanism and the framework then enable us to solve games defined by higher-order recursion schemes.
 
 % \enlargethispage*{\baselineskip}
@@ -258,6 +258,6 @@ Correspondingly, solving a game is more involved than solving \eg a reachability
 Hence, for any model that is Turing-complete, solving the associated type of games is certainly just as undecidable as verification is.
 However, there are models like Petri nets for which reachability problems can be solved, but it turns out that the corresponding games are undecidable, \ie we cannot compute their winner in general.
 We will use valence systems over graph monoids, a model of automata that generalizes many well-known models including both Petri nets and pushdown automata, to give a complete classification of the models for which games are decidable.
-We show that among all automata models that can be represented as a valence system over graph monoids, reachability games can essentially be only solved in the aforementioned case of context-free games.
+We show that among all automata models that can be represented as a valence system over graph monoids, reachability games can essentially only be solved in the aforementioned case of context-free games.
 
 \end{document}

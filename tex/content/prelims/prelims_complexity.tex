@@ -70,9 +70,9 @@ These classes are considered \emph{robust} since they are invariant to minor cha
 The \emph{Church-Turing thesis}, first stated in 1943 by Kleene~\cite{Kleene43}, claims that any decision problem that can be solved by some (physically implementable) model of computation can be solved by a deterministic Turing machine.
 Its \emph{strong} version additionally states that this deterministic Turing machine is slower than the other model of computation only by a polynomial factor.
 There are two problems with that thesis:
-The first are the recent advantages in quantum computing that have lead to an ongoing discussion of whether the strong version of the Church-Turing thesis is true~\cite{BernsteinV93,KayeLM07}.
+The first are the recent advantages in quantum computing that have lead to an ongoing discussion on whether the strong version of the Church-Turing thesis is true~\cite{BernsteinV93,KayeLM07}.
 The second is the problem of defining precisely what it means to be \emph{computable} by a physically implementable device.
-Different versions of the thesis use different wordings to express this, but they share the problem that without a much deeper understanding of physics, it is impossible to prove any such thesis.
+Different versions of the thesis use different wordings to express this, but they share the problem that without a much deeper understanding of physics than we have right now, it is impossible to prove any such thesis.
 Luckily, we can use that effective polynomial-time equivalence has been shown for many random access machines~\cite{CookR72}, a model that is very close to sequential imperative programs.
 Hence, to show that a problem is in a certain complexity class, it will be sufficient to provide pseudocode for an algorithm solving the problem within that time.
 We then know that it is possible to construct a Turing machine solving the problem that is slower only by a polynomial factor.
@@ -273,7 +273,7 @@ Now, we can prove that this problem indeed is $\AEXPSPACE$-complete.
 \end{proof}
 
 \begin{remark*}
-    Making the proof sketch above precise requires techniques from complexity theory that are beyond the scope of this thesis, \eg encoding ATMs as strings, manipulating the encodings, efficiently simulating given ATMs, and the \emph{padding} technique to go from $2^{n^k}$ to $2^n$, see \eg~\cite{Kozen06}.
+    Making the proof sketch above precise requires techniques from complexity theory that are beyond the scope of this thesis, \eg encoding ATMs as strings, manipulating the encodings, efficiently simulating given ATMs, and the \emph{padding} technique to go from $2^{n^k}$ to $2^n$, see~\cite{Kozen06}.
     % These missing details can be found in the literature~\cite{Kozen06}.
 \end{remark*}
 

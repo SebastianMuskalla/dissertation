@@ -15,7 +15,7 @@ Consider a concurrent system.
 A context is a part of a computation in which only one component or thread is active.
 Bounding the number of context switches means that instead of each component becoming active arbitrarily often, there is a limit on how often the active component can change.
 We may see a system with a BCS restriction in place as an underapproximation of the real system.
-If the restricted system shows undesired behavior, \eg an error location in the source code is reachability, the same is true for the unrestricted system.
+If the restricted system shows undesired behavior, \eg an error location in the source code is reachable, the same is true for the unrestricted system.
 The BSC restriction is popular for two reasons.
 Firstly, it has been empirically shown that bugs in concurrent systems often occur within few context switches~\cite{MusuvathiQ07,LuSSZ08}.
 Secondly, the BCS restriction usually drastically improves the decidability and computational complexity of decision problems.
@@ -44,7 +44,7 @@ A drawback of the storage-based definition is that the notion of context switch 
 Hence, it is not well-defined on monoid elements, but rather on their representatives.
 For example, if $a \indeprel b$, then $\inc{a}\inc{b}\dec{b}\dec{a} \cong \inc{a}\dec{a} \cong \eps$, where $\inc{a}\inc{b}\dec{b}\dec{a}$ contains two context switches, but $\inc{a}\dec{a}$ and $\eps$ contain none.
 To circumvent the problems that arise from this, we redefine valence systems over graph monoids so that their configurations do not store monoid elements, but representatives.
-Formally, we consider configurations from $Q \times \ops^*$ that consists of a control state and a sequence of operations that has been executed.
+Formally, we consider configurations from $Q \times \ops^*$ that consist of a control state and the sequence of operations that has been executed.
 In a configuration $(q,m)$, we can use a transition $q \tow{m'} q'$ and move to $(q',m.m')$ if $m.m'$ represents a right-invertible monoid element.
 For the reachability problem, we consider the unique initial configuration $(q_\init,\eps)$.
 Solving the reachability problem is checking whether a configuration $(q_\final,m)$ with $m \cong \eps$ is reachable.
@@ -197,7 +197,7 @@ We saturate the given valence system so that if there is a computation $(q_\init
 The saturation works by finding states $q,p,p',q'$ such that $q \tow{\inc{a}} p$, $p' \tow{\dec{a}} q'$ and there is a sequence of $\eps$-labeled transitions from $p$ to $p'$.
 We then introduce a new $\eps$-labeled transition from $q$ to $q'$.
 Intuitively, the new $\eps$-labeled transition allows the computation to skip the operations that would lead to a context being not irreducible.
-For symbols $a$ with $a \indeprel a$, we additionally at transitions that can be used to skip a sequence of transitions of the shape $\tow{\dec{a}} \tow{\eps}^* \tow{\inc{a}}$.
+For symbols $a$ with $a \indeprel a$, we additionally add transitions that can be used to skip a sequence of transitions of the shape $\tow{\dec{a}} \tow{\eps}^* \tow{\inc{a}}$.
 This process is repeated exhaustively, until no new transitions are added.
 Adding an $\eps$-transition might lead to another transition being added in the next iteration, but since we only add transitions but no control states, the process terminates after at most a quadratic number of steps.
 
@@ -206,7 +206,7 @@ The different operations in some fixed contexts might cancel out (or get cancele
 To this end, we consider block decompositions and block-wise reductions.
 A block decomposition is decomposition of the irreducible contexts into infixes, \eg $\itr{m}{i} = \itr{m}{i,1} \ldots \itr{m}{i,k}$.
 A block-wise reduction is a proof of $m \cong \eps$ that uses modified reduction rules.
-The rules for cancellation and swapping \RuleCancel~and \RuleSwap~work on individual operations in a sequence.
+The rules for cancellation and swapping, \RuleCancel~and \RuleSwap, work on individual operations in a sequence.
 The block-wise reduction rules work on blocks of operations.
 A block $\itr{m}{i,j}$ is canceled by $\itr{m}{s,t}$ if $\itr{m}{s,t}$ is a representative for the right inverse of $\itr{m}{i,j}$.
 A block $\itr{m}{i,j}$ can be swapped with $\itr{m}{s,t}$ if for every operation $\incdec{o}$ in $\itr{m}{i,j}$ and every operation $\incdec{u}$ in $\itr{m}{s,t}$, $o \indeprel u$ holds.
@@ -231,9 +231,9 @@ The automata use the \nb{operations $\incdec{o}$} as the letters of their alphab
 Two automata can be swapped if for every operation $\incdec{o}$ in the alphabet of the first automaton and every operation $\incdec{u}$ in the alphabet of the second one, $o \indeprel u$ holds.
 
 The cancellation rule is a bit more complicated.
-Firstly, we note that if a block of an irreducible context $\itr{m}{i,j}$ has a right inverse, then this right inverse can be constructed in a \emph{syntactic} way, namely by reversing the order of $\itr{m}{i,j}$ and by swapping the popularity of the operations.
+Firstly, we note that if a block of an irreducible context $\itr{m}{i,j}$ has a right inverse, then this right inverse can be constructed in a \emph{syntactic} way, namely by reversing the order of $\itr{m}{i,j}$ and by swapping the polarity of the operations.
 The latter means we replace $\inc{o}$ by $\dec{o}$ and vice versa.
-Two automata cancel each other if the first one generates a word $\itr{m}{i,j}$ and the second one generates the syntactic right inverse of that wort.
+Two automata cancel each other if the first one generates a word $\itr{m}{i,j}$ and the second one generates the syntactic right inverse of that word.
 To check this property, we apply the syntactic inverse operations to the second automaton, \ie we reverse its order and swap the polarity of all transition labels.
 Then, we check intersection emptiness.
 
@@ -278,7 +278,7 @@ To conclude that the whole procedure is in $\NPTIME$, note that the number of ca
 This completes our proof sketch for \cref{Theorem:ValenceReachabilityBCS}.
 We refer to the full version of the paper~\cite{MeyerMZ18a} for details.
 
-In additional to the full proof, the paper~\cite{MeyerMZ18,MeyerMZ18a} also analyzes the computational complexity of solving valence reachability in more detail.
+In addition to the full proof, the paper~\cite{MeyerMZ18,MeyerMZ18a} also analyzes the computational complexity of solving valence reachability in more detail.
 We briefly outline the results.
 Recall that for a graph $G$, $\irreflexive{G}$ is a version of $G$ without any self-loops.
 We have identified classes of graphs for which the problem is solvable in $\PTIME$, \ie deterministic polynomial time.
@@ -327,7 +327,7 @@ A nondeterministic algorithm cannot simply guess a set of operations for each bl
 Intuitively, the nondeterminism in the algorithm corresponds to one of the players.
 If the other player wants to use an operation that is not in this set, we cannot simply deny her this opportunity without affecting the semantics of the game.
 Similarly, the saturation does not carry over if we consider a set of states that are not owned by a single player:
-After taking an $\inc{a}$-labeled transition, the other player may become active, so it is not clear to the player that chose $\inc{a}$ whether a $\dec{a}$ transition will follow later.
+After taking an $\inc{a}$-labeled transition, the other player may become active, so it is not clear to the player who chose $\inc{a}$ whether a $\dec{a}$ transition will follow later.
 Allowing the player to take a transition that was inserted by the saturation means that she could skip moves of the opponent, which affects the semantics of the game.
 
 Walukiewicz's reduction~\cite{Walukiewicz01}, originally designed for context-free games (see~\cref{Section:CFGamesRelWork}), but also used by~\citea{Seth09} for multi-pushdown games with a BCS restriction, offers a way to resolve these issues.

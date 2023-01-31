@@ -42,14 +42,14 @@ To decide the word problem of a regular language, we do not need the capabilitie
     \label{Figure:NFAForABStar}%
 \end{figure}
 
-The class of regular languages can also be defined by \emph{regular expressions}, finite expressions that may contain the empty language $\emptyset$, the singleton languages $\set{\eps}$, and $\set{a}$ for each letter $a$ of the underlying alphabet and unions, concatenations, and the Kleene star.
+The class of regular languages can also be defined by \emph{regular expressions}, finite expressions that may contain the empty language $\emptyset$, the singleton languages $\set{\eps}$ and $\set{a}$ for each letter $a$ of the underlying alphabet and unions, concatenations, and the Kleene star.
 From this, we immediately obtain that every language consisting of finitely many words is regular, and if $\calL, \calL' \subseteq \Sigma^*$ are regular, then so are their union $\calL \cup \calL'$, their concatenation, $\calL.\calL'$, and the Kleene star $\calL^*$.
 It can also be shown that the intersection $\calL \cap \calL'$ of two regular languages and that the complement $\overline{\calL}$ of a regular language are regular.
 All these closure properties are effective:
 Given automata for $\calL$ and $\calL'$, we can construct an automaton for each of the aforementioned languages.
 In the case of the intersection, we have explicitly stated the construction in \cref{Section:LTS}.
 
-In addition to the definitions based on automata or closure properties, the regular languages can also be characterized as the solution to closed formulas in the logic $\mathsf{S1S}$, (weak) monadic second order logic with one successor, see \eg \cite{KhoussainovN01}.
+In addition to the definitions based on automata or closure properties, the regular languages can also be characterized as the solution to closed formulas in the logic $\mathsf{S1S}$, (weak) monadic second-order logic with one successor, see \eg \cite{KhoussainovN01}.
 Discussing the details is beyond the scope of this thesis.
 
 \end{document}

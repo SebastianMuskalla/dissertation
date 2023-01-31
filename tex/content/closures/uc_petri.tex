@@ -184,7 +184,7 @@ The second case of the proof incorporates the changes necessary to maintain the 
     In order to prove the bound, we distinguish two cases.
 
     \subproof{\nth{1} Case}
-    Suppose that for each marking $M$ occurring in the computation $M \fireipo{\sigma} M'$ and for each place $p \in \oneto{i+1}$, $M(p) < 2^n \cdot f(i)$ holds.
+    Suppose that for each marking $M$ occurring in the computation $M_0 \fireipo{\sigma} M'$ and for each place $p \in \oneto{i+1}$, $M(p) < 2^n \cdot f(i)$ holds.
     Our goal is to remove infixes of the computation, resulting in an $(i+1)$-covering computation in which no two markings agree on their restriction to the first $i+1$ places.
     Whenever a repetition occurs, \ie we have markings $M_j$ and $M_{j'}$ with $j < j'$ and $M_j (p) = M_{j'}(p)$ for all $p \in \oneto{i+1}$, we remove the infix $\fireipo{\sigma_{j+1}} M_{j+1} \cdots \fireipo{\sigma_{j'}} M_{j'}$.
     Note that this removal changes the markings occurring in the rest of the computation only on places $p$ with $p > i+1$.
@@ -269,7 +269,7 @@ We give it for the sake of completeness.
 
     Now assume that $\Minit \fire{\sigma} M \geq \Mfinal$, \ie $\lambda(\sigma) \in \Words(\Minit,\ell)$.
     This means that there is some $\sigma' \in \SPath(\Minit,\ell)$ with $\Minit \fire{\sigma\lowerprime} M' \geq \Mfinal$ and $\lambda(\sigma') \subword \lambda(\sigma)$.
-    By the definition of function $f$, $\card{\sigma'} \leq m(\Minit,\ell) \leq f(\ell)$ holds.
+    By the definition of \mbox{function $f$}, $\card{\sigma'} \leq m(\Minit,\ell) \leq f(\ell)$ holds.
     If we combine this with the above estimation, we obtain the desired result.
 \end{proof}
 
@@ -309,7 +309,7 @@ Since the length-$k$ approximation is regular and we can construct an automaton 
     Furthermore, we get that the number of states of $A$ is at most $\bigO{k^n \cdot 2^{n^2}} = \bigO{2^{2^{c \cdot n^2 \cdot \log n}} \cdot 2^{n^2}}$, which is doubly exponential as required.
     We have argued in \cref{Section:PNRelwork} that we can transform an automaton into an automaton for the upward closure by inserting self-loops $q \tow{a} q$ for every letter of the alphabet $a$ and every state $q$.
     In particular, this construction does not add any new states.
-    Applying this construct to $A$ yields an automaton $\uc{A}$ for $\uc{\languak{k}{N,\Minit,\Mfinal}} = \uc{\languak{k}{N,\Minit,\Mfinal}}$ with a doubly exponential number of states.
+    Applying this construction to $A$ yields an automaton $\uc{A}$ for $\uc{\languak{k}{N,\Minit,\Mfinal}} = \uc{\languak{k}{N,\Minit,\Mfinal}}$ with a doubly exponential number of states.
 \end{proof}
 
 \paragraph{Lower bound}
@@ -327,7 +327,7 @@ To ensure that a doubly exponential number of $a$-labeled transitions is fired, 
 
 \begin{proof}
     Let $n \in \N$.
-    Using \cref{Proposition:Lipton}, there is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a place $p_\indec$ such that for any marking $M$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
+    Using \cref{Proposition:Lipton}, there is a Petri net instance $(\Ndec,\vec{0},\Mfinaldec)$ polynomial in $n$ with a place $p_\indec$ such that for any marking $M$ with $M(p) = 0$ for all $p \neq p_\indec$, there is a covering computation $M \fire{\sigma} M' \geq \Mfinaldec$ if and only if $M(p_\indec) \geq 2^{2^n}$.
     Let us see $\Ndec$ as a labeled Petri net in which all transitions are labeled by $\eps$.
     We construct $N(n)$ by adding places and transitions to $\Ndec$.
     A schematic representation of the net $N(n)$ is given in \cref{Figure:PNUCLowerBound}.
@@ -340,7 +340,7 @@ To ensure that a doubly exponential number of $a$-labeled transitions is fired, 
     The initial marking $\Minit$ assigns a single token to $p_{\text{init}}$ and no tokens elsewhere.
     The final marking $\Mfinal$ coincides with $\Mfinaldec$ on the places of $\Ndec$ and requires no token on the new places.
 
-    A computation of $N(n)$ from $\Minit$ first fires $t_{a}$ an arbitrary number of times, then fires $p_{\text{run}}$ to enable the transition in $\Ndec$ and ends with a computation of $\Ndec$.
+    A computation of $N(n)$ from $\Minit$ first fires $t_{a}$ an arbitrary number of times, then fires $t_{\text{start}}$ to enable the transition in $\Ndec$ and ends with a computation of $\Ndec$.
     This final part of the computation starts from a marking in which the number of tokens on $p_\indec$ is equal to the number of times that $t_{a}$ has been fired.
     By \cref{Proposition:Lipton}, any covering computation of $N(n)$ has to fire $t_{a}$ at least $2^{2^n}$ times.
     Firing $t_{a}$ more often is also possible.
@@ -371,7 +371,7 @@ This means that the size of the unary encoding of these nets is the same as the 
 Hence, the net $N(n)$ in the proof of \cref{Proposition:PNUCLowerBound} is still polynomial in $n$.
 We obtain the same lower bound as before.
 
-With this result at hand, it is already clear that we cannot obtain a better upward bound.
+With this result at hand, it is already clear that we cannot obtain a better upper bound.
 Nevertheless, it is interesting to inspect the proof of the upper bound.
 Assume that $n$ is the size of the unary encoding of the given Petri net instance.
 We could now prove $f(i+1) \leq {(n \cdot f(i))}^{i+1} + f(i)$ for all $i\in \oneto{\ell-1}$, improving the bound $f(i+1) \leq {(2^n \cdot f(i))}^{i+1} + f(i)$ from \cref{Proposition:PNRackoffRecursiveBound}:

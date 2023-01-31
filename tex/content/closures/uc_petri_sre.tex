@@ -49,7 +49,7 @@ Formally, our goal in this section is to study the complexity of the following d
 We will show that this problem is $\EXPSPACE$-complete.
 This is an improvement over the doubly exponential time needed to construct a representation of the upward closure, as proven in the first section of this chapter.
 Furthermore, it matches the complexity of the coverability problem.
-Indeed, the lower bound is straightforward reduction from coverability, while the upper bound reduces $\SREUC$ to a polynomial number of membership queries.
+Indeed, the lower bound is a straightforward reduction from coverability, while the upper bound reduces $\SREUC$ to a polynomial number of membership queries.
 
 \begin{theorem}%
 \label{Theorem:PNSREUC}%
@@ -69,7 +69,7 @@ We show one direction of \cref{Theorem:PNSREUC} by proving $\EXPSPACE$ membershi
 
 To prove the proposition, we use the following observation.
 A language $\calL$ is contained in an upward-closed language $\calL'$ if every minimal word (\wrt the subword relation) of $\calL$ is a member of $\calL'$, \ie $\min \calL \subseteq \calL'$.
-Indeed, $\calL = \uc{\min \calL} \subseteq \uc{  \calL' } = \calL'$ holds in this case.
+Indeed, $\calL \subseteq \uc{\min \calL} \subseteq \uc{  \calL' } = \calL'$ holds in this case.
 We even know that the set of minimal words of a language is finite, by Property~\ref{Property:WQOFiniteBasis} from \cref{Lemma:WQOProperties} and the fact that the subword relation is a WQO.\@
 The problem with using this observation to decide inclusions is that it can be difficult or even impossible to compute the set of minimal words.
 

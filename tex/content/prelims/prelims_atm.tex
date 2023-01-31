@@ -74,7 +74,7 @@ We often present decision problems in the following form.
 
 When we talk about the \emph{decidability} of such a problem, we are asking whether a computer can solve it.
 In order to formalize this concept, one observes that for most decision problems of practical interest, it is possible to encode instances $i \in \calI$ as words over some suitable alphabet.
-This means the set of instances is the set $\Sigma^*$ of words over the alphabet, and the set of yes-instances as a language $\calL \subseteq \Sigma^*$.
+This means the set of instances is the set $\Sigma^*$ of words over the alphabet, and the set of yes-instances is a language $\calL \subseteq \Sigma^*$.
 With this encoding, a decision problem can be seen as a \emph{word problem}, the problem of deciding whether a given word is in a language.
 
 \begin{problem}
@@ -90,7 +90,7 @@ If so, the input word is indeed a member of the language of the ATM.\@
 
 A general decision problem is called decidable if the word problem that results from choosing an appropriate encoding is decidable.
 In particular, we can formalize decision problems that expect ATMs as inputs as word problems and study their decidability.
-Encoding an ATM into \eg a binary or number representation is a process called Gödel numbering, named after a similar technique that was developed by Gödel for the proof of his incompleteness theorems.
+Encoding an ATM into \eg a binary or number representation is a process called Gödel numbering, named after a similar technique that was developed by Gödel for the proof of his incompleteness theorems~\cite{Goedel31}.
 
 The halting problem is one such example for a problem that expects a Turing machine as input.
 
@@ -104,10 +104,10 @@ A variant of this halting problem is the famous problem for which \citea{Turing3
 It is not too hard to obtain an ATM that recognize the language associated to a suitable encoding of the halting problem:
 This ATM has to simulate the given ATM on the given input.
 Our definition of acceptance makes sure that if the input is accepted, then a finite subtree of the computation tree is sufficient to prove acceptance.
-Hence, the simulation can accept all yes-instances of the halting problem with the finite time.
+Hence, the simulation can accept all yes-instances of the halting problem within finite time.
 No-instances are hard to detect within finite time.
 If the given machine M does not halt on the given input, then the simulation of that machine will not halt either.
-In fact, Turing result show that it is impossible to construct a decider for the halting problem.
+In fact, Turing's result shows that it is impossible to construct a decider for the halting problem.
 
 \paragraph{Restricted variants of Turing machines}
 

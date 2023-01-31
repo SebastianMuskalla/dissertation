@@ -32,7 +32,7 @@ To be able to use the transition monoid algorithmically, we need a finite repres
 Instead of representing equivalence classes by a representative in the classical sense, \ie by a word that is in the class, we proceed as follows.
 Each equivalence \nb{class $\rho \in \nfatransmonoid{A}$} is uniquely determined by the state changes that the words in the class induce on~$A$.
 We may see $\rho$ as a relation on $Q$, \ie as an element of $\powerset{Q \times Q}$ such that a tuple $(q,q')$ is in~$\rho$ if and only if we have $q \tow{w} q'$ for all words (or, equivalently, one word) $w \in \rho$.
-However, not every element of $\powerset{Q \times Q}$ represents a (non-empty) equivalence classes:
+However, not every element of $\powerset{Q \times Q}$ represents a (non-empty) equivalence class:
 For some elements of $\powerset{Q \times Q}$, there may be no word that induces the specified state changes.
 
 We can represent the elements of $\powerset{Q \times Q}$ graphically as shown in \cref{Figure:BoxesForABStar}.
@@ -94,7 +94,7 @@ Boxes $\rho$ that do not have this property are \emph{rejecting} and satisfy $\l
 
 Note that it is very simple to obtain the boxes associated to the single letters.
 For $a \in \Sigma$, $\tbox{a}$ contains all pairs $(q,q')$ such that there is an $a$-labeled transition $q \tow{a} q'$ between the states in the automaton.
-The set of all boxes with non-empty equivalence classes can be obtained by iteratively composing boxes, it is the least subset of $\powerset{Q \times Q}$ that contains $\tbox{\eps}$, $\tbox{a}$ for all $a \in \Sigma$, and that is closed under composition.
+The set of all boxes with non-empty equivalence classes can be obtained by iteratively composing boxes; it is the least subset of $\powerset{Q \times Q}$ that contains $\tbox{\eps}$, $\tbox{a}$ for all $a \in \Sigma$, and that is closed under composition.
 
 It is also noteworthy that the elements of the transition monoid of an NFA give rise to an alternative construction for determinization.
 The automaton $(\powerset{Q \times Q}, \delta', \tbox{\eps}, Q_\final')$, where the deterministic transition relation $\delta'$ is defined by $\delta(\rho,a) = \rho \relcomp \tbox{a}$ and $Q_\final'$ is the set of accepting boxes, is a DFA whose language is $\lang{A}$.
@@ -103,7 +103,7 @@ However, it is not as succinct as the powerset construction:
 The powerset constructions yields a DFA with at most $2^{\card{Q}}$ states, but there are at most $2^{\card{Q}^2}$ boxes.
 
 Nevertheless, boxes are useful.
-The box $\tbox{w}$ for some NFA $A$ contains more information than the state reached in the determinization of $A$ when processing $w$ from the initial states:
+The box $\tbox{w}$ for some NFA $A$ contains more information than the state reached in the powerset-based determinization of $A$ when processing $w$ from the initial state:
 Words that reach the same state behave the same with respect to appending suffixes, but they may show different behavior when prepending prefixes.
 As mentioned before, boxes allow us to characterize  the behavior of a word in all contexts.
 We will consider an algorithm that makes use of this advantage in \cref{Chapter:ContextFreeGames}.

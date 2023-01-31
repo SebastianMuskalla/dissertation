@@ -5,7 +5,7 @@
 \section{BPP nets}%
 \label{Section:PNBPP}%
 
-The hardness of most computational problems for Petri nets motives studying subclasses of nets with better algorithmic properties.
+The hardness of most computational problems for Petri nets motivates studying subclasses of nets with better algorithmic properties.
 There are several classes of nets that are studied in this context, including \emph{safe}, \emph{communication-free}, \emph{conservative} Petri nets and many others.
 
 In a \emph{$k$-safe} net instance, we assume that each marking $M$ reachable from the initial marking satisfies $M(p) \leq k$ for all places $p$.
@@ -59,8 +59,8 @@ It can be used as an easy preliminary check to rule out reachability: If the sys
 Checking whether the state equation has a non-negative integer solution is an instance of the satisfiability problem for integer programming, which is $\NPTIME$-complete~\cite{Karp72,BoroshT76}.
 However, the state equation does not provide a characterization of Petri net reachability:
 Firstly, it is not hard to construct an example where the system of equations has a solution, but it is impossible to arrange the transitions such that a valid firing sequence is obtained.
-Secondly, even if reachability holds, the shortest valid firing sequence may be vastly longer, \ie it contains much more transitions, than the transition counts provided by the least solution to the state equation.
-In fact, the decision procedure for Petri net reachability in its presentation by \citea{Lambert92} can be understood as a procedure that expands the given Petri net until the satisfiability of the marking equation is equivalent to the reachability Problem.
+Secondly, even if reachability holds, the shortest valid firing sequence may be vastly longer, \ie it contains more transitions, than the transition counts provided by the least solution to the state equation.
+In fact, the decision procedure for Petri net reachability in its presentation by \citea{Lambert92} can be understood as a procedure that expands the given Petri net until the satisfiability of the marking equation is equivalent to the reachability problem.
 Note that this expansion process can lead to a blow-up that is non-primitive recursive.
 
 For BPP nets, however, the characterization of reachability by the state equation is precise in the following sense.
@@ -183,7 +183,7 @@ We can now use \cref{Theorem:BPPPResburger} to prove that the word problem for B
     \[
         \Minit \fire{\sigma_0} M_1 \fire{t_1} M_1' \fire{\sigma_2} \ldots \fire{\sigma_m} M_m \fire{t_m} M_m' \fire{\sigma_{m+1}} M_{m+1} \geq \Mfinal
     \]
-    where each $\sigma_i$ for $i \in \oneto{m+1}$ only consists of $\eps$-labeled transitions.
+    where each $\sigma_i$ for $i \in \zeroto{m+1}$ only consists of $\eps$-labeled transitions.
 
     However, we cannot simply guess the markings $M_i$ in polynomial time, since we have no a priori bound on their number of tokens.
     To overcome this issue, the characterization of reachability in terms of existential Presburger formulas is crucial.
@@ -219,7 +219,7 @@ We can now use \cref{Theorem:BPPPResburger} to prove that the word problem for B
 
     For the formal construction, we let $p^i$ and $p^{i,\init}$ denote the copy of place $p$ of $N$ in copy $N_\eps^i$ \nb{and $N_\eps^{i,\init}$}, respectively.
     In the formula, we will use the name of each place as the variable describing the  number of tokens on that place.
-    For vectors of variables $\vec{y},\vec{z}$ of equal dimension $k$, we will write $\vec{y} \leq \vec{z}$ for the conjunction $y_1 \leq y_1' \wedge \ldots \wedge y_k \leq y_k'$.
+    For vectors of variables $\vec{y},\vec{z}$ of equal dimension $k$, we will write $\vec{y} \leq \vec{z}$ for the conjunction $y_1 \leq z_1 \wedge \ldots \wedge y_k \leq z_k$.
     For \nb{two variables $y_i, z_i$}, we write $y_i = z_i$ for $y_i \leq z_i \wedge z_i \leq y_i$.
     We extend this notation to vectors and write $\vec{y} = \vec{z}$ for $\vec{y} \leq \vec{z} \wedge \vec{z} \leq \vec{y}$.
 
@@ -261,7 +261,7 @@ We can now use \cref{Theorem:BPPPResburger} to prove that the word problem for B
         \Minit \fire{\sigma_0} M_1 \fire{t_1} M_1' \fire{\sigma_2} \ldots \fire{\sigma_m} M_m \fire{t_m} M_m' \fire{\sigma_{m+1}} M_{m+1} \geq \Mfinal
     \)
     is a computation generating word $\lambda(\sigma)$.
-    We obtain a satisfying assignment for formula $\varphi$ by setting $p^i$ to the value $M_{i+1}$ reached by firing $\sigma_i$, and by setting $p^{i,\init}$ to the  value $M_i'(p)$.
+    We obtain a satisfying assignment for formula $\varphi$ by setting $p^i$ to the value $M_{i+1}(p)$ reached by firing $\sigma_i$, and by setting $p^{i,\init}$ to the  value $M_i'(p)$.
 
 
     For the other direction, note that a satisfying assignment of the formula is a witness for the existence of a computation $\sigma'$ of $N'$ from $M'$ such that the markings reached in each of the copies satisfy the properties postulated by the formula.
