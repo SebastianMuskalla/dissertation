@@ -1,0 +1,187 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Games}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \only<1>%
+        {%
+            \begin{center}
+                \begin{tikzpicture}
+                    \clip (-5,-0.5) rectangle (5,7.3);
+
+                    \draw [draw=none, fill=green,
+                    %path fading=fade bottom,
+                    fill opacity=0.75]
+                    (0,-0.75) ellipse (5.5 and 1.4);
+
+                    \draw [draw=none, fill=red,
+                        %path fading=fade top,
+                        fill opacity=0.75]
+                        (0,7.5) ellipse (5.5 and 1.4);
+
+                    \node (REG) [font=\large, outer sep=15pt] {\langclass{REG}};
+                    \node (NFA) at (-2,-0.25) {\langclass{NFA}};
+                    \node (DFA) at ( 2,-0.25) {\langclass{DFA}};
+
+                    \node (RE) at (0,6.5) [font=\large, outer sep=15pt] {\langclass{RE}};
+                    \node (TM) at (-4,7) {\langclass{TM}};
+                    \node (CM) at (-2,7) {\langclass{Counter\ M.}};
+                    \node (VS) at (2,7) {\langclass{VS}$_{\mathsf{GM}}$};
+                    \node (MPDS) at (4,7) {\langclass{MPDS}};
+
+                    \node (OCN) at (0,1.2) {\langclass{OCN}};
+
+                    \node (OCA) at (2,2.1) {\langclass{OCA}};
+                    \node (VPL) at (4,2.1) {\langclass{VPL}};
+                    % \node (DCFL) at (4,3.5) {\langclass{DCFL}};
+                    \node (CFL) at (3,3.5) {\langclass{CFL}};
+                    \node (HORS) at (3,5) {\langclass{HORS}};
+
+                    \node (PNCOV) at (-4,3.5) {\langclass{PNCov}};
+                    \node (PNREACH) at (-2,5) {\langclass{PNReach}};
+                    \node (WSTS) at (-4,5) {\langclass{WSTS}};
+
+                    \path [->,>=latex]
+                        (REG) edge (VPL)
+                        (REG) edge (OCN)
+                        (REG) edge (PNCOV)
+                        (OCN) edge (OCA)
+                        (OCA) edge (CFL)
+                        (VPL) edge (CFL)
+                        (CFL) edge (HORS)
+                        (OCN) edge (PNREACH)
+                        (PNCOV) edge (PNREACH)
+                        (PNCOV) edge (WSTS)
+                        (WSTS) edge (RE)
+                        (PNREACH) edge (RE)
+                        (HORS) edge (RE)
+                    ;
+
+                    \node[draw=none, inner sep=10pt, fill=white!75!gray, font=\small, rounded corners=5pt, visible on=<1->, font=\small] at (0,3.5)
+                    {%
+                        \alert{Solving games}
+                    };
+
+
+                    \node[notice={(CFL)}] at (2.4,2.6)
+                    {%
+                        \alert{[HMM 2016]}
+                    };
+
+                    \node[notice={(HORS)}] at (2.4,4.45)
+                    {%
+                        \alert{[HMM 2017]}
+                    };
+
+                    \node[notice={(WSTS)}] at (-2.8,6)
+                    {%
+                        \alert{Undecidable}
+                    };
+
+                    \node[notice={(PNREACH)}] at (-2.75,4.45)
+                    {%
+                        \alert{Undecidable}
+                    };
+
+                    \node[notice={(PNCOV)}] at (-2.75,2.6)
+                    {%
+                        \alert{Undecidable}
+                    };
+
+                    \node[notice={(VS)}] at (2,6)
+                    {%
+                        \alert{Undecidable}
+                    };
+                \end{tikzpicture}
+            \end{center}
+        }
+        \only<2>%
+        {%
+            Part V.~of the thesis
+
+            \vspace*{2.3em}
+
+            Effective denotational semantics for context-free games
+
+            \vspace*{2.3em}
+
+            \alert{Publication:}
+
+            \vspace*{1em}
+
+            L. Holík, R. Meyer, and \textit{S. M.}
+            \\
+            \textbf{Summaries for context-free games}
+            \\
+            In: FSTTCS 2016, volume 65 of LIPIcs, pages 41:1--41:16
+        }
+        \only<3>%
+        {%
+            Part V.~of the thesis
+
+            \vspace*{2.3em}
+
+            Extensions to games with infinite executions ($\omega$-languages)
+
+            \vspace*{2.3em}
+
+            \alert{Publication:}
+
+            \vspace*{1em}
+
+            R. Meyer, \textit{S. M.}, and E. Neumann
+            \\
+            \textbf{Liveness verification and synthesis:\\ New algorithms for recursive programs}
+            \\
+            Unpublished preprint (available on arXiv)
+
+        }
+        \only<4>%
+        {%
+            Part V.~of the thesis
+
+            \vspace*{2.3em}
+
+            Extensions to higher-order recursion schemes (HORSes)
+
+            \vspace*{2.3em}
+
+            \alert{Publication:}
+
+            \vspace*{1em}
+
+            M. Hague, R. Meyer, and \textit{S. M.}
+            \\
+            \textbf{Domains for higher-order games}
+            \\
+            In: MFCS 2017, volume 83 of LIPIcs, pages 59:1--59:15
+        }
+        \only<5>%
+        {%
+            Part V.~of the thesis
+
+            \vspace*{2.3em}
+
+            The frontier of the decidability of games
+
+            \vspace*{2.3em}
+
+            \alert{Publication:}
+
+            \vspace*{1em}
+
+
+            R. Meyer, \textit{S. M.}, and G. Zetzsche
+            \\
+            \textbf{Bounded context switching for valence systems}
+            \\
+            In: CONCUR 2018, volume 118 of LIPIcs, pages 12:1--12:18
+
+            \vspace*{1.5em}
+
+            + unpublished work
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

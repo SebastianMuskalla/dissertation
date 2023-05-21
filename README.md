@@ -1,22 +1,36 @@
 Certificates for automata in a hostile environment
 ==================================================
 
-Sebastian Muskalla
----------------------------------
+**PhD thesis in theoretical computer science**
 
-### Dissertation
+**Author: Sebastian Muskalla**
+
+This thesis has been submitted in August 2022 and defended in May 2023.
+The publication is pending.
+
+Dissertation
+------------
 
 [Dissertation (.pdf)](Diss_Muskalla_Sebastian.pdf)
 
-### Important note
+A version of this thesis has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig in August 2022 with the goal of obtaining a PhD (Dr. rer. nat.) and been approved by the reviewers.
+However, this version is **not** identical to the one that has been submitted for review.
 
-This thesis has **not** been reviewed and approved by the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig.
+Defense
+-------
 
-This version of the thesis is **not** identical to the one that has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig with the goal of obtaining a PhD (Dr. rer. nat.).
+[Defense - Slides (.pdf)](Defense_Muskalla_Sebastian.pdf)
 
-### Compilation instructions
+[Defense - Slides with reduced animations (.pdf)](Defense_Muskalla_Sebastian_reduced_animations.pdf)
 
-Compilation has been tested using a full installation of TeX Live 2022 under Windows 10 Version 21H2.
+These are the slides which I used for a 45-minute talk that was part of the defense in May 2023.
+
+Compilation instructions
+------------------------
+
+The following instructions apply to both the thesis and the slides.
+
+Compilation has been tested using a full installation of TeX Live 2023 under Windows 10 Version 22H2.
 
 The thesis should be compiled with XeTeX by using `latexmk` with the provided `.latexmkrc` file.
 

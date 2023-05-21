@@ -1,0 +1,50 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \renewcommand{\arraystretch}{1.5}
+        \begin{tabular}{c|cc}
+            & Petri nets
+            & BPP nets
+            \\
+            \hline
+            Compute $\dc{\lang{A}}$
+            &
+            non-prim.~rec.~[HMW 2010]
+            &
+            \alert{exponential}
+            \\
+            Compute $\uc{\lang{A}}$
+            &
+            \alert{doubly exponential}
+            &
+            \alert{exponential}
+            \\
+                SRE $\subseteq \dc{\lang{A}}$
+                &
+                \alert{$\EXPSPACE$-compl.}
+                &
+                \alert{$\NPTIME$-compl.}
+                \\
+                SRE $\subseteq \uc{\lang{A}}$
+                &
+                \alert{$\EXPSPACE$-compl.}
+                &
+                \alert{$\NPTIME$-compl.}
+        \end{tabular}
+
+        \vspace*{1em}
+
+            \begin{theorem}
+                It is \alert{decidable} whether $\lang{\text{finite automaton}} \subseteq \lang{\text{Petri net}}$.
+            \end{theorem}
+
+            \begin{theorem}
+                It is \alert{decidable} whether $\lang{\text{PN}} = \dc{\lang{\text{PN}}}$ \resp $\lang{\text{PN}} = \uc{\lang{\text{PN}}}$.
+            \end{theorem}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

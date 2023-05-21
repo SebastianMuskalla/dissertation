@@ -1,0 +1,36 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Unreliable communication}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        Same problem can happen even when communication is reliable
+        \begin{center}
+            \begin{tikzpicture}
+                \node [text=white] at (5,0) {dummy};
+                \node (SM) at (7,0)  [minimum width=0.5cm,minimum height=0.5cm, anchor=west,draw] {$x = 0$};
+
+                \node [below of=SM, node distance=0.5cm, font=\scriptsize] {Shared memory};
+
+                \node (Pp) at (9,0) [minimum width=2cm,minimum height=2cm, anchor=west,draw] {$A$};
+
+                \node (oT) at (5.5,0.8) [font=\small,svisible on=<2->] {other threads};
+
+                \node at (7.1,0.9) [anchor=west, font=\scriptsize,svisible on=<2->] {$x = 0$};
+                \node at (7.3,0.7) [anchor=west, font=\scriptsize,svisible on=<2->] {$x = 1$};
+                \node at (7.5,0.5) [anchor=west, font=\scriptsize,svisible on=<2->] {$x = 0$};
+
+                \path [->,>=latex]
+                    (SM) edge node [above, font=\scriptsize] {poll} (Pp)
+                    (oT) edge [svisible on=<2->, bend left, semithick, dashed] (SM)
+                ;
+            \end{tikzpicture}
+        \end{center}
+
+        \sonslide<2->%
+        {%
+            Thread $A$ sees \alert{$\dc{\lang{\text{other threads}}}$}
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

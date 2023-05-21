@@ -1,0 +1,114 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Games}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+
+        \only<1>%
+        {%
+            \begin{problem}
+                \problemtitle{Solving a game}
+                \probleminput{Game system, specification Spec}
+                \problemquestion{Has the synthesis player a strategy $s$ so that
+                    \(\text{Game} \,@\, s \models \text{Spec}\)?}
+            \end{problem}
+        }
+        \only<2>%
+        {%
+            \begin{problem}
+                \problemtitle{Solving an \alert{inclusion game}}
+                \probleminput{Game system, specification Spec}
+                \problemquestion{Has the synthesis player a strategy $s$ so that
+                    \alert{\(\lang{\text{Game} \,@\, s} \subseteq \lang{\text{Spec}}\)}?}
+            \end{problem}
+        }
+        \only<3-4>%
+        {%
+            \begin{problem}
+                \problemtitle{Solving an \alert{inclusion game}}
+                \probleminput{Game system, specification Spec}
+                \problemquestion{Has the synthesis player a strategy $s$ so that
+                    \alert{\(\lang{\text{CF-Game} \,@\, s} \subseteq \lang{\text{NFA}}\)}?}
+            \end{problem}
+        }
+        \only<5->%
+        {%
+            \begin{problem}
+                \problemtitle{Solving an \alert{inclusion game}}
+                \probleminput{Game system, specification Spec}
+                \problemquestion{Has the synthesis player a strategy $s$ so that
+                    \alert{\(\lang{\text{CF-Game} \,@\, s} \subseteq \lang{\text{NFA}}\)}?}
+            \end{problem}
+        }
+
+        \only<3-4>%
+        {%
+            \only<3->%
+            {%
+                Problem 1: Game is context-free
+                    \\
+                    \quad (it models the control flow of a program)
+            }
+
+            \vspace*{1em}
+
+
+            \only<4->%
+            {%
+            Solution: Various algorithms for games on context-free systems
+                \begin{itemize}
+                    \item[$-$] Guess-and-check [Walukiewicz 1996]
+                    \item[$-$] Alternating two-way automata [KV 2000]
+                    \item[$-$] Saturation [Cachat 2002]
+                \end{itemize}
+            }
+        }
+
+        \only<5-6>%
+        {%
+            Problem 2: Specification is given as NFA
+
+            \vspace*{1em}
+
+
+            \only<6->%
+            {%
+                Three entities make decisions:
+                \begin{enumerate}[1)]
+                    \item System player chooses (a part of) the behavior of Game
+                    \item Environment player chooses (a part of) the behavior of Game
+                    \item NFA chooses the behavior of the automaton for Spec
+                        \\
+                        \quad the choices are \alert{invisible} to the other players!
+                \end{enumerate}
+            }
+        }
+        \only<7->%
+        {%
+            \alert{Succinct context-free inclusion game}
+
+            \begin{itemize}
+                \item[] Left-hand side: Context-free game grammar
+
+                \item[] Right-hand side: Non-deterministic automaton
+            \end{itemize}
+
+            \vspace*{1em}
+
+            \only<8->
+            {%
+                Existing techniques require an \alert{upfront determinization}:
+
+                \vspace*{1em}
+
+                Construct \alert{DFA} with $\lang{\text{DFA}} = \lang{\text{NFA}}$ and consider CF-Game $\times$ DFA
+
+                \vspace*{1em}
+
+                Upfront determinization, leading to an \alert{exponential blowup}
+            }
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

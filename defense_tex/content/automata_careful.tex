@@ -1,0 +1,58 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Automata theory}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+
+        \begin{center}
+            \begin{tikzpicture}
+                \node (origin) [coordinate] at (0.5,0) {};
+
+                \node (abstr) at (2,0) [minimum width=1cm, minimum height=1cm, anchor=west,draw] {};
+
+
+                \node (rect) at (5,0) [minimum width=2cm,minimum height=2cm, anchor=west,draw] {};
+
+                \node (yes) [coordinate] at (8,0.75) {};
+                \node (no) [coordinate] at (8,-0.75) {};
+                \path [->,>=latex]
+                    (origin) edge (abstr.west)
+                    (abstr.east) edge (rect.west)
+                    (rect.east) edge (yes)
+                    (rect.east) edge (no)
+                ;
+
+                \node at (1,0.25) {$P$};
+
+                \node at (3.75,0.25) {$A_P$};
+
+                \node [right of=yes, node distance=0cm, anchor=west] {yes, $A_P \models \varphi$};
+                \node [right of=no, node distance=0cm, anchor=west] {no, $A_P \not\models \varphi$};
+
+                \node [align=center, text width=1cm, font=\scriptsize] at (abstr) {Abstr.};
+                \node [align=center, text width=2cm, font=\scriptsize] at (rect) {Decision procedure for automata};
+            \end{tikzpicture}
+        \end{center}
+
+        Does this always work?
+
+        \sonslide<2->%
+        {%
+            \alert{NO!}
+
+            \vspace*{1em}
+
+            Need to pick abstraction carefully
+        }
+
+        \begin{itemize}
+            \sitem<3->[$-$] Verification problem needs to be \alert{(efficiently) decidable}
+            \sitem<4->[$-$] Expressiveness needs to be high enough so that we can model the behavior \alert{relevant to the specification}
+            \sitem<5->[$-$] Need some \alert{relation between $P$ and $A_P$},
+                \newline \quad e.g.~overapproximation: $\lang{P} \subseteq \lang{A_P}$
+        \end{itemize}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

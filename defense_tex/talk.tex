@@ -1,0 +1,100 @@
+% LTeX: enabled=false
+
+\documentclass{style/smpresentation}
+
+\usepackage{defense}
+
+\title{Certificates for automata in a hostile environment}
+
+\author{Sebastian Muskalla}
+
+\institute{PhD defense}
+
+\date%
+{%
+    \vspace*{1em}
+    May 11, 2023
+}%
+
+\begin{document}
+
+\maketitle
+
+% Introduction
+    \subfile{content/intro_toc}
+    \subfile{content/intro_title}
+
+\section{Automata theory}
+    \subfile{content/automata_tcs}
+    \subfile{content/automata_verification}
+    \subfile{content/automata_loopholes}
+    \subfile{content/automata_langmap}
+    \subfile{content/automata_approach}
+    \subfile{content/automata_careful}
+    \subfile{content/automata_solution}
+
+\section{Certificates}
+    \subfile{content/certificates_intro}
+    \subfile{content/certificates_definition}
+
+\section{The (hostile) environment}
+    \subfile{content/environment_intro}
+    \subfile{content/environment_definition}
+    \subfile{content/environment_hostile}
+
+% Where are we
+    \subfile{content/summary}
+
+\section{%
+    \texorpdfstring{\nth{1}}{1st} example:%
+    \newline%
+    Unreliable communication%
+    \newline%
+    \& Language closures%
+}
+    \subfile{content/closures_lossiness}
+    \subfile{content/closures_polling}
+    \subfile{content/closures_gaininess}
+    \subfile{content/closures_definitions}
+    \subfile{content/closures_problem}
+    \subfile{content/closures_langmap}
+    \subfile{content/closures_pn}
+    \subfile{content/closures_results}
+    \subfile{content/closures_publication}
+
+\section{%
+    \texorpdfstring{\nth{2}}{2nd} example:%
+    \newline%
+    Compositional verification%
+    \newline%
+    \& Regular separability%
+}
+    \subfile{content/separability_compositional_verification}
+    \subfile{content/separability_rewriting}
+    \subfile{content/separability_intro}
+    \subfile{content/separability_definitions}
+    \subfile{content/separability_langmap}
+    \subfile{content/separability_result}
+    \subfile{content/separability_publication}
+
+\section{%
+    \texorpdfstring{\nth{3}}{3rd} example:%
+    \newline%
+    Synthesis%
+    \newline%
+    \& Games%
+}
+    \subfile{content/games_synthesis}
+    \subfile{content/games_definition}
+    \subfile{content/games_result}
+    \subfile{content/games_example}
+    \subfile{content/games_langmap_publications}
+
+\section{Conclusion}
+    \subfile{content/conclusion_summary}
+    \subfile{content/conclusion_publications}
+
+\appendix
+    \subfile{content/outro}
+
+\end{document}

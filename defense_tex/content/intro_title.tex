@@ -1,0 +1,24 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{The title}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{center}
+            \begin{tikzpicture}
+                \clip (-5,-0.5) rectangle (5,7.3);
+
+                \node [align=center] (title) at (0,3.5) [font=\Large]
+                    {\alert{Certificates} for \alert{automata}\\ in a \alert{hostile environment}};
+
+                \node [shape=circle,draw, thick, inner sep=2pt, svisible on=<2->] at (1.5, 4.75) {1};
+
+                \node [shape=circle,draw, thick, inner sep=2pt, svisible on=<3->] at (-1.5, 4.75) {2};
+
+                \node [shape=circle,draw, thick, inner sep=2pt, svisible on=<4->] at (0.5, 2.25) {3};
+
+            \end{tikzpicture}
+        \end{center}
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

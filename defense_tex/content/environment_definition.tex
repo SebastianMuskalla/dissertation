@@ -1,0 +1,26 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{The (hostile) environment}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+
+        The automaton lives $A_P$ in an \alert{environment}
+
+        \begin{itemize}
+            \sitem<2->[$-$] Parts of system $P$ abstracted away in $A_P$
+            \sitem<3->[$-$] Parts of the system that were never modeled to begin with:\hspace*{-1em}
+                \begin{itemize}
+                    \item[$-$] User input
+                    \item[$-$] External components
+                \end{itemize}
+            \sitem<4->[$-$] Compositional verification
+                \begin{itemize}
+                    \item[$-$] Focus on one component
+                    \item[$-$] Rest of the components becomes the environment
+                \end{itemize}
+        \end{itemize}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

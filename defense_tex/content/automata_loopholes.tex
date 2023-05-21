@@ -1,0 +1,29 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Automata theory}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{theorem}[{[Church 1935/36, Turing 1936, Rice 1953]}]
+            The verification problem is undecidable for \alert{all} specifications.
+        \end{theorem}
+
+        \vspace*{1em}
+
+        Two \alert{loopholes} exist:
+
+        \begin{enumerate}
+            \sitem<2-> Problem is just undecidable in full generality
+                \begin{itemize}
+                    \item[$-$] We may be able to verify \alert{some} programs
+                        \\
+                        (We come back to this later)
+                \end{itemize}
+            \sitem<3-> Problem undecidable if input are general computer programs
+                \begin{itemize}
+                    \item[$-$] Study restricted computer models: \alert{Automata}
+                \end{itemize}
+        \end{enumerate}
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

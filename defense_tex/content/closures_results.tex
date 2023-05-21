@@ -1,0 +1,65 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \renewcommand{\arraystretch}{1.5}
+        \begin{tabular}{c|cc}
+            & Petri nets
+            & \only<3->{BPP nets}
+            \\
+            \hline
+            Compute $\dc{\lang{A}}$
+            &
+            non-prim.~rec.~[HMW 2010]
+            &
+            \only<3->{\alert{exponential}}
+            \\
+            Compute $\uc{\lang{A}}$
+            &
+            \only<1>{???}\only<2->{\alert{doubly exponential}}
+            &
+            \only<3->{\alert{exponential}}
+            \\
+            \onslide<4->
+            {%
+                SRE $\subseteq \dc{\lang{A}}$
+                &
+                \alert{$\EXPSPACE$-compl.}
+                &
+                \alert{$\NPTIME$-compl.}
+                \\
+            }
+            \onslide<4->
+            {%
+                SRE $\subseteq \uc{\lang{A}}$
+                &
+                \alert{$\EXPSPACE$-compl.}
+                &
+                \alert{$\NPTIME$-compl.}
+            }
+        \end{tabular}
+
+        \vspace*{1em}
+
+
+        % \only<3->
+        % {
+        %     SRE $= \dc{\lang{A}}$ $\iff$ $\dc{\lang{A}} \subseteq$ SRE and \alert{SRE $\subseteq \dc{\lang{A}}$}
+        % }
+        \only<5->%
+        {%
+            \begin{theorem}
+                It is \alert{decidable} whether $\lang{\text{finite automaton}} \subseteq \lang{\text{Petri net}}$.
+            \end{theorem}
+        }
+        \only<6->%
+        {%
+            \begin{theorem}
+                It is \alert{decidable} whether $\lang{\text{PN}} = \dc{\lang{\text{PN}}}$ \resp $\lang{\text{PN}} = \uc{\lang{\text{PN}}}$.
+            \end{theorem}
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

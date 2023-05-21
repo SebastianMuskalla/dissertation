@@ -1,0 +1,81 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Synthesis}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \only<1>%
+        {%
+            \alert{Verification:} Checking whether program is correct
+        }
+
+        \only<2->%
+        {%
+            \alert{Synthesis:} Constructing a correct program \only<3->{from \alert{program template}}
+        }
+
+        \vspace*{1em}
+
+
+        \only<4->%
+        {%
+            \alert{Two player game:}
+            \begin{itemize}
+                \item[] Environment player: Non-determinism in the program
+                \item[] Synthesis player: Replacing wildcards
+            \end{itemize}
+        }
+
+        \begin{center}
+            \begin{columns}[T]
+                \begin{column}{0.35\textwidth}
+                    \only<5->%
+                    {%
+                        \noindent
+                        \mono{\noindent
+                            \noindent if (x == 0)\\
+                            \quad    code$_1$\\
+                            else\\
+                            \quad code$_2$
+                        }
+
+                        \vspace*{1em}
+
+                        \onslide<6->%
+                        {%
+                            assert$(x = 0)$.\mono{code$_1$} $\wedge$ assert$(x \neq 0)$.\mono{code$_2$}
+                        }
+                    }
+                \end{column}
+                \begin{column}{0.3\textwidth}
+                    \only<7->%
+                    {%
+                        \noindent
+                        \mono{\noindent
+                            \noindent if (???)\\
+                            \quad    code$_1$\\
+                            else\\
+                            \quad code$_2$
+                        }
+
+                        \vspace*{1em}
+
+                        \only<8->%
+                        {%
+                            \mono{code$_1$} $\vee$\\ \mono{code$_2$}
+                        }
+                    }
+                \end{column}
+            \end{columns}
+        \end{center}
+
+        \vspace*{1em}
+
+        \only<9->%
+        {%
+            \vspace*{-1em}
+            Certificate: \alert{Winning strategy} $\corrto$ Instantiation of the template
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

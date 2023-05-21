@@ -1,0 +1,100 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{columns}[T]
+            \begin{column}{0.55\textwidth}
+                \alert{Petri nets}
+
+                \sonslide<2->%
+                {%
+                    \begin{itemize}
+                        \item[$-$] a finite automaton run by multiple threads
+                        \item[$-$] number of threads is unbounded
+                        \item[$-$] threads can spawn, die, synchronize at runtime
+                    \end{itemize}
+                }
+
+                \sonslide<3->%
+                {%
+                \vspace*{1em}
+
+                    Limitation: Cannot check \alert{non-existence} of threads
+                }
+
+                \sonslide<4->%
+                {%
+                \vspace*{1em}
+
+                    Good for modelling \alert{concurrent systems}
+                }
+
+            \end{column}
+            \begin{column}{0.45\textwidth}
+                    \begin{tikzpicture}
+                        [>=latex, node distance=3cm]
+
+                        \tikzstyle{place}=[circle,thick,draw=black!75,minimum size=6mm]
+                        \tikzstyle{red place}=[place,draw=red!75,fill=red!20]
+                        \tikzstyle{transition}=[rectangle,thick,draw=black!75,minimum size=4mm]
+                        \tikzstyle{every label}=[red]
+
+                        \node [place, tokens=1] (q1) {};
+                        \node [place, tokens=2] (q2) [below of=q1]{};
+                        \node [place] (q3) [below of=q2] {};
+                        \node [place, tokens=1] (lfree) [tokens=0,right of=q2] {};
+
+                        % \only<3-8>
+                        % {
+                        %     \node [place] at (lfree) [tokens=1] {};
+                        % }
+                        % \only<5-6>
+                        % {
+                        %     \node [place] at (q1) [tokens=2] {};
+                        % }
+                        % \only<7-8>
+                        % {
+                        %     \node [place] at (q2) [tokens=2] {};
+                        % }
+                        % \only<9->
+                        % {
+                        %     \node [place] at (q2) [tokens=1] {};
+                        %     \node [place] at (q3) [tokens=1] {};
+                        %     \node [place] at (ltaken) [tokens=1] {};
+                        % }
+
+                        \node [place] (ltaken) [below of=lfree] {};
+
+                        \node [transition] (spawn) [right of=q1] {}
+                            edge [post] (q1);
+
+                        \node [transition] (move) [below of=q1, node distance=1.5cm] {}
+                            edge [pre] (q1)
+                            edge [post] (q2)
+                        ;
+
+                        \node [transition] (acquire) at (0.8,-4.5) {}
+                            edge [pre] (q2)
+                            edge [pre] (lfree)
+                            edge [post] (q3)
+                            edge [post] (ltaken)
+                        ;
+
+                        \node [transition] (release) at (2.2,-4.5) {}
+                            % edge [post,visible on=<11->] (q2)
+                            edge [post] (lfree)
+                            edge [pre] (q3)
+                            edge [pre] (ltaken)
+                        ;
+
+                        % \node [above of=lfree,font=\small,node distance=0.5cm,visible on=<11->] {lock free};
+                        % \node [below of=ltaken,font=\small,node distance=0.5cm,,visible on=<11->] {lock taken};
+                        % \node [below of=q3,font=\small,node distance=0.5cm,,visible on=<11->] {critical section};
+                    \end{tikzpicture}
+            \end{column}
+        \end{columns}
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

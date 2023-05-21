@@ -1,0 +1,65 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{The (hostile) environment}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{center}
+            \begin{tikzpicture}
+                \node (origin) [coordinate] at (0.5,0) {};
+
+                \node (abstr) at (2,0) [minimum width=1cm, minimum height=1cm, anchor=west,draw] {};
+
+                \node (rect) at (5,0) [minimum width=2cm,minimum height=2cm, anchor=west,draw] {};
+
+                \node (yes) [coordinate] at (8,0.75) {};
+                \node (no) [coordinate] at (8,-0.75) {};
+                \path [->,>=latex]
+                    (origin) edge (abstr.west)
+                    (abstr.east) edge (rect.west)
+                    (rect.east) edge (yes)
+                    (rect.east) edge (no)
+                ;
+
+                \node at (1,0.25) {$P$};
+
+                \node at (3.75,0.25) {$A_P$};
+
+                \node [right of=yes, node distance=0cm, anchor=west] {$A_P \models \varphi \implies P \models \varphi$};
+                \node [right of=no, node distance=0cm, anchor=west] {$A_P \not\models \varphi \implies P \not\models \varphi$};
+
+                \node [align=center, text width=1cm, font=\scriptsize] at (abstr) {Abstr.};
+                \node [align=center, text width=2cm, font=\scriptsize] at (rect) {Decision procedure for automata};
+            \end{tikzpicture}
+        \end{center}
+
+        \vspace*{-0.2em}
+
+        \sonslide<2->%
+        {%
+            When abstracting $P$ into $A_P$, we usually \alert{forget} a part of the system
+        }
+
+        \sonslide<3->%
+        {%
+            \vspace*{1em}
+
+            Example:
+            \begin{itemize}
+                \item[$-$] $P$ uses recursion + unbounded storage
+                \item[$-$] $A_P$ comes from a class that only supports bounded storage
+                \item[$-$] Solution: Abstract away data
+                \item[$-$] But: This introduces non-determinism
+            \end{itemize}
+        }
+
+        \sonslide<4->%
+        {%
+            \vspace*{1em}
+
+            This imprecision may affect verification!
+        }
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}
