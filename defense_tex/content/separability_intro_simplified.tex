@@ -1,0 +1,71 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Compositional verification}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{columns}[t,onlytextwidth]%
+            \begin{column}{0.6\textwidth}%
+
+                \(
+                    \relyguarantee{\true}{\text{Comp}_1 \!\mid\mid\! \text{Comp}_2}
+                    {\text{Guarantee}}
+                \)
+
+                    \vspace*{1em}
+
+                    Proof rule:
+
+                    \vspace*{1em}
+
+                    \begin{tabular}{l}
+                        $\relyguarantee{\true}{\text{Comp}_1}{\text{Assume}}$
+                        \\
+                        $\relyguarantee{\text{Assume}}{\text{Comp}_2}{\text{Guarantee}}$
+                        \\
+                        \cline{1-1}
+                        $\relyguarantee{\true}{\text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }{\text{Guarantee}}$
+                    \end{tabular}
+
+            \end{column}%
+            \begin{column}{0.4\textwidth}%
+                    \(
+                        \calL \cap \calK
+                        = \emptyset
+                    \)
+
+                    \vspace*{1em}
+
+                    \alert{Separability} proof rule:
+
+                    \vspace*{1em}
+
+                    \begin{tabular}{l}
+                        $\calL \subseteq \calR$
+                        \\
+                        $\calK \subseteq \overline{\calR}$
+                        \\
+                        \cline{1-1}
+                        $\calL \cap \calK
+                        = \emptyset$
+                    \end{tabular}
+            \end{column}
+        \end{columns}
+
+            \vspace*{0.5em}
+            \begin{center}
+                \begin{tikzpicture}
+                    \draw [semithick,fill=tubsred!80!white] (-1.25,-1.25) rectangle (1.25,1.25);
+                    \draw [semithick] (0,0) circle (1cm) node {$\calL$};
+                    \draw [semithick] (2.5,0) circle (1cm) node {$\calK$};
+
+                    \node at (-1,-1) {$\calR$};
+                \end{tikzpicture}
+            \end{center}
+
+            Comp.~verification $\corrto$
+            finding \alert{certificate for intersection emptiness}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

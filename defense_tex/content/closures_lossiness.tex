@@ -1,0 +1,48 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Unreliable communication}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        Program sending messages \onslide<2->{over a \alert{lossy network connection}}
+        \begin{center}
+            \begin{tikzpicture}
+                \node [text=white] at (7,0) {dummy};
+                \node (P) at (0,0) [minimum width=2cm,minimum height=2cm, anchor=west,draw] {$A$};
+                \only<1>
+                {%
+                    \path [->,>=latex]
+                    (2,0) edge (3,0);
+                    \node at (3,0) [below, xshift=1em] {word $w \in \lang{A}$};
+                }
+                \onslide<2->
+                {%
+                    \path [->,>=latex]
+                        (2,0.2) edge [-] (6,0.2)
+                        (2,0) edge [dashed] (6,0)
+                        (2,-0.2) edge [-] (6,-0.2)
+                    ;
+
+                    \node at (4,0.5) [font=\small] {Network};
+
+                    \node (LP) [visible on=<3->] at (3,-0.8) [font=\small] {$w \in \lang{A}$};
+                    \node at (5,-0.8) [font=\small,visible on=<4>] {\alert{$w' \in \ ???$}};
+                    \node (LPdc) at (5,-0.8) [font=\small,visible on=<5->] {\alert{$w' \in \dc{\lang{A}}$}};
+
+                    \path [very thick, ->,>=latex]
+                        (LP) edge [visible on=<3->] ([shift={(0,-0.08)}] P.east)
+                        (LPdc) edge [visible on=<4->] (6,-0.08)
+                    ;
+                }
+            \end{tikzpicture}
+        \end{center}
+
+        \begin{itemize}
+            \item[]<6-> We are typically given a description of $A$
+            \item[]<7-> Specification talks about $\dc{\lang{A}}$, the visible behavior of $A$
+            \item[]<8-> Unreliable communication forms an environment that has to be taken into account
+        \end{itemize}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

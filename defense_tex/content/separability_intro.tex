@@ -1,0 +1,219 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Compositional verification}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{columns}[t,onlytextwidth]%
+            \begin{column}{0.6\textwidth}%
+                % \begin{minipage}[t][\textheight][t]{\linewidth}%
+                \(
+                    \relyguarantee{\true}{\text{Comp}_1 \!\mid\mid\! \text{Comp}_2}
+                    {\text{Guarantee}}
+                \)
+
+                \onslide<3->%
+                {%
+                    \vspace*{1em}
+
+                    Proof rule:
+
+                    \vspace*{1em}
+
+                    \begin{tabular}{l}
+                        $\relyguarantee{\true}{\text{Comp}_1}{\text{Assume}}$
+                        \\
+                        $\relyguarantee{\text{Assume}}{\text{Comp}_2}{\text{Guarantee}}$
+                        \\
+                        \cline{1-1}
+                        $\relyguarantee{\true}{\text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }{\text{Guarantee}}$
+                    \end{tabular}
+                }
+                % \end{minipage}
+            \end{column}%
+            \begin{column}{0.4\textwidth}%
+                % \begin{minipage}[t][\textheight][t]{\linewidth}%
+                \only<1>%
+                {%
+                    \(
+                        \lang{\text{Comp}_1'} \cap \lang{\text{Comp}_2''}
+                        = \emptyset
+                    \)
+                }
+                \only<2->%
+                {%
+                    \(
+                        \calL \cap \calK
+                        = \emptyset
+                    \)
+                }
+
+                \onslide<4->%
+                {%
+                    \vspace*{1em}
+
+                    \alert{Separability} proof rule:
+
+                    \vspace*{1em}
+
+                    \begin{tabular}{l}
+                        $\calL \subseteq \calR$
+                        \\
+                        $\calK \subseteq \overline{\calR}$
+                        \\
+                        \cline{1-1}
+                        $\calL \cap \calK
+                        = \emptyset$
+                    \end{tabular}
+                }
+                % \end{minipage}
+            \end{column}
+        \end{columns}
+
+        \onslide<5->%
+        {%
+            \vspace*{0.5em}
+            \begin{center}
+                \begin{tikzpicture}
+                    \draw [semithick,fill=tubsred!80!white,visible on=<6->] (-1.25,-1.25) rectangle (1.25,1.25);
+                    \draw [semithick] (0,0) circle (1cm) node {$\calL$};
+                    \draw [semithick] (2.5,0) circle (1cm) node {$\calK$};
+
+                    \node [visible on=<6->] at (-1,-1) {$\calR$};
+                \end{tikzpicture}
+            \end{center}
+        }
+        \onslide<7->%
+        {%
+            Comp.~verification $\corrto$
+            finding \alert{certificate for intersection emptiness}
+        }
+
+        % \begin{
+        % \only<1-3>%
+        % {%
+
+        % }
+        % \only<4-5>%
+        % {%
+        %     \[
+        %         \text{Comp}_1 \!\mid\mid\! \text{Comp}_2
+        %         \models
+        %         \text{Guarantee}
+        %     \]
+        % }
+        % \only<6-7>%
+        % {%
+        %     \[
+        %         \lang{ \text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }
+        %         \cap
+        %         \lang{ \overline{ \text{Guarantee} } }
+        %         = \emptyset
+        %     \]
+        % }
+        % \only<8-9>%
+        % {%
+        %     \[
+        %         \lang{ \text{Comp}_1'} \cap \lang{ \text{Comp}_2' }
+        %         \cap
+        %         \lang{ \overline{ \text{Guarantee} } }
+        %         = \emptyset
+        %     \]
+        % }
+        % \only<10->%
+        % {%
+        %     \[
+        %         \lang{ \text{Comp}_1'} \cap \lang{ \text{Comp}_2'' }
+        %         = \emptyset
+        %     \]
+        % }
+
+        % \vspace*{1em}
+
+        % How to express this using \alert{languages}?
+        % \only<2-3>%
+        % {%
+        %     \vspace*{1em}
+
+        %     First simplification:
+
+        %     \only<2>%
+        %     {%
+        %         \[
+        %             \relyguarantee{\text{Assume}}{\text{Comp}}{\text{Guarantee}}
+        %             \text{ satisfied if}
+        %         \]
+        %         \(
+        %             \forall \text{Env} \colon \text{Comp} \!\mid\mid\! \text{Env} \models \text{Assume}
+        %             \implies
+        %             \text{Comp} \!\mid\mid\! \text{Env} \models \text{Guarantee}
+        %         \)
+        %     }%
+        %     \only<3>%
+        %     {%
+        %         \[
+        %             \relyguarantee{\text{Assume}}{\text{Comp}}{\text{Guarantee}}
+        %             \text{ satisfied if}
+        %         \]
+        %         \(
+        %             \qquad \quad  \text{Comp} \models \text{Assume}
+        %             \implies
+        %             \text{Comp} \models \text{Guarantee}
+        %         \)
+
+        %         \vspace*{1em}
+
+        %         In particular:
+
+        %         \vspace*{1em}
+
+        %         $\relyguarantee{\text{true}}{\text{Comp}}{\text{Guarantee}} \quad$ if
+        %         $\quad \text{Comp} \models \text{Guarantee}$.
+        %     }
+        % }
+        % \only<5->%
+        % {%
+        %     \vspace*{1em}
+
+        %     Second simplification:
+
+        %     \(
+        %         \text{Comp} \models \text{Spec}
+        %         \iff
+        %         \lang{\text{Comp}} \subseteq \lang{\text{Spec}}
+        %         \iff
+        %         \lang{\text{Comp}} \cap \lang{\overline{\text{Spec}}} \alert{= \emptyset}
+        %     \)
+
+        %     \vspace*{1em}
+
+
+        %     \onslide<7->%
+        %     {%
+
+        %         Third simplification:
+
+        %         \(
+        %             \lang{ \text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }
+        %             =
+        %             \lang{ \text{Comp}_1 } \!\mid\mid\! \lang{ \text{Comp}_2 }
+        %             =
+        %             \lang{ \text{Comp}_1' } \alert{\cap} \lang{ \text{Comp}_2' }
+        %         \)
+
+        %         \vspace*{1em}
+        %     }
+        %     \onslide<9->%
+        %     {%
+
+        %         Final simplification:
+
+        %         \(
+        %             \lang{ \text{Comp}_2'' }
+        %             \alert{:=} \text{Comp}_2' \cap \lang{\overline{\text{Guarantee}}}
+        %         \)
+        %     }
+        % }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

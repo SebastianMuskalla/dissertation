@@ -1,0 +1,122 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Compositional verification}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \only<1>%
+        {%
+            \[
+                \relyguarantee{\true}{\text{Comp}_1 \!\mid\mid\! \text{Comp}_2}
+                {\text{Guarantee}}
+            \]
+        }%
+        \only<2>%
+        {%
+            \[
+                \text{Comp}_1 \!\mid\mid\! \text{Comp}_2
+                \models
+                \text{Guarantee}
+            \]
+        }%
+        \only<3>%
+        {%
+            \[
+                \lang{ \text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }
+                \cap
+                \lang{ \overline{\text{Guarantee}}}
+                = \emptyset
+            \]
+        }%
+        \only<4>%
+        {%
+            \[
+                \lang{ \text{Comp}_1'} \cap \lang{ \text{Comp}_2' }
+                \cap
+                \lang{ \overline{\text{Guarantee}} }
+                = \emptyset
+            \]
+        }%
+        \only<5>%
+        {%
+            \[
+                \lang{ \text{Comp}_1'} \cap \lang{ \text{Comp}_2'' }
+                = \emptyset
+            \]
+        }%
+
+        \vspace*{1em}
+
+        How to express this using \alert{languages}?
+        \only<1>%
+        {%
+            \vspace*{1em}
+
+            First simplification:
+
+                \[
+                    \relyguarantee{\text{Assume}}{\text{Comp}}{\text{Guarantee}}
+                    \text{ satisfied if}
+                \]
+                \(
+                    \qquad \quad  \text{Comp} \models \text{Assume}
+                    \implies
+                    \text{Comp} \models \text{Guarantee}
+                \)
+
+                \vspace*{1em}
+
+                In particular:
+
+                \vspace*{1em}
+
+                $\relyguarantee{\text{true}}{\text{Comp}}{\text{Guarantee}} \quad$ if
+                $\quad \text{Comp} \models \text{Guarantee}$.
+
+        }
+        \only<2->%
+        {%
+            \vspace*{1em}
+
+            Second simplification:
+
+            \(
+                \text{Comp} \models \text{Spec}
+                \iff
+                \lang{\text{Comp}} \subseteq \lang{\text{Spec}}
+                \iff
+                \lang{\text{Comp}} \cap \lang{\overline{\text{Spec}}} \alert{= \emptyset}
+            \)
+
+            \vspace*{1em}
+
+
+            \onslide<3->%
+            {%
+
+                Third simplification:
+
+                \(
+                    \lang{ \text{Comp}_1 \!\mid\mid\! \text{Comp}_2 }
+                    =
+                    \lang{ \text{Comp}_1 } \!\mid\mid\! \lang{ \text{Comp}_2 }
+                    =
+                    \lang{ \text{Comp}_1' } \alert{\cap} \lang{ \text{Comp}_2' }
+                \)
+
+                \vspace*{1em}
+            }
+            \onslide<4->%
+            {%
+
+                Final simplification:
+
+                \(
+                    \lang{ \text{Comp}_2'' }
+                    \alert{:=} \text{Comp}_2' \cap \lang{\overline{\text{Guarantee}}}
+                \)
+            }
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

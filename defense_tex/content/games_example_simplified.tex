@@ -1,0 +1,62 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Games}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{columns}[T]
+            \begin{column}{0.5\textwidth}
+                \emph{Example:}
+                \begin{align*}
+                    X_{\text{Synth}} &\to a.Y \mid \varepsilon
+                    \\
+                    Y_{\text{Env}} &\to b.X
+                \end{align*}
+
+                \begin{center}
+                    \begin{tikzpicture}
+                         [scale=0.8,->,>=latex,auto,node distance=2.8cm, semithick]
+
+                        \node[initial,state,accepting,transform shape, initial text={}] (A) {$q_0$};
+                        \node[state, transform shape] (B) [right of=A] {$q_1$};
+
+                        \path
+                            (A) edge [bend left = 15] node [above]  {a} (B)
+                            (B) edge [bend left = 15] node [below] {b} (A)
+                        ;
+                    \end{tikzpicture}
+                \end{center}
+
+                    \emph{System of equations:}
+
+
+                        \begin{align*}
+                            X &= \tbox{a};Y \vee \tbox{\varepsilon}
+                            \\
+                            Y &= \tbox{b};X
+                        \end{align*}
+
+            \end{column}
+            \begin{column}{0.6\textwidth}
+
+                \emph{Iteration:}\\\mbox{}\\
+
+                \begin{tabular} {r||l|l}
+                    Nr. & $X$ & $Y$\\
+                    \hline
+                    \hline
+                     $0$ & $\ifalse$ & $\ifalse$ \\ \hline
+                     $1$ & $\tbox{\varepsilon}$ & $\ifalse$ \\ \hline
+                     $2$ & $\tbox{\varepsilon} $ & $\tbox{b};\tbox{\varepsilon} = \tbox{b}$ \\ \hline
+                     $3$ & $\tbox{ab} \vee \tbox{\varepsilon}$ & $\tbox{b}$ \\ \hline
+                     $4$ & $\tbox{ab} \vee \tbox{\varepsilon}$ & $\tbox{b};(\tbox{ab} \vee \tbox{\varepsilon})$ \\
+                     & & $= \tbox{bab} \vee \tbox{b}$ \\
+                     & & $\Leftrightarrow \tbox{b}$
+                \end{tabular}
+
+            \end{column}
+        \end{columns}
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

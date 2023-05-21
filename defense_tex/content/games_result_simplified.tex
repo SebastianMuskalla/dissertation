@@ -1,0 +1,65 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Games}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        Given:
+        \\
+        \quad Context-free game grammar (representing the game),
+        \\
+        \quad NFA (representing the Spec)
+
+        \vspace*{1em}
+
+
+        \alert{Effective denotational semantics}
+
+        \begin{enumerate}
+            \item See grammar as a \alert{system of equations}
+                \only<1>%
+                {%
+                    \\
+                    \quad using three operations
+                    \begin{itemize}
+                        \item[$-$] choices of the system player
+                        \item[$-$] choices of the environment player
+                        \item[$-$] concatenation
+                    \end{itemize}
+                }
+            \item<2-> \alert{Solve} the system of equations
+                \only<2>%
+                {%
+                    \\
+                    using Boolean formulas over the transition monoid
+                    \begin{itemize}
+                        \item[$-$] represent terminals by their effect on the automaton
+                        \item[$-$] represent choices of the system by conjunction
+                        \item[$-$] represent choices of the environment by disjunction
+                        \item[$-$] represent concatenation by \alert{formula composition}
+                    \end{itemize}
+                }
+            \item<3-> Least solution associates to each non-terminal a formula
+                \only<3>%
+                {%
+                    \begin{itemize}
+                        \item[$-$] represents the effect of the game on the automaton
+                        \item[$-$] winning regions can be read-off
+                        \item[$-$] winning strategies can be read-off
+                    \end{itemize}
+                }
+        \end{enumerate}
+
+        \only<4->%
+        {%
+            Advantages:
+            \begin{itemize}
+                \item[$-$] On-the-fly determinization
+                \item[$-$] Reduce to a well-understood subproblem
+                \item[$-$] Prototype implementation performs better than competitors
+                    (Problem is $\mathsf{2EXPTIME}$-complete!)
+            \end{itemize}
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

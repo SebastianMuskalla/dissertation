@@ -1,0 +1,70 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        Environment turns $\lang{A}$ into $\dc{\lang{A}}$ resp.~$\uc{\lang{A}}$
+
+        \vspace*{1em}
+
+        How to design a theoretical model?
+
+        \vspace*{1em}
+
+
+        \sonly<2->%
+        {%
+            \alert{Subword ordering:} $v \subword w$ \ \ iff \ \ $v$ obtained from $w$ by deleting letters
+        }
+
+        \sonly<3->%
+        {%
+            \vspace*{-0.2em}
+            \[
+                \mathsf{\alert{RADAR}}
+                \subword
+                \mathsf{AB\alert{RA}CA\alert{DA}B\alert{R}A}
+            \]
+        }
+
+        \sonly<4->%
+        {%
+            \vspace*{0.2em}
+            \begin{tabular}{lll}
+                \alert{Downward closure:}
+                &
+                $\dc{\lang{A}} = \Set{ v }{ \exists w \in \lang{A} \colon v \subword w}$
+                &
+                (Lossiness)
+                \\
+                \noindent\alert{Upward closure:} &
+                $\uc{\lang{A}} = \Set{ v }{ \exists w \in \lang{A} \colon w \subword v}$
+                &
+                (Gaininess)
+            \end{tabular}
+            \vspace*{0.2em}
+        }
+
+        \sonly<5->%
+        {%
+            \vspace*{-0.85mm}
+            \begin{theorem}[{[Haines 1969],[Abdulla \etal 2004]}]
+                $\dc{\lang{A}}, \uc{\lang{A}}$ always simply \alert{regular}.
+            \end{theorem}
+        }
+
+        \sonly<6->%
+        {%
+            Regular languages can be represented by \alert{finite automata}
+        }
+
+        \sonly<7->%
+        {%
+            \vspace*{1em}
+
+            But: Closures are \alert{not necessarily effectively regular}
+        }
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

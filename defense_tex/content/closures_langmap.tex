@@ -1,0 +1,104 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+        \begin{center}
+            \begin{tikzpicture}
+                \clip (-5,-0.5) rectangle (5,7.3);
+
+                \draw [draw=none, fill=green,
+                %path fading=fade bottom,
+                fill opacity=0.75]
+                (0,-0.75) ellipse (5.5 and 1.4);
+
+                \draw [draw=none, fill=red,
+                    %path fading=fade top,
+                    fill opacity=0.75]
+                    (0,7.5) ellipse (5.5 and 1.4);
+
+                \node (REG) [font=\large, outer sep=15pt] {\langclass{REG}};
+                \node (NFA) at (-2,-0.25) {\langclass{NFA}};
+                \node (DFA) at ( 2,-0.25) {\langclass{DFA}};
+
+                \node (RE) at (0,6.5) [font=\large, outer sep=15pt] {\langclass{RE}};
+                \node (TM) at (-4,7) {\langclass{TM}};
+                \node (CM) at (-2,7) {\langclass{Counter\ M.}};
+                \node (VS) at (2,7) {\langclass{VS}$_{\mathsf{GM}}$};
+                \node (MPDS) at (4,7) {\langclass{MPDS}};
+
+                \node (OCN) at (0,1.2) {\langclass{OCN}};
+
+                \node (OCA) at (2,2.1) {\langclass{OCA}};
+                \node (VPL) at (4,2.1) {\langclass{VPL}};
+                % \node (DCFL) at (4,3.5) {\langclass{DCFL}};
+                \node (CFL) at (3,3.5) {\langclass{CFL}};
+                \node (HORS) at (3,5) {\langclass{HORS}};
+
+                \node (PNCOV) at (-4,3.5) {\langclass{PNCov}};
+                \node (PNREACH) at (-2,5) {\langclass{PNReach}};
+                \node (WSTS) at (-4,5) {\langclass{WSTS}};
+
+                \path [->,>=latex]
+                    (REG) edge (VPL)
+                    (REG) edge (OCN)
+                    (REG) edge (PNCOV)
+                    (OCN) edge (OCA)
+                    (OCA) edge (CFL)
+                    (VPL) edge (CFL)
+                    (CFL) edge (HORS)
+                    (OCN) edge (PNREACH)
+                    (PNCOV) edge (PNREACH)
+                    (PNCOV) edge (WSTS)
+                    (WSTS) edge (RE)
+                    (PNREACH) edge (RE)
+                    (HORS) edge (RE)
+                ;
+
+                \node[draw=none, inner sep=10pt, fill=white!75!gray, font=\small, rounded corners=5pt, svisible on=<2->, font=\small] at (0,3.5)
+                {%
+                    \alert{Computing $\dc{\lang{A}}$}
+                };
+
+                \node[notice={(NFA)}, svisible on=<3->] at (-2,1.5)
+                {%
+                    \alert{Linear}
+                };
+
+                \node[notice={(RE)}, svisible on=<4->] at (0,5.2)
+                {%
+                    \alert{Uncomputable}
+                };
+
+                \node[notice={(CFL)}, svisible on=<5->] at (2.4,2.6)
+                {%
+                    \alert{Exponential} [vL 1976] [GHK 2007]
+                };
+
+                \node[notice={(HORS)}, svisible on=<6->] at (2.4,4.45)
+                {%
+                    \alert{Computable} [HKO 2016]
+                };
+
+                \node[notice={(WSTS)}, svisible on=<7->] at (-2.8,6)
+                {%
+                    \alert{Uncomputable} [Mayr 2003]
+                };
+
+                \node[notice={(PNREACH)}, svisible on=<8->] at (-2.75,4.45)
+                {%
+                    \alert{Computable} [HMW 2010]
+                };
+
+                \node[notice={(PNCOV)}, svisible on=<9->] at (-2.75,2.6)
+                {%
+                    \alert{Computable, size?}
+                };
+
+
+            \end{tikzpicture}
+        \end{center}
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,61 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Synthesis}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+
+            \alert{Synthesis:} Constructing a correct program from \alert{program template}
+
+        \vspace*{1em}
+
+
+            \alert{Two player game:}
+            \begin{itemize}
+                \item[] Environment player: Non-determinism in the program
+                \item[] Synthesis player: Replacing wildcards
+            \end{itemize}
+
+        \begin{center}
+            \begin{columns}[T]
+                \begin{column}{0.35\textwidth}
+
+                        \noindent
+                        \mono{\noindent
+                            \noindent if (x == 0)\\
+                            \quad    code$_1$\\
+                            else\\
+                            \quad code$_2$
+                        }
+
+                        \vspace*{1em}
+
+
+                            assert$(x = 0)$.\mono{code$_1$} $\wedge$ assert$(x \neq 0)$.\mono{code$_2$}
+
+                \end{column}
+                \begin{column}{0.3\textwidth}
+                        \noindent
+                        \mono{\noindent
+                            \noindent if (???)\\
+                            \quad    code$_1$\\
+                            else\\
+                            \quad code$_2$
+                        }
+
+                        \vspace*{1em}
+
+
+                            \mono{code$_1$} $\vee$\\ \mono{code$_2$}
+                \end{column}
+            \end{columns}
+        \end{center}
+
+        \vspace*{1em}
+
+            \vspace*{-1em}
+            Certificate: \alert{Winning strategy} $\corrto$ Instantiation of the template
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}

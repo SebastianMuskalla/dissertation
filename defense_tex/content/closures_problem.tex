@@ -1,0 +1,36 @@
+\documentclass[../talk.tex]{subfiles}
+\begin{document}
+
+\begin{frame}{Closures}
+    \begin{overlayarea}{\slidewidth}{\slideheight}
+
+        \begin{compproblem}
+            \problemtitle{Computing the downward closure}
+            \probleminput{Automaton $A$.}
+            \problemquestion{Finite automaton $B$ with $\lang{B} = \dc{\lang{A}}$}
+        \end{compproblem}
+
+        \begin{compproblem}
+            \problemtitle{Computing the upward closure}
+            \probleminput{Automaton $A$.}
+            \problemquestion{Finite automaton $B$ with $\lang{B} = \uc{\lang{A}}$}
+        \end{compproblem}
+
+        \vspace*{1em}
+
+        \sonslide<2->%
+        {%
+            Computing closure is taking the \alert{environment} into account
+        }
+
+        \vspace*{1em}
+
+        \sonslide<3->%
+        {%
+            Finite automaton can serve as \alert{certificate}
+        }
+
+    \end{overlayarea}
+\end{frame}
+
+\end{document}
