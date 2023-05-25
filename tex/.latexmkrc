@@ -4,10 +4,6 @@ $postscript_mode = 0;
 
 $xelatex = "xelatex --no-pdf -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
 
-
-# $silence_logfile_warnings
-
-
 $bibtex_use = 2;
 
 $out_dir = ".out";

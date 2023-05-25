@@ -34,9 +34,8 @@
 \addbibresource{other.bib}
 \addbibresource{my.bib}
 
-\begin{document}
 
-%\=================================================
+\begin{document}
 
 \maketitle%
 
@@ -321,8 +320,13 @@
 \cleardoublepage%
 \phantomsection%
 \addcontentsline{toc}{part}{Bibliography}%
+
 \printbibliography%
 
-\emptysheet%
+%\=================================================
+
+\cleartoevenpage%
+
+\subfile{content/conclusion/acknowledgments}
 
 \end{document}
