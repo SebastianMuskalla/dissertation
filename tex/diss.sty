@@ -99,21 +99,20 @@
 %
 
 
-% the official title
+\RequirePackage{mathdots}
+% for iddots
+
 \renewcommand{\maketitle}%
 {%
 \thispagestyle{empty}%
 \begin{center}%
-    \vspace*{4\baselineskip}%
+    \vspace*{\baselineskip}%
 
     {\LARGE{\textbf{\@title}}}%
 
-    % {\large\textit{\textbf{\@subtitle}}}%
-
     \vspace*{2\baselineskip}%
 
-    %Von der\\%
-    Der\\%
+    Von der\\%
     Carl-Friedrich-Gauß-Fakultät\\%
     der Technischen Universität Carolo-Wilhelmina zu Braunschweig%
 
@@ -122,10 +121,9 @@
     zur Erlangungen des Grades eines\\%
     \textbf{Doktors der Naturwissenschaften (Dr.~rer.~nat.)}%
 
-    \vspace*{2\baselineskip}%
+    \vspace*{\baselineskip}%
 
-    % genehmigte Disseration
-    vorgelegte Dissertation%
+    genehmigte Disseration%
 
     \vspace*{2\baselineskip}%
 
@@ -135,64 +133,64 @@
     in Neunkirchen (Saar)%
 \end{center}%
 
-\vspace*{3\baselineskip}%
+\vspace*{2\baselineskip}%
 
-\begin{tabularx}{\textwidth}{l@{\hspace*{3em}}lX}%
-    Eingereicht am: &  4. August 2022 &\\%
-    Disputation am: &  --------------- &\\%
-    1. Referent: & Prof. Dr. Roland Meyer &\\%
-    2. Referent: & doc. Mgr. Lukáš Holík, Ph.D. &\\%
-    3. Referent: & Dr. Georg Zetzsche &\\%
-\end{tabularx}%
+    \begin{tabularx}{\textwidth}{l@{\hspace*{3em}}lX}%
+        Eingereicht am: &  4.~August 2022 &\\%
+        Disputation am: &  11.~Mai 2023 &\\%
+        1. Referent: & Prof.~Dr.~Roland Meyer &\\%
+        2. Referent: & doc.~Mgr.~Lukáš Holík,~Ph.D. &\\%
+        3. Referent: & Dr.~Georg Zetzsche &\\%
+    \end{tabularx}%
 
-\vspace*{3\baselineskip}%
+\vspace*{2\baselineskip}%
 
 \begin{center}
-    2022
+    2023
 \end{center}
 
 \newpage%
 }%
 
-% custom title for web version
-\renewcommand{\maketitle}%
-{%
-\thispagestyle{empty}%
-\begin{center}%
-    \vspace*{4\baselineskip}%
+% % custom title for web version
+% \renewcommand{\maketitle}%
+% {%
+% \thispagestyle{empty}%
+% \begin{center}%
+%     \vspace*{4\baselineskip}%
 
-    {\LARGE{\textbf{\@title}}}%
+%     {\LARGE{\textbf{\@title}}}%
 
-    % {\large\textit{\textbf{\@subtitle}}}%
+%     % {\large\textit{\textbf{\@subtitle}}}%
 
-    \vspace*{1.5\baselineskip}%
+%     \vspace*{1.5\baselineskip}%
 
-    {\Large\@author}%
+%     {\Large\@author}%
 
-    \vspace*{15.5\baselineskip}%
+%     \vspace*{15.5\baselineskip}%
 
-    \begin{minipage}{0.75\textwidth}
-        \begin{center}
-            \textbf{Note}
-        \end{center}
+%     \begin{minipage}{0.75\textwidth}
+%         \begin{center}
+%             \textbf{Note}
+%         \end{center}
 
-        \vspace*{0.5\baselineskip}
+%         \vspace*{0.5\baselineskip}
 
-        This thesis has \textbf{not} been reviewed and approved by the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig.
+%         This thesis has \textbf{not} been reviewed and approved by the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig.
 
-        \vspace*{1\baselineskip}
+%         \vspace*{1\baselineskip}
 
-        This version of the thesis is \textbf{not} identical to the one that has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig with the goal of obtaining a PhD (Dr.~rer.~nat.).
-    \end{minipage}
+%         This version of the thesis is \textbf{not} identical to the one that has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig with the goal of obtaining a PhD (Dr.~rer.~nat.).
+%     \end{minipage}
 
-    \vspace*{6\baselineskip}%
+%     \vspace*{6\baselineskip}%
 
-    2022
+%     2022
 
-\end{center}%
+% \end{center}%
 
-\newpage%
-}%
+% \newpage%
+% }%
 
 %\=================================================
 
