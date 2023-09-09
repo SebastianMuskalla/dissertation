@@ -34,37 +34,37 @@
 \addbibresource{other.bib}
 \addbibresource{my.bib}
 
-
 \begin{document}
+
 
 \maketitle%
 
-\emptysheet%
+% \emptysheet%
+
+%\=================================================
+
+{%
+\ifshowtoc%
+% do only display parts and chapters in the main TOC, not sections and lower
+\setcounter{tocdepth}{\chaptertocdepth}
+%
+\tableofcontents%
+% dirty hacks
+\addtocontents{toc}{\protect\enlargethispage{3\baselineskip}}
+%
+\vspace*{0.5em}
+\noindent%
+The title page of each part provides a table of contents listing the sections within each chapter.
+% in the sub TOCs, display sections
+\setcounter{tocdepth}{\sectiontocdepth}
+\fi
+}%
 
 %\=================================================
 
 \subfile{content/intro/abstract_en}
 
 \subfile{content/intro/abstract_de}
-
-%\=================================================
-
-{%
-    \ifshowtoc%
-        % do only display parts and chapters in the main TOC, not sections and lower
-        \setcounter{tocdepth}{\chaptertocdepth}
-        %
-        \tableofcontents%
-        % dirty hacks
-        \addtocontents{toc}{\protect\enlargethispage{3\baselineskip}}
-        %
-        \vspace*{0.5em}
-        \noindent%
-        The title page of each part provides a table of contents listing the sections within each chapter.
-        % in the sub TOCs, display sections
-        \setcounter{tocdepth}{\sectiontocdepth}
-    \fi
-}%
 
 %\=================================================
 
