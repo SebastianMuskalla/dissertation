@@ -5,25 +5,32 @@ Certificates for automata in a hostile environment
 
 **Author: Sebastian Muskalla**
 
-This thesis has been submitted in August 2022 and defended in May 2023.
-The publication is pending.
+This thesis has been approved by the Carl-Friedrich-Gauß-Fakultät of the TU Braunschweig for obtaining a PhD (*Dr. rer. nat.*).
+It has been submitted in August 2022, defended in May 2023, and published in January 2024.
+
 
 Dissertation
 ------------
 
+Approved & published version:
+
 [Dissertation (.pdf)](Diss_Muskalla_Sebastian.pdf)
 
-A version of this thesis has been submitted to the Carl-Friedrich-Gauß-Fakultät of the Technische Universität Braunschweig in August 2022 with the goal of obtaining a PhD (Dr. rer. nat.) and been approved by the reviewers.
-However, this version is **not** identical to the one that has been submitted for review.
+The thesis can also be accessed via the TU Braunschweig website:
+
+[Dissertation @ TU Braunschweig (.pdf)](https://publikationsserver.tu-braunschweig.de/receive/dbbs_mods_00075933)
+
 
 Defense
 -------
+
+
+The slides which I used for a 45-minute talk that was part of the defense in May 2023:
 
 [Defense - Slides (.pdf)](Defense_Muskalla_Sebastian.pdf)
 
 [Defense - Slides with reduced animations (.pdf)](Defense_Muskalla_Sebastian_reduced_animations.pdf)
 
-These are the slides which I used for a 45-minute talk that was part of the defense in May 2023.
 
 Compilation instructions
 ------------------------
@@ -39,4 +46,4 @@ Compilation requires the following fonts to be installed on your system:
 * Source Code Pro (SIL Open Font License, https://github.com/adobe-fonts/source-code-pro)
 * Source Sans 3 (SIL Open Font License, https://github.com/adobe-fonts/source-sans)
 
-Compilation requires the `MyriadPro.sty` LaTeX package that can be generated from the Myriad Pro `.otf` files using FontPro (https://github.com/sebschub/FontPro), see https://github.com/sebschub/FontPro/issues/70 for installation instructions.
+Compilation requires the `MyriadPro.sty` LaTeX package that can be generated from the Myriad Pro `.otf` files using [FontPro](https://github.com/sebschub/FontPro), see [FontPro Issue 70](https://github.com/sebschub/FontPro/issues/70) for installation instructions.
